@@ -25,7 +25,7 @@
     const free=Math.max(0,MAX_FREE-d.used),extra=Math.max(0,d.extra);
     return {used:d.used,extra,free,total:free+extra,locked:d.until>now,until:d.until};
   }
-  function successChance(id){if(id!=='косой')return 1;return Math.min(.50,.20+getRep(id)*.05)}
+  function successChance(id){if(id!=='косой')return 1;return Math.min(.70,.35+getRep(id)*.05)}
   function cooldownText(until){const left=Math.max(0,until-Date.now()),m=Math.ceil(left/60000),sec=Math.ceil((left%60000)/1000);return m>1?m+' мин':sec+' сек'}
   function card(id,n){
     const st=state(id),r=getRep(id),lv=level(id),chance=successChance(id),unavailable=!unlocked(id);
