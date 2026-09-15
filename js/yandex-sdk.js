@@ -9,7 +9,7 @@
   function snapshot(){const out={};try{const s=localStorage.getItem(SAVE_KEY);if(s)out.gameSave=JSON.parse(s);}catch(e){}try{const h=localStorage.getItem(HEALTH_KEY);if(h)out.healthSave=JSON.parse(h);}catch(e){}return Object.keys(out).length?out:null;}
   function queueCloudSave(flush){if(!player||!cloudReady)return;const data=snapshot();if(!data)return;pendingData=data;clearTimeout(saveTimer);if(flush)flushCloudSave(true);else saveTimer=setTimeout(()=>flushCloudSave(false),2000);}
   function flushCloudSave(force){clearTimeout(saveTimer);saveTimer=null;if(!player||!cloudReady||!pendingData)return;const data=pendingData;pendingData=null;player.setData(data,!!force).catch(function(err){pendingData=data;log('cloud save failed',err);});}
-  function signalLoadingReady(){try{if(ysdk?.features?.LoadingAPI?.ready)ysdk.features.LoadingAPI.ready();}catch(e){log('loading ready failed',e);}}
+  function saveTime(obj){if(!obj||typeof obj!=='object')return 0;const t=Number(obj.saveUpdatedAt);return Number.isFinite(t)&&t>0?t:Number(obj.lastEnergyTime)||0;}
   async function init(){
     if(!window.YaGames){log('SDK loader unavailable; local save remains active.');return;}
     try{
@@ -20,15 +20,15 @@
           const cloud=await player.getData(['gameSave','healthSave']);
           const localGameRaw=localStorage.getItem(SAVE_KEY),localHealthRaw=localStorage.getItem(HEALTH_KEY);
           let useCloudGame=false,useCloudHealth=false;
-          if(cloud?.gameSave){if(!localGameRaw)useCloudGame=true;else{try{const l=JSON.parse(localGameRaw),c=cloud.gameSave;useCloudGame=Number(c.lastEnergyTime||0)>Number(l.lastEnergyTime||0);}catch(e){useCloudGame=true;}}}
-          if(cloud?.healthSave){if(!localHealthRaw)useCloudHealth=true;else{try{const l=JSON.parse(localHealthRaw),c=cloud.healthSave;useCloudHealth=Number(c.updatedAt||0)>Number(l.updatedAt||0);}catch(e){useCloudHealth=true;}}}
+          if(cloud?.gameSave){if(!localGameRaw)useCloudGame=true;else{try{useCloudGame=saveTime(cloud.gameSave)>saveTime(JSON.parse(localGameRaw));}catch(e){useCloudGame=true;}}}
+          if(cloud?.healthSave){if(!localHealthRaw)useCloudHealth=true;else{try{useCloudHealth=Number(cloud.healthSave.updatedAt||0)>Number(JSON.parse(localHealthRaw).updatedAt||0);}catch(e){useCloudHealth=true;}}}
           if(useCloudGame)localStorage.setItem(SAVE_KEY,JSON.stringify(cloud.gameSave));
           if(useCloudHealth)localStorage.setItem(HEALTH_KEY,JSON.stringify(cloud.healthSave));
           cloudReady=true;queueCloudSave(false);
         }catch(e){log('cloud load failed',e);}
       }
       if(ysdk.on){ysdk.on('game_api_pause',function(){gameplayStop();flushCloudSave(true);});ysdk.on('game_api_resume',function(){gameplayStart();});}
-      gameplayStart();signalLoadingReady();log('initialized');
+      gameplayStart();log('initialized');
     }catch(e){log('init failed',e);}
   }
   window.YandexGameReady=init();
