@@ -21,14 +21,13 @@
   function newJailSession(s){return Number(s.jailed)&&!localStorage.getItem(KEY+'_active')}
   function enterJailEffects(s){
     localStorage.setItem(KEY+'_active','1');
-    const original=Math.max(0,Number(s.confiscatedCigarettes||s.cigarettes||0));
-    s.confiscatedCigarettes=Math.floor(original*0.5);
-    s.cigarettes=0;
+    // Сигареты НЕ уменьшаются при входе в карцер. game.js временно переносит их в confiscatedCigarettes и вернёт при выходе.
+    // В карцере платёжные события уменьшают именно confiscatedCigarettes.
     const h=Number.isFinite(Number(s.health))?Number(s.health):MAX;
     s.health=Math.max(0,Math.round(h*0.5));
     s.__healthJailEvents=[];
     write(s);
-    msg('🔒 Карцер: изъята половина сигарет, здоровье уменьшилось вдвое — '+s.health+'%.');
+    msg('🔒 Карцер: здоровье уменьшилось вдвое — '+s.health+'%. Сигареты сохранены.');
     if(s.health<=0){gameOver();return}
   }
   function clearJailSession(){localStorage.removeItem(KEY+'_active');localStorage.removeItem(KEY+'_event_count')}
