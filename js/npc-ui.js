@@ -7,7 +7,7 @@
     косой:{name:'Косой',icon:'😏',desc:'решала',rank:2,action:'Рискнуть',reward:'шанс на +100 🚬 +40 ⭐'},
     смотрящий:{name:'Смотрящий',icon:'👑',desc:'старший',rank:3,action:'Получить совет',reward:'цель по масти'}
   };
-  const RANKS=['Салага','Пацан','Блатной','Смотрящий','Авторитет','Вор в законе'];
+  const RANKS=['Лох','Мужик','Блатной','Смотрящий','Авторитет','Вор в законе'];
   const REPKEY='avtoritet_npc_rep_v2',USEKEY='avtoritet_npc_uses_v2',INTKEY='avtoritet_npc_interactions_v2_';
   const COOLDOWN=30*60*1000,MAX_FREE=2,AD_BONUS=2;
   let rep={},uses={};
