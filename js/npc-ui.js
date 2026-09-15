@@ -49,6 +49,12 @@
     if(typeof window.npcMenu!=='function')return;window.npcMenu();
     setTimeout(()=>{const c=$('modal-content');if(!c)return;c.innerHTML='<h2>'+n.icon+' '+n.name+'</h2>'+card(id,n)+'<button type="button" id="npc-back" style="width:100%;margin-top:6px">← Назад в общак</button>';const b=c.querySelector('[data-custom-npc]');if(b)b.onclick=()=>useNpc(id);const back=$('npc-back');if(back)back.onclick=render},20);
   }
+  function showNpcResult(id,text){
+    const n=NPCS[id],c=$('modal-content');if(!c)return;
+    const st=state(id);
+    c.innerHTML='<h2>'+n.icon+' '+n.name+'</h2><div style="padding:18px 10px;text-align:center"><div style="font-size:34px;margin-bottom:10px">'+(text.includes('провал')||text.includes('пострадал')?'❌':'✅')+'</div><p style="font-size:18px;margin:0 0 14px"><b>'+text+'</b></p><small>Осталось обращений: '+st.total+'</small></div><button type="button" id="npc-back" style="width:100%;margin-top:6px">← К НПС</button>';
+    const back=$('npc-back');if(back)back.onclick=()=>openNpc(id);
+  }
   function useNpc(id){
     const n=NPCS[id];if(!n||!unlocked(id))return;const st=state(id);
     if(st.locked){msgLocal('⏳ '+n.name+' отшил тебя. Ещё '+cooldownText(st.until)+'.');return}
@@ -58,12 +64,15 @@
     else if(d.extra>0)d.extra--;
     if(d.used>=MAX_FREE&&d.extra<=0)d.until=Date.now()+COOLDOWN;
     uses[id]=d;save();
-    const oldRandom=Math.random;
+    const oldRandom=Math.random,oldMsg=window.msg;
+    let result='';
     if(id==='косой'){const p=successChance(id);Math.random=()=>oldRandom()<p?0:.55}
-    try{window.npcMenu();const real=document.querySelector('[data-npc="'+id+'"]');if(real)real.click()}finally{Math.random=oldRandom}
+    if(typeof oldMsg==='function')window.msg=x=>{result=String(x)};
+    try{window.npcMenu();const real=document.querySelector('[data-npc="'+id+'"]');if(real)real.click()}finally{Math.random=oldRandom;if(typeof oldMsg==='function')window.msg=oldMsg}
+    if(!result)result='🤝 '+n.name+' закончил разговор.';
     const key=INTKEY+id;let count=0;try{count=Number(localStorage.getItem(key)||'0')+1;localStorage.setItem(key,String(count))}catch(e){count=1}
-    if(count%3===0){rep[id]=getRep(id)+1;save();setTimeout(()=>msgLocal('🤝 '+n.name+' стал доверять тебе чуть больше. Доверие: '+rep[id]),40)}
-    setTimeout(()=>openNpc(id),80);
+    if(count%3===0){rep[id]=getRep(id)+1;save();result+=' · 🤝 Доверие выросло: '+rep[id]}
+    showNpcResult(id,result);
   }
   function offerAd(id){
     const n=NPCS[id],c=$('modal-content');if(!c)return;
@@ -71,7 +80,7 @@
     $('npc-ad').onclick=()=>{if(typeof window.showRewardedAd==='function')window.showRewardedAd(()=>grantAd(id));else msgLocal('📺 Реклама пока не подключена. После подключения rewarded-рекламы здесь будут выдаваться 2 обращения.')};
     $('npc-ad-back').onclick=()=>openNpc(id);
   }
-  function grantAd(id){const d=data(id);d.extra=(d.extra||0)+AD_BONUS;uses[id]=d;save();msgLocal('🎁 '+NPCS[id].name+': +2 обращения получены за рекламу.');openNpc(id)}
+  function grantAd(id){const d=data(id);d.extra=(d.extra||0)+AD_BONUS;uses[id]=d;save();showNpcResult(id,'🎁 '+NPCS[id].name+': +2 обращения получены за рекламу.');}
   function msgLocal(x){if(typeof window.msg==='function')window.msg(x);else alert(x)}
   function hideNameButton(){const c=$('modal-content');if(!c)return;c.querySelectorAll('#name-btn').forEach(x=>x.remove());[...c.querySelectorAll('*')].forEach(x=>{if(x.children.length===0&&/сменить имя/i.test(x.textContent||''))x.remove()})}
   function init(){const o=$('modal-overlay');if(!o)return;new MutationObserver(()=>{hideNameButton();render()}).observe(o,{childList:true,subtree:true,characterData:true});document.addEventListener('click',e=>{if(e.target.closest('#btn-more'))setTimeout(render,20)})}
