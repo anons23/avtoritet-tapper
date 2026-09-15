@@ -1,11 +1,12 @@
 'use strict';
 (function(){
   const scripts=[
+    './js/input-guard.js?v=1.0',
     './js/game.js?v=4.1',
     './js/shop-ui.js?v=2.0',
     './js/name-ui.js?v=2.0',
     './js/prison-ui.js?v=2.0',
-    './js/rank-ui.js?v=2.0',
+    './js/rank-ui.js?v=2.1',
     './js/npc-ui.js?v=2.0',
     './js/health-ui.js?v=3.0',
     './js/stories-ui-v2.js?v=2.0'
@@ -37,5 +38,5 @@
     if(event.target.closest('#game-container'))event.preventDefault();
   },{passive:false});
 
-  Promise.resolve(window.YandexGameReady).catch(function(){}) .then(function(){loadNext(0);});
+  Promise.resolve(window.YandexGameReady).catch(function(){}).then(function(){loadNext(0);});
 })();
