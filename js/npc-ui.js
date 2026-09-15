@@ -47,12 +47,12 @@
     const n=NPCS[id];if(!n)return;
     if(!unlocked(id)){msgLocal('🔒 '+n.name+' пока не для твоей масти. Нужна масть «'+RANKS[n.rank]+'».');return}
     if(typeof window.npcMenu!=='function')return;window.npcMenu();
-    setTimeout(()=>{const c=$('modal-content');if(!c)return;c.innerHTML='<h2>'+n.icon+' '+n.name+'</h2>'+card(id,n)+'<button type="button" id="npc-back" style="width:100%;margin-top:6px">← Назад в общак</button>';const b=c.querySelector('[data-custom-npc]');if(b)b.onclick=()=>useNpc(id);const back=$('npc-back');if(back)back.onclick=render},20);
+    setTimeout(()=>{const c=$('modal-content');if(!c)return;c.innerHTML='<h2>'+n.icon+' '+n.name+'</h2>'+card(id,n)+'<button type="button" id="npc-back" style="width:100%;margin-top:6px">Вернуться к бродягам</button>';const b=c.querySelector('[data-custom-npc]');if(b)b.onclick=()=>useNpc(id);const back=$('npc-back');if(back)back.onclick=render},20);
   }
   function showNpcResult(id,text){
     const n=NPCS[id],c=$('modal-content');if(!c)return;
     const st=state(id);
-    c.innerHTML='<h2>'+n.icon+' '+n.name+'</h2><div style="padding:18px 10px;text-align:center"><div style="font-size:34px;margin-bottom:10px">'+(text.includes('провал')||text.includes('пострадал')?'❌':'✅')+'</div><p style="font-size:18px;margin:0 0 14px"><b>'+text+'</b></p><small>Осталось обращений: '+st.total+'</small></div><button type="button" id="npc-back" style="width:100%;margin-top:6px">← К НПС</button>';
+    c.innerHTML='<h2>'+n.icon+' '+n.name+'</h2><div style="padding:18px 10px;text-align:center"><div style="font-size:34px;margin-bottom:10px">'+(text.includes('провал')||text.includes('пострадал')?'❌':'✅')+'</div><p style="font-size:18px;margin:0 0 14px"><b>'+text+'</b></p><small>Осталось обращений: '+st.total+'</small></div><button type="button" id="npc-back" style="width:100%;margin-top:6px">Вернуться к бродягам</button>';
     const back=$('npc-back');if(back)back.onclick=()=>openNpc(id);
   }
   function useNpc(id){
@@ -76,7 +76,7 @@
   }
   function offerAd(id){
     const n=NPCS[id],c=$('modal-content');if(!c)return;
-    c.innerHTML='<h2>🎬 Ещё два дела</h2><p>'+n.icon+' '+n.name+' сейчас недоступен.</p><p>Посмотри рекламу и получи ещё <b>2 обращения</b> к '+n.name+'.</p><button type="button" id="npc-ad" style="width:100%;padding:13px">🎬 Посмотреть рекламу → +2 обращения</button><button type="button" id="npc-ad-back" style="width:100%;margin-top:7px">← Назад</button>';
+    c.innerHTML='<h2>🎬 Ещё два дела</h2><p>'+n.icon+' '+n.name+' сейчас недоступен.</p><p>Посмотри рекламу и получи ещё <b>2 обращения</b> к '+n.name+'.</p><button type="button" id="npc-ad" style="width:100%;padding:13px">🎬 Посмотреть рекламу → +2 обращения</button><button type="button" id="npc-ad-back" style="width:100%;margin-top:7px">Вернуться к бродягам</button>';
     $('npc-ad').onclick=()=>{if(typeof window.showRewardedAd==='function')window.showRewardedAd(()=>grantAd(id));else msgLocal('📺 Реклама пока не подключена. После подключения rewarded-рекламы здесь будут выдаваться 2 обращения.')};
     $('npc-ad-back').onclick=()=>openNpc(id);
   }
