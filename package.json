@@ -1,0 +1,12 @@
+{
+  "name": "avtoritet-tapper-preview",
+  "private": true,
+  "version": "1.0.0",
+  "scripts": {
+    "dev": "vite --host 0.0.0.0",
+    "start": "vite --host 0.0.0.0"
+  },
+  "devDependencies": {
+    "vite": "latest"
+  }
+}
