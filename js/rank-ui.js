@@ -2,30 +2,11 @@
 (function(){
   const THRESHOLDS=[0,100,500,2000,8000,25000];
   const NAMES=['Салага','Пацан','Блатной','Смотрящий','Авторитет','Вор в законе'];
-  const DESCS=[
-    'Новенький. Пока только осваиваешься и смотришь, как тут всё устроено.',
-    'Освоился. Уже знаешь местные порядки и можешь постоять за себя.',
-    'Есть слово и вес. К тебе начинают прислушиваться.',
-    'Следишь за порядком и решаешь вопросы на своём уровне.',
-    'Большая шишка. Твои решения уже влияют на общак и расклад.',
-    'Высшая игровая ступень. Здесь уже не суетятся — здесь решают.'
-  ];
-  function points(){
-    const text=String(document.getElementById('points')?.textContent||'0').trim().replace(/\s/g,'');
-    const n=parseFloat(text.replace(/[^0-9.,KM]/gi,'').replace(',','.'))||0;
-    if(/M$/i.test(text))return n*1000000;
-    if(/K$/i.test(text))return n*1000;
-    return n;
-  }
-  function index(){const p=points();let i=0;for(let j=0;j<THRESHOLDS.length;j++)if(p>=THRESHOLDS[j])i=j;return i}
-  function apply(){const el=document.getElementById('rank');if(!el)return;const i=index();if(el.textContent!==NAMES[i])el.textContent=NAMES[i]}
-  function renderMenu(){const c=document.getElementById('modal-content');if(!c)return;const title=c.querySelector('h2');if(!title||!title.textContent.includes('Масть'))return;const i=index();let h='<h2>🏆 Масть</h2><p>Твоя текущая масть: <b>'+NAMES[i]+'</b></p><div style="display:flex;flex-direction:column;gap:7px">';NAMES.forEach((name,j)=>{const unlocked=i>=j;h+='<div style="padding:9px 10px;border-radius:9px;border:1px solid rgba(255,255,255,.10);opacity:'+(unlocked?'1':'.48')+'"><b>'+(unlocked?'✓ ':'🔒 ')+name+'</b><br><small>от '+THRESHOLDS[j].toLocaleString('ru-RU')+' ⭐ — '+DESCS[j]+'</small></div>'});h+='</div>';c.innerHTML=h}
-  function init(){
-    apply();
-    const p=document.getElementById('points');
-    if(p)new MutationObserver(()=>{apply();renderMenu()}).observe(p,{childList:true,characterData:true,subtree:true});
-    const o=document.getElementById('modal-overlay');
-    if(o)new MutationObserver(renderMenu).observe(o,{childList:true,subtree:true,characterData:true});
-  }
+  const DESCS=['Новенький. Пока только осваиваешься и смотришь, как тут всё устроено.','Освоился. Уже знаешь местные порядки и можешь постоять за себя.','Есть слово и вес. К тебе начинают прислушиваться.','Следишь за порядком и решаешь вопросы на своём уровне.','Большая шишка. Твои решения уже влияют на общак и расклад.','Высшая игровая ступень. Здесь уже не суетятся — здесь решают.'];
+  function points(){const text=String(document.getElementById('points')?.textContent||'0').trim().replace(/\s/g,'');const n=parseFloat(text.replace(/[^0-9.,KM]/gi,'').replace(',','.'))||0;if(/M$/i.test(text))return n*1000000;if(/K$/i.test(text))return n*1000;return n;}
+  function index(){const p=points();let i=0;for(let j=0;j<THRESHOLDS.length;j++)if(p>=THRESHOLDS[j])i=j;return i;}
+  function apply(){const el=document.getElementById('rank');if(!el)return;const i=index();if(el.textContent!==NAMES[i])el.textContent=NAMES[i];}
+  function renderMenu(){const c=document.getElementById('modal-content');if(!c)return;const title=c.querySelector('h2');if(!title||!title.textContent.includes('Масть')){c.removeAttribute('data-rank-rendered');return;}const i=index();if(c.dataset.rankRendered===String(i))return;c.dataset.rankRendered=String(i);let h='<h2>🏆 Масть</h2><p>Твоя текущая масть: <b>'+NAMES[i]+'</b></p><div style="display:flex;flex-direction:column;gap:7px">';NAMES.forEach((name,j)=>{const unlocked=i>=j;h+='<div style="padding:9px 10px;border-radius:9px;border:1px solid rgba(255,255,255,.10);opacity:'+(unlocked?'1':'.48')+'"><b>'+(unlocked?'✓ ':'🔒 ')+name+'</b><br><small>от '+THRESHOLDS[j].toLocaleString('ru-RU')+' ⭐ — '+DESCS[j]+'</small></div>';});h+='</div>';c.innerHTML=h;}
+  function init(){apply();const p=document.getElementById('points');if(p)new MutationObserver(function(){apply();renderMenu();}).observe(p,{childList:true,characterData:true,subtree:true});const o=document.getElementById('modal-overlay');if(o)new MutationObserver(renderMenu).observe(o,{childList:true,subtree:true,characterData:true});}
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});else init();
 })();
