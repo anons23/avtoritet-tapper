@@ -25,9 +25,14 @@ const OBJECTS = [
   { id: "pushups", name: "Отжимания", emoji: "💪", unlock: 400, mult: 1.6 }
 ];
 
-const EVENTS = [
+// Просто смешные фразы (без выбора)
+const FUNNY_MESSAGES = [
   "Надзиратель идёт... сделай умный вид.",
   "Кореш передал маляву: «Не высовывайся».",
+  "Кореш передал маляву: «Сегодня каша нормальная».",
+  "Кореш передал маляву: «В бане сегодня свободно».",
+  "Кореш передал маляву: «Не бери в долг у Шайбы».",
+  "Кореш передал маляву: «Завтра шмон, прячь всё».",
   "Кто-то опять спиздил папиросы. Классика.",
   "Тебя вызвали на стрелку. Пока лучше не ходить.",
   "В камере пахнет жареной картошкой. Странно.",
@@ -35,7 +40,145 @@ const EVENTS = [
   "Сегодня без шмона. Чудо.",
   "Кто-то храпит как трактор.",
   "Ты случайно задел смотрящего. Неловко.",
-  "Папиросы закончились у всех. Напряжёнка."
+  "Папиросы закончились у всех. Напряжёнка.",
+  "Сокамерник роняет мыло... Ту-ту-ту.",
+  "Мыло упало. Все сделали вид, что ничего не видели.",
+  "В душе снова кончилось жидкое мыло. Саботаж.",
+  "Кто-то намылил пол. Классика жанра.",
+  "Сокамерник предлагает «по-братски» поделиться мылом.",
+  "Ты нашёл под матрасом чужую маляву. Интересно...",
+  "В столовой сегодня мясо. Или что-то похожее.",
+  "Надзиратель шутит. Все смеются. На всякий случай.",
+  "Кто-то пытается продать тебе «настоящий» чай.",
+  "В камере появился новый. Пахнет страхом и дешёвым одеколоном.",
+  "Ты услышал, как где-то играют на гитаре «Владимирский централ».",
+  "Сокамерник снова рассказывает одну и ту же байку.",
+  "Кто-то пытается завести крысу. В прямом смысле.",
+  "Сегодня раздача посылок. Надежда умирает последней."
+];
+
+// Интерактивные события с выбором
+const CHOICE_EVENTS = [
+  {
+    title: "Шмон!",
+    text: "Надзиратели ворвались в камеру. Что делаешь?",
+    choices: [
+      {
+        text: "Рисковать и спрятать папиросы",
+        risk: 0.55,
+        success: { cigarettes: 40, points: 15, msg: "Пронесло! Папиросы целы, ещё и нашёл чужие." },
+        fail: { points: -25, msg: "Попался. Забрали папиросы и сняли понты." }
+      },
+      {
+        text: "Спокойно стоять и ждать",
+        risk: 0,
+        success: { cigarettes: 10, points: 5, msg: "Прошли мимо. Даже дали сигарету «за поведение»." },
+        fail: null
+      },
+      {
+        text: "Сделать вид, что спишь",
+        risk: 0.25,
+        success: { cigarettes: 5, points: 8, msg: "Сработало. Тебя не тронули." },
+        fail: { points: -10, msg: "Разбудили пинком. Минус авторитет." }
+      }
+    ]
+  },
+  {
+    title: "Малява",
+    text: "Тебе передали маляву. Что в ней?",
+    choices: [
+      {
+        text: "Прочитать сразу",
+        risk: 0.4,
+        success: { cigarettes: 30, points: 20, msg: "Полезный совет и пачка папирос в придачу!" },
+        fail: { points: -15, msg: "Это была подстава. Минус понты." }
+      },
+      {
+        text: "Спрятать и прочитать потом",
+        risk: 0.15,
+        success: { cigarettes: 15, points: 10, msg: "Умно. Инфа оказалась полезной." },
+        fail: { points: -5, msg: "Маляву нашли при шмоне. Неловко." }
+      },
+      {
+        text: "Выбросить не читая",
+        risk: 0,
+        success: { points: 3, msg: "Безопасно. Но вдруг там было что-то важное..." },
+        fail: null
+      }
+    ]
+  },
+  {
+    title: "Мыло",
+    text: "В душевой кто-то уронил мыло. Все смотрят на тебя.",
+    choices: [
+      {
+        text: "Поднять и отдать",
+        risk: 0.3,
+        success: { points: 25, cigarettes: 10, msg: "Все уважительно кивнули. +авторитет." },
+        fail: { points: -20, msg: "Кто-то ржал. Минус понты. Ту-ту-ту." }
+      },
+      {
+        text: "Сделать вид, что не заметил",
+        risk: 0,
+        success: { points: 5, msg: "Классика. Все сделали вид, что ничего не было." },
+        fail: null
+      },
+      {
+        text: "Громко пошутить на эту тему",
+        risk: 0.5,
+        success: { cigarettes: 25, points: 15, msg: "Все поржали. Ты свой." },
+        fail: { points: -30, msg: "Шутка не зашла. Напряжёнка." }
+      }
+    ]
+  },
+  {
+    title: "Стрелка",
+    text: "Тебя вызывают «поговорить». Что ответишь?",
+    choices: [
+      {
+        text: "Пойти и выяснить",
+        risk: 0.5,
+        success: { cigarettes: 50, points: 30, msg: "Всё решили по-пацански. Уважуха." },
+        fail: { points: -40, msg: "Получил по щам. Минус авторитет." }
+      },
+      {
+        text: "Сказать, что занят",
+        risk: 0.2,
+        success: { points: 10, msg: "Отложилось. Пока тихо." },
+        fail: { points: -15, msg: "Посчитали за труса." }
+      },
+      {
+        text: "Послать надёжного кореша",
+        risk: 0.35,
+        success: { cigarettes: 20, points: 15, msg: "Кореш разобрался. Ты в плюсе." },
+        fail: { points: -20, msg: "Кореш подвёл. Теперь проблемы у тебя." }
+      }
+    ]
+  },
+  {
+    title: "Посылка",
+    text: "Пришла посылка, но непонятно чья. Что делаешь?",
+    choices: [
+      {
+        text: "Забрать себе",
+        risk: 0.6,
+        success: { cigarettes: 60, points: 10, msg: "Джекпот! Папиросы, чай и печенье." },
+        fail: { points: -35, cigarettes: -20, msg: "Хозяин нашёлся. Пришлось возвращать с извинениями." }
+      },
+      {
+        text: "Отдать смотрящему",
+        risk: 0,
+        success: { points: 20, msg: "Правильный ход. Засчитали как уважение." },
+        fail: null
+      },
+      {
+        text: "Оставить на месте",
+        risk: 0.1,
+        success: { points: 5, msg: "Никто не тронул. Чисто." },
+        fail: { points: -5, msg: "Всё равно кто-то решил, что это ты взял." }
+      }
+    ]
+  }
 ];
 
 // Состояние игры
@@ -53,7 +196,8 @@ let state = {
     crit: 0,
     energyMax: 0
   },
-  lastEnergyTime: Date.now()
+  lastEnergyTime: Date.now(),
+  lastChoiceEvent: 0
 };
 
 // ----- Сохранение / загрузка -----
@@ -72,7 +216,6 @@ function load() {
   if (!state.nickname) {
     state.nickname = NICKNAMES[Math.floor(Math.random() * NICKNAMES.length)];
   }
-  // На случай старых сохранений
   if (state.maxEnergy < 250) {
     state.maxEnergy = 250;
     state.energy = Math.max(state.energy, 250);
@@ -104,7 +247,7 @@ function updateUI() {
 function formatNumber(n) {
   if (n >= 1e6) return (n / 1e6).toFixed(1) + "M";
   if (n >= 1e3) return (n / 1e3).toFixed(1) + "K";
-  return n.toString();
+  return Math.floor(n).toString();
 }
 
 // ----- Тап -----
@@ -134,9 +277,14 @@ function doTap(e) {
   updateUI();
   save();
 
-  // Реже события (было 8%, стало 2.5%)
-  if (Math.random() < 0.025) {
-    showMessage(EVENTS[Math.floor(Math.random() * EVENTS.length)]);
+  // Обычные смешные фразы (редко)
+  if (Math.random() < 0.022) {
+    showMessage(FUNNY_MESSAGES[Math.floor(Math.random() * FUNNY_MESSAGES.length)]);
+  }
+
+  // Интерактивные события (ещё реже + не чаще чем раз в 40 тапов)
+  if (Math.random() < 0.012 && state.points - state.lastChoiceEvent > 30) {
+    triggerChoiceEvent();
   }
 }
 
@@ -154,14 +302,104 @@ function showMessage(text) {
   el.textContent = text;
   setTimeout(() => {
     if (el.textContent === text) el.textContent = "";
-  }, 4000);
+  }, 4500);
+}
+
+// ----- Интерактивные события -----
+function triggerChoiceEvent() {
+  const event = CHOICE_EVENTS[Math.floor(Math.random() * CHOICE_EVENTS.length)];
+  state.lastChoiceEvent = state.points;
+
+  const content = document.getElementById("modal-content");
+  content.innerHTML = "";
+
+  const title = document.createElement("h2");
+  title.textContent = event.title;
+  content.appendChild(title);
+
+  const text = document.createElement("p");
+  text.style.margin = "12px 0 20px";
+  text.style.lineHeight = "1.4";
+  text.textContent = event.text;
+  content.appendChild(text);
+
+  event.choices.forEach((choice, idx) => {
+    const btn = document.createElement("button");
+    btn.className = "nav-btn";
+    btn.style.marginBottom = "10px";
+    btn.style.width = "100%";
+    btn.textContent = choice.text;
+
+    btn.onclick = () => {
+      resolveChoice(choice);
+    };
+
+    content.appendChild(btn);
+  });
+
+  // Прячем крестик на время события
+  document.getElementById("modal-close").style.display = "none";
+  showModal();
+}
+
+function resolveChoice(choice) {
+  document.getElementById("modal-close").style.display = "";
+
+  let result;
+  if (choice.risk === 0 || Math.random() > choice.risk) {
+    // Успех
+    result = choice.success;
+  } else {
+    // Провал
+    result = choice.fail;
+  }
+
+  if (!result) result = { msg: "Ничего не произошло." };
+
+  if (result.cigarettes) state.cigarettes = Math.max(0, state.cigarettes + result.cigarettes);
+  if (result.points) state.points = Math.max(0, state.points + result.points);
+
+  updateUI();
+  save();
+
+  // Показываем результат
+  const content = document.getElementById("modal-content");
+  content.innerHTML = "";
+
+  const title = document.createElement("h2");
+  title.textContent = result.points > 0 || result.cigarettes > 0 ? "Удачно!" : "Эх...";
+  content.appendChild(title);
+
+  const msg = document.createElement("p");
+  msg.style.margin = "16px 0";
+  msg.style.lineHeight = "1.4";
+  msg.textContent = result.msg;
+  content.appendChild(msg);
+
+  if (result.cigarettes || result.points) {
+    const reward = document.createElement("p");
+    reward.style.color = "#ffcc00";
+    reward.style.fontWeight = "600";
+    let txt = "";
+    if (result.cigarettes) txt += (result.cigarettes > 0 ? "+" : "") + result.cigarettes + " 🚬  ";
+    if (result.points) txt += (result.points > 0 ? "+" : "") + result.points + " ⭐";
+    reward.textContent = txt;
+    content.appendChild(reward);
+  }
+
+  const okBtn = document.createElement("button");
+  okBtn.className = "nav-btn";
+  okBtn.style.width = "100%";
+  okBtn.style.marginTop = "16px";
+  okBtn.textContent = "Понятно";
+  okBtn.onclick = hideModal;
+  content.appendChild(okBtn);
 }
 
 // ----- Энергия -----
 function regenEnergy() {
   const now = Date.now();
   const diff = (now - state.lastEnergyTime) / 1000;
-  // 1 энергия каждые 4 секунды (быстрее)
   const regen = Math.floor(diff / 4);
   if (regen > 0) {
     state.energy = Math.min(state.maxEnergy, state.energy + regen);
@@ -174,7 +412,7 @@ function regenEnergy() {
 // ----- Магазин -----
 function openShop() {
   const content = document.getElementById("modal-content");
-  content.innerHTML = ""; // очищаем
+  content.innerHTML = "";
 
   const title = document.createElement("h2");
   title.textContent = "Магазин";
@@ -205,7 +443,7 @@ function openShop() {
       level: state.upgrades.energyMax,
       action: () => {
         state.maxEnergy += 50;
-        state.energy += 50; // сразу даём текущую энергию
+        state.energy += 50;
         state.upgrades.energyMax++;
       }
     }
@@ -245,7 +483,6 @@ function openShop() {
     content.appendChild(div);
   });
 
-  // Заголовок занятий
   const activitiesTitle = document.createElement("h2");
   activitiesTitle.style.marginTop = "20px";
   activitiesTitle.textContent = "Занятия";
@@ -337,6 +574,7 @@ function showModal() {
 }
 function hideModal() {
   document.getElementById("modal-overlay").classList.add("hidden");
+  document.getElementById("modal-close").style.display = "";
 }
 
 // ----- Инициализация -----
