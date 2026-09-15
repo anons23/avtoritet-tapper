@@ -7,8 +7,8 @@
   function gameplayStart(){try{if(ysdk?.features?.GameplayAPI?.start)ysdk.features.GameplayAPI.start();}catch(e){log('gameplay start failed',e);}}
   function gameplayStop(){try{if(ysdk?.features?.GameplayAPI?.stop)ysdk.features.GameplayAPI.stop();}catch(e){log('gameplay stop failed',e);}}
   function snapshot(){const out={};try{const s=localStorage.getItem(SAVE_KEY);if(s)out.gameSave=JSON.parse(s);}catch(e){}try{const h=localStorage.getItem(HEALTH_KEY);if(h)out.healthSave=JSON.parse(h);}catch(e){}return Object.keys(out).length?out:null;}
-  function queueCloudSave(flush){if(!player||!cloudReady)return;const data=snapshot();if(!data)return;pendingData=data;clearTimeout(saveTimer);if(flush)flushCloudSave();else saveTimer=setTimeout(flushCloudSave,2000);}
-  function flushCloudSave(){clearTimeout(saveTimer);saveTimer=null;if(!player||!cloudReady||!pendingData)return;const data=pendingData;pendingData=null;player.setData(data,false).catch(function(err){pendingData=data;log('cloud save failed',err);});}
+  function queueCloudSave(flush){if(!player||!cloudReady)return;const data=snapshot();if(!data)return;pendingData=data;clearTimeout(saveTimer);if(flush)flushCloudSave(true);else saveTimer=setTimeout(()=>flushCloudSave(false),2000);}
+  function flushCloudSave(force){clearTimeout(saveTimer);saveTimer=null;if(!player||!cloudReady||!pendingData)return;const data=pendingData;pendingData=null;player.setData(data,!!force).catch(function(err){pendingData=data;log('cloud save failed',err);});}
   function signalLoadingReady(){try{if(ysdk?.features?.LoadingAPI?.ready)ysdk.features.LoadingAPI.ready();}catch(e){log('loading ready failed',e);}}
   async function init(){
     if(!window.YaGames){log('SDK loader unavailable; local save remains active.');return;}
@@ -27,7 +27,7 @@
           cloudReady=true;queueCloudSave(false);
         }catch(e){log('cloud load failed',e);}
       }
-      if(ysdk.on){ysdk.on('game_api_pause',function(){gameplayStop();flushCloudSave();});ysdk.on('game_api_resume',function(){gameplayStart();});}
+      if(ysdk.on){ysdk.on('game_api_pause',function(){gameplayStop();flushCloudSave(true);});ysdk.on('game_api_resume',function(){gameplayStart();});}
       gameplayStart();signalLoadingReady();log('initialized');
     }catch(e){log('init failed',e);}
   }
@@ -42,10 +42,10 @@
     try{ysdk.adv.showRewardedVideo({callbacks:{onRewarded:function(){reward(true);},onClose:done,onError:function(err){reward(false);done();log('rewarded ad error',err);}}});return true;}
     catch(e){reward(false);done();log('rewarded ad call failed',e);return false;}
   };
-  window.YandexGameBridge={getSDK:function(){return ysdk;},flushSave:flushCloudSave,showFullscreenAd:function(){
+  window.YandexGameBridge={getSDK:function(){return ysdk;},flushSave:function(){flushCloudSave(true);},showFullscreenAd:function(){
     if(adBusy||!ysdk?.adv||typeof ysdk.adv.showFullscreenAdv!=='function')return false;
     adBusy=true;gameplayStop();const done=function(){if(!adBusy)return;adBusy=false;gameplayStart();};
     try{ysdk.adv.showFullscreenAdv({callbacks:{onClose:done,onError:done}});return true;}catch(e){done();return false;}
   }};
-  window.addEventListener('pagehide',flushCloudSave);window.addEventListener('beforeunload',flushCloudSave);
+  window.addEventListener('pagehide',function(){flushCloudSave(true);});window.addEventListener('beforeunload',function(){flushCloudSave(true);});
 })();
