@@ -3,14 +3,13 @@
   const scripts=[
     './js/input-guard.js?v=1.0',
     './js/save-migration.js?v=1.0',
-    './js/game.js?v=4.1',
+    './js/game.js?v=4.2',
     './js/shop-ui.js?v=2.0',
-    './js/economy-guard.js?v=1.0',
     './js/name-ui.js?v=2.0',
     './js/prison-ui.js?v=2.0',
     './js/rank-ui.js?v=2.2',
-    './js/npc-ui.js?v=2.1',
-    './js/health-ui.js?v=3.2',
+    './js/npc-ui.js?v=2.2',
+    './js/health-ui.js?v=3.3',
     './js/stories-ui-v2.js?v=2.1'
   ];
   function markGameReady(){try{const sdk=window.ysdk;if(sdk&&sdk.features&&sdk.features.LoadingAPI&&typeof sdk.features.LoadingAPI.ready==='function')sdk.features.LoadingAPI.ready();}catch(e){console.debug('[Bootstrap] LoadingAPI.ready failed',e);}}
