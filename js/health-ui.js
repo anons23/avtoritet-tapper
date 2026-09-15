@@ -1,26 +1,191 @@
 'use strict';
 (function(){
-  const KEY='avtoritet_health_v2',SAVE_KEY='avtoritet_save_v2',MAX=100,PONT_COST=250,PONT_HEAL=10;
-  const RANKS=[0,100,500,2000,8000,25000],JAIL_THRESHOLDS=[60,250,420];
-  const $=id=>document.getElementById(id);let internalWrite=false,jailCigarettes=0;
-  function read(){try{return JSON.parse(localStorage.getItem(SAVE_KEY)||'{}')||{}}catch(e){return {}}}
-  function write(s){try{internalWrite=true;localStorage.setItem(SAVE_KEY,JSON.stringify(s));return true}catch(e){return false}finally{internalWrite=false}}
-  function health(){const s=read();let h=Number(s.health);if(!Number.isFinite(h))h=MAX;return Math.max(0,Math.min(MAX,h))}
-  function setHealth(h){const s=read();s.health=Math.max(0,Math.min(MAX,Math.round(h)));write(s);render();if(s.health<=0)gameOver()}
-  function healAd(){if(health()>=MAX){msg('❤️ Здоровье уже полностью восстановлено.');return}if(typeof window.showRewardedAd==='function')window.showRewardedAd(()=>setHealth(MAX));else msg('📺 Rewarded-реклама пока не подключена.')}
-  function healPoints(){const s=read(),h=Number.isFinite(Number(s.health))?Number(s.health):MAX;if(h>=MAX){msg('❤️ Здоровье уже полностью восстановлено.');return}if(Number(s.points||0)<PONT_COST){msg('⭐ Нужно '+PONT_COST+' понтов для восстановления '+PONT_HEAL+'% здоровья.');return}s.points-=PONT_COST;s.health=Math.min(MAX,h+PONT_HEAL);write(s);render();msg('🩹 За '+PONT_COST+' понтов восстановлено +'+PONT_HEAL+'% здоровья.')}
-  function gameOver(){const c=$('modal-content'),o=$('modal-overlay');if(!c||!o)return;o.dataset.locked='1';o.classList.remove('hidden');c.innerHTML='<h2>☠️ Срок окончен</h2><p>Здоровье закончилось. Авторитет потерян.</p><p>Придётся начинать с нуля.</p><button type="button" id="restart-game" style="width:100%;padding:13px">🔄 Начать сначала</button>';const b=$('restart-game');if(b)b.onclick=()=>{localStorage.removeItem(SAVE_KEY);localStorage.removeItem(KEY);location.reload()}}
-  function render(){let box=$('health-box');if(!box){const p=$('player-info');if(!p)return;box=document.createElement('div');box.id='health-box';p.insertBefore(box,p.firstChild)}const h=health(),pts=Number(read().points||0),status=h>=80?'Крепкий':h>=55?'В норме':h>=30?'Побитый':'На пределе',statusIcon=h>=80?'💪':h>=55?'🩹':h>=30?'⚠️':'🚨',canHeal=pts>=PONT_COST&&h<MAX;box.innerHTML='<div style="margin:6px 0 0;padding:7px 9px;border:1px solid rgba(255,255,255,.10);border-radius:11px;background:rgba(0,0,0,.14)"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px"><span style="font-weight:700;font-size:13px">❤️ Здоровье</span><span style="font-weight:800;font-size:13px">'+h+'%</span></div><div style="height:8px;background:rgba(255,255,255,.12);border-radius:99px;overflow:hidden"><div style="width:'+h+'%;height:100%;border-radius:99px;background:linear-gradient(90deg,#b51f2a,#e65b45 55%,#69c96b);transition:width .35s ease"></div></div><div style="display:flex;justify-content:space-between;margin-top:3px;font-size:10px;opacity:.72"><span>'+statusIcon+' '+status+'</span><span>макс. 100%</span></div><div style="margin-top:5px;font-size:10px;font-weight:700;opacity:.65">ВОССТАНОВЛЕНИЕ</div><div style="display:flex;gap:5px;margin-top:3px"><button type="button" id="health-ad" '+(h>=MAX?'disabled':'')+' style="flex:1;min-height:32px;padding:3px 5px;line-height:1;border-radius:8px;font-size:10px">🎬 <b>Восстановить</b><br><small>до 100%</small></button><button type="button" id="health-points" '+(canHeal?'':'disabled')+' style="flex:1;min-height:32px;padding:3px 5px;line-height:1;border-radius:8px;font-size:10px">⭐ <b>Восстановить</b><br><small>+10% · 250 ⭐</small></button></div></div>';const a=$('health-ad'),p=$('health-points');if(a)a.onclick=healAd;if(p)p.onclick=healPoints}
-  function normalEventDamage(){const before=health(),damage=5+Math.floor(Math.random()*6);setHealth(before-damage);msg('🥊 Негативное происшествие: -'+damage+'% здоровья.')}
-  function interceptNormalChoices(){document.addEventListener('click',e=>{const b=e.target.closest('.choice');if(!b)return;const i=Number(b.dataset.i)||0,risk=[.55,0,.25,.4,.15,.6,.1],p=risk[Math.min(risk.length-1,i)];if(p<=0)return;const first=Math.random(),fail=first<=p;if(!fail)return;const second=Math.random(),old=Math.random;let calls=0;Math.random=()=>calls++===0?first:second;setTimeout(()=>{Math.random=old;normalEventDamage()},0)},true)}
-  function rankOf(s){let i=0;for(let j=0;j<RANKS.length;j++)if(Number(s.points||0)>=RANKS[j])i=j;return i}
-  function refusalResult(s,label){const i=rankOf(s),noTrouble=Math.min(.85,.45+i*.08);if(Math.random()<noTrouble){s.points=Number(s.points||0)+5;s.respect=Number(s.respect||0)+1;write(s);msg('😏 '+label+': отказ прокатил. +5 ⭐ и +1 🧠 — понты на месте.');return}const d=5+Math.floor(Math.random()*6);s.health=Math.max(0,(Number(s.health)||0)-d);write(s);msg('🥊 '+label+': за отказ прилетело -'+d+'% здоровья.');if(s.health<=0)gameOver()}
-  function prisonEvents(){const s=read();if(!s.jailed||Number(s.health||0)<=0)return;const events=[{title:'🧹 Коридор',text:'Надзиратель требует вымыть пол. Можно сохранить достоинство, но рискнуть здоровьем.',a:'Вымыть',b:'Отказаться',c:'Подкупить',run:x=>{if(x===0){const i=rankOf(s);if(i>0)s.points=Math.max(0,RANKS[i]-1);write(s);msg('🧹 Вымыл пол. Понты просели до предыдущей масти.')}else if(x===1)refusalResult(s,'Коридор');else{const pay=Math.floor(Number(s.confiscatedCigarettes||0)*(.20+Math.random()*.11));s.confiscatedCigarettes=Math.max(0,Number(s.confiscatedCigarettes||0)-pay);write(s);msg('💸 Подкупил надзирателя. Отдано '+pay+' 🚬.')}}},{title:'🚽 Толчок',text:'Приказали отмыть туалет.',a:'Вымыть',b:'Отказаться',c:'Подкупить',run:x=>{if(x===0){const i=rankOf(s);if(i>0)s.points=Math.max(0,RANKS[i]-1);write(s);msg('🚽 Отмыл толчок. Понты просели до предыдущей масти.')}else if(x===1)refusalResult(s,'Толчок');else{const pay=Math.floor(Number(s.confiscatedCigarettes||0)*(.20+Math.random()*.11));s.confiscatedCigarettes=Math.max(0,Number(s.confiscatedCigarettes||0)-pay);write(s);msg('💸 Подкуп сработал. Отдано '+pay+' 🚬.')}}},{title:'🤐 Сокамерник',text:'Надзиратель предлагает настучать на сокамерника.',a:'Настучать',b:'Промолчать',c:'Перевести стрелки',run:x=>{if(x===0){s.points=Number(s.points||0)+10;s.respect=Math.max(0,Number(s.respect||0)-3);write(s);msg('🤐 +10 ⭐, но -3 🧠 уважения.')}else if(x===1)refusalResult(s,'Молчание');else if(Math.random()<.5){s.points=Math.max(0,Number(s.points||0)-15);write(s);msg('😬 Не прокатило. -15 ⭐.')}else{write(s);msg('😏 Перевёл стрелки и вышел сухим.')}}},{title:'📦 Чужая посылка',text:'В камере нашли чужую посылку и требуют назвать владельца.',a:'Взять вину',b:'Сдать владельца',c:'Молчать',run:x=>{if(x===0){s.points=Math.max(0,Number(s.points||0)-20);write(s);msg('📦 Взял вину на себя. -20 ⭐.')}else if(x===1){s.respect=Math.max(0,Number(s.respect||0)-5);s.points=Number(s.points||0)+15;write(s);msg('📦 Сдал владельца. +15 ⭐, но -5 🧠.')}else refusalResult(s,'Посылка')}}];const e=events[Math.floor(Math.random()*events.length)],o=$('modal-overlay'),c=$('modal-content');if(!o||!c)return;o.dataset.locked='1';o.classList.remove('hidden');c.innerHTML='<h2>'+e.title+'</h2><p>'+e.text+'</p><div class="choices"><button type="button" data-jc="0">'+e.a+'</button><button type="button" data-jc="1">'+e.b+'</button><button type="button" data-jc="2">'+e.c+'</button></div>';c.querySelectorAll('[data-jc]').forEach(b=>b.onclick=()=>{e.run(Number(b.dataset.jc));o.dataset.locked='0';o.classList.add('hidden');render();const x=read();if(Number(x.health||0)<=0)return;if(Number(x.jailed))setTimeout(prisonEvents,900)})}
-  function jailStartCheck(){const s=read();if(!s.jailed){localStorage.removeItem(KEY+'_active');localStorage.removeItem(KEY+'_event_count');jailCigarettes=0;return}if(!localStorage.getItem(KEY+'_active')){const h=Number.isFinite(Number(s.health))?Number(s.health):MAX;s.health=Math.max(0,Math.round(h*.5));write(s);localStorage.setItem(KEY+'_active','1');localStorage.removeItem(KEY+'_event_count');msg('🔒 Карцер: здоровье уменьшилось вдвое — '+s.health+'%. Сигареты сохранены.');if(s.health<=0){gameOver();return}}const done=Number(localStorage.getItem(KEY+'_event_count')||0),taps=Number(s.jailTaps||0);if(done<JAIL_THRESHOLDS.length&&taps>=JAIL_THRESHOLDS[done]){localStorage.setItem(KEY+'_event_count',String(done+1));setTimeout(prisonEvents,250)}}
-  function patchStorage(){const native=Storage.prototype.setItem;Storage.prototype.setItem=function(key,value){if(key!==SAVE_KEY||internalWrite)return native.call(this,key,value);let next;try{next=JSON.parse(value)}catch(e){return native.call(this,key,value)}const prev=read();if(Number.isFinite(Number(prev.health)))next.health=Math.max(0,Math.min(MAX,Number(prev.health)));else if(!Number.isFinite(Number(next.health)))next.health=MAX;if(next.jailed&&Number(next.confiscatedCigarettes)>0){const c=Math.max(0,Math.floor(Number(next.confiscatedCigarettes)||0));next.cigarettes=Math.max(0,Number(next.cigarettes)||0)+c;next.confiscatedCigarettes=0;jailCigarettes=next.cigarettes;if(!prev.jailed){next.health=Math.max(0,Math.round(Number(next.health)*.5));localStorage.setItem(KEY+'_active','1');localStorage.removeItem(KEY+'_event_count');}}return native.call(this,key,JSON.stringify(next))}}
-  function repairLegacyJail(){const s=read();if(!s.jailed||Number(s.confiscatedCigarettes||0)<=0)return;const c=Math.max(0,Math.floor(Number(s.confiscatedCigarettes)||0));s.cigarettes=Math.max(0,Number(s.cigarettes||0))+c;s.confiscatedCigarettes=0;write(s);jailCigarettes=s.cigarettes}
-  function syncVisibleCigarettes(){if(!read().jailed)return;if(jailCigarettes<=0){const s=read();jailCigarettes=Math.max(0,Number(s.cigarettes)||0)}const el=$('cigarettes');if(el)el.textContent=fmt(jailCigarettes)}
-  function fmt(n){n=Math.floor(Number(n)||0);return n>=1e6?(n/1e6).toFixed(1)+'M':n>=1e3?(n/1e3).toFixed(1)+'K':String(n)}
-  function init(){patchStorage();repairLegacyJail();render();interceptNormalChoices();setInterval(()=>{jailStartCheck();syncVisibleCigarettes();render()},500)}
-  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});else init();
+  // Health is intentionally stored separately from the main game save.
+  // This prevents the health system from overwriting game.js state.
+  const KEY='avtoritet_health_v3';
+  const SAVE_KEY='avtoritet_save_v2';
+  const MAX=100;
+  const POINT_COST=250;
+  const POINT_HEAL=10;
+  const RANKS=[0,100,500,2000,8000,25000];
+  const JAIL_THRESHOLDS=[60,250,420];
+  const $=id=>document.getElementById(id);
+
+  let prisonEventCount=0;
+  let prisonEventBusy=false;
+
+  function readGame(){
+    try{return JSON.parse(localStorage.getItem(SAVE_KEY)||'{}')||{};}catch(e){return {};}
+  }
+  function readHealth(){
+    try{
+      const raw=JSON.parse(localStorage.getItem(KEY)||'{}');
+      const h=Number(raw.health);
+      return Number.isFinite(h)?Math.max(0,Math.min(MAX,h)):MAX;
+    }catch(e){return MAX;}
+  }
+  function writeHealth(h){
+    try{localStorage.setItem(KEY,JSON.stringify({version:3,health:Math.max(0,Math.min(MAX,Math.round(h)))}));return true;}catch(e){return false;}
+  }
+  function health(){return readHealth();}
+  function setHealth(h){
+    const next=Math.max(0,Math.min(MAX,Math.round(h)));
+    writeHealth(next);
+    render();
+    if(next<=0)gameOver();
+  }
+  function rankOf(s){
+    let i=0;
+    for(let j=0;j<RANKS.length;j++)if(Number(s.points||0)>=RANKS[j])i=j;
+    return i;
+  }
+  function msg(text){
+    if(typeof window.msg==='function'){window.msg(text);return;}
+    const el=$('event-message');if(el)el.textContent=text;
+  }
+
+  function healAd(){
+    if(health()>=MAX){msg('❤️ Здоровье уже полностью восстановлено.');return;}
+    if(typeof window.showRewardedAd!=='function'){msg('📺 Реклама временно недоступна.');return;}
+    const started=window.showRewardedAd(function(rewarded){
+      if(rewarded!==false){setHealth(MAX);msg('❤️ Здоровье полностью восстановлено.');}
+    });
+    if(started===false)msg('📺 Реклама временно недоступна.');
+  }
+
+  function healPoints(){
+    const s=readGame(),h=health();
+    if(h>=MAX){msg('❤️ Здоровье уже полностью восстановлено.');return;}
+    if(Number(s.points||0)<POINT_COST){msg('⭐ Нужно '+POINT_COST+' понтов для восстановления '+POINT_HEAL+'% здоровья.');return;}
+    s.points-=POINT_COST;
+    try{localStorage.setItem(SAVE_KEY,JSON.stringify(s));}catch(e){return;}
+    setHealth(h+POINT_HEAL);
+    msg('🩹 За '+POINT_COST+' понтов восстановлено +'+POINT_HEAL+'% здоровья.');
+    if(typeof window.ui==='function')window.ui();
+  }
+
+  function gameOver(){
+    const c=$('modal-content'),o=$('modal-overlay');
+    if(!c||!o)return;
+    o.dataset.locked='1';
+    o.classList.remove('hidden');
+    c.innerHTML='<h2>☠️ Срок окончен</h2><p>Здоровье закончилось. Авторитет потерян.</p><p>Придётся начинать с нуля.</p><button type="button" id="restart-game" style="width:100%;padding:13px">🔄 Начать сначала</button>';
+    const b=$('restart-game');
+    if(b)b.onclick=function(){
+      localStorage.removeItem(SAVE_KEY);
+      localStorage.removeItem(KEY);
+      location.reload();
+    };
+  }
+
+  function render(){
+    let box=$('health-box');
+    if(!box){
+      const p=$('player-info');
+      if(!p)return;
+      box=document.createElement('div');
+      box.id='health-box';
+      p.insertBefore(box,p.firstChild);
+    }
+    const h=health();
+    const pts=Number(readGame().points||0);
+    const status=h>=80?'Крепкий':h>=55?'В норме':h>=30?'Побитый':'На пределе';
+    const icon=h>=80?'💪':h>=55?'🩹':h>=30?'⚠️':'🚨';
+    const canHeal=pts>=POINT_COST&&h<MAX;
+    box.innerHTML='<div style="margin:6px 0 0;padding:7px 9px;border:1px solid rgba(255,255,255,.10);border-radius:11px;background:rgba(0,0,0,.14)"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px"><span style="font-weight:700;font-size:13px">❤️ Здоровье</span><span style="font-weight:800;font-size:13px">'+h+'%</span></div><div style="height:8px;background:rgba(255,255,255,.12);border-radius:99px;overflow:hidden"><div style="width:'+h+'%;height:100%;border-radius:99px;background:linear-gradient(90deg,#b51f2a,#e65b45 55%,#69c96b);transition:width .35s ease"></div></div><div style="display:flex;justify-content:space-between;margin-top:3px;font-size:10px;opacity:.72"><span>'+icon+' '+status+'</span><span>макс. 100%</span></div><div style="margin-top:5px;font-size:10px;font-weight:700;opacity:.65">ВОССТАНОВЛЕНИЕ</div><div style="display:flex;gap:5px;margin-top:3px"><button type="button" id="health-ad" '+(h>=MAX?'disabled':'')+' style="flex:1;min-height:32px;padding:3px 5px;line-height:1;border-radius:8px;font-size:10px">🎬 <b>Восстановить</b><br><small>до 100%</small></button><button type="button" id="health-points" '+(canHeal?'':'disabled')+' style="flex:1;min-height:32px;padding:3px 5px;line-height:1;border-radius:8px;font-size:10px">⭐ <b>Восстановить</b><br><small>+10% · 250 ⭐</small></button></div></div>';
+    const a=$('health-ad'),p=$('health-points');
+    if(a)a.onclick=healAd;
+    if(p)p.onclick=healPoints;
+  }
+
+  function normalEventDamage(){
+    const damage=5+Math.floor(Math.random()*6);
+    setHealth(health()-damage);
+    msg('🥊 Негативное происшествие: -'+damage+'% здоровья.');
+  }
+
+  // Event damage is attached to the actual choice button. No global Math.random
+  // monkey-patching and no interception of unrelated buttons.
+  function interceptNormalChoices(){
+    document.addEventListener('click',function(e){
+      const b=e.target.closest('.choice');
+      if(!b)return;
+      const risk=[.55,0,.25,.4,.15,.6,.1];
+      const p=risk[Math.min(risk.length-1,Number(b.dataset.i)||0)];
+      if(p<=0)return;
+      if(Math.random()<=p) setTimeout(normalEventDamage,0);
+    },true);
+  }
+
+  function refusalResult(s,label){
+    const i=rankOf(s);
+    const noTrouble=Math.min(.85,.45+i*.08);
+    if(Math.random()<noTrouble){
+      s.points=Number(s.points||0)+5;
+      s.respect=Number(s.respect||0)+1;
+      localStorage.setItem(SAVE_KEY,JSON.stringify(s));
+      msg('😏 '+label+': отказ прокатил. +5 ⭐ и +1 🧠.');
+      return;
+    }
+    const d=5+Math.floor(Math.random()*6);
+    setHealth(health()-d);
+    msg('🥊 '+label+': за отказ прилетело -'+d+'% здоровья.');
+  }
+
+  function prisonEvents(){
+    if(prisonEventBusy)return;
+    const s=readGame();
+    if(!s.jailed||health()<=0)return;
+    prisonEventBusy=true;
+    const events=[
+      {title:'🧹 Коридор',text:'Надзиратель требует привести коридор в порядок.',a:'Сделать',b:'Отказаться',c:'Договориться',run:function(x){if(x===0){const i=rankOf(s);if(i>0)s.points=Math.max(0,RANKS[i]-1);localStorage.setItem(SAVE_KEY,JSON.stringify(s));msg('🧹 Работа выполнена. Понты немного просели.');}else if(x===1)refusalResult(s,'Коридор');else{const pay=Math.floor(Number(s.confiscatedCigarettes||0)*(.20+Math.random()*.11));s.confiscatedCigarettes=Math.max(0,Number(s.confiscatedCigarettes||0)-pay);localStorage.setItem(SAVE_KEY,JSON.stringify(s));msg('💬 Договорились. Отдано '+pay+' 🚬.');}}},
+      {title:'🧹 Камера',text:'Нужно привести камеру в порядок.',a:'Сделать',b:'Отказаться',c:'Договориться',run:function(x){if(x===0){const i=rankOf(s);if(i>0)s.points=Math.max(0,RANKS[i]-1);localStorage.setItem(SAVE_KEY,JSON.stringify(s));msg('🧹 Камера приведена в порядок.');}else if(x===1)refusalResult(s,'Камера');else{const pay=Math.floor(Number(s.confiscatedCigarettes||0)*(.20+Math.random()*.11));s.confiscatedCigarettes=Math.max(0,Number(s.confiscatedCigarettes||0)-pay);localStorage.setItem(SAVE_KEY,JSON.stringify(s));msg('💬 Договорились. Отдано '+pay+' 🚬.');}}},
+      {title:'🤐 Сокамерник',text:'Надзиратель предлагает рассказать о сокамернике.',a:'Рассказать',b:'Промолчать',c:'Сменить тему',run:function(x){if(x===0){s.points=Number(s.points||0)+10;s.respect=Math.max(0,Number(s.respect||0)-3);localStorage.setItem(SAVE_KEY,JSON.stringify(s));msg('🤐 +10 ⭐, но -3 🧠 уважения.');}else if(x===1)refusalResult(s,'Молчание');else if(Math.random()<.5){s.points=Math.max(0,Number(s.points||0)-15);localStorage.setItem(SAVE_KEY,JSON.stringify(s));msg('😬 Не прокатило. -15 ⭐.');}else msg('😏 Удалось сменить тему.');}}}
+    ];
+    const e=events[Math.floor(Math.random()*events.length)],o=$('modal-overlay'),c=$('modal-content');
+    if(!o||!c){prisonEventBusy=false;return;}
+    o.dataset.locked='1';o.classList.remove('hidden');
+    c.innerHTML='<h2>'+e.title+'</h2><p>'+e.text+'</p><div class="choices"><button type="button" data-jc="0">'+e.a+'</button><button type="button" data-jc="1">'+e.b+'</button><button type="button" data-jc="2">'+e.c+'</button></div>';
+    c.querySelectorAll('[data-jc]').forEach(function(b){b.onclick=function(){e.run(Number(b.dataset.jc));o.dataset.locked='0';o.classList.add('hidden');prisonEventBusy=false;render();if(typeof window.ui==='function')window.ui();if(health()<=0)return;checkPrisonProgress(true);};});
+  }
+
+  function checkPrisonProgress(force){
+    const s=readGame();
+    if(!s.jailed){prisonEventCount=0;return;}
+    const taps=Number(s.jailTaps||0);
+    while(prisonEventCount<JAIL_THRESHOLDS.length&&taps>=JAIL_THRESHOLDS[prisonEventCount]){
+      prisonEventCount++;
+      if(force||prisonEventCount===1){setTimeout(prisonEvents,250);break;}
+    }
+  }
+
+  function watchJail(){
+    const panel=$('jail-panel');
+    if(panel){
+      const observer=new MutationObserver(function(){
+        const jailed=readGame().jailed;
+        if(jailed){
+          if(prisonEventCount===0){
+            const h=health();
+            setHealth(h*0.5);
+            msg('🔒 Карцер: здоровье уменьшилось вдвое — '+health()+'%.');
+          }
+          checkPrisonProgress(false);
+        }else prisonEventCount=0;
+      });
+      observer.observe(panel,{attributes:true,attributeFilter:['class']});
+    }
+    const tap=$('tap-object');
+    if(tap)tap.addEventListener('click',function(){checkPrisonProgress(false);},true);
+  }
+
+  function init(){
+    if(health()<=0)writeHealth(MAX);
+    render();
+    interceptNormalChoices();
+    watchJail();
+  }
+
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});
+  else init();
 })();
