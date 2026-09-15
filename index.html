@@ -1,65 +1,20 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>Авторитет</title>
-  <link rel="stylesheet" href="style.css" />
-  <!-- Yandex Games SDK (будет работать на платформе) -->
-  <script src="/sdk.js"></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>Авторитет 2.0</title>
+<link rel="stylesheet" href="./style.css?v=2.4">
 </head>
 <body>
-  <div id="game-container">
-    <!-- Верхняя панель -->
-    <header id="top-bar">
-      <div class="resource">
-        <span class="icon">🚬</span>
-        <span id="cigarettes">0</span>
-      </div>
-      <div class="resource">
-        <span class="icon">⭐</span>
-        <span id="points">0</span>
-      </div>
-      <div class="resource energy">
-        <span class="icon">⚡</span>
-        <span id="energy">100</span>/<span id="max-energy">100</span>
-      </div>
-    </header>
-
-    <!-- Звание и кличка -->
-    <div id="player-info">
-      <div id="nickname">Салага</div>
-      <div id="rank">Салага</div>
-    </div>
-
-    <!-- Основная зона тапа -->
-    <main id="tap-area">
-      <div id="tap-object" class="tap-target">
-        <div id="object-emoji">🥊</div>
-        <div id="object-name">Груша</div>
-      </div>
-      <div id="tap-feedback"></div>
-    </main>
-
-    <!-- Сообщения / события -->
-    <div id="event-message"></div>
-
-    <!-- Нижняя панель кнопок -->
-    <footer id="bottom-bar">
-      <button id="btn-shop" class="nav-btn">Магазин</button>
-      <button id="btn-rank" class="nav-btn">Звание</button>
-      <button id="btn-energy" class="nav-btn reward">+Энергия</button>
-    </footer>
-
-    <!-- Модальные окна -->
-    <div id="modal-overlay" class="hidden">
-      <div id="modal">
-        <button id="modal-close">✕</button>
-        <div id="modal-content"></div>
-      </div>
-    </div>
-  </div>
-
-  <script src="js/game.js"></script>
+<div id="game-container">
+<header id="top-bar"><div class="resource">🚬 <span id="cigarettes">0</span></div><div class="resource">⭐ <span id="points">0</span></div><div class="resource energy">⚡ <span id="energy">250</span>/<span id="max-energy">250</span></div></header>
+<section id="player-info"><div id="nickname">Салага</div><div id="rank">Салага</div><div class="stats"><span>💪 <b id="power-stat">1</b></span><span>🧠 <b id="respect-stat">0</b></span><span>💰 <b id="wealth-stat">0</b></span></div></section>
+<main id="tap-area"><div id="tap-object" class="tap-target"><div id="object-emoji">🥊</div><div id="object-name">Груша</div><small>ТАПАЙ!</small></div><div id="tap-feedback"></div></main>
+<div id="event-message"></div>
+<footer id="bottom-bar"><button type="button" id="btn-shop" class="nav-btn">🛒 Магазин</button><button type="button" id="btn-rank" class="nav-btn">🏆 Звание</button><button type="button" id="btn-tasks" class="nav-btn">🎯 Задания</button><button type="button" id="btn-more" class="nav-btn">☰ Ещё</button></footer>
+<div id="modal-overlay" class="hidden"><div id="modal"><button type="button" id="modal-close">✕</button><div id="modal-content"></div></div></div>
+</div>
+<script defer src="./js/game.js?v=2.4"></script>
 </body>
 </html>
