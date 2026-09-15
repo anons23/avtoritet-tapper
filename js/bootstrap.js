@@ -1,7 +1,7 @@
 'use strict';
 (function(){
   const scripts=[
-    './js/game.js?v=4.0',
+    './js/game.js?v=4.1',
     './js/shop-ui.js?v=2.0',
     './js/name-ui.js?v=2.0',
     './js/prison-ui.js?v=2.0',
@@ -11,8 +11,20 @@
     './js/stories-ui-v2.js?v=2.0'
   ];
 
+  function markGameReady(){
+    try{
+      const sdk=window.ysdk;
+      if(sdk&&sdk.features&&sdk.features.LoadingAPI&&typeof sdk.features.LoadingAPI.ready==='function'){
+        sdk.features.LoadingAPI.ready();
+      }
+    }catch(e){console.debug('[Bootstrap] LoadingAPI.ready failed',e);}
+  }
+
   function loadNext(index){
-    if(index>=scripts.length)return;
+    if(index>=scripts.length){
+      markGameReady();
+      return;
+    }
     const script=document.createElement('script');
     script.src=scripts[index];
     script.async=false;
@@ -20,6 +32,10 @@
     script.onerror=function(){console.error('[Bootstrap] Failed to load',scripts[index]);loadNext(index+1);};
     document.body.appendChild(script);
   }
+
+  document.addEventListener('contextmenu',function(event){
+    if(event.target.closest('#game-container'))event.preventDefault();
+  },{passive:false});
 
   Promise.resolve(window.YandexGameReady).catch(function(){}) .then(function(){loadNext(0);});
 })();
