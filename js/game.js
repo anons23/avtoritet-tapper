@@ -42,9 +42,9 @@ const EVENTS = [
 let state = {
   cigarettes: 0,
   points: 0,
-  energy: 100,
-  maxEnergy: 100,
-  power: 1,          // сила удара
+  energy: 250,
+  maxEnergy: 250,
+  power: 1,
   critChance: 0.05,
   nickname: "",
   currentObject: 0,
@@ -72,6 +72,11 @@ function load() {
   if (!state.nickname) {
     state.nickname = NICKNAMES[Math.floor(Math.random() * NICKNAMES.length)];
   }
+  // На случай старых сохранений
+  if (state.maxEnergy < 250) {
+    state.maxEnergy = 250;
+    state.energy = Math.max(state.energy, 250);
+  }
 }
 
 // ----- UI обновление -----
@@ -82,7 +87,6 @@ function updateUI() {
   document.getElementById("max-energy").textContent = state.maxEnergy;
   document.getElementById("nickname").textContent = state.nickname;
 
-  // Звание
   let currentRank = RANKS[0];
   for (let i = RANKS.length - 1; i >= 0; i--) {
     if (state.points >= RANKS[i].points) {
@@ -92,7 +96,6 @@ function updateUI() {
   }
   document.getElementById("rank").textContent = currentRank.name;
 
-  // Объект
   const obj = OBJECTS[state.currentObject];
   document.getElementById("object-emoji").textContent = obj.emoji;
   document.getElementById("object-name").textContent = obj.name;
@@ -122,7 +125,6 @@ function doTap(e) {
   state.cigarettes += gain;
   state.points += gain * 0.8;
 
-  // Визуальный фидбек
   const target = document.getElementById("tap-object");
   target.classList.remove("punch");
   void target.offsetWidth;
@@ -132,8 +134,8 @@ function doTap(e) {
   updateUI();
   save();
 
-  // Случайное событие
-  if (Math.random() < 0.08) {
+  // Реже события (было 8%, стало 2.5%)
+  if (Math.random() < 0.025) {
     showMessage(EVENTS[Math.floor(Math.random() * EVENTS.length)]);
   }
 }
@@ -158,12 +160,12 @@ function showMessage(text) {
 // ----- Энергия -----
 function regenEnergy() {
   const now = Date.now();
-  const diff = (now - state.lastEnergyTime) / 1000; // секунды
-  // 1 энергия каждые 8 секунд
-  const regen = Math.floor(diff / 8);
+  const diff = (now - state.lastEnergyTime) / 1000;
+  // 1 энергия каждые 4 секунды (быстрее)
+  const regen = Math.floor(diff / 4);
   if (regen > 0) {
     state.energy = Math.min(state.maxEnergy, state.energy + regen);
-    state.lastEnergyTime = now - (diff % 8) * 1000;
+    state.lastEnergyTime = now - (diff % 4) * 1000;
     updateUI();
     save();
   }
@@ -172,14 +174,18 @@ function regenEnergy() {
 // ----- Магазин -----
 function openShop() {
   const content = document.getElementById("modal-content");
-  content.innerHTML = "<h2>Магазин</h2>";
+  content.innerHTML = ""; // очищаем
+
+  const title = document.createElement("h2");
+  title.textContent = "Магазин";
+  content.appendChild(title);
 
   const upgrades = [
     {
       key: "power",
       name: "Сила удара",
       desc: "+1 к урону за тап",
-      cost: () => 50 * Math.pow(1.6, state.upgrades.power),
+      cost: () => Math.floor(50 * Math.pow(1.55, state.upgrades.power)),
       level: state.upgrades.power,
       action: () => { state.power += 1; state.upgrades.power++; }
     },
@@ -187,67 +193,98 @@ function openShop() {
       key: "crit",
       name: "Критический удар",
       desc: "+3% шанс крита",
-      cost: () => 80 * Math.pow(1.7, state.upgrades.crit),
+      cost: () => Math.floor(80 * Math.pow(1.65, state.upgrades.crit)),
       level: state.upgrades.crit,
       action: () => { state.critChance += 0.03; state.upgrades.crit++; }
     },
     {
       key: "energyMax",
       name: "Запас энергии",
-      desc: "+20 к максимуму энергии",
-      cost: () => 120 * Math.pow(1.65, state.upgrades.energyMax),
+      desc: "+50 к максимуму энергии",
+      cost: () => Math.floor(100 * Math.pow(1.6, state.upgrades.energyMax)),
       level: state.upgrades.energyMax,
-      action: () => { state.maxEnergy += 20; state.upgrades.energyMax++; }
+      action: () => {
+        state.maxEnergy += 50;
+        state.energy += 50; // сразу даём текущую энергию
+        state.upgrades.energyMax++;
+      }
     }
   ];
 
   upgrades.forEach(u => {
-    const cost = Math.floor(u.cost());
+    const cost = u.cost();
     const canBuy = state.cigarettes >= cost;
+
     const div = document.createElement("div");
     div.className = "upgrade-item";
-    div.innerHTML = `
-      <div class="upgrade-info">
-        <div class="upgrade-name">${u.name} (ур. ${u.level})</div>
-        <div class="upgrade-desc">${u.desc}</div>
-      </div>
-      <button class="buy-btn" ${canBuy ? "" : "disabled"}>${cost} 🚬</button>
+
+    const info = document.createElement("div");
+    info.className = "upgrade-info";
+    info.innerHTML = `
+      <div class="upgrade-name">${u.name} (ур. ${u.level})</div>
+      <div class="upgrade-desc">${u.desc}</div>
     `;
-    div.querySelector("button").onclick = () => {
+
+    const btn = document.createElement("button");
+    btn.className = "buy-btn";
+    btn.textContent = cost + " 🚬";
+    if (!canBuy) btn.disabled = true;
+
+    btn.onclick = () => {
       if (state.cigarettes >= cost) {
         state.cigarettes -= cost;
         u.action();
         updateUI();
         save();
-        openShop(); // обновить
+        openShop();
       }
     };
+
+    div.appendChild(info);
+    div.appendChild(btn);
     content.appendChild(div);
   });
 
-  // Смена объекта
-  content.innerHTML += "<h2 style='margin-top:20px'>Занятия</h2>";
+  // Заголовок занятий
+  const activitiesTitle = document.createElement("h2");
+  activitiesTitle.style.marginTop = "20px";
+  activitiesTitle.textContent = "Занятия";
+  content.appendChild(activitiesTitle);
+
   OBJECTS.forEach((obj, idx) => {
     const unlocked = state.points >= obj.unlock;
+
     const div = document.createElement("div");
     div.className = "upgrade-item";
-    div.innerHTML = `
-      <div class="upgrade-info">
-        <div class="upgrade-name">${obj.emoji} ${obj.name}</div>
-        <div class="upgrade-desc">x${obj.mult} к награде ${unlocked ? "" : `(нужно ${obj.unlock} понтов)`}</div>
-      </div>
-      <button class="buy-btn" ${unlocked && state.currentObject !== idx ? "" : "disabled"}>
-        ${state.currentObject === idx ? "Выбрано" : unlocked ? "Выбрать" : "Закрыто"}
-      </button>
+
+    const info = document.createElement("div");
+    info.className = "upgrade-info";
+    info.innerHTML = `
+      <div class="upgrade-name">${obj.emoji} ${obj.name}</div>
+      <div class="upgrade-desc">x${obj.mult} к награде ${unlocked ? "" : `(нужно ${obj.unlock} понтов)`}</div>
     `;
-    if (unlocked && state.currentObject !== idx) {
-      div.querySelector("button").onclick = () => {
+
+    const btn = document.createElement("button");
+    btn.className = "buy-btn";
+
+    if (state.currentObject === idx) {
+      btn.textContent = "Выбрано";
+      btn.disabled = true;
+    } else if (unlocked) {
+      btn.textContent = "Выбрать";
+      btn.onclick = () => {
         state.currentObject = idx;
         updateUI();
         save();
         openShop();
       };
+    } else {
+      btn.textContent = "Закрыто";
+      btn.disabled = true;
     }
+
+    div.appendChild(info);
+    div.appendChild(btn);
     content.appendChild(div);
   });
 
@@ -257,7 +294,11 @@ function openShop() {
 // ----- Звания -----
 function openRanks() {
   const content = document.getElementById("modal-content");
-  content.innerHTML = "<h2>Звания</h2>";
+  content.innerHTML = "";
+
+  const title = document.createElement("h2");
+  title.textContent = "Звания";
+  content.appendChild(title);
 
   RANKS.forEach(r => {
     const reached = state.points >= r.points;
@@ -275,16 +316,13 @@ function openRanks() {
 
 // ----- Реклама (заглушки) -----
 function watchAdForEnergy() {
-  // Здесь будет вызов Yandex rewarded
-  // Пока просто даём энергию для теста
-  showMessage("Реклама пока заглушка. +40 энергии.");
-  state.energy = Math.min(state.maxEnergy, state.energy + 40);
+  showMessage("Реклама пока заглушка. +80 энергии.");
+  state.energy = Math.min(state.maxEnergy, state.energy + 80);
   updateUI();
   save();
 }
 
 function changeNickname() {
-  // Заглушка под рекламу
   const newName = prompt("Введи новую кличку (потом будет за рекламу):", state.nickname);
   if (newName && newName.trim().length > 1) {
     state.nickname = newName.trim().slice(0, 16);
@@ -306,7 +344,6 @@ function init() {
   load();
   updateUI();
 
-  // Тап
   const tapObj = document.getElementById("tap-object");
   tapObj.addEventListener("click", doTap);
   tapObj.addEventListener("touchstart", (e) => {
@@ -314,7 +351,6 @@ function init() {
     doTap(e.touches[0]);
   }, { passive: false });
 
-  // Кнопки
   document.getElementById("btn-shop").onclick = openShop;
   document.getElementById("btn-rank").onclick = openRanks;
   document.getElementById("btn-energy").onclick = watchAdForEnergy;
@@ -324,17 +360,13 @@ function init() {
     if (e.target.id === "modal-overlay") hideModal();
   };
 
-  // Долгий тап по кличке — смена имени
   document.getElementById("nickname").onclick = changeNickname;
 
-  // Реген энергии
   setInterval(regenEnergy, 1000);
 
-  // Yandex SDK (если есть)
   if (typeof YaGames !== "undefined") {
     YaGames.init().then(ysdk => {
       console.log("Yandex SDK ready");
-      // ysdk.features.LoadingAPI?.ready();
     }).catch(console.error);
   }
 }
