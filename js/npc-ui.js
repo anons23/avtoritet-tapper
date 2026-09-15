@@ -1,20 +1,35 @@
 'use strict';
 (function(){
-  const RANKS=['Салага','Пацан','Блатной','Смотрящий','Авторитет','Вор в законе'];
-  const USES_KEY='avtoritet_npc_uses_v2';
-  const COOLDOWN=30*60*1000;
-  const NPCS=['шайба','бугор','косой','смотрящий'];
-  let state={free:2,extra:0,lastAd:0};
   const $=id=>document.getElementById(id);
-  function load(){try{const d=JSON.parse(localStorage.getItem(USES_KEY)||'null');if(d&&typeof d==='object')state={...state,...d}}catch(e){}state.free=Math.max(0,Math.floor(Number(state.free)||0));state.extra=Math.max(0,Math.floor(Number(state.extra)||0));state.lastAd=Math.max(0,Number(state.lastAd)||0)}
-  function save(){try{localStorage.setItem(USES_KEY,JSON.stringify(state))}catch(e){}}
-  function msgLocal(t){if(typeof window.msg==='function')window.msg(t);else{const e=$('event-message');if(e){e.textContent=t;e.classList.add('show');setTimeout(()=>e.classList.remove('show'),3200)}}}
-  function totalUses(){return state.free+state.extra}
-  function consume(){if(state.free>0){state.free--;return true}if(state.extra>0){state.extra--;return true}return false}
-  function offerAd(){if(Date.now()-state.lastAd<COOLDOWN){const left=Math.ceil((COOLDOWN-(Date.now()-state.lastAd))/60000);msgLocal('📺 Следующая награда за рекламой будет доступна примерно через '+left+' мин.');return}if(typeof window.showRewardedAd!=='function'){msgLocal('📺 Реклама сейчас недоступна.');return}window.showRewardedAd(function(rewarded){if(rewarded===false){msgLocal('📺 Награда не получена. Попробуй позже.');return}state.lastAd=Date.now();state.extra+=2;save();msgLocal('📺 За рекламу: +2 использования NPC');render()})}
-  function render(){const c=$('modal-content');if(!c)return;c.querySelectorAll('[data-npc]').forEach(b=>{b.disabled=totalUses()<1})}
-  function useNpc(id){if(totalUses()<1){offerAd();return}if(typeof window.npcMenu!=='function'){msgLocal('⚠️ NPC временно недоступны.');return}if(!consume())return;save();try{let oldMsg=window.msg;let resultSeen=false;window.msg=function(text){resultSeen=true;oldMsg(text)};window.npcMenu();setTimeout(function(){const b=document.querySelector('[data-npc="'+id+'"]');if(b)b.click();window.msg=oldMsg;if(!resultSeen){state.free++;save();msgLocal('⚠️ Не удалось выполнить действие. Использование возвращено.')}render()},0)}catch(e){state.free++;save();msgLocal('⚠️ Не удалось выполнить действие. Использование возвращено.')}}
-  function menu(){if(typeof window.npcMenu!=='function'){msgLocal('⚠️ NPC временно недоступны.');return}window.npcMenu();setTimeout(()=>{document.querySelectorAll('[data-npc]').forEach(b=>{if(b.dataset.npcBound)return;b.dataset.npcBound='1';b.addEventListener('click',()=>useNpc(b.dataset.npc))});render()},0)}
-  function init(){load();window.NPCUI={menu,useNpc,render};}
+  const NPCS={
+    шайба:{name:'Шайба',icon:'🧢',desc:'торгаш',rank:0,action:'Сходить на дело',reward:'25 🚬 +1 🧠'},
+    бугор:{name:'Бугор',icon:'💪',desc:'тренер',rank:1,action:'Прокачаться',reward:'+1 💪 +2 🧠 +15 ⭐'},
+    косой:{name:'Косой',icon:'😏',desc:'решала',rank:2,action:'Рискнуть',reward:'шанс на +100 🚬 +40 ⭐'},
+    смотрящий:{name:'Смотрящий',icon:'👑',desc:'старший',rank:3,action:'Получить совет',reward:'цель по масти'}
+  };
+  const RANKS=['Салага','Пацан','Блатной','Смотрящий','Авторитет','Вор в законе'];
+  const REPKEY='avtoritet_npc_rep_v2',USEKEY='avtoritet_npc_uses_v2',INTKEY='avtoritet_npc_interactions_v2_';
+  const COOLDOWN=30*60*1000,MAX_FREE=2,AD_BONUS=2;
+  let rep={},uses={};
+  try{rep=JSON.parse(localStorage.getItem(REPKEY)||'{}')||{}}catch(e){rep={}}
+  try{uses=JSON.parse(localStorage.getItem(USEKEY)||'{}')||{}}catch(e){uses={}}
+  const save=()=>{try{localStorage.setItem(REPKEY,JSON.stringify(rep));localStorage.setItem(USEKEY,JSON.stringify(uses))}catch(e){}};
+  const getRep=id=>Math.max(0,Number(rep[id]||0));
+  const rankIndex=()=>{const txt=$('rank')?.textContent||'';const i=RANKS.indexOf(txt.trim());return i<0?0:i};
+  const unlocked=id=>rankIndex()>=NPCS[id].rank;
+  const data=id=>{const x=uses[id]||{};return {used:Number(x.used||0),extra:Number(x.extra||0),until:Number(x.until||0)}};
+  const level=id=>Math.floor(getRep(id)/3)+1;
+  function state(id){const d=data(id),now=Date.now();if(d.until&&now>=d.until){d.used=0;d.extra=0;d.until=0;uses[id]=d;save()}const free=Math.max(0,MAX_FREE-d.used),extra=Math.max(0,d.extra);return {used:d.used,extra,free,total:free+extra,locked:d.until>now,until:d.until};}
+  function successChance(id){if(id!=='косой')return 1;return .55}
+  function cooldownText(until){const left=Math.max(0,until-Date.now()),m=Math.ceil(left/60000),sec=Math.ceil((left%60000)/1000);return m>1?m+' мин':sec+' сек'}
+  function card(id,n){const st=state(id),r=getRep(id),lv=level(id),chance=successChance(id),unavailable=!unlocked(id);let note='';if(unavailable)note='🔒 Откроется с мастью «'+RANKS[n.rank]+'»';else if(st.locked)note='⏳ Отдохни ещё '+cooldownText(st.until);else if(st.total<=0)note='🎬 Ещё 2 обращения можно получить за рекламу';else note='Осталось обращений: '+st.total;if(id==='косой'&&!unavailable)note+=' · шанс успеха '+Math.round(chance*100)+'%';return '<button type="button" class="npc-btn npc-custom" data-custom-npc="'+id+'" style="text-align:left;padding:14px;margin-bottom:8px;width:100%;opacity:'+(unavailable?.55:1)+'">'+n.icon+' <b>'+n.name+'</b><br><small>'+n.desc+' · доверие '+r+' · уровень '+lv+'</small><br><span>▶ '+n.action+'</span><br><small>Награда: '+n.reward+'</small><br><small>'+note+'</small></button>';}
+  function render(){const c=$('modal-content');if(!c)return;const title=c.querySelector('h2');if(!title||!title.textContent.includes('Барак'))return;c.innerHTML='<h2>☰ Барак</h2><p>Свои не раздают доверие за просто так. У каждого — 2 обращения, потом перерыв 30 минут.</p><div>'+Object.entries(NPCS).map(([id,n])=>'<button type="button" class="npc-link" data-open-npc="'+id+'" style="width:100%;margin:5px 0;padding:11px;text-align:left">'+n.icon+' '+n.name+' — '+n.desc+'</button>').join('')+'</div><hr><h3>🏆 Достижения</h3><p>Тап-машина, Критический удар, Решала, Пачка за пачкой.</p><h3>💎 Новый срок</h3><p>После 25 000 ⭐ можно начать новый срок и сохранить постоянный бонус силы.</p><button type="button" id="prestige-custom" style="width:100%;padding:12px">Начать новый срок</button>';c.querySelectorAll('[data-open-npc]').forEach(b=>b.onclick=()=>openNpc(b.dataset.openNpc));const p=$('prestige-custom');if(p)p.onclick=()=>{if(typeof window.more==='function'){window.more();setTimeout(()=>{$('prestige')?.click()},20)}};}
+  function openNpc(id){const n=NPCS[id];if(!n)return;if(!unlocked(id)){msgLocal('🔒 '+n.name+' пока не для твоей масти. Нужна масть «'+RANKS[n.rank]+'».');return}if(typeof window.npcMenu!=='function')return;window.npcMenu();setTimeout(()=>{const c=$('modal-content');if(!c)return;c.innerHTML='<h2>'+n.icon+' '+n.name+'</h2>'+card(id,n)+'<button type="button" id="npc-back" style="width:100%;margin-top:6px">Вернуться к бараку</button>';const b=c.querySelector('[data-custom-npc]');if(b)b.onclick=()=>useNpc(id);const back=$('npc-back');if(back)back.onclick=render},20);}
+  function showNpcResult(id,text){const n=NPCS[id],c=$('modal-content');if(!c)return;const st=state(id);c.innerHTML='<h2>'+n.icon+' '+n.name+'</h2><div style="padding:18px 10px;text-align:center"><div style="font-size:34px;margin-bottom:10px">'+(text.includes('провал')||text.includes('пострадал')?'❌':'✅')+'</div><p style="font-size:18px;margin:0 0 14px"><b>'+text+'</b></p><small>Осталось обращений: '+st.total+'</small></div><button type="button" id="npc-back" style="width:100%;margin-top:6px">Вернуться к бараку</button>';const back=$('npc-back');if(back)back.onclick=()=>openNpc(id)}
+  function useNpc(id){const n=NPCS[id];if(!n||!unlocked(id))return;const st=state(id);if(st.locked){msgLocal('⏳ '+n.name+' отшил тебя. Ещё '+cooldownText(st.until)+'.');return}if(st.total<=0){offerAd(id);return}const d=data(id);if(d.used<MAX_FREE)d.used++;else if(d.extra>0)d.extra--;if(d.used>=MAX_FREE&&d.extra<=0)d.until=Date.now()+COOLDOWN;uses[id]=d;save();const oldMsg=window.msg;let result='';if(typeof oldMsg==='function')window.msg=x=>{result=String(x)};try{window.npcMenu();const real=document.querySelector('[data-npc="'+id+'"]');if(real)real.click()}finally{if(typeof oldMsg==='function')window.msg=oldMsg}if(!result)result='🤝 '+n.name+' закончил разговор.';const key=INTKEY+id;let count=0;try{count=Number(localStorage.getItem(key)||'0')+1;localStorage.setItem(key,String(count))}catch(e){count=1}if(count%3===0){rep[id]=getRep(id)+1;save();result+=' · 🤝 Доверие выросло: '+rep[id]}showNpcResult(id,result);}
+  function offerAd(id){const n=NPCS[id],c=$('modal-content');if(!c)return;c.innerHTML='<h2>🎬 Ещё два дела</h2><p>'+n.icon+' '+n.name+' сейчас недоступен.</p><p>Посмотри рекламу и получи ещё <b>2 обращения</b> к '+n.name+'.</p><button type="button" id="npc-ad" style="width:100%;padding:13px">🎬 Посмотреть рекламу → +2 обращения</button><button type="button" id="npc-ad-back" style="width:100%;margin-top:7px">Вернуться к бараку</button>';$('npc-ad').onclick=()=>{if(typeof window.showRewardedAd==='function')window.showRewardedAd(rewarded=>{if(rewarded===false){msgLocal('📺 Награда не получена. Попробуй позже.');return}grantAd(id)});else msgLocal('📺 Реклама пока не подключена.')};$('npc-ad-back').onclick=()=>openNpc(id)}
+  function grantAd(id){const d=data(id);d.extra=(d.extra||0)+AD_BONUS;uses[id]=d;save();showNpcResult(id,'🎁 '+NPCS[id].name+': +2 обращения получены за рекламу.')}
+  function msgLocal(x){if(typeof window.msg==='function')window.msg(x);else alert(x)}
+  function init(){document.addEventListener('click',e=>{if(e.target.closest('#btn-more'))setTimeout(render,20)})}
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});else init();
 })();
