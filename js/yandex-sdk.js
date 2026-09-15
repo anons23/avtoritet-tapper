@@ -17,6 +17,11 @@
     const data=pendingSave;pendingSave=null;
     player.setData({gameSave:data},false).catch(function(err){log('cloud save failed',err);});
   }
+  function signalLoadingReady(){
+    try{
+      if(ysdk&&ysdk.features&&ysdk.features.LoadingAPI&&typeof ysdk.features.LoadingAPI.ready==='function')ysdk.features.LoadingAPI.ready();
+    }catch(e){log('loading ready failed',e);}
+  }
   async function init(){
     if(!window.YaGames){log('SDK loader unavailable; local save remains active.');return;}
     try{
@@ -34,6 +39,7 @@
         ysdk.on('game_api_resume',function(){gameplayStart();});
       }
       gameplayStart();
+      signalLoadingReady();
       log('initialized');
     }catch(e){log('init failed',e);}
   }
