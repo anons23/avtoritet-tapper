@@ -2,20 +2,28 @@
 'use strict';
 (function(){
   const $=id=>document.getElementById(id);
-  function cigarettes(){return Math.floor(Number(($('cigarettes')||{}).textContent||0).replace(/[^0-9]/g,''))||0}
+  function parseCompact(value){
+    const v=String(value||'').trim().replace(',','.');
+    const n=parseFloat(v);
+    if(!Number.isFinite(n))return 0;
+    if(/M$/i.test(v))return Math.floor(n*1000000);
+    if(/K$/i.test(v))return Math.floor(n*1000);
+    return Math.floor(n);
+  }
+  function cigarettes(){return parseCompact(($('cigarettes')||{}).textContent)}
   function refreshShop(){
     const content=$('modal-content');
     if(!content)return;
     content.querySelectorAll('[data-b]').forEach(btn=>{
-      const m=btn.innerHTML.match(/Цена\s+([0-9.,]+)/);
+      const m=btn.innerHTML.match(/Цена\s+([0-9.,]+(?:K|M)?)/i);
       if(!m)return;
-      const cost=Math.floor(Number(m[1].replace(/,/g,'')));
+      const cost=parseCompact(m[1]);
       if(!btn.dataset.priceDecorated){
-        btn.innerHTML=btn.innerHTML.replace(/Цена\s+[0-9.,]+/, 'Цена '+cost+' 🚬');
+        btn.innerHTML=btn.innerHTML.replace(/Цена\s+[0-9.,]+(?:K|M)?/i, 'Цена '+m[1]+' 🚬');
         btn.dataset.priceDecorated='1';
       }
       btn.disabled=cigarettes()<cost;
-      btn.title=btn.disabled?'Не хватает сигарет':'Купить за '+cost+' 🚬';
+      btn.title=btn.disabled?'Не хватает сигарет':'Купить за '+m[1]+' 🚬';
     });
   }
   function renameNav(){
@@ -26,9 +34,7 @@
   function init(){
     renameNav();
     const content=$('modal-content');
-    if(content){
-      new MutationObserver(refreshShop).observe(content,{childList:true,subtree:true,characterData:true});
-    }
+    if(content)new MutationObserver(refreshShop).observe(content,{childList:true,subtree:true,characterData:true});
     const shopBtn=$('btn-shop');
     if(shopBtn)shopBtn.addEventListener('click',()=>setTimeout(refreshShop,0));
     setInterval(refreshShop,250);
