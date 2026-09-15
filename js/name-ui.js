@@ -10,8 +10,22 @@
     const input=$('nickname-input');
     if(input){input.value=current;setTimeout(()=>{input.focus();input.select()},0)}
     const btn=$('apply-nickname');
-    if(btn)btn.onclick=()=>{const value=(input?.value||'').trim();if(!value)return;if(typeof window.requestNameChange==='function'){window.requestNameChange()}else if($('nickname'))$('nickname').textContent=value};
+    if(btn)btn.onclick=()=>{const value=(input?.value||'').trim();if(!value)return;if(typeof window.requestNameChange==='function')window.requestNameChange();};
     modal.classList.remove('hidden');
+  }
+  function hideOldNameBlock(){
+    const old=$('name-btn');
+    if(old){
+      const row=old.closest('button,.menu-item,.settings-row,div');
+      (row||old).style.display='none';
+    }
+    document.querySelectorAll('#modal-content button,#modal-content p,#modal-content div').forEach(el=>{
+      if(el.id==='apply-nickname'||el.id==='nickname-input')return;
+      const text=(el.textContent||'').trim();
+      if(text.includes('Смена имени')||text.includes('Сменить имя')){
+        if(el.closest('#modal-content'))el.style.display='none';
+      }
+    });
   }
   function init(){
     const nick=$('nickname');
@@ -29,6 +43,9 @@
       }catch(e){}
       localStorage.setItem('avtoritet_nickname_migrated_v1','1');
     }
+    hideOldNameBlock();
+    const content=$('modal-content');
+    if(content)new MutationObserver(hideOldNameBlock).observe(content,{childList:true,subtree:true,characterData:true});
   }
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});else init();
 })();
