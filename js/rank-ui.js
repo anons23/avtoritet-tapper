@@ -3,8 +3,11 @@
   const THRESHOLDS=[0,100,500,2000,8000,25000];
   const NAMES=['Лох','Мужик','Блатной','Смотрящий','Авторитет','Вор в законе'];
   function points(){
-    const el=document.getElementById('points');
-    return Number(String(el?.textContent||'0').replace(/[^0-9.]/g,''))||0;
+    const text=String(document.getElementById('points')?.textContent||'0').trim().replace(/\s/g,'');
+    const n=parseFloat(text.replace(/[^0-9.,KM]/gi,'' ).replace(',','.'))||0;
+    if(/M$/i.test(text))return n*1000000;
+    if(/K$/i.test(text))return n*1000;
+    return n;
   }
   function apply(){
     const el=document.getElementById('rank');
