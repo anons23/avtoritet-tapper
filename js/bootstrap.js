@@ -2,8 +2,10 @@
 (function(){
   const scripts=[
     './js/input-guard.js?v=1.0',
+    './js/save-migration.js?v=1.0',
     './js/game.js?v=4.1',
     './js/shop-ui.js?v=2.0',
+    './js/economy-guard.js?v=1.0',
     './js/name-ui.js?v=2.0',
     './js/prison-ui.js?v=2.0',
     './js/rank-ui.js?v=2.1',
@@ -22,10 +24,7 @@
   }
 
   function loadNext(index){
-    if(index>=scripts.length){
-      markGameReady();
-      return;
-    }
+    if(index>=scripts.length){markGameReady();return;}
     const script=document.createElement('script');
     script.src=scripts[index];
     script.async=false;
