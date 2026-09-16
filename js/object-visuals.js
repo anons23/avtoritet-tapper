@@ -6,8 +6,11 @@
   function sync(){
     const emoji=document.getElementById('object-emoji');
     const name=document.getElementById('object-name');
+    const target=document.getElementById('tap-object');
     if(!emoji)return;
-    if(name && name.textContent.trim()===BAG_NAME){
+    const isBag=!!(name && name.textContent.trim()===BAG_NAME);
+    if(target)target.classList.toggle('bag-mode',isBag);
+    if(isBag){
       let img=emoji.querySelector('.boxing-bag-image');
       if(!img){
         emoji.textContent='';
