@@ -6,11 +6,12 @@
     './js/game.js?v=4.4',
     './js/shop-ui.js?v=2.1',
     './js/name-ui.js?v=2.1',
-    './js/prison-ui.js?v=3.1',
+    './js/prison-ui.js?v=3.2',
     './js/rank-ui.js?v=2.2',
-    './js/npc-ui.js?v=2.6',
+    './js/npc-ui.js?v=2.7',
+    './js/npc5-ui.js?v=1.0',
     './js/stories-ui-v2.js?v=2.1',
-    './js/stability-fixes.js?v=1.0'
+    './js/stability-fixes.js?v=1.1'
   ];
 
   function ready(){
