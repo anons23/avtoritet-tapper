@@ -27,11 +27,13 @@
     ['Закрой дело','Последние детали нужно проверить и завершить.','Проверить всё ещё раз','Закончить как можно быстрее']
   ];
 
+  let adBusy=false;
+
   function game(){try{return typeof window.getGameState==='function'?window.getGameState():JSON.parse(localStorage.getItem(SAVE_KEY)||'{}')}catch(e){return {}}}
   function save(s){try{s.saveUpdatedAt=Date.now();localStorage.setItem(SAVE_KEY,JSON.stringify(s))}catch(e){}}
   function rank(){const s=game();let i=0;for(let j=0;j<RANK_POINTS.length;j++)if(Number(s.points||0)>=RANK_POINTS[j])i=j;return i}
-  function uses(){try{return JSON.parse(localStorage.getItem(USE_KEY)||'{"used":0,"extra":0,"until":0}')||{used:0,extra:0,until:0}}catch(e){return {used:0,extra:0,until:0}}}
-  function saveUses(v){try{localStorage.setItem(USE_KEY,JSON.stringify(v))}catch(e){}}
+  function uses(){try{const v=JSON.parse(localStorage.getItem(USE_KEY)||'{"used":0,"extra":0,"until":0}')||{};return {used:Math.max(0,Number(v.used)||0),extra:Math.max(0,Number(v.extra)||0),until:Number(v.until)||0}}catch(e){return {used:0,extra:0,until:0}}}
+  function saveUses(v){try{localStorage.setItem(USE_KEY,JSON.stringify({used:Math.max(0,Number(v.used)||0),extra:Math.max(0,Number(v.extra)||0),until:Number(v.until)||0}))}catch(e){}}
   function msg(t){if(typeof window.msg==='function')window.msg(t)}
   function hero(){return '<div class="-hero"><img class="-hero-img" src="'+NPC.avatar+'" alt="Аватар '+NPC.name+'" loading="eager"><div class="-hero-gradient"></div><div class="-hero-title"><span>'+NPC.icon+'</span><b>'+NPC.name+'</b><small>'+NPC.desc+'</small></div></div>'}
   function open(){
@@ -72,10 +74,10 @@
     const success=Math.random()*100<chance;
     s.tasks=s.tasks||{};
     if(success){
-      const points=Number(s.points||0)+75;
-      s.points=points;
+      s.points=Number(s.points||0)+75;
       s.tasks.npcSuccess=(Number(s.tasks.npcSuccess)||0)+1;
       s.tasks.Success=s.tasks.npcSuccess;
+      s.tasks.avtoritetSuccess=(Number(s.tasks.avtoritetSuccess)||0)+1;
       s.tasks.earned=(Number(s.tasks.earned)||0)+100;
       s.cigarettes=Number(s.cigarettes||0)+100;
       save(s);
@@ -98,9 +100,25 @@
     document.getElementById('npc5-back').onclick=back;
   }
   function adOffer(){
+    if(adBusy)return;
     const modal=document.getElementById('modal-content');
     modal.innerHTML=hero()+'<div class="-action-panel"><h2>🎬 Ещё два дела</h2><p>'+NPC.icon+' '+NPC.name+' сейчас недоступен.</p><p>Посмотри рекламу и получи ещё <b>2 обращения</b>.</p><button type="button" class="-primary" id="npc5-ad">🎬 Посмотреть рекламу → +2</button><button type="button" id="npc5-back" style="width:100%;margin-top:8px">Вернуться к бараку</button></div>';
-    document.getElementById('npc5-ad').onclick=()=>{if(typeof window.showRewardedAd==='function')window.showRewardedAd(rewarded=>{if(rewarded===false){msg('📺 Награда не получена.');return}const u=uses();u.extra=(Number(u.extra)||0)+2;u.until=0;saveUses(u);open()});else msg('📺 Реклама пока не подключена.')};
+    document.getElementById('npc5-ad').onclick=()=>{
+      if(adBusy)return;
+      if(typeof window.showRewardedAd!=='function'){msg('📺 Реклама пока не подключена.');return}
+      adBusy=true;
+      const finish=function(rewarded){
+        if(!adBusy)return;
+        adBusy=false;
+        if(rewarded===false){msg('📺 Награда не получена.');return}
+        const u=uses();
+        u.extra=(Number(u.extra)||0)+2;
+        saveUses(u);
+        open();
+      };
+      const started=window.showRewardedAd(finish);
+      if(started===false)adBusy=false;
+    };
     document.getElementById('npc5-back').onclick=back;
   }
   function back(){const b=document.getElementById('btn-more');if(b)b.click()}
