@@ -1,39 +1,15 @@
 'use strict';
 (function(){
-  const SAVE_KEY='avtoritet_save_v2';
-  let wrapped=false;
-
-  function cleanMessage(text){
-    return String(text||'')
-      .replace(/\s*\+\d+\s*💪/g,'')
-      .replace(/\s*\+\d+\s*🧠/g,'')
-      .replace(/\s*\+\d+\s*💰/g,'')
-      .replace(/\s{2,}/g,' ')
-      .trim();
-  }
-
+  const SELECTORS=['#player-info .stats'];
   function hideStats(){
-    const stats=document.querySelector('#player-info .stats');
-    if(stats)stats.remove();
+    SELECTORS.forEach(sel=>{
+      const el=document.querySelector(sel);
+      if(el){el.style.display='none';el.setAttribute('aria-hidden','true');}
+    });
   }
-
-  function wrapMessages(){
-    if(wrapped || typeof window.msg!=='function')return;
-    const original=window.msg;
-    window.msg=function(text){
-      const cleaned=cleanMessage(text);
-      if(cleaned)original(cleaned);
-    };
-    wrapped=true;
-  }
-
-  function run(){
-    hideStats();
-    wrapMessages();
-  }
-
+  function run(){hideStats();}
   run();
   const observer=new MutationObserver(run);
   observer.observe(document.body,{childList:true,subtree:true});
-  window.setInterval(run,500);
+  window.setInterval(run,1000);
 })();
