@@ -1,4 +1,4 @@
-/* Лавка: без постоянного polling на мобильных устройствах */
+/* Качалка: без постоянного polling на мобильных устройствах */
 'use strict';
 (function(){
   const $=id=>document.getElementById(id);
@@ -28,7 +28,7 @@
   }
   function init(){
     const shop=$('btn-shop'),rank=$('btn-rank');
-    if(shop)shop.textContent='🛒 Лавка';
+    if(shop)shop.textContent='💪 Качалка';
     if(rank)rank.textContent='🏆 Масть';
     const content=$('modal-content');
     if(content)new MutationObserver(refreshShop).observe(content,{childList:true,subtree:true,characterData:true});
