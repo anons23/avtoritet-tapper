@@ -1,7 +1,7 @@
 'use strict';
 (function(){
   const MODAL='#modal.npc-modal,#modal.-modal';
-  const IMAGE='.npc-hero-img,. -hero-img,. -hero img'.replace(/, /g,',');
+  const IMAGE='.npc-hero-img,.-hero-img,.-hero img';
   const TYPES=['npc-open','npc-talk','npc-positive','npc-negative','npc-risk'];
   let lastImage=null;
   function getImage(){return document.querySelector(MODAL+' '+IMAGE)}
@@ -21,11 +21,11 @@
   }
   function sync(){
     const img=getImage();
-    if(!img)return;
+    if(!img){lastImage=null;return}
     if(img!==lastImage){lastImage=img;pulse('npc-open');}
   }
   document.addEventListener('click',e=>{
-    const button=e.target.closest('#modal.npc-modal .npc-choice,#modal.-modal .-choice');
+    const button=e.target.closest('#modal.npc-modal .npc-choice,#modal.npc-modal .-choice,#modal.-modal .npc-choice,#modal.-modal .-choice');
     if(button)window.setTimeout(()=>pulse(classify(button)),20);
   },true);
   const observer=new MutationObserver(sync);
