@@ -6,10 +6,9 @@
     './js/game.js?v=4.4',
     './js/shop-ui.js?v=2.1',
     './js/name-ui.js?v=2.1',
-    './js/prison-ui.js?v=2.0',
+    './js/prison-ui.js?v=2.1',
     './js/rank-ui.js?v=2.2',
-    './js/npc-ui.js?v=2.5',
-    './js/health-ui.js?v=3.3',
+    './js/npc-ui.js?v=2.6',
     './js/stories-ui-v2.js?v=2.1'
   ];
   function markGameReady(){try{const sdk=window.ysdk;if(sdk&&sdk.features&&sdk.features.LoadingAPI&&typeof sdk.features.LoadingAPI.ready==='function')sdk.features.LoadingAPI.ready();}catch(e){console.debug('[Bootstrap] LoadingAPI.ready failed',e);}}
