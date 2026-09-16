@@ -1,11 +1,11 @@
 'use strict';
 (function(){
   const scripts=[
-    './js/input-guard.js?v=1.0',
+    './js/input-guard.js?v=1.1',
     './js/save-migration.js?v=1.0',
-    './js/game.js?v=4.2',
+    './js/game.js?v=4.3',
     './js/shop-ui.js?v=2.0',
-    './js/name-ui.js?v=2.0',
+    './js/name-ui.js?v=2.1',
     './js/prison-ui.js?v=2.0',
     './js/rank-ui.js?v=2.2',
     './js/npc-ui.js?v=2.2',
