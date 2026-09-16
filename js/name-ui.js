@@ -12,20 +12,22 @@
     const input=$('nickname-input');
     if(input){input.value=current;setTimeout(()=>{input.focus();input.select()},0);input.addEventListener('keydown',e=>{if(e.key==='Enter')applyName()})}
     const btn=$('apply-nickname');if(btn)btn.onclick=applyName;
-    function applyName(){const value=(input?.value||'').trim();if(typeof window.requestNameChange==='function'){window.requestNameChange(value);return}if(!value)return;try{const state=JSON.parse(localStorage.getItem('avtoritet_save_v2')||'{}');state.nickname=value.slice(0,24);state.saveUpdatedAt=Date.now();localStorage.setItem('avtoritet_save_v2',JSON.stringify(state));if($('nickname'))$('nickname').textContent=state.nickname;modal.classList.add('hidden')}catch(e){}}
+    function applyName(){
+      const value=(input?.value||'').trim();
+      if(typeof window.requestNameChange==='function'){
+        const ok=window.requestNameChange(value);
+        if(ok!==false)modal.classList.add('hidden');
+        return;
+      }
+      if(!value)return;
+      try{const state=JSON.parse(localStorage.getItem('avtoritet_save_v2')||'{}');state.nickname=value.slice(0,24);state.saveUpdatedAt=Date.now();localStorage.setItem('avtoritet_save_v2',JSON.stringify(state));if($('nickname'))$('nickname').textContent=state.nickname;modal.classList.add('hidden')}catch(e){}
+    }
   }
   function hideOldNameBlock(){const old=$('name-btn');if(old){const row=old.closest('button,.menu-item,.settings-row,div');(row||old).style.display='none'}document.querySelectorAll('#modal-content button,#modal-content p,#modal-content div').forEach(el=>{if(el.id==='apply-nickname'||el.id==='nickname-input')return;const text=(el.textContent||'').trim();if(text.includes('Смена имени')||text.includes('Сменить имя'))el.style.display='none'})}
   function init(){
     const nick=$('nickname');
     if(nick){nick.style.cursor='pointer';nick.title='Сменить погремуху';nick.addEventListener('click',openNameEditor)}
-    try{
-      const raw=localStorage.getItem('avtoritet_save_v2');
-      const state=raw?JSON.parse(raw):null;
-      if(state&&state.nickname&&OLD_DEFAULTS.includes(state.nickname)){
-        state.nickname=randomName();state.saveUpdatedAt=Date.now();localStorage.setItem('avtoritet_save_v2',JSON.stringify(state));
-        if(nick)nick.textContent=state.nickname;
-      }
-    }catch(e){}
+    try{const raw=localStorage.getItem('avtoritet_save_v2');const state=raw?JSON.parse(raw):null;if(state&&state.nickname&&OLD_DEFAULTS.includes(state.nickname)){state.nickname=randomName();state.saveUpdatedAt=Date.now();localStorage.setItem('avtoritet_save_v2',JSON.stringify(state));if(nick)nick.textContent=state.nickname}}catch(e){}
     hideOldNameBlock();
     const content=$('modal-content');if(content)new MutationObserver(hideOldNameBlock).observe(content,{childList:true,subtree:true,characterData:true});
   }
