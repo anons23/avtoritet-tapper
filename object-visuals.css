@@ -3,9 +3,9 @@
 
 /* The boxing bag is the tap object itself: no gray circle behind it. */
 #tap-object.bag-mode{
-  width:min(340px,92vw);
-  height:min(360px,48vh);
-  min-height:260px;
+  width:min(400px,96vw);
+  height:min(420px,56vh);
+  min-height:280px;
   border-radius:0;
   background:transparent;
   border:0;
@@ -13,14 +13,14 @@
 }
 #tap-object.bag-mode:active,
 #tap-object.bag-mode.punch{transform:scale(.97)}
-#tap-object.bag-mode #object-emoji{height:270px;flex:0 0 270px}
+#tap-object.bag-mode #object-emoji{height:315px;flex:0 0 315px}
 #tap-object.bag-mode #object-name{margin-top:0}
 #tap-object.bag-mode .tap-target small{margin-top:4px}
 
 .boxing-bag-image{
   display:block;
-  width:min(300px,88vw);
-  height:min(300px,44vh);
+  width:min(600px,96vw);
+  height:min(600px,76vh);
   object-fit:contain;
   transform-origin:50% 8%;
   filter:drop-shadow(0 14px 18px rgba(0,0,0,.55));
@@ -40,15 +40,15 @@
 
 @media(min-width:701px){
   #object-emoji{height:150px}
-  #tap-object.bag-mode{width:440px;height:min(500px,58vh);min-height:360px}
-  #tap-object.bag-mode #object-emoji{height:390px;flex-basis:390px}
-  .boxing-bag-image{width:min(400px,42vw);height:min(400px,52vh)}
+  #tap-object.bag-mode{width:560px;height:min(650px,68vh);min-height:420px}
+  #tap-object.bag-mode #object-emoji{height:500px;flex-basis:500px}
+  .boxing-bag-image{width:min(800px,58vw);height:min(800px,70vh)}
 }
 
 @media(max-height:650px){
-  #tap-object.bag-mode{width:min(300px,90vw);height:270px;min-height:230px}
-  #tap-object.bag-mode #object-emoji{height:205px;flex-basis:205px}
-  .boxing-bag-image{width:min(235px,82vw);height:235px}
+  #tap-object.bag-mode{width:min(360px,94vw);height:310px;min-height:250px}
+  #tap-object.bag-mode #object-emoji{height:240px;flex-basis:240px}
+  .boxing-bag-image{width:min(470px,94vw);height:310px}
 }
 
 @media(prefers-reduced-motion:reduce){.boxing-bag-image.hit{animation:none}}
