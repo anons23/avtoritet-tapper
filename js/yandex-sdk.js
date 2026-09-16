@@ -10,6 +10,12 @@
   function queueCloudSave(flush){if(!player||!cloudReady)return;const data=snapshot();if(!data)return;pendingData=data;clearTimeout(saveTimer);if(flush)flushCloudSave(true);else saveTimer=setTimeout(()=>flushCloudSave(false),2000);}
   function flushCloudSave(force){clearTimeout(saveTimer);saveTimer=null;if(!player||!cloudReady||!pendingData)return;const data=pendingData;pendingData=null;player.setData(data,!!force).catch(function(err){pendingData=data;log('cloud save failed',err);});}
   function saveTime(obj){if(!obj||typeof obj!=='object')return 0;const t=Number(obj.saveUpdatedAt);return Number.isFinite(t)&&t>0?t:Number(obj.lastEnergyTime)||0;}
+  async function clearCloudData(){
+    if(!player||!cloudReady)return false;
+    clearTimeout(saveTimer);saveTimer=null;pendingData=null;
+    try{await player.setData({},true);await player.setStats({},true);return true;}
+    catch(e){log('cloud reset failed',e);return false;}
+  }
   async function init(){
     if(!window.YaGames){log('SDK loader unavailable; local save remains active.');return;}
     try{
@@ -42,7 +48,7 @@
     try{ysdk.adv.showRewardedVideo({callbacks:{onRewarded:function(){reward(true);},onClose:done,onError:function(err){reward(false);done();log('rewarded ad error',err);}}});return true;}
     catch(e){reward(false);done();log('rewarded ad call failed',e);return false;}
   };
-  window.YandexGameBridge={getSDK:function(){return ysdk;},flushSave:function(){flushCloudSave(true);},showFullscreenAd:function(){
+  window.YandexGameBridge={getSDK:function(){return ysdk;},flushSave:function(){flushCloudSave(true);},resetCloudData:clearCloudData,showFullscreenAd:function(){
     if(adBusy||!ysdk?.adv||typeof ysdk.adv.showFullscreenAdv!=='function')return false;
     adBusy=true;gameplayStop();const done=function(){if(!adBusy)return;adBusy=false;gameplayStart();};
     try{ysdk.adv.showFullscreenAdv({callbacks:{onClose:done,onError:done}});return true;}catch(e){done();return false;}
