@@ -1,0 +1,14 @@
+/* Backgrounds for the two highest ranks were missing from the original stylesheet. */
+#game-container.rank-avtoritet{
+  background-image:linear-gradient(rgba(8,8,8,.10),rgba(8,8,8,.22)),url('./assets/backgrounds/blatnoi_fon.jfif');
+  background-size:cover;
+  background-position:center;
+}
+#game-container.rank-vor{
+  background-image:linear-gradient(rgba(8,8,8,.08),rgba(8,8,8,.20)),url('./assets/backgrounds/smotrashii_fon.png');
+  background-size:cover;
+  background-position:center;
+}
+@media(max-width:700px){
+  #game-container.rank-avtoritet,#game-container.rank-vor{background-position:center center;}
+}
