@@ -32,11 +32,7 @@
   }
 
   function randomInt(a,b){return Math.floor(Math.random()*(b-a+1))+a}
-
-  function scaledAmount(s,base){
-    const mult=RANK_MULTIPLIERS[rankIndex(s)]||1;
-    return randomInt(Math.round(base*.85*mult),Math.round(base*1.15*mult));
-  }
+  function scaledAmount(s,base){const mult=RANK_MULTIPLIERS[rankIndex(s)]||1;return randomInt(Math.round(base*.85*mult),Math.round(base*1.15*mult))}
 
   function takeCigarettes(s,base){
     const key=s.jailed?'confiscatedCigarettes':'cigarettes';
@@ -62,11 +58,7 @@
     return {from:current,to:current-1,loss};
   }
 
-  function finish(s,text){
-    saveGame(s);
-    if(typeof window.ui==='function')window.ui();
-    return text;
-  }
+  function finish(s,text){saveGame(s);if(typeof window.ui==='function')window.ui();return text}
 
   const events=[
     ['🧹 Коридор','Надзиратель требует привести коридор в порядок.',[
@@ -123,8 +115,7 @@
     }
   }
 
-  function onPrisonTap(){check()}
-  window.onPrisonTap=onPrisonTap;
+  window.onPrisonTap=check;
 
   function rename(){
     const nav=$('btn-tasks');
@@ -137,6 +128,7 @@
     const c=$('modal-content');
     if(c)new MutationObserver(rename).observe(c,{childList:true,subtree:true,characterData:true});
     check();
+    setInterval(check,100);
   }
 
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});else init();
