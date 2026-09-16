@@ -12,7 +12,7 @@
     {src:'./js/npc5-ui.js?v=1.0',critical:false},
     {src:'./js/stories-ui-v2.js?v=2.1',critical:false},
     {src:'./js/stability-fixes.js?v=1.1',critical:false},
-    {src:'./js/object-visuals.js?v=1.0',critical:false}
+    {src:'./js/object-visuals.js?v=1.1',critical:false}
   ];
 
   function ready(){
@@ -31,17 +31,17 @@
     document.body.appendChild(box);
   }
 
-  function next(i){
+  function loadScripts(i){
     if(i>=scripts.length){ready();return;}
     const item=scripts[i];
     const script=document.createElement('script');
     script.src=item.src;
     script.async=false;
-    script.onload=()=>next(i+1);
+    script.onload=()=>loadScripts(i+1);
     script.onerror=()=>{
       console.error('[Bootstrap] Failed to load',item.src);
       if(item.critical){showFatal(item.src);return;}
-      next(i+1);
+      loadScripts(i+1);
     };
     document.body.appendChild(script);
   }
@@ -50,5 +50,8 @@
     if(e.target.closest('#game-container'))e.preventDefault();
   },{passive:false});
 
-  Promise.resolve(window.YandexGameReady).catch(()=>{}).then(()=>next(0));
+  // The game must start even if Yandex SDK initialization is slow or unavailable.
+  // SDK initialization continues independently and will enable cloud save/ads when ready.
+  loadScripts(0);
+  Promise.resolve(window.YandexGameReady).catch(()=>{}).then(ready);
 })();
