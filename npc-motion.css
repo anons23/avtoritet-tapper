@@ -1,0 +1,59 @@
+/* NPC interaction motion: subtle, readable reactions for static character art. */
+#modal.npc-modal .npc-hero-img{
+  transform-origin:50% 82%;
+  will-change:transform;
+  animation:npcBreath 3.2s ease-in-out infinite;
+}
+
+@keyframes npcBreath{
+  0%,100%{transform:translate3d(0,0,0) scale(1)}
+  50%{transform:translate3d(0,-2px,0) scale(1.008)}
+}
+
+#modal.npc-modal.npc-motion-open .npc-hero-img{
+  animation:npcEnter .42s cubic-bezier(.2,.8,.25,1),npcBreath 3.2s .42s ease-in-out infinite;
+}
+@keyframes npcEnter{
+  0%{transform:translate3d(0,18px,0) scale(.965);opacity:.65}
+  100%{transform:translate3d(0,0,0) scale(1);opacity:1}
+}
+
+#modal.npc-modal.npc-motion-talk .npc-hero-img{animation:npcTalk .38s ease-out,npcBreath 3.2s .38s ease-in-out infinite}
+@keyframes npcTalk{
+  0%{transform:translate3d(0,0,0) scale(1)}
+  35%{transform:translate3d(-3px,-2px,0) rotate(-.7deg) scale(1.008)}
+  70%{transform:translate3d(3px,0,0) rotate(.5deg) scale(1.004)}
+  100%{transform:translate3d(0,0,0) rotate(0) scale(1)}
+}
+
+#modal.npc-modal.npc-motion-positive .npc-hero-img{animation:npcPositive .52s cubic-bezier(.2,.8,.25,1),npcBreath 3.2s .52s ease-in-out infinite}
+@keyframes npcPositive{
+  0%{transform:translate3d(0,0,0) scale(1)}
+  35%{transform:translate3d(0,-7px,0) rotate(-1deg) scale(1.018)}
+  65%{transform:translate3d(0,1px,0) rotate(1deg) scale(1.005)}
+  100%{transform:translate3d(0,0,0) rotate(0) scale(1)}
+}
+
+#modal.npc-modal.npc-motion-negative .npc-hero-img{animation:npcNegative .5s ease-out,npcBreath 3.2s .5s ease-in-out infinite}
+@keyframes npcNegative{
+  0%,100%{transform:translate3d(0,0,0) rotate(0) scale(1)}
+  25%{transform:translate3d(7px,0,0) rotate(1deg) scale(.99)}
+  55%{transform:translate3d(-5px,1px,0) rotate(-.8deg) scale(.995)}
+}
+
+#modal.npc-modal.npc-motion-risk .npc-hero-img{animation:npcRisk .46s cubic-bezier(.2,.75,.25,1),npcBreath 3.2s .46s ease-in-out infinite}
+@keyframes npcRisk{
+  0%{transform:translate3d(0,0,0) scale(1)}
+  35%{transform:translate3d(0,-2px,0) rotate(-2deg) scale(1.025)}
+  70%{transform:translate3d(2px,0,0) rotate(1deg) scale(1.01)}
+  100%{transform:translate3d(0,0,0) rotate(0) scale(1)}
+}
+
+@media(prefers-reduced-motion:reduce){
+  #modal.npc-modal .npc-hero-img,
+  #modal.npc-modal.npc-motion-open .npc-hero-img,
+  #modal.npc-modal.npc-motion-talk .npc-hero-img,
+  #modal.npc-modal.npc-motion-positive .npc-hero-img,
+  #modal.npc-modal.npc-motion-negative .npc-hero-img,
+  #modal.npc-modal.npc-motion-risk .npc-hero-img{animation:none}
+}
