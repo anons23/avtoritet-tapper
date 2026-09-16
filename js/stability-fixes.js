@@ -3,6 +3,8 @@
   const SAVE_KEY='avtoritet_save_v2';
   const OBJECT_UNLOCKS=[0,150,400,1500,6000];
   const TASK_REWARDS=['500 🚬','750 🚬','1000 🚬','5000 🚬','1500 ⭐'];
+  let refreshing=false;
+  let refreshQueued=false;
 
   function state(){
     try{return typeof window.getGameState==='function'?window.getGameState():JSON.parse(localStorage.getItem(SAVE_KEY)||'{}')}catch(e){return {}}
@@ -36,9 +38,15 @@
       const small=card.querySelector('small');
       const reward=TASK_REWARDS[i];
       if(!small||!reward)return;
-      const parts=(small.textContent||'').split('· Награда:');
+      const text=small.textContent||'';
+      const parts=text.split('· Награда:');
       if(parts.length!==2)return;
-      small.innerHTML=parts[0]+'· Награда: <strong>'+reward+'</strong>';
+      const desired=parts[0]+'· Награда: '+reward;
+      if(text.trim()===desired.trim())return;
+      small.textContent=parts[0]+'· Награда:';
+      const strong=document.createElement('strong');
+      strong.textContent=reward;
+      small.appendChild(strong);
     });
   }
 
@@ -49,14 +57,29 @@
   }
 
   function refresh(){
-    syncObjectAfterPointsChange();
-    fixVisibleTaskRewards();
-    removeLegacyPrestige();
+    if(refreshing)return;
+    refreshing=true;
+    try{
+      syncObjectAfterPointsChange();
+      fixVisibleTaskRewards();
+      removeLegacyPrestige();
+    }finally{
+      refreshing=false;
+    }
+  }
+
+  function queueRefresh(){
+    if(refreshQueued)return;
+    refreshQueued=true;
+    queueMicrotask(()=>{
+      refreshQueued=false;
+      refresh();
+    });
   }
 
   function init(){
     const modal=document.getElementById('modal-content');
-    if(modal)new MutationObserver(refresh).observe(modal,{childList:true,subtree:true,characterData:true});
+    if(modal)new MutationObserver(queueRefresh).observe(modal,{childList:true,subtree:true,characterData:true});
     refresh();
     setInterval(refresh,1000);
   }
