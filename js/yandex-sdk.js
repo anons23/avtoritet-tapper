@@ -25,6 +25,7 @@
       ysdk=await window.YaGames.init();window.ysdk=ysdk;
       try{player=await ysdk.getPlayer();}catch(e){log('player init failed',e);}
       if(player){
+        cloudReady=true;
         try{
           const cloud=await player.getData(['gameSave','healthSave']);
           const localGameRaw=localStorage.getItem(SAVE_KEY),localHealthRaw=localStorage.getItem(HEALTH_KEY);
@@ -33,8 +34,8 @@
           if(cloud?.healthSave){if(!localHealthRaw)useCloudHealth=true;else{try{useCloudHealth=Number(cloud.healthSave.updatedAt||0)>Number(JSON.parse(localHealthRaw).updatedAt||0);}catch(e){useCloudHealth=true;}}}
           if(useCloudGame)localStorage.setItem(SAVE_KEY,JSON.stringify(cloud.gameSave));
           if(useCloudHealth)localStorage.setItem(HEALTH_KEY,JSON.stringify(cloud.healthSave));
-          cloudReady=true;queueCloudSave(false);
-        }catch(e){log('cloud load failed',e);}
+        }catch(e){log('cloud load failed; local save will continue and cloud writes remain enabled',e);}
+        queueCloudSave(false);
       }
       if(ysdk.on){ysdk.on('game_api_pause',function(){gameplayStop();flushCloudSave(true);});ysdk.on('game_api_resume',function(){gameplayStart();});}
       gameplayStart();log('initialized');
