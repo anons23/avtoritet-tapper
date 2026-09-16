@@ -9,7 +9,10 @@
     const target=document.getElementById('tap-object');
     if(!emoji)return;
     const isBag=!!(name && name.textContent.trim()===BAG_NAME);
-    if(target)target.classList.toggle('bag-mode',isBag);
+    if(target){
+      target.classList.toggle('bag-mode',isBag);
+      target.classList.remove('preload-hidden');
+    }
     if(isBag){
       let img=emoji.querySelector('.boxing-bag-image');
       if(!img){
