@@ -2,7 +2,6 @@
 (function(){
   const SAVE_KEY='avtoritet_save_v2';
   const OBJECT_UNLOCKS=[0,150,400,1500,6000];
-  const TASK_REWARDS=['500 🚬','750 🚬','1000 🚬','5000 🚬','1500 ⭐'];
   let refreshing=false;
   let refreshQueued=false;
 
@@ -30,26 +29,6 @@
     }
   }
 
-  function fixVisibleTaskRewards(){
-    const modal=document.getElementById('modal-content');
-    if(!modal)return;
-    const cards=[...modal.querySelectorAll('.task-card')];
-    cards.forEach((card,i)=>{
-      const small=card.querySelector('small');
-      const reward=TASK_REWARDS[i];
-      if(!small||!reward)return;
-      const text=small.textContent||'';
-      const parts=text.split('· Награда:');
-      if(parts.length!==2)return;
-      const desired=parts[0]+'· Награда: '+reward;
-      if(text.trim()===desired.trim())return;
-      small.textContent=parts[0]+'· Награда:';
-      const strong=document.createElement('strong');
-      strong.textContent=reward;
-      small.appendChild(strong);
-    });
-  }
-
   function removeLegacyPrestige(){
     const modal=document.getElementById('modal-content');
     if(!modal)return;
@@ -61,7 +40,6 @@
     refreshing=true;
     try{
       syncObjectAfterPointsChange();
-      fixVisibleTaskRewards();
       removeLegacyPrestige();
     }finally{
       refreshing=false;
