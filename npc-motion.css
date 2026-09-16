@@ -1,14 +1,29 @@
-/* Visible NPC motion: idle + strong reactions to dialogue choices. */
-#modal.npc-modal .npc-hero-img{transform-origin:50% 88%;will-change:transform;animation:npcIdle 2.6s ease-in-out infinite}
-@keyframes npcIdle{0%,100%{transform:translate3d(0,0,0) rotate(0) scale(1)}50%{transform:translate3d(0,-4px,0) rotate(.5deg) scale(1.012)}}
-#modal.npc-modal .npc-hero-img.npc-open{animation:npcOpen .7s cubic-bezier(.18,.82,.25,1)}
-@keyframes npcOpen{0%{transform:translate3d(0,45px,0) scale(.88);opacity:.25}55%{transform:translate3d(0,-7px,0) scale(1.025);opacity:1}100%{transform:translate3d(0,0,0) scale(1);opacity:1}}
-#modal.npc-modal .npc-hero-img.npc-talk{animation:npcTalk .65s ease-out}
-@keyframes npcTalk{0%{transform:translate3d(0,0,0) rotate(0) scale(1)}25%{transform:translate3d(-10px,-3px,0) rotate(-1.4deg) scale(1.018)}55%{transform:translate3d(9px,0,0) rotate(1.1deg) scale(1.012)}80%{transform:translate3d(-4px,-1px,0) rotate(-.5deg)}100%{transform:translate3d(0,0,0) rotate(0) scale(1)}}
-#modal.npc-modal .npc-hero-img.npc-positive{animation:npcPositive .7s cubic-bezier(.18,.82,.25,1)}
-@keyframes npcPositive{0%{transform:translate3d(0,0,0) scale(1)}25%{transform:translate3d(0,-15px,0) rotate(-1.5deg) scale(1.025)}55%{transform:translate3d(0,4px,0) rotate(1.2deg) scale(1.01)}100%{transform:translate3d(0,0,0) rotate(0) scale(1)}}
-#modal.npc-modal .npc-hero-img.npc-negative{animation:npcNegative .65s ease-out}
-@keyframes npcNegative{0%,100%{transform:translate3d(0,0,0) rotate(0) scale(1)}20%{transform:translate3d(15px,0,0) rotate(2deg) scale(.985)}45%{transform:translate3d(-12px,2px,0) rotate(-1.8deg) scale(.99)}70%{transform:translate3d(6px,0,0) rotate(.8deg)}}
-#modal.npc-modal .npc-hero-img.npc-risk{animation:npcRisk .62s cubic-bezier(.2,.75,.25,1)}
-@keyframes npcRisk{0%{transform:translate3d(0,0,0) scale(1)}30%{transform:translate3d(0,-8px,0) rotate(-3deg) scale(1.045)}55%{transform:translate3d(5px,2px,0) rotate(2deg) scale(1.025)}100%{transform:translate3d(0,0,0) rotate(0) scale(1)}}
-@media(prefers-reduced-motion:reduce){#modal.npc-modal .npc-hero-img,#modal.npc-modal .npc-hero-img.npc-open,#modal.npc-modal .npc-hero-img.npc-talk,#modal.npc-modal .npc-hero-img.npc-positive,#modal.npc-modal .npc-hero-img.npc-negative,#modal.npc-modal .npc-hero-img.npc-risk{animation:none}}
+/* NPC motion: always-visible idle movement plus clear reactions to choices. */
+#modal.npc-modal .npc-hero-img,
+#modal.npc-modal .npc-hero img{
+  transform-origin:50% 88%;
+  will-change:transform;
+  animation:npcIdle 2.2s ease-in-out infinite;
+}
+@keyframes npcIdle{
+  0%,100%{transform:translate3d(0,0,0) rotate(0) scale(1)}
+  25%{transform:translate3d(-3px,-5px,0) rotate(-.7deg) scale(1.008)}
+  50%{transform:translate3d(3px,-9px,0) rotate(.8deg) scale(1.015)}
+  75%{transform:translate3d(-2px,-4px,0) rotate(-.5deg) scale(1.008)}
+}
+#modal.npc-modal .npc-hero-img.npc-open,
+#modal.npc-modal .npc-hero img.npc-open{animation:npcOpen .85s cubic-bezier(.18,.82,.25,1)}
+@keyframes npcOpen{0%{transform:translate3d(0,55px,0) scale(.86);opacity:.15}45%{transform:translate3d(0,-10px,0) scale(1.04);opacity:1}70%{transform:translate3d(0,3px,0) scale(.99)}100%{transform:translate3d(0,0,0) scale(1);opacity:1}}
+#modal.npc-modal .npc-hero-img.npc-talk,
+#modal.npc-modal .npc-hero img.npc-talk{animation:npcTalk .8s ease-out}
+@keyframes npcTalk{0%{transform:translate3d(0,0,0) rotate(0) scale(1)}20%{transform:translate3d(-12px,-5px,0) rotate(-1.7deg) scale(1.02)}45%{transform:translate3d(10px,-2px,0) rotate(1.5deg) scale(1.015)}70%{transform:translate3d(-6px,-4px,0) rotate(-.8deg) scale(1.01)}100%{transform:translate3d(0,0,0) rotate(0) scale(1)}}
+#modal.npc-modal .npc-hero-img.npc-positive,
+#modal.npc-modal .npc-hero img.npc-positive{animation:npcPositive .85s cubic-bezier(.18,.82,.25,1)}
+@keyframes npcPositive{0%{transform:translate3d(0,0,0) scale(1)}25%{transform:translate3d(0,-18px,0) rotate(-2deg) scale(1.03)}55%{transform:translate3d(0,5px,0) rotate(1.5deg) scale(1.015)}100%{transform:translate3d(0,0,0) rotate(0) scale(1)}}
+#modal.npc-modal .npc-hero-img.npc-negative,
+#modal.npc-modal .npc-hero img.npc-negative{animation:npcNegative .8s ease-out}
+@keyframes npcNegative{0%,100%{transform:translate3d(0,0,0) rotate(0) scale(1)}20%{transform:translate3d(18px,0,0) rotate(2.5deg) scale(.98)}45%{transform:translate3d(-15px,2px,0) rotate(-2.2deg) scale(.99)}70%{transform:translate3d(7px,0,0) rotate(.9deg)}}
+#modal.npc-modal .npc-hero-img.npc-risk,
+#modal.npc-modal .npc-hero img.npc-risk{animation:npcRisk .78s cubic-bezier(.2,.75,.25,1)}
+@keyframes npcRisk{0%{transform:translate3d(0,0,0) scale(1)}25%{transform:translate3d(0,-10px,0) rotate(-3.5deg) scale(1.05)}55%{transform:translate3d(7px,3px,0) rotate(2.5deg) scale(1.025)}100%{transform:translate3d(0,0,0) rotate(0) scale(1)}}
+@media(prefers-reduced-motion:reduce){#modal.npc-modal .npc-hero-img,#modal.npc-modal .npc-hero img{animation:none}}
