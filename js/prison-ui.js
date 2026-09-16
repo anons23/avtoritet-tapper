@@ -19,14 +19,54 @@
     }catch(e){}
     try{return JSON.parse(localStorage.getItem(SAVE_KEY)||'{}')||{}}catch(e){return {}}
   }
-  function saveGame(s){try{s.saveUpdatedAt=Date.now();localStorage.setItem(SAVE_KEY,JSON.stringify(s));return true}catch(e){return false}}
-  function rankIndex(s){const points=Math.max(0,Number(s.points)||0);let i=0;for(let j=0;j<RANK_POINTS.length;j++)if(points>=RANK_POINTS[j])i=j;return i}
+
+  function saveGame(s){
+    try{s.saveUpdatedAt=Date.now();localStorage.setItem(SAVE_KEY,JSON.stringify(s));return true}catch(e){return false}
+  }
+
+  function rankIndex(s){
+    const points=Math.max(0,Number(s.points)||0);
+    let i=0;
+    for(let j=0;j<RANK_POINTS.length;j++)if(points>=RANK_POINTS[j])i=j;
+    return i;
+  }
+
   function randomInt(a,b){return Math.floor(Math.random()*(b-a+1))+a}
-  function scaledAmount(s,base){const mult=RANK_MULTIPLIERS[rankIndex(s)]||1;return randomInt(Math.round(base*.85*mult),Math.round(base*1.15*mult))}
-  function takeCigarettes(s,base){const key=s.jailed?'confiscatedCigarettes':'cigarettes';const available=Math.max(0,Number(s[key])||0);const loss=Math.min(available,scaledAmount(s,base));s[key]=Math.max(0,available-loss);return loss}
-  function takePoints(s,base){const available=Math.max(0,Number(s.points)||0);const loss=Math.min(available,scaledAmount(s,base));s.points=Math.max(0,available-loss);return loss}
-  function demoteOneRank(s){const current=rankIndex(s);if(current<=0)return {from:0,to:0,loss:0};const target=RANK_POINTS[current-1];const loss=Math.max(0,Number(s.points||0)-target);s.points=target;return {from:current,to:current-1,loss}}
-  function finish(s,text){saveGame(s);if(typeof window.ui==='function')window.ui();return text}
+
+  function scaledAmount(s,base){
+    const mult=RANK_MULTIPLIERS[rankIndex(s)]||1;
+    return randomInt(Math.round(base*.85*mult),Math.round(base*1.15*mult));
+  }
+
+  function takeCigarettes(s,base){
+    const key=s.jailed?'confiscatedCigarettes':'cigarettes';
+    const available=Math.max(0,Number(s[key])||0);
+    const loss=Math.min(available,scaledAmount(s,base));
+    s[key]=Math.max(0,available-loss);
+    return loss;
+  }
+
+  function takePoints(s,base){
+    const available=Math.max(0,Number(s.points)||0);
+    const loss=Math.min(available,scaledAmount(s,base));
+    s.points=Math.max(0,available-loss);
+    return loss;
+  }
+
+  function demoteOneRank(s){
+    const current=rankIndex(s);
+    if(current<=0)return {from:0,to:0,loss:0};
+    const target=RANK_POINTS[current-1];
+    const loss=Math.max(0,Number(s.points||0)-target);
+    s.points=target;
+    return {from:current,to:current-1,loss};
+  }
+
+  function finish(s,text){
+    saveGame(s);
+    if(typeof window.ui==='function')window.ui();
+    return text;
+  }
 
   const events=[
     ['🧹 Коридор','Надзиратель требует привести коридор в порядок.',[
@@ -76,24 +116,28 @@
     const jailed=!!s.jailed;
     if(!jailed){count=0;lastJailed=false;return}
     if(!lastJailed){count=0;lastJailed=true}
-    if(!busy&&count<THRESHOLDS.length&&Number(s.jailTaps||0)>=THRESHOLDS[count]){count++;setTimeout(show,150)}
+    const taps=Math.max(0,Number(s.jailTaps)||0);
+    if(!busy&&count<THRESHOLDS.length&&taps>=THRESHOLDS[count]){
+      count++;
+      setTimeout(show,150);
+    }
   }
+
+  function onPrisonTap(){check()}
+  window.onPrisonTap=onPrisonTap;
+
   function rename(){
     const nav=$('btn-tasks');
     if(nav)nav.textContent='🎯 Поручения';
     document.querySelectorAll('#modal-content h2').forEach(h=>{if(h.textContent.includes('Задания'))h.textContent=h.textContent.replace('Задания','Поручения')});
   }
+
   function init(){
     rename();
-    const tap=$('tap-object');
-    if(tap){
-      tap.addEventListener('touchstart',function(){setTimeout(check,0)},{passive:true,capture:true});
-      tap.addEventListener('pointerdown',function(){setTimeout(check,0)},{passive:true,capture:true});
-      tap.addEventListener('click',function(){setTimeout(check,0),{passive:true,capture:true}});
-    }
     const c=$('modal-content');
     if(c)new MutationObserver(rename).observe(c,{childList:true,subtree:true,characterData:true});
     check();
   }
+
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});else init();
 })();
