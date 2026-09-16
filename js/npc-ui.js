@@ -32,7 +32,7 @@
   const rankIndex=()=>{const s=liveGame(),p=Number(s.points||0);let i=0;const t=[0,500,2500,10000,40000,150000];for(let j=0;j<t.length;j++)if(p>=t[j])i=j;return i};
   const unlocked=id=>rankIndex()>=NPCS[id].rank;
   const data=id=>{const x=uses[id]||{};return {used:Number(x.used||0),extra:Number(x.extra||0),until:Number(x.until||0)}};
-  function state(id){const d=data(id),now=Date.now();if(d.until&&now>=d.until){d.used=0;d.extra=0;d.until=0;uses[id]=d;save()}if(d.used>MAX_FREE){d.used=MAX_FREE;uses[id]=d;save()}const free=Math.max(0,MAX_FREE-d.used),extra=Math.max(0,d.extra);return {used:d.used,extra,free,total:free+extra,locked:d.until>now,until:d.until};}
+  function state(id){const d=data(id),now=Date.now();if(d.until&&now>=d.until){d.used=0;d.extra=0;d.until=0;uses[id]=d;save()}if(d.used<MAX_FREE&&d.until>now){d.until=0;uses[id]=d;save()}if(d.used>MAX_FREE){d.used=MAX_FREE;uses[id]=d;save()}const free=Math.max(0,MAX_FREE-d.used),extra=Math.max(0,d.extra);return {used:d.used,extra,free,total:free+extra,locked:d.until>now,until:d.until};}
   function clampChance(n){return Math.max(5,Math.min(95,Math.round(n)))}
   function cooldownText(until){const left=Math.max(0,until-Date.now()),m=Math.ceil(left/60000),sec=Math.ceil((left%60000)/1000);return m>1?m+' мин':sec+' сек'}
   function npcHero(n){return '<div class="npc-hero"><img class="npc-hero-img" src="'+n.avatar+'" alt="Аватар '+n.name+'" loading="eager"><div class="npc-hero-gradient"></div><div class="npc-hero-title"><span>'+n.icon+'</span><b>'+n.name+'</b><small>'+n.desc+'</small></div></div>'}
