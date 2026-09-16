@@ -18,7 +18,8 @@ const ACHIEVEMENTS={
   bugor2:{title:'Бугор тебя уважает',desc:'2 успешные тренировки с Бугром.',icon:'💪',check:()=>s.tasks.bugorSuccess>=2},
   tasks25:{title:'Свой человек',desc:'25 успешных поручений.',icon:'🤝',check:()=>s.tasks.npcSuccess>=25},
   rich100k:{title:'Запас на чёрный день',desc:'Заработано 100 000 🚬.',icon:'📦',check:()=>s.tasks.earned>=100000},
-  rankThief:{title:'Высшая масть',desc:'Достигнута масть «Вор в законе».',icon:'👑',check:()=>s.points>=150000}
+  rankThief:{title:'Высшая масть',desc:'Достигнута масть «Вор в законе».',icon:'👑',check:()=>s.points>=150000},
+  jail5:{title:'Пять сроков',desc:'Пять раз пройти карцер до конца.',icon:'⛓️',check:()=>s.tasks.jail>=5}
 };
 const персонажейS={
  шайба:{name:'Шайба',icon:'🧢',desc:'торговец',action:'Попросить скидку',run(){if(s.jailed){msg('🔒 Сначала выйди из карцера');return}const gain=25+s.prestige*5;s.cigarettes+=gain;s.respect+=1;msg('🧢 Шайба помог: +'+gain+' 🚬 и +1 🧠')}},
