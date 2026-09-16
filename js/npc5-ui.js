@@ -76,7 +76,6 @@
     if(success){
       s.points=Number(s.points||0)+75;
       s.tasks.npcSuccess=(Number(s.tasks.npcSuccess)||0)+1;
-      s.tasks.Success=s.tasks.npcSuccess;
       s.tasks.avtoritetSuccess=(Number(s.tasks.avtoritetSuccess)||0)+1;
       s.tasks.earned=(Number(s.tasks.earned)||0)+100;
       s.cigarettes=Number(s.cigarettes||0)+100;
