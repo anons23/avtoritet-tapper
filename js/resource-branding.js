@@ -21,13 +21,8 @@
     try{
       const data=JSON.parse(value);
       if(!data||typeof data!=='object'||Array.isArray(data))return value;
-      if(!Object.prototype.hasOwnProperty.call(data,'chifir')){
-        data.chifir=number(data.cigarettes);
-      }
-      if(!Object.prototype.hasOwnProperty.call(data,'confiscatedChifir')){
-        data.confiscatedChifir=number(data.confiscatedCigarettes);
-      }
-      /* Legacy aliases are supplied only in memory so old game modules keep working. */
+      if(!Object.prototype.hasOwnProperty.call(data,'chifir'))data.chifir=number(data.cigarettes);
+      if(!Object.prototype.hasOwnProperty.call(data,'confiscatedChifir'))data.confiscatedChifir=number(data.confiscatedCigarettes);
       data.cigarettes=number(data.chifir);
       data.confiscatedCigarettes=number(data.confiscatedChifir);
       return JSON.stringify(data);
@@ -39,12 +34,8 @@
     try{
       const data=JSON.parse(value);
       if(!data||typeof data!=='object'||Array.isArray(data))return value;
-      const chifir=Object.prototype.hasOwnProperty.call(data,'chifir')
-        ?number(data.chifir)
-        :number(data.cigarettes);
-      const confiscated=Object.prototype.hasOwnProperty.call(data,'confiscatedChifir')
-        ?number(data.confiscatedChifir)
-        :number(data.confiscatedCigarettes);
+      const chifir=Object.prototype.hasOwnProperty.call(data,'chifir')?number(data.chifir):number(data.cigarettes);
+      const confiscated=Object.prototype.hasOwnProperty.call(data,'confiscatedChifir')?number(data.confiscatedChifir):number(data.confiscatedCigarettes);
       data.chifir=chifir;
       data.confiscatedChifir=confiscated;
       delete data.cigarettes;
@@ -55,8 +46,7 @@
 
   Storage.prototype.getItem=function(key){
     const value=originalGet.call(this,key);
-    if(key===SAVE_KEY)return normalizeForRuntime(value);
-    return value;
+    return key===SAVE_KEY?normalizeForRuntime(value):value;
   };
 
   Storage.prototype.setItem=function(key,value){
@@ -71,13 +61,12 @@
     [/папирос/gu,'запрещёнки'],
     [/Конфискованные сигареты возвращены/gu,'Запасы чефира возвращены'],
     [/Все сигареты временно изъяты/gu,'Весь чефир временно изъят'],
+    [/Не хватает сигарет/gu,'Не хватает чефира'],
     [/сигаретами/gu,'чефиром'],
-    [/сигарет/gu,'чефира'],
     [/сигареты/gu,'чефир'],
     [/сигарету/gu,'чефир'],
     [/сигарета/gu,'чефир'],
-    [/Не хватает сигарет/gu,'Не хватает чефира'],
-    [/Купить за ([0-9.,]+(?:K|M)?)[ ]*🍵/gu,'Купить за $1 🍵']
+    [/сигарет/gu,'чефира']
   ];
 
   function cleanText(value){
@@ -107,22 +96,8 @@
     const state=window.getGameState();
     if(!state||typeof state!=='object'||state.__chifirAliasInstalled)return;
     try{
-      if(!Object.prototype.hasOwnProperty.call(state,'chifir')){
-        Object.defineProperty(state,'chifir',{
-          configurable:true,
-          enumerable:false,
-          get(){return number(state.cigarettes)},
-          set(value){state.cigarettes=number(value)}
-        });
-      }
-      if(!Object.prototype.hasOwnProperty.call(state,'confiscatedChifir')){
-        Object.defineProperty(state,'confiscatedChifir',{
-          configurable:true,
-          enumerable:false,
-          get(){return number(state.confiscatedCigarettes)},
-          set(value){state.confiscatedCigarettes=number(value)}
-        });
-      }
+      if(!Object.prototype.hasOwnProperty.call(state,'chifir'))Object.defineProperty(state,'chifir',{configurable:true,enumerable:false,get(){return number(state.cigarettes)},set(value){state.cigarettes=number(value)}});
+      if(!Object.prototype.hasOwnProperty.call(state,'confiscatedChifir'))Object.defineProperty(state,'confiscatedChifir',{configurable:true,enumerable:false,get(){return number(state.confiscatedCigarettes)},set(value){state.confiscatedCigarettes=number(value)}});
       Object.defineProperty(state,'__chifirAliasInstalled',{value:true,enumerable:false});
     }catch(e){}
   }
