@@ -12,6 +12,10 @@
 #tap-object.bag-mode #object-emoji,#tap-object.cellmate-mode #object-emoji,#tap-object.pushups-mode #object-emoji,#tap-object.trainer-mode #object-emoji{height:315px;flex:0 0 315px}
 #tap-object.bag-mode #object-name,#tap-object.bag-mode small,#tap-object.cellmate-mode #object-name,#tap-object.cellmate-mode small,#tap-object.pushups-mode #object-name,#tap-object.pushups-mode small,#tap-object.trainer-mode #object-name,#tap-object.trainer-mode small{display:none!important}
 
+/* Disable the legacy punch animation on image objects; their own animation is handled by object-visuals.js. */
+#tap-object.cellmate-mode #object-emoji,#tap-object.pushups-mode #object-emoji,#tap-object.trainer-mode #object-emoji{animation:none!important}
+#tap-object.cellmate-mode #object-emoji.punch,#tap-object.pushups-mode #object-emoji.punch,#tap-object.trainer-mode #object-emoji.punch{animation:none!important;transform:none!important}
+
 .boxing-bag-image,.cellmate-image,.pushups-image,.trainer-image{display:block;width:min(600px,96vw);height:min(600px,76vh);object-fit:contain;transform-origin:50% 8%;filter:drop-shadow(0 14px 18px rgba(0,0,0,.55));user-select:none;-webkit-user-select:none;-webkit-touch-callout:none;pointer-events:none;will-change:transform}
 .cellmate-image{transform:scale(2.5);transform-origin:50% 50%}
 #game-container.jail-mode .boxing-bag-image,#game-container.jail-mode .cellmate-image,#game-container.jail-mode .pushups-image,#game-container.jail-mode .trainer-image{display:none}
