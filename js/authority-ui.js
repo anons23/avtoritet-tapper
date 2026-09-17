@@ -1,7 +1,7 @@
 'use strict';
 (function(){
   const AS='./assets/authority/';
-  const A={hero:AS+'авторитет.png',deal:AS+'Разобрать дела.png',pressure:AS+'давить авторитетом.png',folder:AS+'дела барака иконка.jfif',resolved:AS+'дело решено.png',clash:AS+'стычка.png',fight:AS+'драка.jfif',great:AS+'отлично.png'};
+  const A={hero:AS+'authority.png',deal:AS+'deal_button.png',pressure:AS+'authority_pressure.png',folder:AS+'barrack_cases_icon.jfif',resolved:AS+'case_resolved.png',clash:AS+'clash.png',fight:AS+'fight.jfif',great:AS+'excellent.png'};
   const DEALS=[
     {title:'Место у окна',story:'Двое заключённых не поделили место в общей зоне. Оба считают, что правы.',img:'clash',choices:[['Поговорить с обоими',180,8,'clash'],['Разделить время поровну',220,5,'safe'],['Принять решение',260,12,'clash']]},
     {title:'Очередь за чаем',story:'В столовой начался спор: один человек пытается пройти без очереди. Люди ждут твоего решения.',img:'hero',choices:[['Вернуть очередь',170,6,'safe'],['Дать сторонам договориться',140,4,'clash'],['Решить самому',250,10,'clash']]},
