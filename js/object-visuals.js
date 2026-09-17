@@ -2,7 +2,8 @@
 (function(){
   const BAG_SRC='./assets/backgrounds/boxing-bag.png?v=5';
   const CELL_SRC='./assets/backgrounds/cellmate.png?v=1';
-  const PUSHUPS_SRC='./assets/backgrounds/pushups.png?v=1';
+  const PUSHUPS_UP='./assets/backgrounds/pushups.png?v=1';
+  const PUSHUPS_DOWN='./assets/backgrounds/pushups_2.png?v=1';
   const TRAINER_DOWN='./assets/backgrounds/trainer_down.png?v=1';
   const TRAINER_UP='./assets/backgrounds/trainer_up.png?v=1';
   const BAG_NAME='Груша';
@@ -47,7 +48,7 @@
     if(old)old.remove();
     emoji.textContent='';
     img=document.createElement('img');
-    img.src=isBag?BAG_SRC:isCell?CELL_SRC:isPushups?PUSHUPS_SRC:TRAINER_DOWN;
+    img.src=isBag?BAG_SRC:isCell?CELL_SRC:isPushups?PUSHUPS_UP:TRAINER_DOWN;
     img.alt='';
     img.className=cls;
     img.draggable=false;
@@ -75,17 +76,16 @@
     if(pushupRunning)return;
     const emoji=document.getElementById('object-emoji');
     const img=emoji&&emoji.querySelector('.pushups-image');
-    if(!img||typeof img.animate!=='function'){pushupQueue=0;return;}
+    if(!img){pushupQueue=0;return;}
     pushupRunning=true;
     const step=()=>{
-      if(pushupQueue<=0){pushupRunning=false;return;}
+      if(pushupQueue<=0){img.src=PUSHUPS_UP;pushupRunning=false;return;}
       pushupQueue--;
-      activeAnimation=img.animate([
-        {transform:'translate3d(0,0,0)'},
-        {transform:'translate3d(0,34px,0)',offset:.45},
-        {transform:'translate3d(0,0,0)'}
-      ],{duration:380,easing:'cubic-bezier(.22,.61,.36,1)',fill:'none'});
-      activeAnimation.finished.then(step).catch(()=>{pushupRunning=false;});
+      img.src=PUSHUPS_DOWN;
+      setTimeout(()=>{
+        img.src=PUSHUPS_UP;
+        setTimeout(step,70);
+      },190);
     };
     step();
   }
