@@ -12,6 +12,9 @@
 #tap-object.bag-mode #object-emoji,#tap-object.cellmate-mode #object-emoji,#tap-object.pushups-mode #object-emoji,#tap-object.trainer-mode #object-emoji{height:315px;flex:0 0 315px}
 #tap-object.bag-mode #object-name,#tap-object.bag-mode small,#tap-object.cellmate-mode #object-name,#tap-object.cellmate-mode small,#tap-object.pushups-mode #object-name,#tap-object.pushups-mode small,#tap-object.trainer-mode #object-name,#tap-object.trainer-mode small{display:none!important}
 
+/* Hide legacy emoji text completely when a real image object is active. */
+#tap-object.bag-mode #object-emoji,#tap-object.cellmate-mode #object-emoji,#tap-object.pushups-mode #object-emoji,#tap-object.trainer-mode #object-emoji{font-size:0}
+
 /* Disable the legacy punch animation on image objects; their own animation is handled by object-visuals.js. */
 #tap-object.cellmate-mode #object-emoji,#tap-object.pushups-mode #object-emoji,#tap-object.trainer-mode #object-emoji{animation:none!important}
 #tap-object.cellmate-mode #object-emoji.punch,#tap-object.pushups-mode #object-emoji.punch,#tap-object.trainer-mode #object-emoji.punch{animation:none!important;transform:none!important}
