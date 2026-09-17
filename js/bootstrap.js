@@ -15,47 +15,26 @@
     {src:'./js/npc5-ui.js?v=1.0',critical:false},
     {src:'./js/stories-ui-v2.js?v=2.1',critical:false},
     {src:'./js/stability-fixes.js?v=1.1',critical:false},
-    {src:'./js/object-visuals.js?v=1.5',critical:false},
-    {src:'./js/test-object-cycle.js?v=1.0',critical:false}
+    {src:'./js/object-visuals.js?v=1.6',critical:false},
+    {src:'./js/test-object-cycle.js?v=1.1',critical:false}
   ];
-
   function ready(){
-    try{
-      const s=window.ysdk;
-      if(s&&s.features&&s.features.LoadingAPI&&typeof s.features.LoadingAPI.ready==='function')s.features.LoadingAPI.ready();
-    }catch(e){console.debug('[Bootstrap] LoadingAPI.ready failed',e);}
+    try{const s=window.ysdk;if(s&&s.features&&s.features.LoadingAPI&&typeof s.features.LoadingAPI.ready==='function')s.features.LoadingAPI.ready()}catch(e){console.debug('[Bootstrap] LoadingAPI.ready failed',e)}
   }
-
   function showFatal(src){
     console.error('[Bootstrap] Critical script failed:',src);
-    const box=document.createElement('div');
-    box.setAttribute('role','alert');
+    const box=document.createElement('div');box.setAttribute('role','alert');
     box.style.cssText='position:fixed;inset:0;z-index:99999;display:flex;align-items:center;justify-content:center;padding:24px;background:#111;color:#fff;font:16px/1.5 system-ui,sans-serif;text-align:center';
     box.innerHTML='<div style="max-width:520px"><h2 style="margin:0 0 12px">Не удалось запустить игру</h2><p style="margin:0 0 18px">Произошла ошибка загрузки игры. Обнови страницу и попробуй ещё раз.</p><button type="button" style="padding:12px 20px;border:0;border-radius:10px;font:inherit;cursor:pointer" onclick="location.reload()">Обновить</button></div>';
     document.body.appendChild(box);
   }
-
   function loadScripts(i){
-    if(i>=scripts.length){ready();return;}
-    const item=scripts[i];
-    const script=document.createElement('script');
-    script.src=item.src;
-    script.async=false;
+    if(i>=scripts.length){ready();return}
+    const item=scripts[i],script=document.createElement('script');script.src=item.src;script.async=false;
     script.onload=()=>loadScripts(i+1);
-    script.onerror=()=>{
-      console.error('[Bootstrap] Failed to load',item.src);
-      if(item.critical){showFatal(item.src);return;}
-      loadScripts(i+1);
-    };
+    script.onerror=()=>{console.error('[Bootstrap] Failed to load',item.src);if(item.critical){showFatal(item.src);return}loadScripts(i+1)};
     document.body.appendChild(script);
   }
-
-  document.addEventListener('contextmenu',e=>{
-    if(e.target.closest('#game-container'))e.preventDefault();
-  },{passive:false});
-
-  // The game must start even if Yandex SDK initialization is slow or unavailable.
-  // SDK initialization continues independently and will enable cloud save/ads when ready.
-  loadScripts(0);
-  Promise.resolve(window.YandexGameReady).catch(()=>{}).then(ready);
+  document.addEventListener('contextmenu',e=>{if(e.target.closest('#game-container'))e.preventDefault()},{passive:false});
+  loadScripts(0);Promise.resolve(window.YandexGameReady).catch(()=>{}).then(ready);
 })();
