@@ -30,8 +30,8 @@
     const isAuthority=current===AUTHORITY_NAME;
     const isBreakthrough=current===BREAKTHROUGH_NAME;
     if(!isBag&&!isCell&&!isPushups&&!isTrainer&&!isAuthority&&!isBreakthrough){
-      const old=emoji.querySelector('.boxing-bag-image,.cellmate-image,.pushups-image,.trainer-image');
-      if(old)old.remove();
+      const old=emoji.querySelectorAll('.boxing-bag-image,.cellmate-image,.pushups-image,.trainer-image');
+      old.forEach(el=>el.remove());
       pushupQueue=0;pushupRunning=false;trainerQueue=0;trainerRunning=false;
       target.classList.remove('bag-mode','cellmate-mode','pushups-mode','trainer-mode','authority-mode','breakthrough-mode','preload-hidden');
       return;
@@ -43,8 +43,7 @@
     target.classList.toggle('authority-mode',isAuthority);
     target.classList.toggle('breakthrough-mode',isBreakthrough);
     if(isAuthority||isBreakthrough){
-      const old=emoji.querySelector('.boxing-bag-image,.cellmate-image,.pushups-image,.trainer-image');
-      if(old)old.remove();
+      emoji.querySelectorAll('.boxing-bag-image,.cellmate-image,.pushups-image,.trainer-image').forEach(el=>el.remove());
       pushupQueue=0;pushupRunning=false;trainerQueue=0;trainerRunning=false;
       target.classList.remove('preload-hidden');
       return;
@@ -53,17 +52,36 @@
     const cls=isBag?'boxing-bag-image':isCell?'cellmate-image':isPushups?'pushups-image':'trainer-image';
     let img=emoji.querySelector('.'+cls);
     if(img){target.classList.remove('preload-hidden');return;}
-    const old=emoji.querySelector('.boxing-bag-image,.cellmate-image,.pushups-image,.trainer-image');
-    if(old)old.remove();
+    emoji.querySelectorAll('.boxing-bag-image,.cellmate-image,.pushups-image,.trainer-image').forEach(el=>el.remove());
     emoji.textContent='';
-    img=document.createElement('img');
-    img.src=isBag?BAG_SRC:isCell?CELL_SRC:isPushups?PUSHUPS_UP:TRAINER_DOWN;
-    img.alt='';
-    img.className=cls;
-    img.draggable=false;
-    img.onload=()=>target.classList.remove('preload-hidden');
-    img.onerror=()=>target.classList.remove('preload-hidden');
-    emoji.appendChild(img);
+
+    if(isPushups||isTrainer){
+      const first=document.createElement('img');
+      const second=document.createElement('img');
+      first.alt=''; second.alt='';
+      first.className=cls+' frame-a';
+      second.className=cls+' frame-b';
+      first.draggable=false; second.draggable=false;
+      first.src=isPushups?PUSHUPS_UP:TRAINER_DOWN;
+      second.src=isPushups?PUSHUPS_DOWN:TRAINER_UP;
+      first.style.opacity='1';
+      second.style.opacity='0';
+      first.style.zIndex='2';
+      second.style.zIndex='1';
+      emoji.appendChild(first); emoji.appendChild(second);
+      const reveal=()=>target.classList.remove('preload-hidden');
+      first.onload=reveal; second.onload=reveal;
+      first.onerror=reveal; second.onerror=reveal;
+    }else{
+      img=document.createElement('img');
+      img.src=isBag?BAG_SRC:CELL_SRC;
+      img.alt='';
+      img.className=cls;
+      img.draggable=false;
+      img.onload=()=>target.classList.remove('preload-hidden');
+      img.onerror=()=>target.classList.remove('preload-hidden');
+      emoji.appendChild(img);
+    }
   }
 
   function animateSwing(img){
@@ -84,16 +102,31 @@
     document.head.appendChild(style);
   }
 
+  function swapFrame(emoji, cls){
+    const frames=emoji&&emoji.querySelectorAll('.'+cls);
+    if(!frames||frames.length<2)return;
+    const current=frames[0].style.opacity==='1'?frames[0]:frames[1];
+    const next=current===frames[0]?frames[1]:frames[0];
+    next.style.zIndex='2';
+    current.style.zIndex='1';
+    next.style.opacity='1';
+    current.style.opacity='0';
+  }
+
   function runPushup(){
     if(pushupRunning)return;
     const emoji=document.getElementById('object-emoji');
-    const img=emoji&&emoji.querySelector('.pushups-image');
-    if(!img){pushupQueue=0;return;}
+    const frames=emoji&&emoji.querySelectorAll('.pushups-image');
+    if(!frames||frames.length<2){pushupQueue=0;return;}
     pushupRunning=true;
     const step=()=>{
-      if(pushupQueue<=0){img.src=PUSHUPS_UP;pushupRunning=false;return;}
-      pushupQueue--;img.src=PUSHUPS_DOWN;
-      setTimeout(()=>{img.src=PUSHUPS_UP;setTimeout(step,70)},190);
+      if(pushupQueue<=0){
+        if(frames[0].style.opacity!=='1')swapFrame(emoji,'pushups-image');
+        pushupRunning=false;return;
+      }
+      pushupQueue--;
+      swapFrame(emoji,'pushups-image');
+      setTimeout(()=>{swapFrame(emoji,'pushups-image');setTimeout(step,70)},190);
     };
     step();
   }
@@ -101,13 +134,17 @@
   function runTrainer(){
     if(trainerRunning)return;
     const emoji=document.getElementById('object-emoji');
-    const img=emoji&&emoji.querySelector('.trainer-image');
-    if(!img)return;
+    const frames=emoji&&emoji.querySelectorAll('.trainer-image');
+    if(!frames||frames.length<2)return;
     trainerRunning=true;
     const step=()=>{
-      if(trainerQueue<=0){img.src=TRAINER_DOWN;trainerRunning=false;return;}
-      trainerQueue--;img.src=TRAINER_UP;
-      setTimeout(()=>{img.src=TRAINER_DOWN;setTimeout(step,90)},190);
+      if(trainerQueue<=0){
+        if(frames[0].style.opacity!=='1')swapFrame(emoji,'trainer-image');
+        trainerRunning=false;return;
+      }
+      trainerQueue--;
+      swapFrame(emoji,'trainer-image');
+      setTimeout(()=>{swapFrame(emoji,'trainer-image');setTimeout(step,90)},190);
     };
     step();
   }
