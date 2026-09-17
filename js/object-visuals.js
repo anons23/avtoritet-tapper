@@ -2,9 +2,13 @@
 (function(){
   const BAG_SRC='./assets/backgrounds/boxing-bag.png?v=5';
   const CELL_SRC='./assets/backgrounds/cellmate.png?v=1';
+  const PUSHUPS_SRC='./assets/backgrounds/pushups.png?v=1';
   const BAG_NAME='Груша';
   const CELL_NAME='Сокамерник';
+  const PUSHUPS_NAME='Отжимания';
   let activeAnimation=null;
+  let pushupQueue=0;
+  let pushupRunning=false;
 
   function sync(){
     const emoji=document.getElementById('object-emoji');
@@ -14,25 +18,29 @@
     const current=String(name&&name.textContent||'').trim();
     const isBag=current===BAG_NAME;
     const isCell=current===CELL_NAME;
-    if(!isBag&&!isCell){
-      const old=emoji.querySelector('.boxing-bag-image,.cellmate-image');
+    const isPushups=current===PUSHUPS_NAME;
+    if(!isBag&&!isCell&&!isPushups){
+      const old=emoji.querySelector('.boxing-bag-image,.cellmate-image,.pushups-image');
       if(old)old.remove();
       if(activeAnimation)activeAnimation.cancel();
       activeAnimation=null;
-      target.classList.remove('bag-mode','cellmate-mode','preload-hidden');
+      pushupQueue=0;
+      pushupRunning=false;
+      target.classList.remove('bag-mode','cellmate-mode','pushups-mode','preload-hidden');
       return;
     }
     target.classList.toggle('bag-mode',isBag);
     target.classList.toggle('cellmate-mode',isCell);
+    target.classList.toggle('pushups-mode',isPushups);
     target.classList.add('preload-hidden');
-    const cls=isBag?'boxing-bag-image':'cellmate-image';
+    const cls=isBag?'boxing-bag-image':isCell?'cellmate-image':'pushups-image';
     let img=emoji.querySelector('.'+cls);
     if(img){target.classList.remove('preload-hidden');return;}
-    const old=emoji.querySelector('.boxing-bag-image,.cellmate-image');
+    const old=emoji.querySelector('.boxing-bag-image,.cellmate-image,.pushups-image');
     if(old)old.remove();
     emoji.textContent='';
     img=document.createElement('img');
-    img.src=isBag?BAG_SRC:CELL_SRC;
+    img.src=isBag?BAG_SRC:isCell?CELL_SRC:PUSHUPS_SRC;
     img.alt='';
     img.className=cls;
     img.draggable=false;
@@ -41,9 +49,7 @@
     emoji.appendChild(img);
   }
 
-  function animate(){
-    const emoji=document.getElementById('object-emoji');
-    const img=emoji&&emoji.querySelector('.boxing-bag-image,.cellmate-image');
+  function animateSwing(img){
     if(!img||typeof img.animate!=='function')return;
     if(activeAnimation)activeAnimation.cancel();
     activeAnimation=img.animate([
@@ -55,6 +61,38 @@
       {transform:'rotate(-1.5deg) translate3d(-1px,0,0)',offset:.80},
       {transform:'rotate(0deg) translate3d(0,0,0)'}
     ],{duration:680,easing:'cubic-bezier(.22,.61,.36,1)',fill:'none'});
+  }
+
+  function runPushup(){
+    if(pushupRunning)return;
+    const emoji=document.getElementById('object-emoji');
+    const img=emoji&&emoji.querySelector('.pushups-image');
+    if(!img||typeof img.animate!=='function'){pushupQueue=0;return;}
+    pushupRunning=true;
+    const step=()=>{
+      if(pushupQueue<=0){pushupRunning=false;return;}
+      pushupQueue--;
+      activeAnimation=img.animate([
+        {transform:'translate3d(0,0,0)'},
+        {transform:'translate3d(0,24px,0)',offset:.45},
+        {transform:'translate3d(0,0,0)'}
+      ],{duration:380,easing:'cubic-bezier(.22,.61,.36,1)',fill:'none'});
+      activeAnimation.finished.then(step).catch(()=>{pushupRunning=false;});
+    };
+    step();
+  }
+
+  function animate(){
+    const emoji=document.getElementById('object-emoji');
+    const img=emoji&&emoji.querySelector('.boxing-bag-image,.cellmate-image,.pushups-image');
+    if(!img)return;
+    const isPushups=img.classList.contains('pushups-image');
+    if(isPushups){
+      pushupQueue=Math.min(12,pushupQueue+1);
+      runPushup();
+      return;
+    }
+    animateSwing(img);
   }
 
   function init(){
