@@ -1,8 +1,0 @@
-/* Separate tap animations for push-ups and the barbell trainer. */
-.pushups-image{transform-origin:50% 55%;}
-.trainer-image{transform-origin:50% 60%;}
-#tap-object.pushups-mode.punch .pushups-image{animation:pushup-rep .26s ease-in-out both!important;}
-#tap-object.trainer-mode.punch .trainer-image{animation:trainer-rep .28s ease-in-out both!important;}
-@keyframes pushup-rep{0%{transform:translateY(0)}45%{transform:translateY(34px)}100%{transform:translateY(0)}}
-@keyframes trainer-rep{0%{content:url('./assets/backgrounds/trainer_down.png');transform:translateY(0)}45%{content:url('./assets/backgrounds/trainer_up.png');transform:translateY(-3px)}100%{content:url('./assets/backgrounds/trainer_down.png');transform:translateY(0)}}
-@media(max-height:650px){@keyframes pushup-rep{0%{transform:translateY(0)}45%{transform:translateY(24px)}100%{transform:translateY(0)}}}
