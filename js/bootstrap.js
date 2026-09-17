@@ -8,6 +8,7 @@
     {src:'./js/name-ui.js?v=2.1',critical:false},
     {src:'./js/prison-ui.js?v=3.2',critical:false},
     {src:'./js/rank-ui.js?v=2.2',critical:false},
+    {src:'./js/npc-stat-cleanup.js?v=1.1',critical:false},
     {src:'./js/npc-ui.js?v=2.7',critical:false},
     {src:'./js/npc-no-emoji.js?v=1.0',critical:false},
     {src:'./js/npc5-ui.js?v=1.0',critical:false},
