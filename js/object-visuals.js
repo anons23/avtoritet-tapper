@@ -1,7 +1,8 @@
 'use strict';
 (function(){
-  const BAG_SRC='./assets/backgrounds/boxing-bag.png?v=4';
+  const BAG_SRC='./assets/backgrounds/boxing-bag.png?v=5';
   const BAG_NAME='Груша';
+  let activeAnimation=null;
 
   function sync(){
     const emoji=document.getElementById('object-emoji');
@@ -11,8 +12,8 @@
     const isBag=!!(name && name.textContent.trim()===BAG_NAME);
     if(!isBag){
       const img=emoji.querySelector('.boxing-bag-image');
-      if(img)img.remove();
-      if(target){target.classList.remove('bag-mode','preload-hidden');}
+      if(img){if(activeAnimation)activeAnimation.cancel();activeAnimation=null;img.remove();}
+      if(target)target.classList.remove('bag-mode','preload-hidden');
       return;
     }
     if(!target)return;
@@ -34,10 +35,18 @@
   function animate(){
     const emoji=document.getElementById('object-emoji');
     const img=emoji&&emoji.querySelector('.boxing-bag-image');
-    if(!img)return;
-    img.classList.remove('hit');
-    void img.offsetWidth;
-    img.classList.add('hit');
+    if(!img||typeof img.animate!=='function')return;
+    if(activeAnimation)activeAnimation.cancel();
+    activeAnimation=img.animate([
+      {transform:'rotate(0deg) translate3d(0,0,0)'},
+      {transform:'rotate(-13deg) translate3d(-4px,0,0)',offset:.10},
+      {transform:'rotate(10deg) translate3d(4px,0,0)',offset:.25},
+      {transform:'rotate(-7deg) translate3d(-3px,0,0)',offset:.42},
+      {transform:'rotate(5deg) translate3d(2px,0,0)',offset:.59},
+      {transform:'rotate(-2.8deg) translate3d(-1px,0,0)',offset:.76},
+      {transform:'rotate(1.2deg) translate3d(0,0,0)',offset:.90},
+      {transform:'rotate(0deg) translate3d(0,0,0)'}
+    ],{duration:780,easing:'cubic-bezier(.22,.61,.36,1)',fill:'none'});
   }
 
   function init(){
@@ -49,7 +58,7 @@
     observer.observe(emoji,{childList:true,characterData:true,subtree:true});
     if(name)observer.observe(name,{childList:true,characterData:true,subtree:true});
     sync();
-    if(target)target.addEventListener('pointerdown',animate,{passive:true});
+    if(target)target.addEventListener('pointerdown',animate,{passive:true,capture:true});
   }
 
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});
