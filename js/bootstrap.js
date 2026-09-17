@@ -4,7 +4,7 @@
     {src:'./js/input-guard.js?v=1.1',critical:false},
     {src:'./js/save-migration.js?v=1.0',critical:true},
     {src:'./js/game.js?v=4.5',critical:true},
-    {src:'./js/test-mode.js?v=1.2',critical:false},
+    {src:'./js/test-mode.js?v=1.3',critical:false},
     {src:'./js/shop-ui.js?v=2.1',critical:false},
     {src:'./js/name-ui.js?v=2.1',critical:false},
     {src:'./js/prison-ui.js?v=3.2',critical:false},
@@ -15,7 +15,7 @@
     {src:'./js/npc5-ui.js?v=1.0',critical:false},
     {src:'./js/stories-ui-v2.js?v=2.1',critical:false},
     {src:'./js/stability-fixes.js?v=1.1',critical:false},
-    {src:'./js/object-visuals.js?v=1.6',critical:false}
+    {src:'./js/object-visuals.js?v=1.7',critical:false}
   ];
   function ready(){
     try{const s=window.ysdk;if(s&&s.features&&s.features.LoadingAPI&&typeof s.features.LoadingAPI.ready==='function')s.features.LoadingAPI.ready()}catch(e){console.debug('[Bootstrap] LoadingAPI.ready failed',e)}
