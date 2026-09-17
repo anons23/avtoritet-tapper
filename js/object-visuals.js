@@ -1,6 +1,6 @@
 'use strict';
 (function(){
-  const BAG_SRC='./assets/backgrounds/boxing-bag.png?v=3';
+  const BAG_SRC='./assets/backgrounds/boxing-bag.png?v=4';
   const BAG_NAME='Груша';
 
   function sync(){
@@ -12,7 +12,7 @@
     if(!isBag){
       const img=emoji.querySelector('.boxing-bag-image');
       if(img)img.remove();
-      if(target){target.classList.remove('bag-mode');target.classList.remove('preload-hidden');}
+      if(target){target.classList.remove('bag-mode','preload-hidden');}
       return;
     }
     if(!target)return;
@@ -26,7 +26,7 @@
     img.alt=BAG_NAME;
     img.className='boxing-bag-image';
     img.draggable=false;
-    img.onload=()=>{target.classList.remove('preload-hidden');};
+    img.onload=()=>target.classList.remove('preload-hidden');
     img.onerror=()=>{target.classList.remove('preload-hidden');emoji.textContent='🥊';};
     emoji.appendChild(img);
   }
