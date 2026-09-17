@@ -1,8 +1,8 @@
 'use strict';
 (function(){
   const TEST_POINTS_PER_TAP=500;
-  const OBJECT_THRESHOLDS=[0,150,400,1500,6000];
-  let startPoints=0,startCigarettes=0,startEarned=0,armed=false,resetDone=false;
+  const OBJECT_COUNT=5;
+  let startPoints=0,startCigarettes=0,startEarned=0,startObject=0,armed=false,resetDone=false;
   function render(s){
     const p=document.getElementById('points'),c=document.getElementById('cigarettes');
     if(p)p.textContent=s.points>=1000?(s.points/1000).toFixed(1)+'K':String(Math.floor(s.points));
@@ -24,9 +24,7 @@
     s.points=startPoints+TEST_POINTS_PER_TAP;
     s.cigarettes=startCigarettes+TEST_POINTS_PER_TAP;
     s.tasks.earned=startEarned+TEST_POINTS_PER_TAP;
-    let max=0;
-    for(let i=0;i<OBJECT_THRESHOLDS.length;i++)if(s.points>=OBJECT_THRESHOLDS[i])max=i;
-    s.currentObject=max;
+    s.currentObject=Math.min(OBJECT_COUNT-1,startObject+1);
     save(s);render(s);armed=false;
   }
   function start(){
@@ -36,7 +34,7 @@
       if(!e.target||!e.target.closest||!e.target.closest('#tap-object'))return;
       const s=window.getGameState&&window.getGameState();
       if(!s||s.jailed)return;
-      startPoints=s.points;startCigarettes=s.cigarettes;startEarned=Number(s.tasks.earned)||0;armed=true;
+      startPoints=s.points;startCigarettes=s.cigarettes;startEarned=Number(s.tasks.earned)||0;startObject=Number(s.currentObject)||0;armed=true;
     },true);
     document.addEventListener('click',function(e){
       if(!e.target||!e.target.closest||!e.target.closest('#tap-object'))return;
