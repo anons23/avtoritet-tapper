@@ -10,6 +10,8 @@
   const CELL_NAME='Сокамерник';
   const PUSHUPS_NAME='Отжимания';
   const TRAINER_NAME='Тренажёр';
+  const AUTHORITY_NAME='Разборка';
+  const BREAKTHROUGH_NAME='Прорыв';
   let pushupQueue=0;
   let pushupRunning=false;
   let trainerQueue=0;
@@ -25,17 +27,28 @@
     const isCell=current===CELL_NAME;
     const isPushups=current===PUSHUPS_NAME;
     const isTrainer=current===TRAINER_NAME;
-    if(!isBag&&!isCell&&!isPushups&&!isTrainer){
+    const isAuthority=current===AUTHORITY_NAME;
+    const isBreakthrough=current===BREAKTHROUGH_NAME;
+    if(!isBag&&!isCell&&!isPushups&&!isTrainer&&!isAuthority&&!isBreakthrough){
       const old=emoji.querySelector('.boxing-bag-image,.cellmate-image,.pushups-image,.trainer-image');
       if(old)old.remove();
       pushupQueue=0;pushupRunning=false;trainerQueue=0;trainerRunning=false;
-      target.classList.remove('bag-mode','cellmate-mode','pushups-mode','trainer-mode','preload-hidden');
+      target.classList.remove('bag-mode','cellmate-mode','pushups-mode','trainer-mode','authority-mode','breakthrough-mode','preload-hidden');
       return;
     }
     target.classList.toggle('bag-mode',isBag);
     target.classList.toggle('cellmate-mode',isCell);
     target.classList.toggle('pushups-mode',isPushups);
     target.classList.toggle('trainer-mode',isTrainer);
+    target.classList.toggle('authority-mode',isAuthority);
+    target.classList.toggle('breakthrough-mode',isBreakthrough);
+    if(isAuthority||isBreakthrough){
+      const old=emoji.querySelector('.boxing-bag-image,.cellmate-image,.pushups-image,.trainer-image');
+      if(old)old.remove();
+      pushupQueue=0;pushupRunning=false;trainerQueue=0;trainerRunning=false;
+      target.classList.remove('preload-hidden');
+      return;
+    }
     target.classList.add('preload-hidden');
     const cls=isBag?'boxing-bag-image':isCell?'cellmate-image':isPushups?'pushups-image':'trainer-image';
     let img=emoji.querySelector('.'+cls);
@@ -67,7 +80,7 @@
     if(document.getElementById('object-visuals-anim-style'))return;
     const style=document.createElement('style');
     style.id='object-visuals-anim-style';
-    style.textContent='@keyframes object-swing{0%{transform:var(--object-base-transform) rotate(0deg) translate3d(0,0,0)}12%{transform:var(--object-base-transform) rotate(-9deg) translate3d(-3px,0,0)}27%{transform:var(--object-base-transform) rotate(7deg) translate3d(3px,0,0)}45%{transform:var(--object-base-transform) rotate(-5deg) translate3d(-2px,0,0)}63%{transform:var(--object-base-transform) rotate(3deg) translate3d(2px,0,0)}80%{transform:var(--object-base-transform) rotate(-1.5deg) translate3d(-1px,0,0)}100%{transform:var(--object-base-transform) rotate(0deg) translate3d(0,0,0)}}';
+    style.textContent='@keyframes object-swing{0%{transform:var(--object-base-transform) rotate(0deg) translate3d(0,0,0)}12%{transform:var(--object-base-transform) rotate(-9deg) translate3d(-3px,0,0)}27%{transform:var(--object-base-transform) rotate(7deg) translate3d(3px,0,0)}45%{transform:var(--object-base-transform) rotate(-5deg) translate3d(-2px,0,0)}63%{transform:var(--object-base-transform) rotate(3deg) translate3d(2px,0,0)}80%{transform:var(--object-base-transform) rotate(-1.5deg) translate3d(-1px,0,0)}100%{transform:var(--object-base-transform) rotate(0deg) translate3d(0,0,0)}}@keyframes authority-pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.045)}}@keyframes breakthrough-pulse{0%,100%{transform:translateX(0)}35%{transform:translateX(-5px)}65%{transform:translateX(5px)}}.authority-mode #object-emoji{animation:authority-pulse .9s ease-in-out infinite}.breakthrough-mode #object-emoji{animation:breakthrough-pulse .7s ease-in-out infinite}';
     document.head.appendChild(style);
   }
 
