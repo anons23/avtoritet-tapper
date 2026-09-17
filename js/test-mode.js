@@ -1,6 +1,6 @@
 'use strict';
 (function(){
-  const TEST_POINTS_PER_TAP=1000;
+  const TEST_POINTS_PER_TAP=500;
   const OBJECT_THRESHOLDS=[0,150,400,1500,6000];
   let startPoints=0,startCigarettes=0,startEarned=0,armed=false,resetDone=false;
   function render(s){
