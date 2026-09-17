@@ -52,14 +52,15 @@
   function animateSwing(img){
     if(!img||typeof img.animate!=='function')return;
     if(activeAnimation)activeAnimation.cancel();
+    const scale=img.classList.contains('cellmate-image')?'scale(2.5) ':'';
     activeAnimation=img.animate([
-      {transform:'rotate(0deg) translate3d(0,0,0)'},
-      {transform:'rotate(-9deg) translate3d(-3px,0,0)',offset:.12},
-      {transform:'rotate(7deg) translate3d(3px,0,0)',offset:.27},
-      {transform:'rotate(-5deg) translate3d(-2px,0,0)',offset:.45},
-      {transform:'rotate(3deg) translate3d(2px,0,0)',offset:.63},
-      {transform:'rotate(-1.5deg) translate3d(-1px,0,0)',offset:.80},
-      {transform:'rotate(0deg) translate3d(0,0,0)'}
+      {transform:scale+'rotate(0deg) translate3d(0,0,0)'},
+      {transform:scale+'rotate(-9deg) translate3d(-3px,0,0)',offset:.12},
+      {transform:scale+'rotate(7deg) translate3d(3px,0,0)',offset:.27},
+      {transform:scale+'rotate(-5deg) translate3d(-2px,0,0)',offset:.45},
+      {transform:scale+'rotate(3deg) translate3d(2px,0,0)',offset:.63},
+      {transform:scale+'rotate(-1.5deg) translate3d(-1px,0,0)',offset:.80},
+      {transform:scale+'rotate(0deg) translate3d(0,0,0)'}
     ],{duration:680,easing:'cubic-bezier(.22,.61,.36,1)',fill:'none'});
   }
 
