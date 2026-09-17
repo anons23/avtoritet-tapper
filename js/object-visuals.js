@@ -75,7 +75,7 @@
       pushupQueue--;
       activeAnimation=img.animate([
         {transform:'translate3d(0,0,0)'},
-        {transform:'translate3d(0,24px,0)',offset:.45},
+        {transform:'translate3d(0,34px,0)',offset:.45},
         {transform:'translate3d(0,0,0)'}
       ],{duration:380,easing:'cubic-bezier(.22,.61,.36,1)',fill:'none'});
       activeAnimation.finished.then(step).catch(()=>{pushupRunning=false;});
@@ -87,8 +87,7 @@
     const emoji=document.getElementById('object-emoji');
     const img=emoji&&emoji.querySelector('.boxing-bag-image,.cellmate-image,.pushups-image');
     if(!img)return;
-    const isPushups=img.classList.contains('pushups-image');
-    if(isPushups){
+    if(img.classList.contains('pushups-image')){
       pushupQueue=Math.min(12,pushupQueue+1);
       runPushup();
       return;
