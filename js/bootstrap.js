@@ -26,12 +26,28 @@
     box.innerHTML='<div style="max-width:520px"><h2 style="margin:0 0 12px">Не удалось запустить игру</h2><p style="margin:0 0 18px">Произошла ошибка загрузки игры. Обнови страницу и попробуй ещё раз.</p><button type="button" style="padding:12px 20px;border:0;border-radius:10px;font:inherit;cursor:pointer" onclick="location.reload()">Обновить</button></div>';
     document.body.appendChild(box);
   }
+  function waitForYandexReady(){
+    const p=window.YandexGameReady;
+    if(!p||typeof p.then!=='function')return Promise.resolve();
+    return Promise.race([
+      Promise.resolve(p).catch(()=>{}),
+      new Promise(resolve=>setTimeout(resolve,4000))
+    ]);
+  }
+  function appendScript(item,next){
+    const script=document.createElement('script');script.src=item.src;script.async=false;
+    script.onload=()=>next();
+    script.onerror=()=>{console.error('[Bootstrap] Failed to load',item.src);if(item.critical){showFatal(item.src);return}next()};
+    document.body.appendChild(script);
+  }
   function loadScripts(i){
     if(i>=scripts.length){ready();return}
-    const item=scripts[i],script=document.createElement('script');script.src=item.src;script.async=false;
-    script.onload=()=>loadScripts(i+1);
-    script.onerror=()=>{console.error('[Bootstrap] Failed to load',item.src);if(item.critical){showFatal(item.src);return}loadScripts(i+1)};
-    document.body.appendChild(script);
+    const item=scripts[i];
+    if(item.src.indexOf('./js/game.js')===0){
+      waitForYandexReady().then(()=>appendScript(item,()=>loadScripts(i+1)));
+      return;
+    }
+    appendScript(item,()=>loadScripts(i+1));
   }
   document.addEventListener('contextmenu',e=>{if(e.target.closest('#game-container'))e.preventDefault()},{passive:false});
   loadScripts(0);Promise.resolve(window.YandexGameReady).catch(()=>{}).then(ready);
