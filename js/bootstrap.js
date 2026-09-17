@@ -4,6 +4,7 @@
     {src:'./js/input-guard.js?v=1.1',critical:false},
     {src:'./js/save-migration.js?v=1.0',critical:true},
     {src:'./js/game.js?v=4.4',critical:true},
+    {src:'./js/test-unlock.js?v=1.0',critical:false},
     {src:'./js/shop-ui.js?v=2.1',critical:false},
     {src:'./js/name-ui.js?v=2.1',critical:false},
     {src:'./js/prison-ui.js?v=3.2',critical:false},
