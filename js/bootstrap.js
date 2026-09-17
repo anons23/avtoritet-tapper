@@ -12,7 +12,7 @@
     {src:'./js/npc5-ui.js?v=1.0',critical:false},
     {src:'./js/stories-ui-v2.js?v=2.1',critical:false},
     {src:'./js/stability-fixes.js?v=1.1',critical:false},
-    {src:'./js/object-visuals.js?v=1.1',critical:false}
+    {src:'./js/object-visuals.js?v=1.2',critical:false}
   ];
 
   function ready(){
