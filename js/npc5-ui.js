@@ -29,6 +29,15 @@
 
   let adBusy=false;
 
+  function enterNpcModal(){
+    const m=document.getElementById('modal');
+    if(m)m.classList.add('-modal');
+  }
+  function leaveNpcModal(){
+    const m=document.getElementById('modal');
+    if(m)m.classList.remove('-modal');
+  }
+
   function game(){try{return typeof window.getGameState==='function'?window.getGameState():JSON.parse(localStorage.getItem(SAVE_KEY)||'{}')}catch(e){return {}}}
   function save(s){try{s.saveUpdatedAt=Date.now();localStorage.setItem(SAVE_KEY,JSON.stringify(s))}catch(e){}}
   function rank(){const s=game();let i=0;for(let j=0;j<RANK_POINTS.length;j++)if(Number(s.points||0)>=RANK_POINTS[j])i=j;return i}
@@ -43,6 +52,7 @@
     if(rank()<NPC.rank){msg('🔒 '+NPC.name+' пока не для твоей масти. Нужна масть «'+RANK_NAMES[NPC.rank]+'».');return}
     const u=uses();
     if(u.used>=3&&u.extra<=0){adOffer();return}
+    enterNpcModal();
     modal.innerHTML=hero()+'<div class="-action-panel"><h2>'+NPC.icon+' '+NPC.name+'</h2><div class="-dialogue"><b>'+NPC.name+':</b><p>Есть серьёзное поручение. Решение за тобой.</p></div><button type="button" class="-primary" id="npc5-start">Получить поручение →</button><button type="button" id="npc5-back" style="width:100%;margin-top:8px">Вернуться к бараку</button></div>';
     document.getElementById('npc5-start').onclick=start;
     document.getElementById('npc5-back').onclick=back;
@@ -52,6 +62,7 @@
     if(u.used>=3&&u.extra<=0){adOffer();return}
     const t=TASKS[Math.floor(Math.random()*TASKS.length)];
     const modal=document.getElementById('modal-content');
+    enterNpcModal();
     modal.innerHTML=hero()+'<div class="-action-panel"><div class="-dialogue -question"><span class="-dialogue-label">'+NPC.name+'</span><h3>'+t[0]+'</h3><p>'+t[1]+'</p></div><div class="-choice-title">Выбери, как поступить.</div><div class="-choices"><button type="button" class="-choice" data-n5="0">«'+t[2]+'»</button><button type="button" class="-choice" data-n5="1">«'+t[3]+'»</button><button type="button" class="-choice" data-n5="2">«Сначала всё проверить.»</button></div><button type="button" id="npc5-back" style="width:100%;margin-top:8px">Назад</button></div>';
     modal.querySelectorAll('[data-n5]').forEach(b=>b.onclick=()=>result(t,Number(b.dataset.n5)));
     document.getElementById('npc5-back').onclick=open;
@@ -59,6 +70,7 @@
   function result(t,index){
     const modal=document.getElementById('modal-content');
     const text=index===0?t[2]:index===1?t[3]:'Сначала всё проверить.';
+    enterNpcModal();
     modal.innerHTML=hero()+'<div class="-action-panel"><div class="-dialogue"><span class="-dialogue-label">'+NPC.name+'</span><h3>'+t[0]+'</h3><p>Твой выбор: «'+text+'».</p></div><button type="button" class="-primary" id="npc5-confirm">Продолжить</button><button type="button" id="npc5-change" style="width:100%;margin-top:8px">Изменить ответ</button></div>';
     document.getElementById('npc5-confirm').onclick=()=>run(t,index);
     document.getElementById('npc5-change').onclick=start;
@@ -94,6 +106,7 @@
   }
   function showResult(text,success){
     const modal=document.getElementById('modal-content'),u=uses();
+    enterNpcModal();
     modal.innerHTML=hero()+'<div class="-action-panel"><div class="-result '+(success?'-success':'-fail')+'"><div class="-result-icon">'+(success?'✅':'❌')+'</div><p><b>'+text+'</b></p><small>Осталось обращений: '+Math.max(0,3-u.used)+(u.extra?' · бонусных: '+u.extra:'')+'</small></div><button type="button" class="-primary" id="npc5-again">Ещё раз поговорить</button><button type="button" id="npc5-back" style="width:100%;margin-top:8px">Вернуться к бараку</button></div>';
     document.getElementById('npc5-again').onclick=open;
     document.getElementById('npc5-back').onclick=back;
@@ -101,6 +114,7 @@
   function adOffer(){
     if(adBusy)return;
     const modal=document.getElementById('modal-content');
+    enterNpcModal();
     modal.innerHTML=hero()+'<div class="-action-panel"><h2>🎬 Ещё два дела</h2><p>'+NPC.icon+' '+NPC.name+' сейчас недоступен.</p><p>Посмотри рекламу и получи ещё <b>2 обращения</b>.</p><button type="button" class="-primary" id="npc5-ad">🎬 Посмотреть рекламу → +2</button><button type="button" id="npc5-back" style="width:100%;margin-top:8px">Вернуться к бараку</button></div>';
     document.getElementById('npc5-ad').onclick=()=>{
       if(adBusy)return;
@@ -120,7 +134,7 @@
     };
     document.getElementById('npc5-back').onclick=back;
   }
-  function back(){const b=document.getElementById('btn-more');if(b)b.click()}
+  function back(){leaveNpcModal();const b=document.getElementById('btn-more');if(b)b.click()}
   function add(){
     const list=document.querySelector('.npc-list');
     if(!list||list.querySelector('[data-open-npc5]'))return;
@@ -134,6 +148,9 @@
     const root=document.getElementById('modal-content');
     if(root)new MutationObserver(()=>setTimeout(add,0)).observe(root,{childList:true,subtree:true});
     setTimeout(add,50);
+    document.addEventListener('click',function(e){
+      if(e.target.closest('#modal-close'))setTimeout(leaveNpcModal,0);
+    });
   }
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});else init();
 })();
