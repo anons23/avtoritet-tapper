@@ -47,3 +47,11 @@
   #modal.npc-modal .npc-hero-img,#modal.-modal .-hero-img,#modal.-modal .-hero img{max-width:62%!important;max-height:150px!important;}
   #modal.-modal .-hero .-hero-img[src*="avtoritet_avatar"]{width:auto!important;height:150px!important;max-width:55%!important;max-height:150px!important;}
 }
+
+/* Authority portrait workaround: the source artwork contains an opaque black matte.
+   Screen blending removes the black matte while preserving the bright character details. */
+#modal.npc-modal .npc-hero-img[src*="avtoritet_avatar"],
+#modal.-modal .-hero-img[src*="avtoritet_avatar"]{
+  mix-blend-mode:screen!important;
+  background:transparent!important;
+}
