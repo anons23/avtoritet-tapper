@@ -69,6 +69,7 @@
         const liveIdx=liveState&&Number.isFinite(Number(liveState.currentObject))?Number(liveState.currentObject):idx;
         if(gen!==visualGeneration||String(liveIdx)!==String(idx)||emoji.dataset.objectIndex!==String(idx)||!emoji.contains(a)&&!emoji.contains(b))return;
         target.classList.remove('preload-hidden');
+        document.getElementById('game-container')?.classList.remove('game-booting');
         lastSyncedName=String(idx);
       };
       a.onload=reveal;b.onload=reveal;a.onerror=reveal;b.onerror=reveal;
