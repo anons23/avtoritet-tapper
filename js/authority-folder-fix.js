@@ -28,6 +28,7 @@
     }
     s.energy-=amount;
     if(typeof s.lastEnergyTime!=='number')s.lastEnergyTime=Date.now();
+    s.saveUpdatedAt=Date.now();
     const e=document.getElementById('energy');
     if(e)e.textContent=Math.floor(s.energy);
     try{localStorage.setItem('avtoritet_save_v2',JSON.stringify(s))}catch(err){}
