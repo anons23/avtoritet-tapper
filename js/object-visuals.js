@@ -88,7 +88,7 @@
     if(!img)return;
     img.style.animation='none';
     void img.offsetWidth;
-    const base=img.classList.contains('cellmate-image')?'scale(1.85) ':'';
+    const base=img.classList.contains('cellmate-image')?'scale(1.85) ':img.classList.contains('trainer-image')?'scale(1.14) ':'';
     img.style.setProperty('--object-base-transform',base);
     img.style.animation='object-enter .42s cubic-bezier(.22,.61,.36,1) both';
   }
@@ -96,7 +96,7 @@
   function swing(img){
     img.style.animation='none';
     void img.offsetWidth;
-    img.style.setProperty('--object-base-transform',img.classList.contains('cellmate-image')?'scale(1.85) ':'');
+    img.style.setProperty('--object-base-transform',img.classList.contains('cellmate-image')?'scale(1.85) ':img.classList.contains('trainer-image')?'scale(1.14) ':'');
     img.style.transformOrigin=img.classList.contains('cellmate-image')?'50% 50%':'50% 8%';
     img.style.animation='object-swing .68s cubic-bezier(.22,.61,.36,1) both';
   }
