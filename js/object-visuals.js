@@ -15,32 +15,44 @@
 
   const nameOf=()=>String(document.getElementById('object-name')?.textContent||'').trim();
 
+  let visualGeneration=0;
   function sync(){
     const emoji=document.getElementById('object-emoji'),target=document.getElementById('tap-object');
     if(!emoji||!target)return;
     const st=window.getGameState?window.getGameState():null;
     const idx=st&&Number.isFinite(Number(st.currentObject))?Number(st.currentObject):Number(emoji.dataset.objectIndex||0);
+    const gen=++visualGeneration;
     emoji.dataset.objectIndex=String(idx);
+
+    // Hard-lock the visual to the current stage before touching the DOM.
+    // This prevents a stale frame/image from becoming visible during a stage switch.
+    target.classList.add('preload-hidden');
     const bag=idx===0,cell=idx===1,push=idx===2,train=idx===3;
     const auth=idx===4,breakth=idx===5;
     target.classList.toggle('bag-mode',bag);target.classList.toggle('cellmate-mode',cell);target.classList.toggle('pushups-mode',push);target.classList.toggle('trainer-mode',train);target.classList.toggle('authority-mode',auth);target.classList.toggle('breakthrough-mode',breakth);
     const old=emoji.querySelectorAll('.boxing-bag-image,.cellmate-image,.pushups-image,.trainer-image');
+
     if(!bag&&!cell&&!push&&!train){
       old.forEach(x=>x.remove());
       target.classList.remove('preload-hidden');
       pushupQueue=0;pushupRunning=false;trainerQueue=0;trainerRunning=false;lastSyncedName=String(idx);
       return;
     }
+
     const cls=bag?'boxing-bag-image':cell?'cellmate-image':push?'pushups-image':'trainer-image';
     const existing=emoji.querySelectorAll('.'+cls);
+
     if(existing.length){
       old.forEach(x=>{if(!x.classList.contains(cls))x.remove()});
-      target.classList.remove('preload-hidden');
-      lastSyncedName=String(idx);
+      if(gen===visualGeneration && emoji.dataset.objectIndex===String(idx)){
+        target.classList.remove('preload-hidden');
+        lastSyncedName=String(idx);
+      }
       return;
     }
+
     old.forEach(x=>x.remove());
-    target.classList.add('preload-hidden');
+
     if(push||train){
       const a=document.createElement('img'),b=document.createElement('img');
       a.alt='';b.alt='';a.className=cls+' frame-a';b.className=cls+' frame-b';
@@ -48,13 +60,27 @@
       a.src=push?PUSHUPS_UP:TRAINER_DOWN;b.src=push?PUSHUPS_DOWN:TRAINER_UP;
       a.style.opacity='1';b.style.opacity='0';a.style.visibility='visible';b.style.visibility='hidden';a.style.zIndex='2';b.style.zIndex='1';
       emoji.append(a,b);
-      const reveal=()=>{target.classList.remove('preload-hidden');lastSyncedName=String(idx)};
+      const reveal=()=>{
+        // An old image may finish loading after the player has already moved
+        // to another stage. It must never reveal that stale stage.
+        const liveState=window.getGameState?window.getGameState():null;
+        const liveIdx=liveState&&Number.isFinite(Number(liveState.currentObject))?Number(liveState.currentObject):idx;
+        if(gen!==visualGeneration||String(liveIdx)!==String(idx)||emoji.dataset.objectIndex!==String(idx)||!emoji.contains(a)&&!emoji.contains(b))return;
+        target.classList.remove('preload-hidden');
+        lastSyncedName=String(idx);
+      };
       a.onload=reveal;b.onload=reveal;a.onerror=reveal;b.onerror=reveal;
-      if(a.complete&&b.complete)reveal();
+      if(a.complete||b.complete)reveal();
     }else{
       const img=document.createElement('img');
       img.src=bag?BAG_SRC:CELL_SRC;img.alt='';img.className=cls;img.draggable=false;
-      const reveal=()=>{target.classList.remove('preload-hidden');lastSyncedName=String(idx)};
+      const reveal=()=>{
+        const liveState=window.getGameState?window.getGameState():null;
+        const liveIdx=liveState&&Number.isFinite(Number(liveState.currentObject))?Number(liveState.currentObject):idx;
+        if(gen!==visualGeneration||String(liveIdx)!==String(idx)||emoji.dataset.objectIndex!==String(idx)||!emoji.contains(img))return;
+        target.classList.remove('preload-hidden');
+        lastSyncedName=String(idx);
+      };
       img.onload=reveal;img.onerror=reveal;emoji.appendChild(img);if(img.complete)reveal();
     }
   }
