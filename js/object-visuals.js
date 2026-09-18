@@ -81,7 +81,7 @@
   function swing(img){
     img.style.animation='none';
     void img.offsetWidth;
-    img.style.setProperty('--object-base-transform',img.classList.contains('cellmate-image')?'scale(2.5) ':'');
+    img.style.setProperty('--object-base-transform',img.classList.contains('cellmate-image')?'scale(1.85) ':'');
     img.style.transformOrigin=img.classList.contains('cellmate-image')?'50% 50%':'50% 8%';
     img.style.animation='object-swing .68s cubic-bezier(.22,.61,.36,1) both';
   }
@@ -108,42 +108,82 @@
     next.style.opacity='1';cur.style.opacity='0';
   }
 
+  // One full push-up cycle: down (190ms) then up (70ms). Driven by rAF timestamps — no nested setTimeout.
+  const PUSH_DOWN_MS=190, PUSH_UP_MS=70, PUSH_CYCLE=PUSH_DOWN_MS+PUSH_UP_MS;
   function runPush(){
     if(pushupRunning)return;
     const emoji=document.getElementById('object-emoji');
     if(!emoji||emoji.querySelectorAll('.pushups-image').length<2){pushupQueue=0;return;}
     pushupRunning=true;
-    const step=()=>{
+    let phaseStart=performance.now();
+    let phase='down'; // down = showing down frame, up = showing up frame
+    // Start cycle: go to down frame immediately
+    swap(emoji,'pushups-image');
+    function tick(now){
       const live=emoji.querySelectorAll('.pushups-image');
       if(live.length<2){pushupQueue=0;pushupRunning=false;return;}
-      if(pushupQueue<=0){
-        if(live[0].style.opacity!=='1')swap(emoji,'pushups-image');
-        pushupRunning=false;return;
+      const elapsed=now-phaseStart;
+      if(phase==='down'){
+        if(elapsed>=PUSH_DOWN_MS){
+          swap(emoji,'pushups-image');
+          phase='up';
+          phaseStart=now;
+        }
+      }else{ // up
+        if(elapsed>=PUSH_UP_MS){
+          pushupQueue=Math.max(0,pushupQueue-1);
+          if(pushupQueue<=0){
+            // Ensure resting frame is the "up" one
+            if(live[0].style.opacity!=='1')swap(emoji,'pushups-image');
+            pushupRunning=false;
+            return;
+          }
+          // Next cycle
+          swap(emoji,'pushups-image');
+          phase='down';
+          phaseStart=now;
+        }
       }
-      pushupQueue--;
-      swap(emoji,'pushups-image');
-      setTimeout(()=>{swap(emoji,'pushups-image');setTimeout(step,70)},190);
-    };
-    step();
+      requestAnimationFrame(tick);
+    }
+    requestAnimationFrame(tick);
   }
 
+  const TRAIN_DOWN_MS=190, TRAIN_UP_MS=90;
   function runTrainer(){
     if(trainerRunning)return;
     const emoji=document.getElementById('object-emoji');
     if(!emoji||emoji.querySelectorAll('.trainer-image').length<2){trainerQueue=0;return;}
     trainerRunning=true;
-    const step=()=>{
+    let phaseStart=performance.now();
+    let phase='down';
+    swap(emoji,'trainer-image');
+    function tick(now){
       const live=emoji.querySelectorAll('.trainer-image');
       if(live.length<2){trainerQueue=0;trainerRunning=false;return;}
-      if(trainerQueue<=0){
-        if(live[0].style.opacity!=='1')swap(emoji,'trainer-image');
-        trainerRunning=false;return;
+      const elapsed=now-phaseStart;
+      if(phase==='down'){
+        if(elapsed>=TRAIN_DOWN_MS){
+          swap(emoji,'trainer-image');
+          phase='up';
+          phaseStart=now;
+        }
+      }else{
+        if(elapsed>=TRAIN_UP_MS){
+          trainerQueue=Math.max(0,trainerQueue-1);
+          if(trainerQueue<=0){
+            if(live[0].style.opacity!=='1')swap(emoji,'trainer-image');
+            trainerRunning=false;
+            return;
+          }
+          swap(emoji,'trainer-image');
+          phase='down';
+          phaseStart=now;
+        }
       }
-      trainerQueue--;
-      swap(emoji,'trainer-image');
-      setTimeout(()=>{swap(emoji,'trainer-image');setTimeout(step,90)},190);
-    };
-    step();
+      requestAnimationFrame(tick);
+    }
+    requestAnimationFrame(tick);
   }
 
   function animate(){

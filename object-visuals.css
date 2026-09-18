@@ -20,7 +20,7 @@
 #tap-object.cellmate-mode #object-emoji.punch,#tap-object.pushups-mode #object-emoji.punch,#tap-object.trainer-mode #object-emoji.punch{animation:none!important;transform:none!important}
 
 .boxing-bag-image,.cellmate-image,.pushups-image,.trainer-image{display:block;width:min(600px,96vw);height:min(600px,76vh);object-fit:contain;transform-origin:50% 8%;filter:drop-shadow(0 14px 18px rgba(0,0,0,.55));user-select:none;-webkit-user-select:none;-webkit-touch-callout:none;pointer-events:none;will-change:transform}
-.cellmate-image{transform:scale(2.5);transform-origin:50% 50%}
+.cellmate-image{transform:scale(1.85);transform-origin:50% 55%;max-width:100%;max-height:100%}
 
 /* Push-up / barbell frames are layered and cross-faded instead of swapping abruptly. */
 #tap-object.pushups-mode #object-emoji,#tap-object.trainer-mode #object-emoji{position:relative;overflow:visible}
@@ -46,3 +46,15 @@
 .barrack-window .npc-link:nth-child(4) b{font-family:Georgia,'Times New Roman',serif;letter-spacing:.8px}
 .barrack-window .npc-link:nth-child(5) b{font-family:Georgia,'Times New Roman',serif;font-weight:900;letter-spacing:1px}
 @media(max-width:380px){.barrack-window .npc-link>span:first-child{width:52px!important;height:52px!important;flex-basis:52px!important;margin:0!important}}
+
+/* Cellmate: keep portrait fully visible on narrow / short screens */
+@media(max-width:420px){
+  #tap-object.cellmate-mode{width:min(300px,88vw)!important;height:min(320px,48vh)!important;min-height:220px!important}
+  #tap-object.cellmate-mode #object-emoji{height:240px!important;flex-basis:240px!important}
+  .cellmate-image{transform:scale(1.55)!important;width:min(420px,92vw)!important;height:min(420px,58vh)!important}
+}
+@media(max-height:600px){
+  #tap-object.cellmate-mode{height:min(280px,46vh)!important;min-height:200px!important}
+  #tap-object.cellmate-mode #object-emoji{height:210px!important;flex-basis:210px!important}
+  .cellmate-image{transform:scale(1.45)!important}
+}
