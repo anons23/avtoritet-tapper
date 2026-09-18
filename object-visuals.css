@@ -27,6 +27,8 @@
 #tap-object.pushups-mode .pushups-image,#tap-object.trainer-mode .trainer-image{position:absolute;left:50%;top:50%;translate:-50% -50%;transition:none!important;will-change:opacity,transform}
 /* Keep the barbell character anchored lower in the tap area so the legs stay visible. */
 #tap-object.trainer-mode .trainer-image{top:60%!important}
+/* The raised-bar frame needs a slightly higher anchor because its visible artwork reaches farther upward. */
+#tap-object.trainer-mode .trainer-image.frame-b{top:53%!important}
 #tap-object.pushups-mode .pushups-image,#tap-object.trainer-mode .trainer-image{pointer-events:none}
 
 /* Barbell frames: the raised-bar frame has more transparent canvas, so compensate
