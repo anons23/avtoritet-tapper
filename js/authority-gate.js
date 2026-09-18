@@ -10,7 +10,11 @@
   function eligible(s){return !!s&&!s.jailed&&Number(s.points)>=MIN_POINTS&&Number(s.currentObject)>=MIN_OBJECT}
   function normalize(s){
     if(!s)return false;
-    if(Number(s.points)<MIN_POINTS&&Number(s.currentObject)>=MIN_OBJECT){s.currentObject=3;try{localStorage.setItem('avtoritet_save_v2',JSON.stringify(s))}catch(e){}}
+    if(Number(s.points)<MIN_POINTS&&Number(s.currentObject)>=MIN_OBJECT){
+      s.currentObject=3;
+      s.saveUpdatedAt=Date.now();
+      try{localStorage.setItem('avtoritet_save_v2',JSON.stringify(s))}catch(e){}
+    }
     return eligible(s);
   }
   function restoreBase(){
