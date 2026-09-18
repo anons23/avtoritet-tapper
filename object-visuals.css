@@ -29,7 +29,7 @@
 
 /* Barbell frames: the raised-bar frame has more transparent canvas, so compensate
    its visible size while keeping both animation frames in the same box. */
-#tap-object.trainer-mode .trainer-image.frame-a{transform:scale(1.04)!important}
+#tap-object.trainer-mode .trainer-image.frame-a,
 #tap-object.trainer-mode .trainer-image.frame-b{transform:scale(1.14)!important}
 
 #game-container.jail-mode .boxing-bag-image,#game-container.jail-mode .cellmate-image,#game-container.jail-mode .pushups-image,#game-container.jail-mode .trainer-image{display:none}
