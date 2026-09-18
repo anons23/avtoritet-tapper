@@ -21,39 +21,47 @@
     if(!emoji||!target)return;
     const st=window.getGameState?window.getGameState():null;
     const idx=st&&Number.isFinite(Number(st.currentObject))?Number(st.currentObject):Number(emoji.dataset.objectIndex||0);
-    const gen=++visualGeneration;
     emoji.dataset.objectIndex=String(idx);
 
-    // Hard-lock the visual to the current stage before touching the DOM.
-    // This prevents a stale frame/image from becoming visible during a stage switch.
-    target.classList.add('preload-hidden');
     const bag=idx===0,cell=idx===1,push=idx===2,train=idx===3;
     const auth=idx===4,breakth=idx===5;
-    target.classList.toggle('bag-mode',bag);target.classList.toggle('cellmate-mode',cell);target.classList.toggle('pushups-mode',push);target.classList.toggle('trainer-mode',train);target.classList.toggle('authority-mode',auth);target.classList.toggle('breakthrough-mode',breakth);
-    const old=emoji.querySelectorAll('.boxing-bag-image,.cellmate-image,.pushups-image,.trainer-image');
 
+    // Modes are cheap to synchronize on every call.
+    target.classList.toggle('bag-mode',bag);
+    target.classList.toggle('cellmate-mode',cell);
+    target.classList.toggle('pushups-mode',push);
+    target.classList.toggle('trainer-mode',train);
+    target.classList.toggle('authority-mode',auth);
+    target.classList.toggle('breakthrough-mode',breakth);
+
+    // Authority / Breakthrough have no object images.
     if(!bag&&!cell&&!push&&!train){
-      old.forEach(x=>x.remove());
+      emoji.querySelectorAll('.boxing-bag-image,.cellmate-image,.pushups-image,.trainer-image').forEach(x=>x.remove());
       target.classList.remove('preload-hidden');
       document.getElementById('game-container')?.classList.remove('game-booting');
-      pushupQueue=0;pushupRunning=false;trainerQueue=0;trainerRunning=false;lastSyncedName=String(idx);
+      pushupQueue=0;pushupRunning=false;trainerQueue=0;trainerRunning=false;
+      lastSyncedName=String(idx);
       return;
     }
 
     const cls=bag?'boxing-bag-image':cell?'cellmate-image':push?'pushups-image':'trainer-image';
     const existing=emoji.querySelectorAll('.'+cls);
 
+    // The correct visual is already in the DOM: do not hide/reveal it again.
     if(existing.length){
-      old.forEach(x=>{if(!x.classList.contains(cls))x.remove()});
-      if(gen===visualGeneration && emoji.dataset.objectIndex===String(idx)){
-        target.classList.remove('preload-hidden');
-        document.getElementById('game-container')?.classList.remove('game-booting');
-        lastSyncedName=String(idx);
-      }
+      emoji.querySelectorAll('.boxing-bag-image,.cellmate-image,.pushups-image,.trainer-image')
+        .forEach(x=>{if(!x.classList.contains(cls))x.remove()});
+      target.classList.remove('preload-hidden');
+      document.getElementById('game-container')?.classList.remove('game-booting');
+      lastSyncedName=String(idx);
       return;
     }
 
-    old.forEach(x=>x.remove());
+    // A real stage change: only now start a new visual generation and hide while loading.
+    const gen=++visualGeneration;
+    target.classList.add('preload-hidden');
+
+    emoji.querySelectorAll('.boxing-bag-image,.cellmate-image,.pushups-image,.trainer-image').forEach(x=>x.remove());
 
     if(push||train){
       const a=document.createElement('img'),b=document.createElement('img');
