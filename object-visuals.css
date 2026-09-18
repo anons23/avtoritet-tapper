@@ -27,6 +27,11 @@
 #tap-object.pushups-mode .pushups-image,#tap-object.trainer-mode .trainer-image{position:absolute;left:50%;top:50%;translate:-50% -50%;transition:none!important;will-change:opacity,transform}
 #tap-object.pushups-mode .pushups-image,#tap-object.trainer-mode .trainer-image{pointer-events:none}
 
+/* Barbell frames: the raised-bar frame has more transparent canvas, so compensate
+   its visible size while keeping both animation frames in the same box. */
+#tap-object.trainer-mode .trainer-image.frame-a{transform:scale(1.04)!important}
+#tap-object.trainer-mode .trainer-image.frame-b{transform:scale(1.14)!important}
+
 #game-container.jail-mode .boxing-bag-image,#game-container.jail-mode .cellmate-image,#game-container.jail-mode .pushups-image,#game-container.jail-mode .trainer-image{display:none}
 @media(min-width:701px){#object-emoji{height:150px}#tap-object.bag-mode,#tap-object.cellmate-mode,#tap-object.pushups-mode,#tap-object.trainer-mode{width:560px;height:min(650px,68vh);min-height:420px}#tap-object.bag-mode #object-emoji,#tap-object.cellmate-mode #object-emoji,#tap-object.pushups-mode #object-emoji,#tap-object.trainer-mode #object-emoji{height:500px;flex-basis:500px}.boxing-bag-image,.cellmate-image,.pushups-image,.trainer-image{width:min(800px,58vw);height:min(800px,70vh)}}
 @media(max-height:650px){#tap-object.bag-mode,#tap-object.cellmate-mode,#tap-object.pushups-mode,#tap-object.trainer-mode{width:min(360px,94vw);height:310px;min-height:250px}#tap-object.bag-mode #object-emoji,#tap-object.cellmate-mode #object-emoji,#tap-object.pushups-mode #object-emoji,#tap-object.trainer-mode #object-emoji{height:240px;flex-basis:240px}.boxing-bag-image,.cellmate-image,.pushups-image,.trainer-image{width:min(470px,94vw);height:310px}}
