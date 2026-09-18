@@ -24,7 +24,7 @@
 
 /* Push-up / barbell frames are layered and cross-faded instead of swapping abruptly. */
 #tap-object.pushups-mode #object-emoji,#tap-object.trainer-mode #object-emoji{position:relative;overflow:visible}
-#tap-object.pushups-mode .pushups-image,#tap-object.trainer-mode .trainer-image{position:absolute;left:50%;top:50%;translate:-50% -50%;transition:opacity .13s ease-in-out;will-change:opacity,transform}
+#tap-object.pushups-mode .pushups-image,#tap-object.trainer-mode .trainer-image{position:absolute;left:50%;top:50%;translate:-50% -50%;transition:none!important;will-change:opacity,transform}
 #tap-object.pushups-mode .pushups-image,#tap-object.trainer-mode .trainer-image{pointer-events:none}
 
 #game-container.jail-mode .boxing-bag-image,#game-container.jail-mode .cellmate-image,#game-container.jail-mode .pushups-image,#game-container.jail-mode .trainer-image{display:none}
@@ -50,8 +50,6 @@
 /* Cellmate: keep portrait fully visible on narrow / short screens */
 @media(min-width:701px){
   .cellmate-image{transform:scale(2.12)!important}
-  #tap-object.trainer-mode .trainer-image.frame-a{transform:scale(1.04)}
-  #tap-object.trainer-mode .trainer-image.frame-b{transform:scale(1.14)}
 }
 @media(max-width:420px){
   #tap-object.cellmate-mode{width:min(300px,88vw)!important;height:min(320px,48vh)!important;min-height:220px!important}
