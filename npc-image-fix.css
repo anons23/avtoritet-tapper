@@ -11,7 +11,7 @@
   align-items:center!important;
   justify-content:center!important;
   overflow:hidden!important;
-  background:#111!important;
+  background:transparent!important;
 }
 #modal.npc-modal .npc-hero-img,#modal.-modal .-hero-img,#modal.-modal .-hero img{
   display:block!important;
