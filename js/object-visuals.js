@@ -9,24 +9,59 @@
   const BAG_NAME='Груша',CELL_NAME='Сокамерник',PUSHUPS_NAME='Отжимания',TRAINER_NAME='Тренажёр';
   const AUTHORITY_NAME='Разборка',BREAKTHROUGH_NAME='Прорыв';
   let pushupQueue=0,pushupRunning=false,trainerQueue=0,trainerRunning=false;
-  let areaObserver=null,nameObserver=null;
-  let lastSyncedName='';
-  let initRetries=0;
+  let built=false;
+  let lastIdx=-1;
 
   const nameOf=()=>String(document.getElementById('object-name')?.textContent||'').trim();
 
   let visualGeneration=0;
-  function sync(){
+  function getIdx(){
+    const st=window.getGameState?window.getGameState():null;
+    if(st&&Number.isFinite(Number(st.currentObject)))return Number(st.currentObject);
+    const emoji=document.getElementById('object-emoji');
+    return Number(emoji?.dataset.objectIndex||0);
+  }
+
+  function ensureBuilt(){
+    const emoji=document.getElementById('object-emoji');
+    if(!emoji||built)return;
+    built=true;
+
+    const bag=document.createElement('img');
+    bag.className='boxing-bag-image';bag.src=BAG_SRC;bag.draggable=false;bag.alt='';
+    bag.dataset.stage='0';bag.style.display='none';
+
+    const cell=document.createElement('img');
+    cell.className='cellmate-image';cell.src=CELL_SRC;cell.draggable=false;cell.alt='';
+    cell.dataset.stage='1';cell.style.display='none';
+
+    const pA=document.createElement('img'),pB=document.createElement('img');
+    pA.className='pushups-image frame-a';pB.className='pushups-image frame-b';
+    pA.src=PUSHUPS_UP;pB.src=PUSHUPS_DOWN;pA.draggable=false;pB.draggable=false;pA.alt='';pB.alt='';
+    pA.dataset.stage='2';pB.dataset.stage='2';
+    pA.style.display='none';pB.style.display='none';
+    pA.style.opacity='1';pB.style.opacity='0';pA.style.visibility='visible';pB.style.visibility='hidden';
+    pA.style.zIndex='2';pB.style.zIndex='1';
+
+    const tA=document.createElement('img'),tB=document.createElement('img');
+    tA.className='trainer-image frame-a';tB.className='trainer-image frame-b';
+    tA.src=TRAINER_DOWN;tB.src=TRAINER_UP;tA.draggable=false;tB.draggable=false;tA.alt='';tB.alt='';
+    tA.dataset.stage='3';tB.dataset.stage='3';
+    tA.style.display='none';tB.style.display='none';
+    tA.style.opacity='1';tB.style.opacity='0';tA.style.visibility='visible';tB.style.visibility='hidden';
+    tA.style.zIndex='2';tB.style.zIndex='1';
+
+    emoji.append(bag,cell,pA,pB,tA,tB);
+  }
+
+  function showOnly(idx){
     const emoji=document.getElementById('object-emoji'),target=document.getElementById('tap-object');
     if(!emoji||!target)return;
-    const st=window.getGameState?window.getGameState():null;
-    const idx=st&&Number.isFinite(Number(st.currentObject))?Number(st.currentObject):Number(emoji.dataset.objectIndex||0);
+    ensureBuilt();
     emoji.dataset.objectIndex=String(idx);
 
     const bag=idx===0,cell=idx===1,push=idx===2,train=idx===3;
     const auth=idx===4,breakth=idx===5;
-
-    // Modes are cheap to synchronize on every call.
     target.classList.toggle('bag-mode',bag);
     target.classList.toggle('cellmate-mode',cell);
     target.classList.toggle('pushups-mode',push);
@@ -34,67 +69,20 @@
     target.classList.toggle('authority-mode',auth);
     target.classList.toggle('breakthrough-mode',breakth);
 
-    // Authority / Breakthrough have no object images.
-    if(!bag&&!cell&&!push&&!train){
-      emoji.querySelectorAll('.boxing-bag-image,.cellmate-image,.pushups-image,.trainer-image').forEach(x=>x.remove());
-      target.classList.remove('preload-hidden');
-      document.getElementById('game-container')?.classList.remove('game-booting');
-      pushupQueue=0;pushupRunning=false;trainerQueue=0;trainerRunning=false;
-      lastSyncedName=String(idx);
-      return;
-    }
+    emoji.querySelectorAll('img[data-stage]').forEach(img=>{
+      const on=Number(img.dataset.stage)===idx&&idx<=3;
+      img.style.display=on?'block':'none';
+    });
 
-    const cls=bag?'boxing-bag-image':cell?'cellmate-image':push?'pushups-image':'trainer-image';
-    const existing=emoji.querySelectorAll('.'+cls);
-
-    // The correct visual is already in the DOM: do not hide/reveal it again.
-    if(existing.length){
-      emoji.querySelectorAll('.boxing-bag-image,.cellmate-image,.pushups-image,.trainer-image')
-        .forEach(x=>{if(!x.classList.contains(cls))x.remove()});
-      target.classList.remove('preload-hidden');
-      document.getElementById('game-container')?.classList.remove('game-booting');
-      lastSyncedName=String(idx);
-      return;
-    }
-
-    // A real stage change: only now start a new visual generation and hide while loading.
-    const gen=++visualGeneration;
-    target.classList.add('preload-hidden');
-
-    emoji.querySelectorAll('.boxing-bag-image,.cellmate-image,.pushups-image,.trainer-image').forEach(x=>x.remove());
-
-    if(push||train){
-      const a=document.createElement('img'),b=document.createElement('img');
-      a.alt='';b.alt='';a.className=cls+' frame-a';b.className=cls+' frame-b';
-      a.draggable=false;b.draggable=false;
-      a.src=push?PUSHUPS_UP:TRAINER_DOWN;b.src=push?PUSHUPS_DOWN:TRAINER_UP;
-      a.style.opacity='1';b.style.opacity='0';a.style.visibility='visible';b.style.visibility='hidden';a.style.zIndex='2';b.style.zIndex='1';
-      emoji.append(a,b);
-      const reveal=()=>{
-        // An old image may finish loading after the player has already moved
-        // to another stage. It must never reveal that stale stage.
-        const liveState=window.getGameState?window.getGameState():null;
-        const liveIdx=liveState&&Number.isFinite(Number(liveState.currentObject))?Number(liveState.currentObject):idx;
-        if(gen!==visualGeneration||String(liveIdx)!==String(idx)||emoji.dataset.objectIndex!==String(idx)||!emoji.contains(a)&&!emoji.contains(b))return;
-        target.classList.remove('preload-hidden');
-        document.getElementById('game-container')?.classList.remove('game-booting');
-        lastSyncedName=String(idx);
-      };
-      a.onload=reveal;b.onload=reveal;a.onerror=reveal;b.onerror=reveal;
-      if(a.complete||b.complete)reveal();
-    }else{
-      const img=document.createElement('img');
-      img.src=bag?BAG_SRC:CELL_SRC;img.alt='';img.className=cls;img.draggable=false;
-      const reveal=()=>{
-        const liveState=window.getGameState?window.getGameState():null;
-        const liveIdx=liveState&&Number.isFinite(Number(liveState.currentObject))?Number(liveState.currentObject):idx;
-        if(gen!==visualGeneration||String(liveIdx)!==String(idx)||emoji.dataset.objectIndex!==String(idx)||!emoji.contains(img))return;
-        target.classList.remove('preload-hidden');
-        lastSyncedName=String(idx);
-      };
-      img.onload=reveal;img.onerror=reveal;emoji.appendChild(img);if(img.complete)reveal();
-    }
+    target.classList.remove('preload-hidden');
+    document.getElementById('game-container')?.classList.remove('game-booting');
+    lastIdx=idx;
   }
+
+  function sync(){
+    showOnly(getIdx());
+  }
+
   function playEntrance(img){
     if(!img)return;
     img.style.animation='none';
@@ -228,83 +216,14 @@
     swing(img);
   }
 
-  function ensureObservers(){
-    const name=document.getElementById('object-name');
-    const area=document.getElementById('tap-area');
-
-    // Re-attach name observer if the node was recreated
-    if(name && (!nameObserver || nameObserver._node!==name)){
-      if(nameObserver)nameObserver.disconnect();
-      nameObserver=new MutationObserver(sync);
-      nameObserver._node=name;
-      nameObserver.observe(name,{childList:true,characterData:true,subtree:true});
-    }
-
-    // Watch the whole tap-area so we recover after authority-ui rewrites innerHTML
-    if(area && (!areaObserver || areaObserver._node!==area)){
-      if(areaObserver)areaObserver.disconnect();
-      areaObserver=new MutationObserver(function(){
-        // Debounce a bit — authority rewrite is a single burst
-        clearTimeout(areaObserver._t);
-        areaObserver._t=setTimeout(function(){
-          ensureObservers();
-          sync();
-        },0);
-      });
-      areaObserver._node=area;
-      areaObserver.observe(area,{childList:true,subtree:true});
-    }
-  }
-
   function init(){
     style();
-    ensureObservers();
+    ensureBuilt();
     sync();
-    // Race fix: name/ui may not be ready on first paint — retry a few times
-    function retry(){
-      if(initRetries>=8)return;
-      initRetries++;
-      const emoji=document.getElementById('object-emoji');
-      const name=nameOf();
-      const hasImg=emoji&&emoji.querySelector('.boxing-bag-image,.cellmate-image,.pushups-image,.trainer-image');
-      // If we have a known object name but no image yet, or name changed — re-sync
-      if((name==='Груша'||name==='Сокамерник'||name==='Отжимания'||name==='Тренажёр')&&!hasImg){
-        sync();
-        setTimeout(retry,120);
-        return;
-      }
-      // Also re-sync once after short delay in case game.js ui() runs after us
-      if(initRetries<=3){
-        setTimeout(function(){sync();retry();},150);
-      }
-    }
-    setTimeout(retry,80);
-    // Backup: watch game state object index every 400ms for the first few seconds
-    let polls=0;
-    const poll=setInterval(function(){
-      polls++;
-      try{
-        if(typeof window.getGameState==='function'){
-          const s=window.getGameState();
-          if(s&&typeof s.currentObject==='number'){
-            const names=['Груша','Сокамерник','Отжимания','Тренажёр','Разборка','Прорыв'];
-            const expected=s.jailed?'Карцер':(names[s.currentObject]||'');
-            if(expected && expected!==nameOf()){
-              // Force name from state if DOM lags behind
-              const nameEl=document.getElementById('object-name');
-              if(nameEl)nameEl.textContent=expected;
-            }
-            sync();
-          }
-        }
-      }catch(e){}
-      if(polls>=15)clearInterval(poll);
-    },400);
   }
 
   // Public API used by game.js and authority-ui.js
   window.refreshObjectVisuals=function(){
-    ensureObservers();
     sync();
   };
   window.animateObjectVisual=animate;
