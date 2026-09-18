@@ -3,7 +3,7 @@
   const scripts=[
     {src:'./js/input-guard.js?v=1.1',critical:false},
     {src:'./js/save-migration.js?v=1.0',critical:true},
-    {src:'./js/game.js?v=4.10-test',critical:true},
+    {src:'./js/game.js?v=4.11-test',critical:true},
     {src:'./js/test-mode.js?v=1.3',critical:false},
     {src:'./js/shop-ui.js?v=2.1',critical:false},
     {src:'./js/name-ui.js?v=2.2',critical:false},
@@ -15,7 +15,7 @@
     {src:'./js/npc5-ui.js?v=1.1',critical:false},
     {src:'./js/stories-ui-v2.js?v=2.1',critical:false},
     {src:'./js/stability-fixes.js?v=1.2',critical:false},
-    {src:'./js/object-visuals.js?v=2.3',critical:false},
+    {src:'./js/object-visuals.js?v=2.4',critical:false},
     {src:'./js/authority-css-restore.js?v=1.0',critical:false},
     {src:'./js/authority-ui.js?v=1.3',critical:false},
     {src:'./js/authority-folder-fix.js?v=1.0',critical:false},
