@@ -1,7 +1,7 @@
 'use strict';
 (function(){
   const SAVE_KEY='avtoritet_save_v2';
-  const OBJECT_UNLOCKS=[0,150,400,1500,6000];
+  const OBJECT_UNLOCKS=[0,500,2500,10000,40000,150000];
   let refreshing=false;
   let refreshQueued=false;
 
