@@ -13,3 +13,6 @@
 
 /* Hide the pre-bootstrap DOM so saved rank/background/object never flash from the HTML placeholder. */
 #game-container.game-booting{visibility:hidden!important}
+
+/* Do not expose the legacy tap circle/emoji while the real object is being prepared. */
+#tap-object.preload-hidden{visibility:hidden!important}
