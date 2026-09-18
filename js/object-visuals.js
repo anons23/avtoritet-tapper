@@ -18,91 +18,46 @@
   function sync(){
     const emoji=document.getElementById('object-emoji'),target=document.getElementById('tap-object');
     if(!emoji||!target)return;
-
-    const n=nameOf();
-    const bag=n===BAG_NAME,cell=n===CELL_NAME,push=n===PUSHUPS_NAME,train=n===TRAINER_NAME;
-    const auth=n===AUTHORITY_NAME,breakth=n===BREAKTHROUGH_NAME;
-
+    const st=window.getGameState?window.getGameState():null;
+    const idx=st&&Number.isFinite(Number(st.currentObject))?Number(st.currentObject):Number(emoji.dataset.objectIndex||0);
+    emoji.dataset.objectIndex=String(idx);
+    const bag=idx===0,cell=idx===1,push=idx===2,train=idx===3;
+    const auth=idx===4,breakth=idx===5;
+    target.classList.toggle('bag-mode',bag);target.classList.toggle('cellmate-mode',cell);target.classList.toggle('pushups-mode',push);target.classList.toggle('trainer-mode',train);target.classList.toggle('authority-mode',auth);target.classList.toggle('breakthrough-mode',breakth);
     const old=emoji.querySelectorAll('.boxing-bag-image,.cellmate-image,.pushups-image,.trainer-image');
-
-    target.classList.toggle('bag-mode',bag);
-    target.classList.toggle('cellmate-mode',cell);
-    target.classList.toggle('pushups-mode',push);
-    target.classList.toggle('trainer-mode',train);
-    target.classList.toggle('authority-mode',auth);
-    target.classList.toggle('breakthrough-mode',breakth);
-
-    // No image object active (or jail / authority / breakthrough)
-    if(!bag&&!cell&&!push&&!train&&!auth&&!breakth){
+    if(!bag&&!cell&&!push&&!train){
       old.forEach(x=>x.remove());
       target.classList.remove('preload-hidden');
-      pushupQueue=0;pushupRunning=false;trainerQueue=0;trainerRunning=false;
-      lastSyncedName=n;
+      pushupQueue=0;pushupRunning=false;trainerQueue=0;trainerRunning=false;lastSyncedName=String(idx);
       return;
     }
-    if(auth||breakth){
-      old.forEach(x=>x.remove());
-      pushupQueue=0;pushupRunning=false;trainerQueue=0;trainerRunning=false;
-      target.classList.remove('preload-hidden');
-      lastSyncedName=n;
-      return;
-    }
-
     const cls=bag?'boxing-bag-image':cell?'cellmate-image':push?'pushups-image':'trainer-image';
-
-    // Already has the correct image(s)
-    if(emoji.querySelector('.'+cls)){
+    const existing=emoji.querySelectorAll('.'+cls);
+    if(existing.length){
+      old.forEach(x=>{if(!x.classList.contains(cls))x.remove()});
       target.classList.remove('preload-hidden');
-      // Still play entrance if the logical object just changed (e.g. name text updated first)
-      if(lastSyncedName && lastSyncedName!==n){
-        playEntrance(emoji.querySelector('.'+cls));
-      }
-      lastSyncedName=n;
+      lastSyncedName=String(idx);
       return;
     }
-
-    // Rebuild images
     old.forEach(x=>x.remove());
     target.classList.add('preload-hidden');
-
     if(push||train){
       const a=document.createElement('img'),b=document.createElement('img');
-      a.alt='';b.alt='';
-      a.className=cls+' frame-a';b.className=cls+' frame-b';
+      a.alt='';b.alt='';a.className=cls+' frame-a';b.className=cls+' frame-b';
       a.draggable=false;b.draggable=false;
-      a.src=push?PUSHUPS_UP:TRAINER_DOWN;
-      b.src=push?PUSHUPS_DOWN:TRAINER_UP;
-      a.style.opacity='1';b.style.opacity='0';
-      a.style.zIndex='2';b.style.zIndex='1';
+      a.src=push?PUSHUPS_UP:TRAINER_DOWN;b.src=push?PUSHUPS_DOWN:TRAINER_UP;
+      a.style.opacity='1';b.style.opacity='0';a.style.visibility='visible';b.style.visibility='hidden';a.style.zIndex='2';b.style.zIndex='1';
       emoji.append(a,b);
-      const reveal=()=>{
-        target.classList.remove('preload-hidden');
-        if(lastSyncedName && lastSyncedName!==n){
-          playEntrance(a);
-        }
-        lastSyncedName=n;
-      };
+      const reveal=()=>{target.classList.remove('preload-hidden');lastSyncedName=String(idx)};
       a.onload=reveal;b.onload=reveal;a.onerror=reveal;b.onerror=reveal;
-      // If already cached, onload may have fired synchronously — ensure reveal
-      if(a.complete && b.complete){reveal();}
+      if(a.complete&&b.complete)reveal();
     }else{
       const img=document.createElement('img');
-      img.src=bag?BAG_SRC:CELL_SRC;
-      img.alt='';img.className=cls;img.draggable=false;
-      const reveal=()=>{
-        target.classList.remove('preload-hidden');
-        if(lastSyncedName && lastSyncedName!==n){
-          playEntrance(img);
-        }
-        lastSyncedName=n;
-      };
-      img.onload=reveal;
-      img.onerror=reveal;
-      emoji.appendChild(img);
-      if(img.complete){reveal();}
+      img.src=bag?BAG_SRC:CELL_SRC;img.alt='';img.className=cls;img.draggable=false;
+      const reveal=()=>{target.classList.remove('preload-hidden');lastSyncedName=String(idx)};
+      img.onload=reveal;img.onerror=reveal;emoji.appendChild(img);if(img.complete)reveal();
     }
   }
-
   function playEntrance(img){
     if(!img)return;
     img.style.animation='none';
@@ -134,15 +89,12 @@
   }
 
   function swap(emoji,cls){
-    const f=emoji.querySelectorAll('.'+cls);
-    if(f.length<2)return;
-    const cur=f[0].style.opacity==='1'?f[0]:f[1];
+    const f=emoji.querySelectorAll('.'+cls);if(f.length<2)return;
+    const cur=f[0].style.visibility!=='hidden'?f[0]:f[1];
     const next=cur===f[0]?f[1]:f[0];
-    next.style.zIndex='2';cur.style.zIndex='1';
-    next.style.opacity='1';cur.style.opacity='0';
+    cur.style.opacity='0';cur.style.visibility='hidden';cur.style.zIndex='1';
+    next.style.opacity='1';next.style.visibility='visible';next.style.zIndex='2';
   }
-
-  // One full push-up cycle: down (190ms) then up (70ms). Driven by rAF timestamps — no nested setTimeout.
   const PUSH_DOWN_MS=190, PUSH_UP_MS=70, PUSH_CYCLE=PUSH_DOWN_MS+PUSH_UP_MS;
   function runPush(){
     if(pushupRunning)return;
