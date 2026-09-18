@@ -10,6 +10,8 @@
   const AUTHORITY_NAME='Разборка',BREAKTHROUGH_NAME='Прорыв';
   let pushupQueue=0,pushupRunning=false,trainerQueue=0,trainerRunning=false;
   let areaObserver=null,nameObserver=null;
+  let lastSyncedName='';
+  let initRetries=0;
 
   const nameOf=()=>String(document.getElementById('object-name')?.textContent||'').trim();
 
@@ -35,12 +37,14 @@
       old.forEach(x=>x.remove());
       target.classList.remove('preload-hidden');
       pushupQueue=0;pushupRunning=false;trainerQueue=0;trainerRunning=false;
+      lastSyncedName=n;
       return;
     }
     if(auth||breakth){
       old.forEach(x=>x.remove());
       pushupQueue=0;pushupRunning=false;trainerQueue=0;trainerRunning=false;
       target.classList.remove('preload-hidden');
+      lastSyncedName=n;
       return;
     }
 
@@ -49,6 +53,11 @@
     // Already has the correct image(s)
     if(emoji.querySelector('.'+cls)){
       target.classList.remove('preload-hidden');
+      // Still play entrance if the logical object just changed (e.g. name text updated first)
+      if(lastSyncedName && lastSyncedName!==n){
+        playEntrance(emoji.querySelector('.'+cls));
+      }
+      lastSyncedName=n;
       return;
     }
 
@@ -66,16 +75,41 @@
       a.style.opacity='1';b.style.opacity='0';
       a.style.zIndex='2';b.style.zIndex='1';
       emoji.append(a,b);
-      const reveal=()=>target.classList.remove('preload-hidden');
+      const reveal=()=>{
+        target.classList.remove('preload-hidden');
+        if(lastSyncedName && lastSyncedName!==n){
+          playEntrance(a);
+        }
+        lastSyncedName=n;
+      };
       a.onload=reveal;b.onload=reveal;a.onerror=reveal;b.onerror=reveal;
+      // If already cached, onload may have fired synchronously — ensure reveal
+      if(a.complete && b.complete){reveal();}
     }else{
       const img=document.createElement('img');
       img.src=bag?BAG_SRC:CELL_SRC;
       img.alt='';img.className=cls;img.draggable=false;
-      img.onload=()=>target.classList.remove('preload-hidden');
-      img.onerror=()=>target.classList.remove('preload-hidden');
+      const reveal=()=>{
+        target.classList.remove('preload-hidden');
+        if(lastSyncedName && lastSyncedName!==n){
+          playEntrance(img);
+        }
+        lastSyncedName=n;
+      };
+      img.onload=reveal;
+      img.onerror=reveal;
       emoji.appendChild(img);
+      if(img.complete){reveal();}
     }
+  }
+
+  function playEntrance(img){
+    if(!img)return;
+    img.style.animation='none';
+    void img.offsetWidth;
+    const base=img.classList.contains('cellmate-image')?'scale(1.85) ':'';
+    img.style.setProperty('--object-base-transform',base);
+    img.style.animation='object-enter .42s cubic-bezier(.22,.61,.36,1) both';
   }
 
   function swing(img){
@@ -95,7 +129,8 @@
       '@keyframes authority-pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.045)}}'+'
       '@keyframes breakthrough-pulse{0%,100%{transform:translateX(0)}35%{transform:translateX(-5px)}65%{transform:translateX(5px)}}'+'
       '.authority-mode #object-emoji{animation:authority-pulse .9s ease-in-out infinite}'+'
-      '.breakthrough-mode #object-emoji{animation:breakthrough-pulse .7s ease-in-out infinite}';
+      '.breakthrough-mode #object-emoji{animation:breakthrough-pulse .7s ease-in-out infinite}'+
+      '@keyframes object-enter{0%{opacity:0;transform:var(--object-base-transform) scale(.88) translateY(12px)}100%{opacity:1;transform:var(--object-base-transform) scale(1) translateY(0)}}';
     document.head.appendChild(s);
   }
 
@@ -237,6 +272,46 @@
     style();
     ensureObservers();
     sync();
+    // Race fix: name/ui may not be ready on first paint — retry a few times
+    function retry(){
+      if(initRetries>=8)return;
+      initRetries++;
+      const emoji=document.getElementById('object-emoji');
+      const name=nameOf();
+      const hasImg=emoji&&emoji.querySelector('.boxing-bag-image,.cellmate-image,.pushups-image,.trainer-image');
+      // If we have a known object name but no image yet, or name changed — re-sync
+      if((name==='Груша'||name==='Сокамерник'||name==='Отжимания'||name==='Тренажёр')&&!hasImg){
+        sync();
+        setTimeout(retry,120);
+        return;
+      }
+      // Also re-sync once after short delay in case game.js ui() runs after us
+      if(initRetries<=3){
+        setTimeout(function(){sync();retry();},150);
+      }
+    }
+    setTimeout(retry,80);
+    // Backup: watch game state object index every 400ms for the first few seconds
+    let polls=0;
+    const poll=setInterval(function(){
+      polls++;
+      try{
+        if(typeof window.getGameState==='function'){
+          const s=window.getGameState();
+          if(s&&typeof s.currentObject==='number'){
+            const names=['Груша','Сокамерник','Отжимания','Тренажёр','Разборка','Прорыв'];
+            const expected=s.jailed?'Карцер':(names[s.currentObject]||'');
+            if(expected && expected!==nameOf()){
+              // Force name from state if DOM lags behind
+              const nameEl=document.getElementById('object-name');
+              if(nameEl)nameEl.textContent=expected;
+            }
+            sync();
+          }
+        }
+      }catch(e){}
+      if(polls>=15)clearInterval(poll);
+    },400);
   }
 
   // Public API used by game.js and authority-ui.js
