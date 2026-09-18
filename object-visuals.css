@@ -28,7 +28,7 @@
 /* Keep the barbell character anchored lower in the tap area so the legs stay visible. */
 #tap-object.trainer-mode .trainer-image{top:60%!important}
 /* The raised-bar frame needs a slightly higher anchor because its visible artwork reaches farther upward. */
-#tap-object.trainer-mode .trainer-image.frame-b{top:35%!important}
+#tap-object.trainer-mode .trainer-image.frame-b{top:60%!important}
 #tap-object.pushups-mode .pushups-image,#tap-object.trainer-mode .trainer-image{pointer-events:none}
 
 /* Barbell frames: the raised-bar frame has more transparent canvas, so compensate
@@ -37,7 +37,7 @@
    needs a larger CSS scale to make the visible character/barbell match the
    lowered frame on screen. */
 #tap-object.trainer-mode .trainer-image.frame-a{transform:scale(1.14)!important}
-#tap-object.trainer-mode .trainer-image.frame-b{transform:scale(1.50)!important}
+#tap-object.trainer-mode .trainer-image.frame-b{transform:scale(1.14)!important}
 
 #game-container.jail-mode .boxing-bag-image,#game-container.jail-mode .cellmate-image,#game-container.jail-mode .pushups-image,#game-container.jail-mode .trainer-image{display:none}
 @media(min-width:701px){#object-emoji{height:150px}#tap-object.bag-mode,#tap-object.cellmate-mode,#tap-object.pushups-mode,#tap-object.trainer-mode{width:560px;height:min(650px,68vh);min-height:420px}#tap-object.bag-mode #object-emoji,#tap-object.cellmate-mode #object-emoji,#tap-object.pushups-mode #object-emoji,#tap-object.trainer-mode #object-emoji{height:500px;flex-basis:500px}.boxing-bag-image,.cellmate-image,.pushups-image,.trainer-image{width:min(800px,58vw);height:min(800px,70vh)}}
