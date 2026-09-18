@@ -35,6 +35,7 @@
     if(!bag&&!cell&&!push&&!train){
       old.forEach(x=>x.remove());
       target.classList.remove('preload-hidden');
+      document.getElementById('game-container')?.classList.remove('game-booting');
       pushupQueue=0;pushupRunning=false;trainerQueue=0;trainerRunning=false;lastSyncedName=String(idx);
       return;
     }
@@ -46,6 +47,7 @@
       old.forEach(x=>{if(!x.classList.contains(cls))x.remove()});
       if(gen===visualGeneration && emoji.dataset.objectIndex===String(idx)){
         target.classList.remove('preload-hidden');
+        document.getElementById('game-container')?.classList.remove('game-booting');
         lastSyncedName=String(idx);
       }
       return;
