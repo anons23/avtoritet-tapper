@@ -3,7 +3,7 @@
   const scripts=[
     {src:'./js/input-guard.js?v=1.1',critical:false},
     {src:'./js/save-migration.js?v=1.0',critical:true},
-    {src:'./js/game.js?v=4.6',critical:true},
+    {src:'./js/game.js?v=4.7-test',critical:true},
     {src:'./js/test-mode.js?v=1.3',critical:false},
     {src:'./js/shop-ui.js?v=2.1',critical:false},
     {src:'./js/name-ui.js?v=2.1',critical:false},
