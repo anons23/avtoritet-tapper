@@ -58,6 +58,19 @@
     const emoji=document.getElementById('object-emoji'),target=document.getElementById('tap-object');
     if(!emoji||!target)return;
     ensureBuilt();
+
+    // When the stage changes, invalidate queued frame animations from the old stage.
+    // All images stay mounted in DOM; only the current data-stage remains visible.
+    if(lastIdx!==idx){
+      pushupQueue=0;
+      trainerQueue=0;
+      if(idx!==2)pushupRunning=false;
+      if(idx!==3)trainerRunning=false;
+      emoji.querySelectorAll('img[data-stage]').forEach(img=>{
+        img.style.display='none';
+      });
+    }
+
     emoji.dataset.objectIndex=String(idx);
 
     const bag=idx===0,cell=idx===1,push=idx===2,train=idx===3;
@@ -218,7 +231,8 @@
     if(n===AUTHORITY_NAME||n===BREAKTHROUGH_NAME)return;
     const emoji=document.getElementById('object-emoji');
     if(!emoji)return;
-    const img=[...emoji.querySelectorAll('.boxing-bag-image,.cellmate-image,.pushups-image,.trainer-image')]
+    const stage=Number(emoji.dataset.objectIndex);
+    const img=[...emoji.querySelectorAll('img[data-stage="'+stage+'"]')]
       .find(el=>el.style.display!=='none');
     if(!img)return;
     if(img.classList.contains('pushups-image')){
