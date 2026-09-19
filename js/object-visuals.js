@@ -217,7 +217,9 @@
     const n=nameOf();
     if(n===AUTHORITY_NAME||n===BREAKTHROUGH_NAME)return;
     const emoji=document.getElementById('object-emoji');
-    const img=emoji?.querySelector('.boxing-bag-image,.cellmate-image,.pushups-image,.trainer-image');
+    if(!emoji)return;
+    const img=[...emoji.querySelectorAll('.boxing-bag-image,.cellmate-image,.pushups-image,.trainer-image')]
+      .find(el=>el.style.display!=='none');
     if(!img)return;
     if(img.classList.contains('pushups-image')){
       pushupQueue=Math.min(12,pushupQueue+1);
