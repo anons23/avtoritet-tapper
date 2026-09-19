@@ -8,7 +8,7 @@
   const TRAINER_UP='./assets/backgrounds/trainer_up.png?v=4';
   const BAG_NAME='Груша',CELL_NAME='Сокамерник',PUSHUPS_NAME='Отжимания',TRAINER_NAME='Тренажёр';
   const AUTHORITY_NAME='Разборка',BREAKTHROUGH_NAME='Прорыв';
-  let pushupQueue=0,pushupRunning=false,trainerQueue=0,trainerRunning=false;
+  let pushupQueue=0,pushupRunning=false,trainerQueue=0,trainerRunning=false;\n  let pushupLastTick=0,trainerLastTick=0;\n  let pushupRunId=0,trainerRunId=0;
   let built=false;
   let lastIdx=-1;
 
@@ -149,83 +149,7 @@
     cur.style.opacity='0';cur.style.visibility='hidden';cur.style.zIndex='1';
     next.style.opacity='1';next.style.visibility='visible';next.style.zIndex='2';
   }
-  const PUSH_DOWN_MS=190, PUSH_UP_MS=70, PUSH_CYCLE=PUSH_DOWN_MS+PUSH_UP_MS;
-  function runPush(){
-    if(pushupRunning)return;
-    const emoji=document.getElementById('object-emoji');
-    if(!emoji||emoji.querySelectorAll('.pushups-image').length<2){pushupQueue=0;return;}
-    pushupRunning=true;
-    let phaseStart=performance.now();
-    let phase='down'; // down = showing down frame, up = showing up frame
-    // Start cycle: go to down frame immediately
-    swap(emoji,'pushups-image');
-    function tick(now){
-      const live=emoji.querySelectorAll('.pushups-image');
-      if(live.length<2){pushupQueue=0;pushupRunning=false;return;}
-      const elapsed=now-phaseStart;
-      if(phase==='down'){
-        if(elapsed>=PUSH_DOWN_MS){
-          swap(emoji,'pushups-image');
-          phase='up';
-          phaseStart=now;
-        }
-      }else{ // up
-        if(elapsed>=PUSH_UP_MS){
-          pushupQueue=Math.max(0,pushupQueue-1);
-          if(pushupQueue<=0){
-            // Ensure resting frame is the "up" one
-            if(live[0].style.opacity!=='1')swap(emoji,'pushups-image');
-            pushupRunning=false;
-            return;
-          }
-          // Next cycle
-          swap(emoji,'pushups-image');
-          phase='down';
-          phaseStart=now;
-        }
-      }
-      requestAnimationFrame(tick);
-    }
-    requestAnimationFrame(tick);
-  }
-
-  const TRAIN_DOWN_MS=190, TRAIN_UP_MS=90;
-  function runTrainer(){
-    if(trainerRunning)return;
-    const emoji=document.getElementById('object-emoji');
-    if(!emoji||emoji.querySelectorAll('.trainer-image').length<2){trainerQueue=0;return;}
-    trainerRunning=true;
-    let phaseStart=performance.now();
-    let phase='down';
-    swap(emoji,'trainer-image');
-    function tick(now){
-      const live=emoji.querySelectorAll('.trainer-image');
-      if(live.length<2){trainerQueue=0;trainerRunning=false;return;}
-      const elapsed=now-phaseStart;
-      if(phase==='down'){
-        if(elapsed>=TRAIN_DOWN_MS){
-          swap(emoji,'trainer-image');
-          phase='up';
-          phaseStart=now;
-        }
-      }else{
-        if(elapsed>=TRAIN_UP_MS){
-          trainerQueue=Math.max(0,trainerQueue-1);
-          if(trainerQueue<=0){
-            if(live[0].style.opacity!=='1')swap(emoji,'trainer-image');
-            trainerRunning=false;
-            return;
-          }
-          swap(emoji,'trainer-image');
-          phase='down';
-          phaseStart=now;
-        }
-      }
-      requestAnimationFrame(tick);
-    }
-    requestAnimationFrame(tick);
-  }
-
+  const PUSH_DOWN_MS=190, PUSH_UP_MS=70;\n  function runPush(){\n    const emoji=document.getElementById('object-emoji');\n    if(!emoji||emoji.querySelectorAll('.pushups-image').length<2){pushupQueue=0;pushupRunning=false;return;}\n    if(pushupRunning && performance.now()-pushupLastTick<=500)return;\n    pushupRunId++;\n    const runId=pushupRunId;\n    pushupRunning=true;\n    pushupLastTick=performance.now();\n    let phaseStart=pushupLastTick,phase='down';\n    swap(emoji,'pushups-image');\n    function tick(now){\n      if(runId!==pushupRunId || Number(emoji.dataset.objectIndex)!==2){if(runId===pushupRunId)pushupRunning=false;return;}\n      pushupLastTick=now;\n      const live=[...emoji.querySelectorAll('.pushups-image')].filter(el=>el.style.display!=='none');\n      if(live.length<2){pushupQueue=0;pushupRunning=false;return;}\n      const elapsed=now-phaseStart;\n      if(phase==='down' && elapsed>=PUSH_DOWN_MS){swap(emoji,'pushups-image');phase='up';phaseStart=now;}\n      else if(phase==='up' && elapsed>=PUSH_UP_MS){\n        pushupQueue=Math.max(0,pushupQueue-1);\n        if(pushupQueue<=0){pushupRunning=false;return;}\n        swap(emoji,'pushups-image');phase='down';phaseStart=now;\n      }\n      requestAnimationFrame(tick);\n    }\n    requestAnimationFrame(tick);\n  }\n\n  const TRAIN_DOWN_MS=190, TRAIN_UP_MS=90;\n  function runTrainer(){\n    const emoji=document.getElementById('object-emoji');\n    if(!emoji||emoji.querySelectorAll('.trainer-image').length<2){trainerQueue=0;trainerRunning=false;return;}\n    if(trainerRunning && performance.now()-trainerLastTick<=500)return;\n    trainerRunId++;\n    const runId=trainerRunId;\n    trainerRunning=true;\n    trainerLastTick=performance.now();\n    let phaseStart=trainerLastTick,phase='down';\n    swap(emoji,'trainer-image');\n    function tick(now){\n      if(runId!==trainerRunId || Number(emoji.dataset.objectIndex)!==3){if(runId===trainerRunId)trainerRunning=false;return;}\n      trainerLastTick=now;\n      const live=[...emoji.querySelectorAll('.trainer-image')].filter(el=>el.style.display!=='none');\n      if(live.length<2){trainerQueue=0;trainerRunning=false;return;}\n      const elapsed=now-phaseStart;\n      if(phase==='down' && elapsed>=TRAIN_DOWN_MS){swap(emoji,'trainer-image');phase='up';phaseStart=now;}\n      else if(phase==='up' && elapsed>=TRAIN_UP_MS){\n        trainerQueue=Math.max(0,trainerQueue-1);\n        if(trainerQueue<=0){trainerRunning=false;return;}\n        swap(emoji,'trainer-image');phase='down';phaseStart=now;\n      }\n      requestAnimationFrame(tick);\n    }\n    requestAnimationFrame(tick);\n  }\n\n  document.addEventListener('visibilitychange',()=>{\n    if(document.hidden){\n      pushupQueue=0;pushupRunning=false;pushupLastTick=0;pushupRunId++;\n      trainerQueue=0;trainerRunning=false;trainerLastTick=0;trainerRunId++;\n    }\n  });\n
   function animate(){
     const n=nameOf();
     if(n===AUTHORITY_NAME||n===BREAKTHROUGH_NAME)return;
