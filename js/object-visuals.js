@@ -4,8 +4,8 @@
   const CELL_SRC='./assets/backgrounds/cellmate.png?v=3';
   const PUSHUPS_UP='./assets/backgrounds/pushups.png?v=3';
   const PUSHUPS_DOWN='./assets/backgrounds/pushups_2.png?v=3';
-  const TRAINER_DOWN='./assets/backgrounds/trainer_down.png?v=3';
-  const TRAINER_UP='./assets/backgrounds/trainer_up.png?v=3';
+  const TRAINER_DOWN='./assets/backgrounds/trainer_down.png?v=4';
+  const TRAINER_UP='./assets/backgrounds/trainer_up.png?v=4';
   const BAG_NAME='Груша',CELL_NAME='Сокамерник',PUSHUPS_NAME='Отжимания',TRAINER_NAME='Тренажёр';
   const AUTHORITY_NAME='Разборка',BREAKTHROUGH_NAME='Прорыв';
   let pushupQueue=0,pushupRunning=false,trainerQueue=0,trainerRunning=false;
@@ -87,7 +87,7 @@
     if(!img)return;
     img.style.animation='none';
     void img.offsetWidth;
-    const base=img.classList.contains('cellmate-image')?'scale(var(--cellmate-scale,2.05)) ':img.classList.contains('trainer-image')?(img.classList.contains('frame-b')?'scale(1.50) ':'scale(1.14) '):'';
+    const base=img.classList.contains('cellmate-image')?'scale(var(--cellmate-scale,2.05)) ':img.classList.contains('trainer-image')?'scale(1.14) ':'';
     img.style.setProperty('--object-base-transform',base);
     img.style.animation='object-enter .42s cubic-bezier(.22,.61,.36,1) both';
   }
