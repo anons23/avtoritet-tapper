@@ -26,7 +26,21 @@ window.requestNameChange=requestNameChange;
 function ui(){const set=(id,value)=>{const el=$(id);if(el)el.textContent=value};set('cigarettes',fmt(s.cigarettes));set('points',fmt(s.points));set('energy',Math.floor(s.energy));set('max-energy',s.maxEnergy);set('authority-influence-value',fmt(s.points));set('nickname',s.nickname);set('rank',rank()[0]);set('power-stat',s.power);set('respect-stat',s.respect);set('wealth-stat',s.wealth);const o=O[s.currentObject]||O[0],emoji=$('object-emoji'),name=$('object-name'),action=$('object-action');if(emoji){emoji.dataset.objectIndex=String(s.currentObject);if(s.jailed){emoji.textContent='⛓️';}else if(emoji.textContent==='⛓️'){emoji.textContent='';}}if(name){const next=s.jailed?'Карцер':o[0];if(name.textContent!==next)name.textContent=next;}if(action){const next=s.jailed?'ТАПАЙ ДЛЯ ВЫХОДА':s.currentObject===4?'РАЗОБРАТЬ ДЕЛО':s.currentObject===5?'ПРОЙТИ ПРЕГРАДУ':'ТАПАЙ!';if(action.textContent!==next)action.textContent=next;}const gc=$('game-container');if(gc)gc.classList.toggle('jail-mode',!!s.jailed);const jp=$('jail-panel');if(jp){jp.classList.toggle('hidden',!s.jailed);const jc=$('jail-count'),jl=$('jail-left');if(s.jailed){if(jc)jc.textContent=Math.min(s.jailTaps,s.jailRequired)+' / '+s.jailRequired;if(jl)jl.textContent=Math.max(0,s.jailRequired-s.jailTaps)}else{if(jc)jc.textContent='0 / '+s.jailRequired;if(jl)jl.textContent=s.jailRequired}}['btn-shop','btn-rank','btn-tasks','btn-more'].forEach(id=>{const b=$(id);if(b)b.disabled=!!s.jailed})}
 function msg(x){messageQueue.push(String(x));processMessages()}
 function processMessages(){if(messageBusy||!messageQueue.length)return;const e=$('event-message');if(!e){messageQueue=[];return}messageBusy=true;e.textContent=messageQueue.shift();e.classList.add('show');setTimeout(()=>{e.classList.remove('show');setTimeout(()=>{messageBusy=false;processMessages()},250)},4200)}
-function feedback(e,n,c){const x=$('tap-feedback');if(!x)return;x.textContent=(c?'КРИТ! ':'+')+n;x.style.left=(e&&e.clientX||150)+'px';x.style.top=(e&&e.clientY||250)+'px';x.classList.remove('show');void x.offsetWidth;x.classList.add('show')}
+function feedback(e,n,c){
+  let x=$('tap-feedback');
+  if(!x){
+    x=document.createElement('div');
+    x.id='tap-feedback';
+    const parent=$('tap-area')||$('game-container')||document.body;
+    parent.appendChild(x);
+  }
+  x.textContent=(c?'КРИТ! ':'+')+n;
+  x.style.left=(e&&e.clientX||150)+'px';
+  x.style.top=(e&&e.clientY||250)+'px';
+  x.classList.remove('show');
+  void x.offsetWidth;
+  x.classList.add('show');
+}
 function jailTap(e){if(!s.jailed)return;e&&e.preventDefault&&e.preventDefault();if(s.jailTaps>=s.jailRequired)return;s.jailTaps++;const t=$('tap-object');if(t){t.classList.remove('punch');void t.offsetWidth;t.classList.add('punch')}if(typeof window.animateObjectVisual==='function')window.animateObjectVisual();feedback(e,1,false);if(s.jailTaps>=s.jailRequired)releaseFromJail();else ui();save()}
 function releaseFromJail(){const confiscated=Math.max(0,Math.floor(s.confiscatedCigarettes));s.jailed=false;s.cigarettes+=confiscated;s.confiscatedCigarettes=0;s.jailTaps=0;s.tasks.jail=(s.tasks.jail||0)+1;s.jailProtection=75;msg('🔓 Карцер пройден! Тебя выпустили. 🚬 Конфискованные сигареты возвращены: '+fmt(confiscated));tasksCheck();ui();save()}
 function enterJail(reason){if(s.jailed)return;s.jailed=true;s.jailRequired=500;s.jailTaps=0;s.confiscatedCigarettes=Math.max(0,Math.floor(s.cigarettes));s.cigarettes=0;s.jailProtection=0;activeEvent=false;const o=$('modal-overlay');if(o){o.dataset.locked='0';o.classList.add('hidden')}msg('🚨 Ты загремел в карцер! Все сигареты временно изъяты.');if(reason)msg(reason+' Отсидеть: 500 тапов.');ui();save()}
