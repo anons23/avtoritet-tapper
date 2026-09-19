@@ -26,8 +26,11 @@
 
   function ensureBuilt(){
     const emoji=document.getElementById('object-emoji');
-    if(!emoji||built)return;
+    if(!emoji)return;
+    const existing=emoji.querySelectorAll('img[data-stage]');
+    if(built&&existing.length>=6)return;
     built=true;
+    existing.forEach(n=>n.remove());
 
     const bag=document.createElement('img');
     bag.className='boxing-bag-image';bag.src=BAG_SRC;bag.draggable=false;bag.alt='';
