@@ -36,8 +36,8 @@
 /* The two source PNGs have different transparent padding. The raised frame
    needs a larger CSS scale to make the visible character/barbell match the
    lowered frame on screen. */
-#tap-object.trainer-mode .trainer-image.frame-a{transform:scale(1.14)!important}
-#tap-object.trainer-mode .trainer-image.frame-b{transform:scale(1.14)!important}
+#tap-object.trainer-mode .trainer-image.frame-a{transform:scale(1.14)}
+#tap-object.trainer-mode .trainer-image.frame-b{transform:scale(1.14)}
 
 #game-container.jail-mode .boxing-bag-image,#game-container.jail-mode .cellmate-image,#game-container.jail-mode .pushups-image,#game-container.jail-mode .trainer-image{display:none}
 @media(min-width:701px){#object-emoji{height:150px}#tap-object.bag-mode,#tap-object.cellmate-mode,#tap-object.pushups-mode,#tap-object.trainer-mode{width:560px;height:min(650px,68vh);min-height:420px}#tap-object.bag-mode #object-emoji,#tap-object.cellmate-mode #object-emoji,#tap-object.pushups-mode #object-emoji,#tap-object.trainer-mode #object-emoji{height:500px;flex-basis:500px}.boxing-bag-image,.cellmate-image,.pushups-image,.trainer-image{width:min(800px,58vw);height:min(800px,70vh)}}
@@ -76,3 +76,7 @@
 
 /* Authority and final-stage objects are screen-driven; never show the legacy tap circle behind them. */
 #tap-object.authority-mode,#tap-object.breakthrough-mode{background:transparent!important;border:0!important;box-shadow:none!important;border-radius:0!important;}
+
+
+/* Animation safety: do not let static frame sizing with !important cancel runtime transforms. */
+.boxing-bag-image,.cellmate-image,.pushups-image,.trainer-image{backface-visibility:hidden;-webkit-backface-visibility:hidden;transform-style:preserve-3d;}
