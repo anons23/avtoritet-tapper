@@ -20,11 +20,19 @@
     let max=0;
     for(let i=0;i<OBJECT_UNLOCKS.length;i++)if(points>=OBJECT_UNLOCKS[i])max=i;
     const current=Math.max(0,Number(s.currentObject)||0);
-    if(current>max){s.currentObject=max;save(s)}
+    if(current!==max){
+      s.currentObject=max;
+      save(s);
+      if(typeof window.refreshObjectVisuals==='function')window.refreshObjectVisuals();
+    }
     if(s.jailed){
       const emoji=document.getElementById('object-emoji');
       const name=document.getElementById('object-name');
-      if(emoji)emoji.textContent='⛓️';
+      if(emoji){
+        emoji.querySelectorAll('img[data-stage]').forEach(img=>{img.style.display='none';});
+        const mark=emoji.querySelector('.jail-emoji-mark');
+        if(!mark){const m=document.createElement('span');m.className='jail-emoji-mark';m.textContent='⛓️';emoji.appendChild(m);}
+      }
       if(name)name.textContent='Карцер';
     }
   }
