@@ -93,11 +93,27 @@
   }
 
   function swing(img){
-    img.style.animation='none';
-    void img.offsetWidth;
-    img.style.setProperty('--object-base-transform',img.classList.contains('cellmate-image')?'scale(1.85) ':img.classList.contains('trainer-image')?'scale(1.14) ':'');
+    if(!img)return;
+    // Use the Web Animations API for the actual tap motion. This avoids
+    // conflicts with static CSS transform/animation rules on the image.
+    if(img._tapMotion){
+      try{img._tapMotion.cancel()}catch(e){}
+    }
+    const base=img.classList.contains('cellmate-image')
+      ?'scale(1.85)'
+      :img.classList.contains('trainer-image')
+        ?'scale(1.14)'
+        :'none';
     img.style.transformOrigin=img.classList.contains('cellmate-image')?'50% 50%':'50% 8%';
-    img.style.animation='object-swing .68s cubic-bezier(.22,.61,.36,1) both';
+    img._tapMotion=img.animate([
+      {transform:base},
+      {transform:base+' rotate(-9deg) translate3d(-3px,0,0)',offset:.12},
+      {transform:base+' rotate(7deg) translate3d(3px,0,0)',offset:.27},
+      {transform:base+' rotate(-5deg) translate3d(-2px,0,0)',offset:.45},
+      {transform:base+' rotate(3deg) translate3d(2px,0,0)',offset:.63},
+      {transform:base+' rotate(-1.5deg) translate3d(-1px,0,0)',offset:.80},
+      {transform:base}
+    ],{duration:680,easing:'cubic-bezier(.22,.61,.36,1)',fill:'none'});
   }
 
   function style(){
@@ -220,6 +236,9 @@
     style();
     ensureBuilt();
     sync();
+    // Expose a tiny diagnostic flag so the game can be checked without
+    // changing the DOM/animation architecture.
+    window.__objectVisualsReady=true;
   }
 
   // Public API used by game.js and authority-ui.js
