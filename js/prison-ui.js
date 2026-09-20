@@ -34,11 +34,10 @@
   function randomInt(a,b){return Math.floor(Math.random()*(b-a+1))+a}
   function scaledAmount(s,base){const mult=RANK_MULTIPLIERS[rankIndex(s)]||1;return randomInt(Math.round(base*.85*mult),Math.round(base*1.15*mult))}
 
-  function takeCigarettes(s,base){
-    const key=s.jailed?'confiscatedCigarettes':'cigarettes';
-    const available=Math.max(0,Number(s[key])||0);
-    const loss=Math.min(available,scaledAmount(s,base));
-    s[key]=Math.max(0,available-loss);
+  function takeCigarettes(s,percent){
+    const available=Math.max(0,Number(s.cigarettes)||0);
+    const loss=Math.min(available,Math.max(0,Math.floor(available*percent)));
+    s.cigarettes=Math.max(0,available-loss);
     return loss;
   }
 
@@ -62,19 +61,19 @@
 
   const events=[
     ['🧹 Коридор','Надзиратель требует привести коридор в порядок.',[
-      ['Согласиться',function(s){const q=Math.random();if(q<.4)return finish(s,'Работа прошла спокойно. Ничего не потеряно.');if(q<.75){const n=takePoints(s,220);return finish(s,'Пришлось отработать. −'+n+' ⭐.')}const r=demoteOneRank(s);if(!r.loss)return finish(s,'Зашквар не случился: ты и так на самой низкой масти.');return finish(s,'Зашквар. «'+RANK_NAMES[r.from]+'» → «'+RANK_NAMES[r.to]+'». −'+r.loss+' ⭐.')}],
-      ['Отказаться',function(s){const cig=takeCigarettes(s,550),pts=takePoints(s,70);return finish(s,'Отказ обошёлся дорого: −'+cig+' 🚬 и −'+pts+' ⭐.')}],
-      ['Попытаться договориться',function(s){const cig=takeCigarettes(s,1000);return finish(s,'Договорились. −'+cig+' 🚬. ⭐ сохранены.')}]
+      ['Согласиться',function(s){const q=Math.random();if(q<.4)return finish(s,'🧹 Ты сделал работу спокойно. Авторитеты отметили, что слово держишь. ⭐ Понты не сняли.');if(q<.75){const n=takePoints(s,220);return finish(s,'🧹 Пол помыт, но без последствий не обошлось. С тебя сняли '+n+' ⭐ понтов.');}const r=demoteOneRank(s);if(!r.loss)return finish(s,'🧹 Работа выполнена, но ты и так на самой низкой масти. Ниже уже некуда.');return finish(s,'🧹 Авторитеты не поняли твоего поступка и решили понизить тебя в масти: «'+RANK_NAMES[r.from]+'» → «'+RANK_NAMES[r.to]+'». −'+r.loss+' ⭐.')}],
+      ['Отказаться',function(s){const cig=takeCigarettes(s,.20);return finish(s,'🚨 Ты уважаемый арестант, но здесь закон: за отказ конфискуем '+cig+' 🚬 чефира (20% твоего запаса).');}],
+      ['Попытаться договориться',function(s){const cig=takeCigarettes(s,.10);return finish(s,'🤝 Договориться получилось. В качестве платы конфисковали только '+cig+' 🚬 чефира (10% запаса). ⭐ сохранены.');}]
     ]],
     ['🧹 Камера','Требуют привести камеру в порядок.',[
-      ['Согласиться',function(s){const q=Math.random();if(q<.42)return finish(s,'Повезло. Ничего не потеряно.');if(q<.74){const n=takePoints(s,260);return finish(s,'Пришлось отработать. −'+n+' ⭐.')}const r=demoteOneRank(s);if(!r.loss)return finish(s,'Зашквар не случился: ты и так на самой низкой масти.');return finish(s,'Зашквар. «'+RANK_NAMES[r.from]+'» → «'+RANK_NAMES[r.to]+'». −'+r.loss+' ⭐.')}],
-      ['Отказаться',function(s){const cig=takeCigarettes(s,700),pts=takePoints(s,90);return finish(s,'За отказ: −'+cig+' 🚬 и −'+pts+' ⭐.')}],
-      ['Попытаться договориться',function(s){const cig=takeCigarettes(s,1400);return finish(s,'Договор сработал. −'+cig+' 🚬, ⭐ сохранены.')}]
+      ['Согласиться',function(s){const q=Math.random();if(q<.42)return finish(s,'🧹 Камера приведена в порядок. Авторитеты увидели, что ты не отлыниваешь. ⭐ Понты сохранены.');if(q<.74){const n=takePoints(s,260);return finish(s,'🧹 Камеру ты убрал, но за результат сняли '+n+' ⭐ понтов.');}const r=demoteOneRank(s);if(!r.loss)return finish(s,'🧹 Камера убрана. Ты уже на самой низкой масти, поэтому понижать дальше некуда.');return finish(s,'🧹 Авторитеты не оценили твой подход и решили понизить тебя в масти: «'+RANK_NAMES[r.from]+'» → «'+RANK_NAMES[r.to]+'». −'+r.loss+' ⭐.')}],
+      ['Отказаться',function(s){const cig=takeCigarettes(s,.20);return finish(s,'🚨 Ты уважаемый арестант, но здесь закон: за отказ конфискуем '+cig+' 🚬 чефира (20% твоего запаса).');}],
+      ['Попытаться договориться',function(s){const cig=takeCigarettes(s,.10);return finish(s,'🤝 Договор сработал. За возможность не делать работу изъяли '+cig+' 🚬 чефира (10% запаса). ⭐ сохранены.');}]
     ]],
     ['🤐 Сокамерник','От тебя хотят услышать лишнее.',[
-      ['Рассказать',function(s){const q=Math.random();if(q<.45){const n=randomInt(80,160);s.points=(Number(s.points)||0)+n;return finish(s,'Информация пригодилась. +'+n+' ⭐.')}if(q<.75){const n=takePoints(s,300);return finish(s,'История обернулась боком. −'+n+' ⭐.')}const r=demoteOneRank(s);if(!r.loss)return finish(s,'Зашквар не случился: ты и так на самой низкой масти.');return finish(s,'Зашквар. «'+RANK_NAMES[r.from]+'» → «'+RANK_NAMES[r.to]+'». −'+r.loss+' ⭐.')}],
-      ['Промолчать',function(s){const cig=takeCigarettes(s,800),pts=takePoints(s,50);return finish(s,'Промолчал. −'+cig+' 🚬 и −'+pts+' ⭐.')}],
-      ['Попытаться договориться',function(s){const cig=takeCigarettes(s,1700);return finish(s,'Договорились. −'+cig+' 🚬. ⭐ сохранены.')}]
+      ['Рассказать',function(s){const q=Math.random();if(q<.45){const n=randomInt(80,160);s.points=(Number(s.points)||0)+n;return finish(s,'🗣️ Разговор оказался полезным. Тебе добавили '+n+' ⭐ понтов.');}if(q<.75){const n=takePoints(s,300);return finish(s,'🗣️ Слова не зашли авторитетам. Сняли '+n+' ⭐ понтов.');}const r=demoteOneRank(s);if(!r.loss)return finish(s,'🗣️ Тебя не поняли, но ты и так на самой низкой масти. Ниже уже некуда.');return finish(s,'🗣️ Авторитеты не поняли твоего поступка и решили понизить тебя в масти: «'+RANK_NAMES[r.from]+'» → «'+RANK_NAMES[r.to]+'». −'+r.loss+' ⭐.')}],
+      ['Промолчать',function(s){const cig=takeCigarettes(s,.20);return finish(s,'🤫 За отказ вмешиваться в разговор изъяли '+cig+' 🚬 чефира (20% запаса).');}],
+      ['Попытаться договориться',function(s){const cig=takeCigarettes(s,.10);return finish(s,'🤝 Договорились без лишнего шума. За это изъяли '+cig+' 🚬 чефира (10% запаса). ⭐ сохранены.');}]
     ]]
   ];
 
