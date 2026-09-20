@@ -2,7 +2,6 @@
 (function(){
   const BASE='./assets/authority/';
   const MAP={
-    'авторитет.png':'authority.png',
     'Разобрать дела.png':'deal_button.png',
     'давить авторитетом.png':'authority_pressure.png',
     'дела барака иконка.jfif':'barrack_cases_icon.jfif',
@@ -22,7 +21,7 @@
     if(src&&src.indexOf('/assets/authority/')!==-1){const next=rewrite(src);if(next!==src)img.setAttribute('src',next);}
   };
   const style=document.createElement('style');
-  style.textContent='#game-container.authority-mode{background-image:linear-gradient(rgba(4,8,10,.18),rgba(4,8,10,.55)),url("./assets/authority/authority.png")!important;}';
+  style.textContent='#game-container.authority-mode{background-image:linear-gradient(rgba(4,8,10,.18),rgba(4,8,10,.55)),url("./assets/backgrounds/desktop/avtoritet.png")!important;}'
   (document.head||document.documentElement).appendChild(style);
   const observer=new MutationObserver(mutations=>mutations.forEach(m=>m.addedNodes.forEach(node=>{
     if(node.nodeType!==1)return;
