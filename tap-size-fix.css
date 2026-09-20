@@ -6,7 +6,7 @@
 @media(max-height:650px){#tap-object.bag-mode,#tap-object.cellmate-mode,#tap-object.pushups-mode,#tap-object.trainer-mode{width:min(324px,90vw)!important;height:279px!important;min-height:225px!important}#tap-object.bag-mode #object-emoji,#tap-object.cellmate-mode #object-emoji,#tap-object.pushups-mode #object-emoji,#tap-object.trainer-mode #object-emoji{height:216px!important;flex-basis:216px!important}.boxing-bag-image,.cellmate-image,.pushups-image,.trainer-image{width:min(423px,88vw)!important;height:279px!important}}
 
 /* Cellmate must not overflow the tap area on phones */
-#tap-object.cellmate-mode{overflow:hidden}
+#tap-object.cellmate-mode{overflow:visible}
 #tap-object.cellmate-mode .cellmate-image{
   width:min(480px,86vw)!important;
   height:min(480px,62vh)!important;
