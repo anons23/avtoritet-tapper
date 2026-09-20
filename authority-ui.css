@@ -59,7 +59,7 @@
   .authority-action-wrap{position:static!important}
   .authority-action-hint{display:none!important}
   .authority-strip,.authority-mini-row{position:absolute!important;z-index:6!important;display:none!important}
-  .authority-desk-hotspot{left:16%!important;bottom:18%!important;width:43%!important;height:31%!important}
+  .authority-desk-hotspot{left:37%!important;bottom:20%!important;width:30%!important;height:28%!important}
 }
 @media(max-width:700px){
   #game-container.authority-mode{max-width:none!important;width:100%!important}
