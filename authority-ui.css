@@ -98,15 +98,7 @@
      Do not rely only on the game-container background: the image must remain
      visible even if the parent background is repainted/overridden. */
   .authority-hero-bg{
-    display:block!important;
-    position:absolute!important;
-    inset:0!important;
-    width:100%!important;
-    height:100%!important;
-    object-fit:cover!important;
-    object-position:center center!important;
-    opacity:1!important;
-    filter:none!important;
+    display:none!important;
   }
   .authority-shade{display:none!important}
   .authority-context,.authority-influence{display:none!important}
