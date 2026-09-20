@@ -67,7 +67,7 @@
   .authority-screen{width:100%!important;height:100%!important;padding:0!important}
   .authority-hero{min-height:0!important;border-radius:0!important;border:0!important}
   .authority-context,.authority-influence{z-index:6!important}
-  .authority-desk-hotspot{left:7%!important;bottom:15%!important;width:58%!important;height:34%!important}
+  .authority-desk-hotspot{left:15%!important;bottom:10%!important;width:70%!important;height:50%!important;z-index:20!important;pointer-events:auto!important}
 }
 /* Desktop authority dialogs use a wide game sheet instead of a narrow phone-sized column. */
 @media(min-width:701px){
