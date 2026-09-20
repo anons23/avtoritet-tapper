@@ -95,7 +95,7 @@
         const live=readGame();
         if(!live.jailed){busy=false;o.dataset.locked='0';o.classList.add('hidden');return}
         const text=e[2][index][1](live);
-        if(typeof window.msg==='function')window.msg(text);
+        if(typeof window.choiceResult==='function'){const positive=!(/[−-]|понизить|конфис|изъяли|изъят|сняли|не поняли|не оценили/.test(text));window.choiceResult(text,positive)}else if(typeof window.msg==='function')window.msg(text);
         o.dataset.locked='0';o.classList.add('hidden');busy=false;count++;
         if(typeof window.ui==='function')window.ui();
       };
