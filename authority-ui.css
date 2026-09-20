@@ -80,13 +80,21 @@
 }
 
 @media(min-width:701px){
-  #game-container.authority-mode{position:fixed!important;inset:0!important;width:100vw!important;max-width:none!important;height:100vh!important;min-height:100vh!important;padding:0!important;margin:0!important;overflow:hidden!important;background:#0a0e10!important}
-  /* Lower the full-screen authority artwork so the character's legs are not clipped by the viewport. */
-  .authority-hero-bg{object-position:center center!important}
+  /* Desktop: the authority room is the background of the whole game field, including the player name/rank area. */
+  #game-container.authority-mode{
+    position:fixed!important;inset:0!important;width:100vw!important;max-width:none!important;
+    height:100vh!important;min-height:100vh!important;padding:0!important;margin:0!important;
+    overflow:hidden!important;
+    background-image:linear-gradient(rgba(4,8,10,.10),rgba(4,8,10,.28)),url('./assets/backgrounds/desktop/avtoritet.png')!important;
+    background-size:cover!important;background-position:center center!important;
+    background-repeat:no-repeat!important;
+  }
   #game-container.authority-mode #tap-area{width:100%!important;height:100%!important;min-height:100%!important;padding:0!important;margin:0!important;overflow:hidden!important}
   .authority-screen{position:relative!important;width:100%!important;max-width:none!important;height:100%!important;padding:0!important;margin:0!important}
-  .authority-hero{position:absolute!important;inset:0!important;width:100%!important;height:100%!important;min-height:0!important;border:0!important;border-radius:0!important;box-shadow:none!important;background:#0a0e10!important}
-  .authority-hero-bg{object-fit:contain!important;object-position:center center!important;width:100%!important;height:100%!important;opacity:1!important;transform:scale(.90)!important;transform-origin:center center!important}
+  .authority-hero{position:absolute!important;inset:0!important;width:100%!important;height:100%!important;min-height:0!important;border:0!important;border-radius:0!important;box-shadow:none!important;background:transparent!important}
+  /* Do not render a second copy of the room inside the tap area. */
+  .authority-hero-bg{display:none!important}
+  .authority-shade{display:none!important}
   .authority-context,.authority-influence{display:none!important}
   .authority-desk-hotspot{left:37%!important;bottom:15%!important;width:30%!important;height:28%!important}
 }
