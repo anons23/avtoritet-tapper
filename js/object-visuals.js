@@ -122,7 +122,7 @@
       try{img._tapMotion.cancel()}catch(e){}
     }
     const base=img.classList.contains('boxing-bag-image')
-      ?'scale(1.5)'
+      ?'scale(1.25)'
       :img.classList.contains('cellmate-image')
         ?'scale(var(--cellmate-scale,2.04))'
       :img.classList.contains('trainer-image')
