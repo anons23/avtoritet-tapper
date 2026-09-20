@@ -122,7 +122,7 @@
       try{img._tapMotion.cancel()}catch(e){}
     }
     const base=img.classList.contains('cellmate-image')
-      ?'scale(1.85)'
+      ?'scale(var(--cellmate-scale,2.04))'
       :img.classList.contains('trainer-image')
         ?'scale(1.14)'
         :'none';
