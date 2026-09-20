@@ -23,3 +23,36 @@
 
 /* Do not expose the legacy tap circle/emoji while the real object is being prepared. */
 #tap-object.preload-hidden{visibility:hidden!important}
+
+
+/* TEST 065: choice results are independent from the normal message queue. */
+#choice-result{
+  position:fixed;
+  left:50%;
+  top:42%;
+  transform:translate(-50%,-50%) scale(.92);
+  z-index:2100;
+  width:min(86vw,460px);
+  padding:14px 18px;
+  border:1px solid #555;
+  border-radius:16px;
+  background:rgba(20,20,20,.96);
+  color:#fff;
+  text-align:center;
+  font-size:17px;
+  font-weight:900;
+  line-height:1.35;
+  box-shadow:0 10px 35px rgba(0,0,0,.55);
+  opacity:0;
+  pointer-events:none;
+}
+#choice-result.show{animation:choice-result-in .18s ease-out forwards}
+#choice-result.success{border-color:rgba(110,180,125,.65)}
+#choice-result.fail{border-color:rgba(220,130,130,.65)}
+@keyframes choice-result-in{
+  from{opacity:0;transform:translate(-50%,-50%) scale(.92)}
+  to{opacity:1;transform:translate(-50%,-50%) scale(1)}
+}
+@media(max-height:650px){
+  #choice-result{top:39%;font-size:15px;padding:12px 14px}
+}
