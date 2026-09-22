@@ -6,13 +6,17 @@
   const PUSHUPS_DOWN='./assets/backgrounds/pushups_2.png?v=3';
   const TRAINER_DOWN='./assets/backgrounds/trainer_down.png?v=4';
   const TRAINER_UP='./assets/backgrounds/trainer_up.png?v=4';
+  const SQUAT_A='./assets/backgrounds/squat.png?v=1';
+  const SQUAT_B='./assets/backgrounds/squat_2.png?v=1';
   const BAG_NAME='Груша',CELL_NAME='Сокамерник',PUSHUPS_NAME='Отжимания',TRAINER_NAME='Тренажёр';
   const AUTHORITY_NAME='Разборка',BREAKTHROUGH_NAME='Прорыв';
   let pushupQueue=0,pushupRunning=false,trainerQueue=0,trainerRunning=false;
+  let squatQueue=0,squatRunning=false,squatLastTick=0,squatRunId=0;
   let pushupLastTick=0,trainerLastTick=0;
   let pushupRunId=0,trainerRunId=0;
   let built=false;
   let lastIdx=-1;
+  let lastJailMode=false;
 
   const nameOf=()=>String(document.getElementById('object-name')?.textContent||'').trim();
 
@@ -56,17 +60,26 @@
     tA.style.opacity='1';tB.style.opacity='0';tA.style.visibility='visible';tB.style.visibility='hidden';
     tA.style.zIndex='2';tB.style.zIndex='1';
 
-    emoji.append(bag,cell,pA,pB,tA,tB);
+    const sA=document.createElement('img'),sB=document.createElement('img');
+    sA.className='squat-image frame-a';sB.className='squat-image frame-b';
+    sA.src=SQUAT_A;sB.src=SQUAT_B;sA.draggable=false;sB.draggable=false;sA.alt='';sB.alt='';
+    sA.dataset.jailFrame='1';sB.dataset.jailFrame='1';
+    sA.style.display='none';sB.style.display='none';
+    sA.style.opacity='1';sB.style.opacity='0';sA.style.visibility='visible';sB.style.visibility='hidden';
+    sA.style.zIndex='2';sB.style.zIndex='1';
+    emoji.append(bag,cell,pA,pB,tA,tB,sA,sB);
   }
 
   function showOnly(idx){
     const emoji=document.getElementById('object-emoji'),target=document.getElementById('tap-object');
     if(!emoji||!target)return;
     ensureBuilt();
+    const st=window.getGameState?window.getGameState():null;
+    const jailed=!!st?.jailed;
 
-    // When the stage changes, invalidate queued frame animations from the old stage.
+    // When the stage or jail mode changes, invalidate queued frame animations from the old mode.
     // All images stay mounted in DOM; only the current data-stage remains visible.
-    if(lastIdx!==idx){
+    if(lastIdx!==idx||lastJailMode!==jailed){
       pushupQueue=0;
       pushupRunning=false;
       pushupLastTick=0;
@@ -75,7 +88,8 @@
       trainerRunning=false;
       trainerLastTick=0;
       trainerRunId++;
-      emoji.querySelectorAll('img[data-stage]').forEach(img=>{
+      squatQueue=0;squatRunning=false;squatLastTick=0;squatRunId++;
+      emoji.querySelectorAll('img[data-stage],img[data-jail-frame]').forEach(img=>{
         img.style.display='none';
       });
     }
@@ -90,15 +104,20 @@
     target.classList.toggle('trainer-mode',train);
     target.classList.toggle('authority-mode',auth);
     target.classList.toggle('breakthrough-mode',breakth);
+    target.classList.toggle('jail-mode',jailed);
 
     emoji.querySelectorAll('img[data-stage]').forEach(img=>{
-      const on=Number(img.dataset.stage)===idx&&idx<=3;
+      const on=!jailed&&Number(img.dataset.stage)===idx&&idx<=3;
       img.style.display=on?'block':'none';
+    });
+    emoji.querySelectorAll('img[data-jail-frame]').forEach(img=>{
+      img.style.display=jailed?'block':'none';
     });
 
     target.classList.remove('preload-hidden');
     document.getElementById('game-container')?.classList.remove('game-booting');
     lastIdx=idx;
+    lastJailMode=jailed;
   }
 
   function sync(){
