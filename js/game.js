@@ -238,5 +238,4 @@ function more(){if(s.jailed)return;const ach=Object.entries(ACHIEVEMENTS).map(([
   $('modal-close')?.addEventListener('click',closeModal);
   setInterval(()=>{restoreEnergy(Date.now());ui();save()},1000)
 }
-}
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',bind,{once:true});else bind();
