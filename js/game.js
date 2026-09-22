@@ -216,20 +216,15 @@ function more(){if(s.jailed)return;const ach=Object.entries(ACHIEVEMENTS).map(([
   ui();
   const tapArea=$('tap-area');
   let lastTapAt=0;
-  let lastTouchAt=0;
-  const safeTap=e=>{
+  const handleTap=e=>{
     const now=Date.now();
-    if(e.type==='click'&&now-lastTouchAt<700)return;
-    if(now-lastTapAt<180)return;
+    if(now-lastTapAt<120)return;
     lastTapAt=now;
-    if(e.type==='touchstart'||e.type==='touchend')lastTouchAt=now;
     if(e.cancelable)e.preventDefault();
     tap(e);
   };
   if(tapArea){
-    tapArea.addEventListener('pointerdown',safeTap,{capture:true,passive:false});
-    tapArea.addEventListener('touchstart',safeTap,{capture:true,passive:false});
-    tapArea.addEventListener('click',safeTap,{capture:true,passive:false});
+    tapArea.addEventListener('pointerdown',handleTap,{capture:true,passive:false});
   }
   $('btn-shop')?.addEventListener('click',shop);
   $('btn-rank')?.addEventListener('click',rankMenu);
