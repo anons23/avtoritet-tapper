@@ -51,7 +51,7 @@ const SENTENCE_MINUTES_PER_DAY=10;
 function sentenceRemaining(){return Math.max(0,Math.ceil(Number(s.sentenceDays||100)-Number(s.servedSentenceMinutes||0)/SENTENCE_MINUTES_PER_DAY))}
 function addSentence(days,reason){
   days=Math.max(0,Math.floor(Number(days)||0));if(!days)return;
-  s.sentenceDays=Math.max(1,Number(s.sentenceDays||100))+days;
+  const base=Number(s.sentenceDays||0)<=0?100:Number(s.sentenceDays||100);s.sentenceDays=base+days;s.servedSentenceMinutes=0;s.lastSentenceTick=Date.now();
   msg('⛓️ Срок увеличен на '+days+' дн.'+(reason?' · '+reason:'')+' Осталось: '+sentenceRemaining()+' дн.');
   ui();save();
 }
@@ -76,6 +76,7 @@ function checkSentenceRelease(){
   msg('🎉 СРОК ОТБЫТ! Ты вышел на свободу.');
   return true;
 }
+window.addSentence=addSentence;window.reduceSentence=reduceSentence;
 function tickSentence(now){
   if(s.jailed||typeof document==='undefined'||document.visibilityState!=='visible'){s.lastSentenceTick=now;return false}
   if(!Number.isFinite(s.lastSentenceTick))s.lastSentenceTick=now;
