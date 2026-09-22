@@ -15,7 +15,7 @@
     {src:'./js/stability-fixes.js?v=1.4',critical:false},
     {src:'./js/object-visuals.js?v=3.1',critical:false},
     {src:'./js/authority-css-restore.js?v=1.1',critical:false},
-    {src:'./js/authority-ui.js?v=1.4',critical:false},
+    {src:'./js/authority-ui.js?v=1.5',critical:false},
     {src:'./js/authority-folder-fix.js?v=1.0',critical:false},
     {src:'./js/authority-gate.js?v=1.0',critical:false}
   ];
