@@ -7,7 +7,32 @@ const R=[['Салага',0],['Пацан',500],['Блатной',2500],['Смо�
 const O=[['Груша','🥊',1,0],['Сокамерник','👊',1.3,500],['Отжимания','💪',1.6,2500],['Тренажёр','🏋️',2.2,10000],['Разборка','🗣️',3.2,40000],['Прорыв','🚪',4.5,150000]];
 const AUTHORITY_DEALS=[['📋 Дело барака','Спор из-за места улажен.'],['📦 Распределение','Проблему с передачей припасов решили.'],['🗣️ Разговор','Конфликт между заключёнными прекращён.'],['⚖️ Решение','Спор решён без лишнего шума.'],['🤝 Договорённость','Стороны пришли к общему решению.']];
 const FINAL_BREAKTHROUGH=['🚪 Путь найден.','👀 Внимание отвлечено.','🔓 Преграда пройдена.','🏃 Последний участок позади.'];
-const EVENTS=[['Шмон!','Надзиратели ворвались в камеру. Что делаешь?',[['Спрятать папиросы',.55,40,15],['Стоять спокойно',0,10,5],['Сделать вид, что спишь',.25,5,8]]],['Малява','Тебе передали маляву. Что в ней?',[['Прочитать сразу',.4,30,20],['Спрятать до завтра',.15,15,10],['Выбросить',0,0,3]]],['Посылка','Пришла посылка, но непонятно чья.',[['Забрать себе',.6,60,10],['Отдать смотрящему',0,0,20],['Оставить',.1,0,5]]]];
+const EVENTS=[
+  ['Шмон!','Надзиратели ворвались в камеру. Что делаешь?',[
+    ['Спрятать папиросы',.55,40,15,2],['Стоять спокойно',0,10,5,1],['Сделать вид, что спишь',.25,5,8,1]
+  ],0],
+  ['Малява','Тебе передали маляву. Что в ней?',[
+    ['Прочитать сразу',.4,30,20,2],['Спрятать до завтра',.15,15,10,1],['Выбросить',0,0,3,0]
+  ],0],
+  ['Посылка','Пришла посылка, но непонятно чья.',[
+    ['Забрать себе',.6,60,10,-1],['Отдать смотрящему',0,0,20,3],['Оставить',.1,0,5,0]
+  ],0],
+  ['Тихий разговор','Сосед по камере просит помочь решить мелкий спор.',[
+    ['Выслушать обе стороны',.65,35,18,3],['Не вмешиваться',.35,10,5,0],['Сразу поддержать знакомого',.2,20,2,-2]
+  ],1],
+  ['Проверка камеры','Кто-то ищет пропавшую вещь. Похоже, скоро начнут проверять всех.',[
+    ['Помочь спокойно всё проверить',.7,45,22,3],['Спрятать свою вещь',.45,65,8,0],['Сделать вид, что ничего не слышал',.2,0,4,-1]
+  ],1],
+  ['Слух','По бараку пошёл слух о твоём последнем деле. Нужно решить, как реагировать.',[
+    ['Проверить, откуда пошёл слух',.65,20,28,4],['Не обращать внимания',.5,5,12,1],['Начать спорить со всеми',.25,40,0,-4]
+  ],2],
+  ['Неожиданный обмен','Тебе предлагают редкую вещь в обмен на часть запаса.',[
+    ['Торговаться до конца',.55,90,35,2],['Согласиться сразу',.7,25,15,0],['Отказаться',.15,0,8,1]
+  ],3],
+  ['Разговор со старшим','Смотрящий неожиданно вызывает тебя на короткий разговор.',[
+    ['Говорить прямо',.6,30,45,6],['Сначала выслушать',.75,15,30,5],['Отшутиться',.3,10,5,-2]
+  ],3]
+];
 const FUN=['Надзиратель идёт... сделай умный вид.','Сегодня без шмона. Чудо.','Шайба сказал, что ты нормальный пацан.','Кто-то опять забрал папиросы. Классика.','В столовой сегодня мясо. Или что-то похожее.','Сегодня раздача посылок. Надежда умирает последней.'];
 const TASKS={taps10000:{title:'Первые 10 000 тапов',desc:'Сделай 10 000 обычных тапов.',target:10000,rewardAmount:500,rewardType:'cigarettes',reward:'500 🚬',get:()=>s.tasks.taps},bugor10:{title:'Десять тренировок',desc:'Успешно пройди 10 тренировок с Бугром.',target:10,rewardAmount:750,rewardType:'cigarettes',reward:'750 🚬',get:()=>s.tasks.bugorSuccess||0},crit100:{title:'Точный удар',desc:'Сделай 100 критических тапов.',target:100,rewardAmount:1000,rewardType:'cigarettes',reward:'1000 🚬',get:()=>s.tasks.crit},earned100k:{title:'Запас на чёрный день',desc:'Заработай 100 000 🚬 тапами и делами.',target:100000,rewardAmount:5000,rewardType:'cigarettes',reward:'5000 🚬',get:()=>Math.floor(s.tasks.earned||0)},tasks25:{title:'Опытный порученец',desc:'Успешно выполни 25 поручений.',target:25,rewardAmount:1500,rewardType:'points',reward:'1500 ⭐',get:()=>s.tasks.npcSuccess||0}};
 const ACHIEVEMENTS={first10000:{title:'10 000 шагов',desc:'Сделано 10 000 тапов.',icon:'👣',check:()=>s.tasks.taps>=10000},crit100:{title:'Точный глаз',desc:'100 критических тапов.',icon:'🎯',check:()=>s.tasks.crit>=100},bugor2:{title:'Бугор тебя уважает',desc:'2 успешных тренировки с Бугром.',icon:'💪',check:()=>s.tasks.bugorSuccess>=2},tasks25:{title:'Свой человек',desc:'25 успешных поручений.',icon:'🤝',check:()=>s.tasks.npcSuccess>=25},rich100k:{title:'Запас на чёрный день',desc:'Заработано 100 000 🚬.',icon:'📦',check:()=>s.tasks.earned>=100000},rankThief:{title:'Высшая масть',desc:'Достигнута масть «Вор в законе».',icon:'👑',check:()=>s.points>=150000},jail5:{title:'Пять сроков',desc:'Пять раз пройти карцер до конца.',icon:'⛓️',check:()=>s.tasks.jail>=5}};
@@ -65,11 +90,46 @@ function checkAchievements(){let changed=false;Object.entries(ACHIEVEMENTS).forE
 function tasksCheck(){if(!s.tasks)return;let changed=false;Object.entries(TASKS).forEach(([id,t])=>{if(!s.completed[id]&&t.get()>=t.target){s.completed[id]={completedAt:Date.now()};const reward=t.reward;if(t.rewardType==='points')s.points+=t.rewardAmount;else s.cigarettes+=t.rewardAmount;s.tasks.completedCount=(s.tasks.completedCount||0)+1;msg('🎯 Поручение выполнено: '+t.title+' · награда '+reward);changed=true}});if(checkAchievements())changed=true;if(changed){save();ui()}}
 window.checkTasks=tasksCheck;
 window.getGameState=()=>s;
-function tap(e){if(s.jailed){jailTap(e);return}if(activeEvent)return;e&&e.preventDefault&&e.preventDefault();restoreEnergy(Date.now());if(s.energy<1){msg('⚡ Энергия закончилась. Отдохни или используй бонус.');return}s.energy--;s.totalTaps++;s.tasks.taps++;if(s.energy===s.maxEnergy-1)s.lastEnergyTime=Date.now();if(s.jailProtection>0)s.jailProtection--;const oldObject=s.currentObject;let g=TEST_MODE?TEST_POINTS_PER_TAP:s.power*O[s.currentObject][2];const c=Math.random()<s.critChance;if(c&&!TEST_MODE){g*=2;s.tasks.crit++}else if(c){s.tasks.crit++}if(s.boosters.double>0&&!TEST_MODE){g*=2;s.boosters.double--}s.cigarettes+=g;s.tasks.earned+=g;s.points+=g;const current=highestUnlocked();s.currentObject=current;if(oldObject!==s.currentObject){ui();}if(typeof window.refreshObjectVisuals==='function'){window.refreshObjectVisuals();}const t=$('tap-object');if(t){t.classList.remove('punch');void t.offsetWidth;t.classList.add('punch')}if(typeof window.animateObjectVisual==='function')window.animateObjectVisual();feedback(e,Math.floor(g),c);if(s.currentObject===4){s.authorityTaps=Math.max(0,Math.floor(s.authorityTaps||0))+1;if(s.authorityTaps>=50&&!c&&Math.random()<.18){s.authorityTaps=0;if(typeof window.startAuthorityDeal==='function')setTimeout(()=>window.startAuthorityDeal(),0);}}else{s.authorityTaps=0}if(s.currentObject===5&&!c&&Math.random()<.12)msg(FINAL_BREAKTHROUGH[Math.floor(Math.random()*FINAL_BREAKTHROUGH.length)]);syncObject(false);if(oldObject!==s.currentObject){msg('🏆 Новая масть: '+R[s.currentObject][0]+' · новый этап: '+O[s.currentObject][0]);ui();}if(Math.random()<.025)msg(FUN[Math.floor(Math.random()*FUN.length)]);if(s.currentObject<4&&Math.random()<.10&&s.points-s.lastChoiceEvent>30)openEvent();tasksCheck();ui();save()}
+function tap(e){if(s.jailed){jailTap(e);return}if(activeEvent)return;e&&e.preventDefault&&e.preventDefault();restoreEnergy(Date.now());if(s.energy<1){msg('⚡ Энергия закончилась. Отдохни или используй бонус.');return}s.energy--;s.totalTaps++;s.tasks.taps++;if(s.energy===s.maxEnergy-1)s.lastEnergyTime=Date.now();if(s.jailProtection>0)s.jailProtection--;const oldObject=s.currentObject;let g=TEST_MODE?TEST_POINTS_PER_TAP:s.power*O[s.currentObject][2];const c=Math.random()<s.critChance;if(c&&!TEST_MODE){g*=2;s.tasks.crit++}else if(c){s.tasks.crit++}if(s.boosters.double>0&&!TEST_MODE){g*=2;s.boosters.double--}s.cigarettes+=g;s.tasks.earned+=g;s.points+=g;const current=highestUnlocked();s.currentObject=current;if(oldObject!==s.currentObject){ui();}if(typeof window.refreshObjectVisuals==='function'){window.refreshObjectVisuals();}const t=$('tap-object');if(t){t.classList.remove('punch');void t.offsetWidth;t.classList.add('punch')}if(typeof window.animateObjectVisual==='function')window.animateObjectVisual();feedback(e,Math.floor(g),c);if(s.currentObject===4){s.authorityTaps=Math.max(0,Math.floor(s.authorityTaps||0))+1;if(s.authorityTaps>=50&&!c&&Math.random()<.18){s.authorityTaps=0;if(typeof window.startAuthorityDeal==='function')setTimeout(()=>window.startAuthorityDeal(),0);}}else{s.authorityTaps=0}if(s.currentObject===5&&!c&&Math.random()<.12)msg(FINAL_BREAKTHROUGH[Math.floor(Math.random()*FINAL_BREAKTHROUGH.length)]);syncObject(false);if(oldObject!==s.currentObject){msg('🏆 Новая масть: '+R[s.currentObject][0]+' · новый этап: '+O[s.currentObject][0]);ui();}if(Math.random()<.025)msg(FUN[Math.floor(Math.random()*FUN.length)]);if(Math.random()<.10&&s.points-s.lastChoiceEvent>30)openEvent();tasksCheck();ui();save()}
 function openModal(h,locked=false){if(s.jailed)return;const c=$('modal-content'),o=$('modal-overlay');if(!c||!o)return;c.innerHTML=h;o.classList.remove('hidden');o.dataset.locked=locked?'1':'0'}
 function closeModal(){const o=$('modal-overlay');if(!o)return;if(o.dataset.locked==='1')return;o.classList.add('hidden')}
 function finishEvent(){activeEvent=false;const o=$('modal-overlay');if(o)o.dataset.locked='0';closeModal();tasksCheck();ui();save()}
-function openEvent(){if(s.jailed||activeEvent)return;activeEvent=true;const v=EVENTS[Math.floor(Math.random()*EVENTS.length)];let h='<h2>⚠️ '+v[0]+'</h2><p>'+v[1]+'</p><p><b>Выбери один вариант:</b></p><div class="choices">';v[2].forEach((c,i)=>h+='<button type="button" class="choice" data-i="'+i+'">'+c[0]+'</button>');openModal(h+'</div>',true);document.querySelectorAll('.choice').forEach(b=>b.addEventListener('click',()=>{if(!activeEvent||s.jailed)return;const c=v[2][Number(b.dataset.i)];s.tasks.events++;s.lastChoiceEvent=s.points;if(Math.random()<c[1]){s.cigarettes+=c[2];s.tasks.earned+=c[2];s.points+=c[3];s.respect+=Math.floor(c[3]/5);choiceResult('Удачно!  +'+c[2]+' 🚬  +'+c[3]+' ⭐',true);finishEvent()}else{const loss=Math.max(3,Math.ceil(c[3]*1.5));s.points=Math.max(0,s.points-loss);if(c[1]>0&&s.jailProtection<=0&&Math.random()<.25){finishEvent();enterJail('❌ Рискованный ход провалился.')}else{choiceResult('Не повезло. Авторитет пострадал.',false);finishEvent()}}}))}
+function openEvent(){
+  if(s.jailed||activeEvent)return;
+  const stage=Math.max(0,Number(s.currentObject)||0);
+  const available=EVENTS.filter(e=>stage>=Number(e[3]||0));
+  if(!available.length)return;
+  activeEvent=true;
+  const v=available[Math.floor(Math.random()*available.length)];
+  let h='<h2>⚠️ '+v[0]+'</h2><p>'+v[1]+'</p><p><b>Ситуация меняется — решай быстро:</b></p><div class="choices">';
+  v[2].forEach((c,i)=>h+='<button type="button" class="choice" data-i="'+i+'">'+c[0]+'</button>');
+  openModal(h+'</div>',true);
+  document.querySelectorAll('.choice').forEach(b=>b.addEventListener('click',()=>{
+    if(!activeEvent||s.jailed)return;
+    const c=v[2][Number(b.dataset.i)];
+    s.tasks.events++;
+    s.lastChoiceEvent=s.points;
+    if(Math.random()<c[1]){
+      s.cigarettes+=c[2];
+      s.tasks.earned+=c[2];
+      s.points+=c[3];
+      s.respect=Math.max(0,(s.respect||0)+Number(c[4]||0));
+      const bonus=c[4]?(' · уважение '+(c[4]>0?'+':'')+c[4]):'';
+      choiceResult('Удачно!  +'+c[2]+' 🚬  +'+c[3]+' ⭐'+bonus,true);
+      finishEvent();
+    }else{
+      const loss=Math.max(3,Math.ceil(Math.max(1,c[3])*1.5));
+      s.points=Math.max(0,s.points-loss);
+      if(c[1]>0&&s.jailProtection<=0&&Math.random()<.25){
+        finishEvent();
+        enterJail('❌ Рискованный ход провалился.');
+      }else{
+        choiceResult('Не повезло. Последствия уже чувствуются.',false);
+        finishEvent();
+      }
+    }
+  }));
+}
 function shop(){if(s.jailed){msg('🔒 Качалка закрыта до выхода из карцера');return}openModal('<div class="section-window shop-window"><div class="section-kicker">ПРОКАЧКА</div><h2>💪 Качалка</h2><p class="section-subtitle">Трать чефир на постоянные улучшения. Новые этапы открываются автоматически при смене масти ⭐.</p><div class="shop-grid"><button type="button" data-b="p">💪 <b>Сила</b><br><small>+1 сила</small><br>Цена '+(100+s.upgrades.power*250)+' 🍵</button><button type="button" data-b="c">🎯 <b>Крит</b><br><small>+2% к шансу</small><br>Цена '+(300+s.upgrades.crit*500)+' 🍵</button><button type="button" data-b="e">⚡ <b>Энергия</b><br><small>+25 максимум</small><br>Цена '+(400+s.upgrades.energyMax*700)+' 🍵</button><button type="button" data-b="d">🔥 <b>Ускоритель</b><br><small>×2 на 100 тапов</small><br>Цена 500 🍵</button></div></div>');document.querySelectorAll('[data-b]').forEach(b=>b.addEventListener('click',()=>{const type=b.dataset.b,cost=type==='p'?100+s.upgrades.power*250:type==='c'?300+s.upgrades.crit*500:type==='e'?400+s.upgrades.energyMax*700:500;if(s.cigarettes<cost){msg('🍵 Не хватает чефира. Нужно '+cost+'.');return}s.cigarettes-=cost;if(type==='p'){s.power++;s.upgrades.power++}if(type==='c'){s.critChance=Math.min(.5,s.critChance+.02);s.upgrades.crit++}if(type==='e'){s.maxEnergy+=25;s.energy=s.maxEnergy;s.upgrades.energyMax++;s.lastEnergyTime=Date.now()}if(type==='d')s.boosters.double+=100;ui();save();shop()}))}
 function rankMenu(){if(s.jailed)return;const r=rank(),next=R.find(x=>x[1]>s.points);let stage='Физическая прокачка';if(s.currentObject===4)stage='Дела и влияние';if(s.currentObject===5)stage='Финальный путь';openModal('<div class="section-window"><div class="section-kicker">ПРОГРЕСС</div><h2>🏆 Масть</h2><p>Твоя масть: <b>'+r[0]+'</b></p><p>Текущий этап: <b>'+O[s.currentObject][0]+'</b> · '+stage+'</p><p>Следующая ступень: '+(next?next[0]:'Максимальная масть')+(next?' · '+fmt(next[1])+' ⭐':'')+'</p></div>')}
 function tasksMenu(){if(s.jailed)return;const cards=Object.entries(TASKS).map(([id,t])=>{const cur=Math.min(t.target,Math.floor(t.get())),done=!!s.completed[id];return '<div class="task-card '+(done?'task-done':'')+'"><div class="task-icon">'+(done?'✓':'🎯')+'</div><div class="task-body"><b>'+t.title+'</b><p>'+t.desc+'</p><div class="task-progress"><span style="width:'+Math.min(100,cur/t.target*100)+'%"></span></div><small>'+cur+' / '+t.target+' · Награда: <strong>'+t.reward+'</strong></small></div></div>'}).join('');openModal('<div class="section-window tasks-window"><div class="section-kicker">ЦЕЛИ НА СЕЙЧАС</div><h2>🎯 Поручения</h2><p class="section-subtitle">Выполняй простые цели и забирай награды. Здесь нет статистики ради статистики — каждое поручение даёт приз.</p><div class="tasks-list">'+cards+'</div><div class="tasks-footer">Выполнено поручений: <b>'+Object.keys(s.completed).length+'</b></div></div>')}
