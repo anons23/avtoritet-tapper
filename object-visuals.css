@@ -43,6 +43,13 @@
 #tap-object.cellmate-mode #object-emoji.punch,#tap-object.pushups-mode #object-emoji.punch,#tap-object.trainer-mode #object-emoji.punch{animation:none!important;transform:none!important}
 
  .boxing-bag-image,.cellmate-image,.pushups-image,.trainer-image{display:block;width:min(600px,96vw);height:min(600px,76vh);object-fit:contain;transform-origin:50% 8%;filter:drop-shadow(0 14px 18px rgba(0,0,0,.55));user-select:none;-webkit-user-select:none;-webkit-touch-callout:none;pointer-events:none;will-change:transform}
+
+/* Jail squat animation: two real character frames, no legacy emoji object. */
+#tap-object.jail-mode{width:min(560px,94vw);height:min(650px,64vh);min-height:300px;border-radius:0;background:transparent;border:0;box-shadow:none;transform:none!important;animation:none!important;}
+#tap-object.jail-mode #object-emoji{position:relative;width:100%;height:100%;display:block;flex:1 1 auto;background:transparent;font-size:0;overflow:visible;}
+#tap-object.jail-mode .squat-image{position:absolute;left:50%;top:50%;translate:-50% -50%;width:min(560px,90vw);height:min(640px,62vh);object-fit:contain;object-position:center;filter:drop-shadow(0 14px 18px rgba(0,0,0,.55));user-select:none;-webkit-user-select:none;pointer-events:none;will-change:opacity,transform;}
+#tap-object.jail-mode #object-name,#tap-object.jail-mode small{display:none!important}
+#tap-object.jail-mode:active,#tap-object.jail-mode.punch{transform:none!important;animation:none!important}
 .cellmate-image{--cellmate-scale:2.05;transform:scale(var(--cellmate-scale));transform-origin:50% 55%;max-width:100%;max-height:100%}
 
 /* Push-up / barbell frames are layered and cross-faded instead of swapping abruptly. */
