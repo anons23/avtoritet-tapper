@@ -10,7 +10,7 @@
     if(/K$/i.test(v))return Math.floor(n*1000);
     return Math.floor(n);
   }
-  function cigarettes(){return parseCompact(($('cigarettes')||{}).textContent);}
+  function chifir(){return parseCompact(($('chifir')||{}).textContent);}
   function refreshShop(){
     const content=$('modal-content');
     if(!content)return;
@@ -19,11 +19,11 @@
       if(!m)return;
       const cost=parseCompact(m[1]);
       if(!btn.dataset.priceDecorated){
-        btn.innerHTML=btn.innerHTML.replace(/Цена\s+[0-9.,]+(?:K|M)?/i,'Цена '+m[1]+' 🚬');
+        btn.innerHTML=btn.innerHTML.replace(/Цена\s+[0-9.,]+(?:K|M)?/i,'Цена '+m[1]+' 🍵');
         btn.dataset.priceDecorated='1';
       }
-      btn.disabled=cigarettes()<cost;
-      btn.title=btn.disabled?'Не хватает сигарет':'Купить за '+m[1]+' 🚬';
+      btn.disabled=chifir()<cost;
+      btn.title=btn.disabled?'Не хватает чефира':'Купить за '+m[1]+' 🍵';
     });
   }
   function init(){
