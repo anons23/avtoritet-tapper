@@ -214,6 +214,39 @@
   }
 
   const TRAIN_DOWN_MS=190, TRAIN_UP_MS=90;
+  const SQUAT_DOWN_MS=210, SQUAT_UP_MS=90;
+
+  function runSquat(){
+    const emoji=document.getElementById('object-emoji');
+    if(!emoji||emoji.querySelectorAll('.squat-image').length<2){squatQueue=0;squatRunning=false;return;}
+    const now=performance.now();
+    if(squatRunning&&now-squatLastTick<=500)return;
+    squatRunId++;
+    const runId=squatRunId;
+    squatRunning=true;
+    squatLastTick=now;
+    let phaseStart=now,phase='down';
+    swap(emoji,'squat-image');
+    function tick(frameNow){
+      const state=window.getGameState?window.getGameState():null;
+      if(runId!==squatRunId||!state?.jailed){
+        if(runId===squatRunId)squatRunning=false;
+        return;
+      }
+      squatLastTick=frameNow;
+      const live=[...emoji.querySelectorAll('.squat-image')].filter(el=>el.style.display!=='none');
+      if(live.length<2){squatQueue=0;squatRunning=false;return;}
+      const elapsed=frameNow-phaseStart;
+      if(phase==='down'&&elapsed>=SQUAT_DOWN_MS){swap(emoji,'squat-image');phase='up';phaseStart=frameNow;}
+      else if(phase==='up'&&elapsed>=SQUAT_UP_MS){
+        squatQueue=Math.max(0,squatQueue-1);
+        if(squatQueue<=0){squatRunning=false;return;}
+        swap(emoji,'squat-image');phase='down';phaseStart=frameNow;
+      }
+      requestAnimationFrame(tick);
+    }
+    requestAnimationFrame(tick);
+  }
   function runTrainer(){
     const emoji=document.getElementById('object-emoji');
     if(!emoji||emoji.querySelectorAll('.trainer-image').length<2){trainerQueue=0;trainerRunning=false;return;}
@@ -250,11 +283,18 @@
     if(document.hidden){
       pushupQueue=0;pushupRunning=false;pushupLastTick=0;pushupRunId++;
       trainerQueue=0;trainerRunning=false;trainerLastTick=0;trainerRunId++;
+      squatQueue=0;squatRunning=false;squatLastTick=0;squatRunId++;
     }
   });
 
   function animate(){
     const n=nameOf();
+    const st=window.getGameState?window.getGameState():null;
+    if(st?.jailed){
+      squatQueue=Math.min(12,squatQueue+1);
+      runSquat();
+      return;
+    }
     if(n===AUTHORITY_NAME||n===BREAKTHROUGH_NAME)return;
     const emoji=document.getElementById('object-emoji');
     if(!emoji)return;
