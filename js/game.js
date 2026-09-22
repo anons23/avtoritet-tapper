@@ -214,21 +214,29 @@ function tasksMenu(){if(s.jailed)return;const cards=Object.entries(TASKS).map(([
 function more(){if(s.jailed)return;const ach=Object.entries(ACHIEVEMENTS).map(([id,a])=>{const done=!!s.achievements[id];return '<div class="achievement-card '+(done?'achievement-open':'achievement-locked')+'"><div class="achievement-icon">'+(done?a.icon:'🔒')+'</div><div><b>'+(done?a.title:'Скрытое достижение')+'</b><p>'+(done?a.desc:'Разблокируется только после выполнения условия.')+'</p></div></div>'}).join('');const total=Object.keys(ACHIEVEMENTS).length,unlocked=Object.keys(s.achievements||{}).filter(id=>ACHIEVEMENTS[id]).length;openModal('<div class="section-window barrack-window"><div class="section-kicker">ТВОЁ МЕСТО</div><h2>☰ Барак</h2><p class="section-subtitle">Здесь можно поговорить с персонажами и открыть достижения.</p><div class="achievement-summary"><b>Коллекция достижений</b><span>'+unlocked+' / '+total+' собрано</span></div><div class="barrack-achievements"><div class="section-mini-title">🏆 Достижения</div>'+ach+'</div><div class="prestige-card"><div><b>💎 Новый срок</b><p>После высшей масти можно начать новый срок, сохранив часть бонусов.</p></div><button type="button" class="prestige-btn" disabled>Скоро</button></div></div>')}function bind(){
   load();
   ui();
-  let lastTouchInput=0;
-  const delegatedTap=e=>{
-    const area=e.target?.closest?.('#tap-area');
-    if(!area)return;
-    if(e.type==='pointerdown'&&Date.now()-lastTouchInput<700)return;
-    if(e.type==='touchstart')lastTouchInput=Date.now();
+  const tapArea=$('tap-area');
+  let lastTapAt=0;
+  let lastTouchAt=0;
+  const safeTap=e=>{
+    const now=Date.now();
+    if(e.type==='click'&&now-lastTouchAt<700)return;
+    if(now-lastTapAt<180)return;
+    lastTapAt=now;
+    if(e.type==='touchstart'||e.type==='touchend')lastTouchAt=now;
+    if(e.cancelable)e.preventDefault();
     tap(e);
   };
-  document.addEventListener('touchstart',delegatedTap,{capture:true,passive:false});
-  document.addEventListener('pointerdown',delegatedTap,{capture:true,passive:false});
+  if(tapArea){
+    tapArea.addEventListener('pointerdown',safeTap,{capture:true,passive:false});
+    tapArea.addEventListener('touchstart',safeTap,{capture:true,passive:false});
+    tapArea.addEventListener('click',safeTap,{capture:true,passive:false});
+  }
   $('btn-shop')?.addEventListener('click',shop);
   $('btn-rank')?.addEventListener('click',rankMenu);
   $('btn-tasks')?.addEventListener('click',tasksMenu);
   $('btn-more')?.addEventListener('click',more);
   $('modal-close')?.addEventListener('click',closeModal);
   setInterval(()=>{restoreEnergy(Date.now());ui();save()},1000)
+}
 }
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',bind,{once:true});else bind();
