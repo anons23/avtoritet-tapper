@@ -13,16 +13,16 @@
   const SUPPORTS=[['Союзник','Старший заключённый предлагает поддержать твоё решение.',10,8],['Староста','Староста барака подтверждает твою версию событий.',14,6],['Свидетель','Свидетель рассказывает, как всё началось.',12,7]];
   let root=null,tapArea=null,originalTapHTML='',authorityActive=false,modalOpen=false,clashState=null,clashTimer=null,oppTimer=null;
   const $=id=>document.getElementById(id);
-  const esc=s=>String(s).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+  const esc=s=>String(s).replace(/[&<>"']/g,m=>({'&':'&','<':'<','>':'>','"':'"',"'":'&#39;'}[m]));
   const fmt=n=>{n=Math.floor(Number(n)||0);return n>=1e6?(n/1e6).toFixed(1)+'M':n>=1e3?(n/1e3).toFixed(1)+'K':String(n)};
   const state=()=>window.getGameState?window.getGameState():null;
   function img(name,cls){return '<img class="authority-img '+(cls||'')+'" src="'+encodeURI(A[name])+'" draggable="false" alt="">'}
   function openAuthorityModal(html,locked){const overlay=$('modal-overlay'),modal=$('modal'),content=$('modal-content');if(!overlay||!modal||!content)return;modal.classList.add('authority-modal');overlay.classList.remove('hidden');overlay.dataset.locked=locked?'1':'0';content.innerHTML=html;modalOpen=true}
   function closeAuthorityModal(){stopClash();const overlay=$('modal-overlay'),modal=$('modal');if(overlay)overlay.classList.add('hidden');if(overlay)overlay.dataset.locked='0';if(modal)modal.classList.remove('authority-modal');modalOpen=false}
-  function reward(influence,respect,bonus){const s=state();if(!s)return;s.points=(Number(s.points)||0)+influence;s.cigarettes=(Number(s.cigarettes)||0)+Math.max(0,bonus||0);s.respect=(Number(s.respect)||0)+Math.max(0,respect||0);s.tasks=s.tasks||{};s.tasks.earned=(Number(s.tasks.earned)||0)+Math.max(0,bonus||0);s.tasks.authorityDeals=(Number(s.tasks.authorityDeals)||0)+1;try{if(typeof window.checkTasks==='function')window.checkTasks();s.saveUpdatedAt=Date.now();localStorage.setItem('avtoritet_save_v2',JSON.stringify(s))}catch(e){}const p=$('points'),r=$('respect-stat'),c=$('cigarettes');if(p)p.textContent=fmt(s.points);if(r)r.textContent=fmt(s.respect);if(c)c.textContent=fmt(s.cigarettes)}
+  function reward(influence,respect,bonus){const s=state();if(!s)return;s.points=(Number(s.points)||0)+influence;s.chifir=(Number(s.chifir)||0)+Math.max(0,bonus||0);s.respect=(Number(s.respect)||0)+Math.max(0,respect||0);s.tasks=s.tasks||{};s.tasks.earned=(Number(s.tasks.earned)||0)+Math.max(0,bonus||0);s.tasks.authorityDeals=(Number(s.tasks.authorityDeals)||0)+1;try{if(typeof window.checkTasks==='function')window.checkTasks();s.saveUpdatedAt=Date.now();localStorage.setItem('avtoritet_save_v2',JSON.stringify(s))}catch(e){}const p=$('points'),r=$('respect-stat'),c=$('chifir');if(p)p.textContent=fmt(s.points);if(r)r.textContent=fmt(s.respect);if(c)c.textContent=fmt(s.chifir)}
   function setMessage(text){const e=$('event-message');if(!e)return;e.textContent=text;e.classList.remove('show');void e.offsetWidth;e.classList.add('show');setTimeout(()=>e.classList.remove('show'),2600)}
   function spendEnergy(amount){const s=state();amount=Math.max(0,Math.floor(amount||0));if(!s)return false;if(typeof s.energy!=='number')s.energy=0;if(s.energy<amount){setMessage('⚡ Не хватает энергии. Нужно '+amount+'.');return false}s.energy-=amount;if(typeof s.lastEnergyTime!=='number')s.lastEnergyTime=Date.now();s.saveUpdatedAt=Date.now();const e=$('energy');if(e)e.textContent=Math.floor(s.energy);try{localStorage.setItem('avtoritet_save_v2',JSON.stringify(s))}catch(err){}return true}
-  function renderAuthority(){const s=state();if(!s||Number(s.points)<40000||s.currentObject!==4||s.jailed){deactivate();return}if(authorityActive)return;authorityActive=true;root.classList.add('authority-mode');root.classList.remove('game-booting');tapArea.classList.add('authority-tap-area');tapArea.innerHTML='<div class="authority-screen"><div class="authority-hero">'+img('hero','authority-hero-bg')+'<div class="authority-shade"></div><div class="authority-context"><span>📋 ДЕЛА БАРАКА</span><b>Твой голос имеет вес</b></div><div class="authority-influence"><span>🧠 ВЛИЯНИЕ</span><b id="authority-influence-value">'+fmt(s.points)+'</b></div><div class="authority-action-wrap"><button type="button" class="authority-desk-hotspot" data-authority-action="folder" aria-label="Папки с делами"></button></div></div><div class="authority-strip"><div><small>ЧЕФИР</small><b>🍵 '+fmt(s.cigarettes)+'</b></div><div><small>УВАЖЕНИЕ</small><b>🧠 '+fmt(s.respect)+'</b></div><div><small>СИЛА</small><b>💪 '+fmt(s.power)+'</b></div></div><div class="authority-mini-row"><div class="authority-mini-card"><b>📋 Дело барака</b><span>Случайная ситуация и выбор решения.</span></div><div class="authority-mini-card"><b>⚡ Стычка</b><span>Если спор не решить словами — начинается проверка реакции.</span></div></div></div>'}
+  function renderAuthority(){const s=state();if(!s||Number(s.points)<40000||s.currentObject!==4||s.jailed){deactivate();return}if(authorityActive)return;authorityActive=true;root.classList.add('authority-mode');root.classList.remove('game-booting');tapArea.classList.add('authority-tap-area');tapArea.innerHTML='<div class="authority-screen"><div class="authority-hero">'+img('hero','authority-hero-bg')+'<div class="authority-shade"></div><div class="authority-context"><span>📋 ДЕЛА БАРАКА</span><b>Твой голос имеет вес</b></div><div class="authority-influence"><span>🧠 ВЛИЯНИЕ</span><b id="authority-influence-value">'+fmt(s.points)+'</b></div><div class="authority-action-wrap"><button type="button" class="authority-desk-hotspot" data-authority-action="folder" aria-label="Папки с делами"></button></div></div><div class="authority-strip"><div><small>ЧЕФИР</small><b>🍵 '+fmt(s.chifir||s.cigarettes||0)+'</b></div><div><small>УВАЖЕНИЕ</small><b>🧠 '+fmt(s.respect)+'</b></div><div><small>СИЛА</small><b>💪 '+fmt(s.power)+'</b></div></div><div class="authority-mini-row"><div class="authority-mini-card"><b>📋 Дело барака</b><span>Случайная ситуация и выбор решения.</span></div><div class="authority-mini-card"><b>⚡ Стычка</b><span>Если спор не решить словами — начинается проверка реакции.</span></div></div></div>'}
   function deactivate(){
     if(!authorityActive)return;
     stopClash();
@@ -30,9 +30,7 @@
     root.classList.remove('authority-mode');
     tapArea.classList.remove('authority-tap-area');
     tapArea.innerHTML=originalTapHTML;
-    // Restore object visuals after DOM rewrite
     if(typeof window.refreshObjectVisuals==='function'){
-      // microtask so the restored nodes are in the document
       queueMicrotask(function(){window.refreshObjectVisuals();});
     }
   }
@@ -45,8 +43,41 @@
   function finishClash(win){if(!clashState)return;const info=clashState;stopClash();if(win){const bonus=info.base+60;reward(bonus,info.respect,Math.floor(bonus/7));showResult(true,bonus,info.respect,'Ты не дал спору разгореться. Твоё решение приняли.')}else{const loss=Math.max(25,Math.floor(info.base*.35));const s=state();if(s){s.points=Math.max(0,s.points-loss);s.respect=Math.max(0,(s.respect||0)-1);try{s.saveUpdatedAt=Date.now();localStorage.setItem('avtoritet_save_v2',JSON.stringify(s))}catch(e){}}showResult(false,-loss,0,'Оппонент оказался быстрее. Часть влияния потеряна.')}}
   function stopClash(){if(clashTimer){clearInterval(clashTimer);clashTimer=null}if(oppTimer){clearInterval(oppTimer);oppTimer=null}clashState=null}
   function showResult(win,influence,respect,text){openAuthorityModal('<div class="authority-result '+(win?'success':'fail')+'"><div class="authority-result-art">'+img(win?'resolved':'clash','authority-result-img')+'<div class="authority-result-overlay"></div><div class="authority-result-title">'+(win?'✓ ДЕЛО РЕШЕНО':'⚠ ДЕЛО НЕ РЕШЕНО')+'</div></div><p>'+esc(text)+'</p><div class="authority-result-reward"><span>👑 '+(influence>=0?'+':'−')+fmt(Math.abs(influence))+' влияние</span>'+(respect?'<span>🧠 +'+respect+' уважение</span>':'')+'</div><button type="button" class="authority-great-btn" id="authority-great">'+img('great','authority-great-img')+'</button></div>',false)}
-  function handleAuthorityButton(e){const hotspot=e.target.closest('.authority-desk-hotspot');if(hotspot){e.preventDefault();e.stopImmediatePropagation();startDeal();return}const target=e.target.closest('.authority-deal-btn,.authority-pressure-btn,.authority-great-btn');if(!target)return;const s=state();if(!s||Number(s.points)<40000||s.currentObject!==4||s.jailed)return;e.preventDefault();e.stopImmediatePropagation();if(target.classList.contains('authority-deal-btn'))startDeal();else if(target.classList.contains('authority-pressure-btn'))clashTap(e);else{closeAuthorityModal();setMessage('📋 Дело закрыто. Авторитет растёт.')}}
-  function capture(e){const s=state();if(!s||Number(s.points)<40000||s.currentObject!==4||s.jailed)return;const hotspot=e.target.closest('.authority-desk-hotspot');if(hotspot){e.preventDefault();e.stopImmediatePropagation();startDeal();return;}const target=e.target.closest('.authority-deal-btn,.authority-pressure-btn,.authority-great-btn');if(target){e.preventDefault();e.stopImmediatePropagation();if(target.classList.contains('authority-deal-btn'))startDeal();else if(target.classList.contains('authority-pressure-btn'))clashTap(e);else{closeAuthorityModal();setMessage('📋 Дело закрыто. Авторитет растёт.')}return}e.stopImmediatePropagation();e.preventDefault()}
+  function handleAuthorityButton(e){
+    const hotspot=e.target.closest('.authority-desk-hotspot');
+    if(hotspot){e.preventDefault();e.stopImmediatePropagation();startDeal();return}
+    const target=e.target.closest('.authority-deal-btn,.authority-pressure-btn,.authority-great-btn');
+    if(!target)return;
+    const s=state();
+    if(!s||Number(s.points)<40000||s.currentObject!==4||s.jailed)return;
+    e.preventDefault();e.stopImmediatePropagation();
+    if(target.classList.contains('authority-deal-btn'))startDeal();
+    else if(target.classList.contains('authority-pressure-btn'))clashTap(e);
+    else{closeAuthorityModal();setMessage('📋 Дело закрыто. Авторитет растёт.');}
+  }
+  // P0 fix: only intercept known authority controls.
+  // Never blanket-kill pointerdown on the whole #tap-area — that broke taps on Разборка.
+  function capture(e){
+    if(!authorityActive)return;
+    const s=state();
+    if(!s||Number(s.points)<40000||s.currentObject!==4||s.jailed)return;
+    const hotspot=e.target.closest('.authority-desk-hotspot');
+    if(hotspot){
+      e.preventDefault();
+      e.stopImmediatePropagation();
+      startDeal();
+      return;
+    }
+    const target=e.target.closest('.authority-deal-btn,.authority-pressure-btn,.authority-great-btn');
+    if(target){
+      e.preventDefault();
+      e.stopImmediatePropagation();
+      if(target.classList.contains('authority-deal-btn'))startDeal();
+      else if(target.classList.contains('authority-pressure-btn'))clashTap(e);
+      else{closeAuthorityModal();setMessage('📋 Дело закрыто. Авторитет растёт.');}
+    }
+    // non-control taps: do not stopImmediatePropagation
+  }
   function sync(){const s=state();if(!s||Number(s.points)<40000||s.currentObject!==4||s.jailed){deactivate();return}if(!authorityActive)renderAuthority()}
   window.startAuthorityDeal=function(){startDeal(true)};
   function init(){root=$('game-container');tapArea=$('tap-area');if(!root||!tapArea)return;originalTapHTML=tapArea.innerHTML;tapArea.addEventListener('pointerdown',capture,true);document.addEventListener('pointerdown',handleAuthorityButton,true);setInterval(sync,350);sync();const close=$('modal-close');if(close)close.addEventListener('click',()=>{if(modalOpen&&$('modal-overlay')?.dataset.locked!=='1')closeAuthorityModal()})}
