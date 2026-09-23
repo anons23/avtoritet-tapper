@@ -98,7 +98,7 @@
 
 /* Barrack/modal: keep the navigation window fully visible on small mobile screens. */
 @media (max-width:700px) {
-  #modal-overlay {
+  #modal-overlay:not(.hidden) {
     position:fixed!important;
     inset:0!important;
     width:100vw!important;
