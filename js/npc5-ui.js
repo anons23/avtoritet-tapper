@@ -39,7 +39,7 @@
   }
 
   function game(){try{return typeof window.getGameState==='function'?window.getGameState():JSON.parse(localStorage.getItem(SAVE_KEY)||'{}')}catch(e){return {}}}
-  function save(s){try{s.saveUpdatedAt=Date.now();localStorage.setItem(SAVE_KEY,JSON.stringify(s))}catch(e){}}
+  function save(){try{if(typeof window.saveGame==='function'){window.saveGame();return true}}catch(e){}return false}
   function rank(){const s=game();let i=0;for(let j=0;j<RANK_POINTS.length;j++)if(Number(s.points||0)>=RANK_POINTS[j])i=j;return i}
   function uses(){try{const v=JSON.parse(localStorage.getItem(USE_KEY)||'{"used":0,"extra":0,"until":0}')||{};return {used:Math.max(0,Number(v.used)||0),extra:Math.max(0,Number(v.extra)||0),until:Number(v.until)||0}}catch(e){return {used:0,extra:0,until:0}}}
   function saveUses(v){try{localStorage.setItem(USE_KEY,JSON.stringify({used:Math.max(0,Number(v.used)||0),extra:Math.max(0,Number(v.extra)||0),until:Number(v.until)||0}))}catch(e){}}
@@ -90,18 +90,18 @@
       s.tasks.npcSuccess=(Number(s.tasks.npcSuccess)||0)+1;
       s.tasks.avtoritetSuccess=(Number(s.tasks.avtoritetSuccess)||0)+1;
       s.tasks.earned=(Number(s.tasks.earned)||0)+100;
-      s.cigarettes=Number(s.cigarettes||0)+100;
-      save(s);
+      s.chifir=Number(s.chifir||0)+100;
+      save();
       if(typeof window.ui==='function')window.ui();
       if(typeof window.checkTasks==='function')window.checkTasks();
-      showResult('✅ '+NPC.name+': поручение выполнено. +100 🚬 и +75 ⭐.',true);
+      showResult('✅ '+NPC.name+': поручение выполнено. +100 🍵 и +75 ⭐.',true);
     }else{
-      const cig=Math.min(Number(s.cigarettes||0),2500),points=Math.min(Number(s.points||0),1500);
-      s.cigarettes=Math.max(0,Number(s.cigarettes||0)-cig);
+      const cig=Math.min(Number(s.chifir||0),2500),points=Math.min(Number(s.points||0),1500);
+      s.chifir=Math.max(0,Number(s.chifir||0)-cig);
       s.points=Math.max(0,Number(s.points||0)-points);
-      save(s);
+      save();
       if(typeof window.ui==='function')window.ui();
-      showResult('❌ '+NPC.name+': поручение сорвалось. Потеряно 🚬 −'+cig+' и ⭐ −'+points+'.',false);
+      showResult('❌ '+NPC.name+': поручение сорвалось. Потеряно 🍵 −'+cig+' и ⭐ −'+points+'.',false);
     }
   }
   function showResult(text,success){
