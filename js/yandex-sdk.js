@@ -28,7 +28,12 @@
     if(key&&key!==lastLocalSnapshot)queueCloudSave(false);
   }
   function saveTime(obj){if(!obj||typeof obj!=='object')return 0;const t=Number(obj.saveUpdatedAt);return Number.isFinite(t)&&t>0?t:Number(obj.lastEnergyTime)||0;}
-  async function clearCloudData(){
+  function backupConflict(name,value){
+    try{
+      if(value)localStorage.setItem(name,value);
+    }catch(e){}
+  }
+async function clearCloudData(){
     if(!player||!cloudReady)return false;
     clearTimeout(saveTimer);saveTimer=null;pendingData=null;
     try{await player.setData({},true);await player.setStats({},true);return true;}
