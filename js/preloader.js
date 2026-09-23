@@ -5,6 +5,19 @@
   const percent=document.getElementById('preloader-percent');
   const status=document.getElementById('preloader-status');
   let current=0;
+  let messageTimer=null;
+  const messages=[
+    'Готовим нары. Картишки раздавать будем?',
+    'Ты откуда будешь, браток?',
+    'Место на шконке уже присмотрел?',
+    'Проверяем барак. Всё по понятиям.',
+    'Чифирок заварим — и можно начинать.',
+    'Проверяем карты, нары и авторитет.',
+    'Спокойно, браток. Всё идёт по плану.',
+    'Сейчас разберёмся, кто тут свой.',
+    'Барак готов. Осталось дождаться тебя.'
+  ];
+  let messageIndex=Math.floor(Math.random()*messages.length);
   function setProgress(value,message){
     current=Math.max(current,Math.min(100,Number(value)||0));
     if(progress)progress.style.width=current+'%';
@@ -24,13 +37,15 @@
   }
   async function start(){
     if(!preloader)return;
-    setProgress(3,'Подготавливаем барак');
+    setProgress(3,messages[messageIndex]);
+    messageTimer=window.setInterval(()=>{messageIndex=(messageIndex+1)%messages.length;setProgress(current,messages[messageIndex]);},2200);
     const mobile=window.matchMedia&&window.matchMedia('(max-width:700px)').matches;
     const bg=mobile?'./assets/backgrounds/mobile/loading-mobile.jpg':'./assets/backgrounds/desktop/loading-desktop.jpg';
     const results=await Promise.all([preloadImage(bg),preloadImage('./assets/backgrounds/handcuffs.png')]);
-    setProgress(15,results.every(Boolean)?'Готовим игру':'Запускаем игру');
+    setProgress(15,results.every(Boolean)?messages[messageIndex]:'Запускаем игру');
   }
   window.__finishPreloader=function(){
+    if(messageTimer){window.clearInterval(messageTimer);messageTimer=null;}
     setProgress(100,'Готово');
     window.setTimeout(()=>{
       const game=document.getElementById('game-container');
