@@ -2,13 +2,13 @@
 (function(){
   const scripts=[
     {src:'./js/save-migration.js?v=1.0',critical:true},
-    {src:'./js/game.js?v=4.16-test',critical:true},
+    {src:'./js/game.js?v=4.16-test2',critical:true},
     {src:'./js/shop-ui.js?v=2.1',critical:false},
     {src:'./js/name-ui.js?v=2.2',critical:false},
     {src:'./js/prison-ui.js?v=3.2',critical:false},
     {src:'./js/rank-ui.js?v=2.2',critical:false},
     {src:'./js/npc-stat-cleanup.js?v=1.1',critical:false},
-    {src:'./js/npc-ui.js?v=2.8',critical:false},
+    {src:'./js/npc-ui.js?v=2.9',critical:false},
     {src:'./js/npc-no-emoji.js?v=1.0',critical:false},
     {src:'./js/npc5-ui.js?v=1.1',critical:false},
     {src:'./js/stories-ui-v2.js?v=2.1',critical:false},
