@@ -32,7 +32,21 @@
           let useCloudGame=false,useCloudHealth=false;
           if(cloud?.gameSave){if(!localGameRaw)useCloudGame=true;else{try{useCloudGame=saveTime(cloud.gameSave)>saveTime(JSON.parse(localGameRaw));}catch(e){useCloudGame=true;}}}
           if(cloud?.healthSave){if(!localHealthRaw)useCloudHealth=true;else{try{useCloudHealth=Number(cloud.healthSave.updatedAt||0)>Number(JSON.parse(localHealthRaw).updatedAt||0);}catch(e){useCloudHealth=true;}}}
+          if(cloud?.gameSave&&localGameRaw){
+            const cloudRaw=JSON.stringify(cloud.gameSave);
+            if(saveTime(cloud.gameSave)!==saveTime(JSON.parse(localGameRaw))){
+              backupConflict('avtoritet_save_conflict_local_v1',localGameRaw);
+              backupConflict('avtoritet_save_conflict_cloud_v1',cloudRaw);
+            }
+          }
           if(useCloudGame)localStorage.setItem(SAVE_KEY,JSON.stringify(cloud.gameSave));
+          if(useCloudHealth&&localHealthRaw){
+            const cloudRaw=JSON.stringify(cloud.healthSave);
+            if(Number(cloud.healthSave.updatedAt||0)!==Number(JSON.parse(localHealthRaw).updatedAt||0)){
+              backupConflict('avtoritet_health_conflict_local_v1',localHealthRaw);
+              backupConflict('avtoritet_health_conflict_cloud_v1',cloudRaw);
+            }
+          }
           if(useCloudHealth)localStorage.setItem(HEALTH_KEY,JSON.stringify(cloud.healthSave));
         }catch(e){log('cloud load failed; local save will continue and cloud writes remain enabled',e);}
         queueCloudSave(false);
