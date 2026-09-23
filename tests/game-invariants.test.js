@@ -12,12 +12,15 @@ const authoritySource = read('js/authority-ui.js');
 const authorityGateSource = read('js/authority-gate.js');
 const prisonSource = read('js/prison-ui.js');
 const yandexSource = read('js/yandex-sdk.js');
+const migrationSource = read('js/save-migration.js');
 
 assert.ok(gameSource.length > 10000, 'game.js looks truncated or replaced by a stub');
 assert.match(gameSource, /const TEST_MODE=true;/, 'test mode must remain enabled for the current test branch');
 assert.match(gameSource, /window\.saveGame=save;/, 'central save API is missing');
 assert.match(gameSource, /function trustedSaveTime\(\)/, 'trusted save time helper is missing');
 assert.match(gameSource, /serverTime\(\)/, 'Yandex server time is not used for save timestamps');
+assert.match(migrationSource, /const BACKUP_KEY='avtoritet_save_v2_backup';/, 'migration backup key is missing');
+assert.doesNotMatch(migrationSource, /localStorage\.removeItem\(KEY\)/, 'migration must never delete the main save on failure');
 
 assert.doesNotMatch(
   authorityGateSource,
@@ -70,7 +73,7 @@ const context = {
   setInterval,
   clearInterval,
   performance: { now: () => 0 },
-  window: {},
+  window: { ysdk: { serverTime: () => 2000000000000 } },
   document: {
     readyState: 'loading',
     visibilityState: 'visible',
@@ -117,8 +120,8 @@ const saved = JSON.parse(
 );
 
 assert.ok(
-  saved.saveUpdatedAt >= 1001,
-  'save timestamp must never move backwards'
+  saved.saveUpdatedAt >= 2000000000000,
+  'save timestamp must use trusted server time when available'
 );
 
 assert.equal(
