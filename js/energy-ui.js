@@ -9,7 +9,7 @@
     {name:'Авторитет',threshold:40000,multiplier:7},
     {name:'Вор в законе',threshold:150000,multiplier:12}
   ];
-  const BASE_CIGARETTES=1000;
+  const BASE_CHIFIR=1000;
   const BASE_POINTS=500;
   const ENERGY_PART=0.5;
   let ready=false;
@@ -45,7 +45,7 @@
     const rank=rankData(s);
     return {
       rank,
-      cigarettes:Math.round(BASE_CIGARETTES*rank.multiplier),
+      chifir:Math.round(BASE_CHIFIR*rank.multiplier),
       points:Math.round(BASE_POINTS*rank.multiplier)
     };
   }
@@ -80,7 +80,7 @@
     const max=Math.max(1,Number(s.maxEnergy||250));
     const gain=Math.min(Math.ceil(max*ENERGY_PART),Math.max(0,max-current));
     const full=current>=max;
-    const enoughCigarettes=Number(s.cigarettes||0)>=c.cigarettes;
+    const enoughChifir=Number(s.chifir||0)>=c.chifir;
     const enoughPoints=Number(s.points||0)>=c.points;
 
     content.innerHTML='<div class="energy-window">'
@@ -89,8 +89,8 @@
       +'<p class="energy-subtitle">Сейчас: <b>'+format(current)+'</b> / '+format(max)+' ('+energyPercent(s)+'%)</p>'
       +'<div class="energy-offer energy-buy-offer">'
       +'<div class="energy-offer-icon">⚡</div>'
-      +'<div class="energy-offer-body"><b>Восстановить 50%</b><span>+'+format(gain)+' энергии · масть «'+c.rank.name+'»</span><small>🚬 '+format(c.cigarettes)+' + ⭐ '+format(c.points)+'</small></div>'
-      +'<button type="button" id="energy-buy" '+(full||!enoughCigarettes||!enoughPoints?'disabled':'')+'>Купить</button>'
+      +'<div class="energy-offer-body"><b>Восстановить 50%</b><span>+'+format(gain)+' энергии · масть «'+c.rank.name+'»</span><small>🍵 '+format(c.chifir)+' + ⭐ '+format(c.points)+'</small></div>'
+      +'<button type="button" id="energy-buy" '+(full||!enoughChifir||!enoughPoints?'disabled':'')+'>Купить</button>'
       +'</div>'
       +'<div class="energy-or">ИЛИ</div>'
       +'<div class="energy-offer energy-ad-offer">'
@@ -118,16 +118,16 @@
     const current=Math.max(0,Number(s.energy||0));
     const gain=Math.min(Math.ceil(max*ENERGY_PART),Math.max(0,max-current));
     if(gain<=0){showMessage('⚡ Энергия уже полностью восстановлена');open();return;}
-    if(Number(s.cigarettes||0)<c.cigarettes){showMessage('🚬 Не хватает сигарет для восстановления энергии');return;}
+    if(Number(s.chifir||0)<c.chifir){showMessage('🍵 Не хватает сигарет для восстановления энергии');return;}
     if(Number(s.points||0)<c.points){showMessage('⭐ Не хватает понтов для восстановления энергии');return;}
-    s.cigarettes-=c.cigarettes;
+    s.chifir-=c.chifir;
     s.points-=c.points;
     s.energy=Math.min(max,current+gain);
     s.lastEnergyTime=Date.now();
     save(s);
     if(typeof window.ui==='function')window.ui();
     if(typeof window.checkTasks==='function')window.checkTasks();
-    showMessage('⚡ Энергия восстановлена на '+format(gain)+'. Потрачено 🚬 '+format(c.cigarettes)+' и ⭐ '+format(c.points));
+    showMessage('⚡ Энергия восстановлена на '+format(gain)+'. Потрачено 🍵 '+format(c.chifir)+' и ⭐ '+format(c.points));
     open();
   }
 
