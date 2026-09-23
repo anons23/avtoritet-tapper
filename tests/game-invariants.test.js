@@ -193,6 +193,18 @@ assert.equal(
   'reducing a sentence must remove the requested days'
 );
 
+state.sentenceDays = 1;
+state.servedSentenceMinutes = 9.99;
+state.jailed = false;
+const releasesBefore = Number(state.sentenceReleaseCount) || 0;
+
+const tickSentence = vm.runInNewContext(
+  '(' + gameSource.match(/function tickSentence\(now\)\{[\\s\\S]*?\n\}/)[0] + ')',
+  context
+);
+
+assert.equal(typeof tickSentence, 'function', 'tickSentence helper must remain callable in regression test');
+
 state.tasks = {
   taps: 10000,
   crit: 0,
@@ -217,6 +229,28 @@ assert.equal(
   state.chifir,
   500,
   'task reward logic is broken'
+);
+
+
+state.sentenceDays = 0;
+state.servedSentenceMinutes = 0;
+state.lastSentenceTick = Date.now() - 120000;
+const releaseAfterFullSentence = Number(state.sentenceReleaseCount) || 0;
+
+context.window.reduceSentence(1, 'after release');
+assert.equal(state.sentenceDays, 0, 'free state must not resurrect a sentence when reducing');
+assert.equal(context.window.getGameState().sentenceDays, 0, 'free state must remain zero');
+
+assert.equal(
+  state.sentenceReleaseCount,
+  releaseAfterFullSentence,
+  'release counter must not increase after the player is already free'
+);
+
+assert.equal(
+  context.window.getGameState().sentenceDays,
+  0,
+  'sentenceDays=0 must remain a stable free state'
 );
 
 console.log('Game invariants: OK');
