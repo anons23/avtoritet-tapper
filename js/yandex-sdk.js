@@ -2,7 +2,7 @@
 (function(){
   const SAVE_KEY='avtoritet_save_v2';
   const HEALTH_KEY='avtoritet_health_v3';
-  let ysdk=null,player=null,pendingData=null,saveTimer=null,cloudReady=false,adBusy=false;
+  let ysdk=null,player=null,pendingData=null,saveTimer=null,cloudReady=false,adBusy=false,adSessionId=0;
   let lastLocalSnapshot='';
   function log(){if(window.console&&console.debug)console.debug.apply(console,['[Yandex SDK]'].concat([].slice.call(arguments)));}
   function gameplayStart(){try{if(ysdk?.features?.GameplayAPI?.start)ysdk.features.GameplayAPI.start();}catch(e){log('gameplay start failed',e);}}
@@ -58,7 +58,15 @@
   window.YandexGameReady=init();
   window.YandexGameBridge={getSDK:function(){return ysdk;},queueSave:function(){queueCloudSave(false);},flushSave:function(){queueCloudSave(true);},resetCloudData:clearCloudData,showFullscreenAd:function(){
     if(adBusy||!ysdk?.adv||typeof ysdk.adv.showFullscreenAdv!=='function')return false;
-    adBusy=true;gameplayStop();const done=function(){if(!adBusy)return;adBusy=false;gameplayStart();};
+    adBusy=true;
+    const sessionId=++adSessionId;
+    gameplayStop();
+    const done=function(){
+      if(sessionId!==adSessionId)return;
+      if(!adBusy)return;
+      adBusy=false;
+      gameplayStart();
+    };
     try{ysdk.adv.showFullscreenAdv({callbacks:{onClose:done,onError:done}});return true;}catch(e){done();return false;}
   }};
   window.showRewardedAd=function(onReward){
@@ -68,6 +76,7 @@
     }
 
     adBusy=true;
+    const sessionId=++adSessionId;
     gameplayStop();
 
     let active=true;
@@ -85,6 +94,7 @@
       if(!active)return;
       active=false;
       if(watchdog){clearTimeout(watchdog);watchdog=null;}
+      if(sessionId!==adSessionId)return;
       adBusy=false;
       gameplayStart();
     };
@@ -95,12 +105,17 @@
     };
 
     const handleRewarded=function(){
+      if(sessionId!==adSessionId||!active)return;
       rewarded=true;
       notify(true);
       log('rewarded ad reward granted');
     };
 
     const handleClose=function(wasShown){
+      /*
+       * A callback from an old ad session must not affect the current ad.
+       */
+      if(sessionId!==adSessionId)return;
       /*
        * Yandex calls onClose when the video closes. Reward is granted only
        * when onRewarded was received; closing without it means no reward.
@@ -111,6 +126,7 @@
     };
 
     const handleError=function(err){
+      if(sessionId!==adSessionId)return;
       if(!rewarded)notify(false);
       cleanup();
       log('rewarded ad error',err);
@@ -121,7 +137,7 @@
      * do not leave the game permanently locked in adBusy state.
      */
     watchdog=setTimeout(function(){
-      if(!active)return;
+      if(sessionId!==adSessionId||!active)return;
       notify(false);
       cleanup();
       log('rewarded ad watchdog timeout');
