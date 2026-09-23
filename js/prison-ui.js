@@ -21,7 +21,15 @@
   }
 
   function saveGame(s){
-    try{s.saveUpdatedAt=Date.now();localStorage.setItem(SAVE_KEY,JSON.stringify(s));return true}catch(e){return false}
+    try{
+      if(typeof window.saveGame==='function'){
+        window.saveGame();
+        return true;
+      }
+      s.saveUpdatedAt=Date.now();
+      localStorage.setItem(SAVE_KEY,JSON.stringify(s));
+      return true;
+    }catch(e){return false}
   }
 
   function rankIndex(s){
