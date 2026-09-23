@@ -88,6 +88,8 @@ function render(){leaveNpcModal();const c=$('modal-content');if(!c)return;c.inne
   function offerAd(id){const n=S[id],c=$('modal-content');if(!c)return;enterNpcModal();c.innerHTML=Hero(n)+'<div class="npc-action-panel"><h2>🎬 Ещё два дела</h2><p>'+n.icon+' '+n.name+' сейчас недоступен.</p><p>Посмотри рекламу и получи ещё <b>2 обращения</b> к '+n.name+'.</p><button type="button" id="-ad" style="width:100%;padding:13px">🎬 Посмотреть рекламу → +2 обращения</button><button type="button" id="-ad-back" style="width:100%;margin-top:7px">Вернуться к разговору</button></div>';const ad=$('-ad');if(ad)ad.onclick=()=>{if(typeof window.showRewardedAd==='function')window.showRewardedAd(rewarded=>{if(rewarded===false){msgLocal('📺 Награда не получена. Попробуй позже.');return}grantAd(id)});else msgLocal('📺 Реклама пока не подключена.')};const back=$('-ad-back');if(back)back.onclick=()=>openNpc(id)}
   function grantAd(id){const d=data(id);d.extra=(d.extra||0)+AD_BONUS;d.until=0;uses[id]=d;save();showNpcResult(id,'🎁 '+S[id].name+': +2 обращения получены за рекламу.',true)}
   function msgLocal(x){if(typeof window.msg==='function')window.msg(x);else alert(x)}
-  function init(){document.addEventListener('click',e=>{if(e.target.closest('#btn-more'))setTimeout(render,20);if(e.target.closest('#modal-close'))setTimeout(leaveNpcModal,0)})}
+  window.renderBarrack=render;
+
+function init(){document.addEventListener('click',e=>{if(e.target.closest('#btn-more'))setTimeout(render,20);if(e.target.closest('#modal-close'))setTimeout(leaveNpcModal,0)})}
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});else init();
 })();
