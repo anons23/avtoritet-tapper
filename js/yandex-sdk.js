@@ -62,12 +62,85 @@
     try{ysdk.adv.showFullscreenAdv({callbacks:{onClose:done,onError:done}});return true;}catch(e){done();return false;}
   }};
   window.showRewardedAd=function(onReward){
-    if(adBusy||!ysdk?.adv||typeof ysdk.adv.showRewardedVideo!=='function'){if(!adBusy&&typeof onReward==='function')onReward(false);return false;}
-    adBusy=true;gameplayStop();let finished=false;
-    const reward=function(ok){if(finished)return;finished=true;if(typeof onReward==='function')onReward(ok!==false);};
-    const done=function(){if(!adBusy)return;adBusy=false;gameplayStart();};
-    try{ysdk.adv.showRewardedVideo({callbacks:{onRewarded:function(){reward(true);},onClose:done,onError:function(err){reward(false);done();log('rewarded ad error',err);}}});return true;}
-    catch(e){reward(false);done();log('rewarded ad call failed',e);return false;}
+    if(adBusy||!ysdk?.adv||typeof ysdk.adv.showRewardedVideo!=='function'){
+      if(!adBusy&&typeof onReward==='function')onReward(false);
+      return false;
+    }
+
+    adBusy=true;
+    gameplayStop();
+
+    let active=true;
+    let rewarded=false;
+    let callbackSent=false;
+    let watchdog=null;
+
+    const notify=function(ok){
+      if(callbackSent)return;
+      callbackSent=true;
+      if(typeof onReward==='function')onReward(ok===true);
+    };
+
+    const cleanup=function(){
+      if(!active)return;
+      active=false;
+      if(watchdog){clearTimeout(watchdog);watchdog=null;}
+      adBusy=false;
+      gameplayStart();
+    };
+
+    const finishWithoutReward=function(){
+      notify(false);
+      cleanup();
+    };
+
+    const handleRewarded=function(){
+      rewarded=true;
+      notify(true);
+      log('rewarded ad reward granted');
+    };
+
+    const handleClose=function(wasShown){
+      /*
+       * Yandex calls onClose when the video closes. Reward is granted only
+       * when onRewarded was received; closing without it means no reward.
+       */
+      if(!rewarded)notify(false);
+      cleanup();
+      log('rewarded ad closed',wasShown);
+    };
+
+    const handleError=function(err){
+      if(!rewarded)notify(false);
+      cleanup();
+      log('rewarded ad error',err);
+    };
+
+    /*
+     * Safety watchdog: if the SDK fails to fire both close/error callbacks,
+     * do not leave the game permanently locked in adBusy state.
+     */
+    watchdog=setTimeout(function(){
+      if(!active)return;
+      notify(false);
+      cleanup();
+      log('rewarded ad watchdog timeout');
+    },120000);
+
+    try{
+      ysdk.adv.showRewardedVideo({
+        callbacks:{
+          onRewarded:handleRewarded,
+          onClose:handleClose,
+          onError:handleError
+        }
+      });
+      return true;
+    }catch(e){
+      finishWithoutReward();
+      log('rewarded ad call failed',e);
+      return false;
+    }
   };
   const pollTimer=setInterval(pollLocalChanges,1000);
   window.addEventListener('pagehide',function(){clearInterval(pollTimer);flushCloudSave(true);});
