@@ -21,7 +21,7 @@
     if(src&&src.indexOf('/assets/authority/')!==-1){const next=rewrite(src);if(next!==src)img.setAttribute('src',next);}
   };
   const style=document.createElement('style');
-  style.textContent='#game-container.authority-mode{background-image:linear-gradient(rgba(4,8,10,.18),rgba(4,8,10,.55)),url("./assets/backgrounds/desktop/avtoritet.png")!important;}'
+  style.textContent='#game-container.authority-mode{background-image:linear-gradient(rgba(4,8,10,.18),rgba(4,8,10,.55)),url("./assets/backgrounds/desktop/avtoritet.png")!important;}';
   (document.head||document.documentElement).appendChild(style);
   const observer=new MutationObserver(mutations=>mutations.forEach(m=>m.addedNodes.forEach(node=>{
     if(node.nodeType!==1)return;
