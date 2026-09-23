@@ -26,8 +26,8 @@
         window.saveGame();
         return true;
       }
-      s.saveUpdatedAt=Date.now();
-      localStorage.setItem(SAVE_KEY,JSON.stringify(s));
+      if(typeof window.saveGame!=='function')return false;
+      window.saveGame();
       return true;
     }catch(e){return false}
   }
