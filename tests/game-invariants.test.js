@@ -194,16 +194,19 @@ assert.equal(
 );
 
 state.sentenceDays = 1;
-state.servedSentenceMinutes = 9.99;
+state.servedSentenceMinutes = 10;
 state.jailed = false;
 const releasesBefore = Number(state.sentenceReleaseCount) || 0;
 
-const tickSentence = vm.runInNewContext(
-  '(' + gameSource.match(/function tickSentence\(now\)\{[\\s\\S]*?\n\}/)[0] + ')',
-  context
-);
+context.window.reduceSentence(1, 'full sentence test');
 
-assert.equal(typeof tickSentence, 'function', 'tickSentence helper must remain callable in regression test');
+assert.equal(state.sentenceDays, 0, 'completed sentence must end at zero days');
+assert.equal(state.servedSentenceMinutes, 0, 'completed sentence must reset served minutes');
+assert.equal(
+  state.sentenceReleaseCount,
+  releasesBefore + 1,
+  'completed sentence must release the player exactly once'
+);
 
 state.tasks = {
   taps: 10000,
