@@ -171,11 +171,11 @@ window.requestNameChange=requestNameChange;
 function updateEnergyHint(){
   const el=$('energy-hint');
   if(!el)return;
-  if(s.energy>=s.maxEnergy){el.textContent='⚡ Энергия полностью восстановлена';return}
+  if(s.energy>=s.maxEnergy){el.textContent='✓ Полная';return}
   const left=Math.max(0,30000-(Date.now()-s.lastEnergyTime));
   const sec=Math.ceil(left/1000);
   const mins=Math.floor(sec/60),secs=sec%60;
-  el.textContent='⚡ +1 энергия через '+(mins?mins+'м ':'')+String(secs).padStart(2,'0')+'с · восстанавливается даже когда ты вышел';
+  el.textContent='+1 через '+(mins?mins+'м ':'')+String(secs).padStart(2,'0')+'с';
 }
 function updateSentenceUi(){
   const left=$('sentence-left'),detail=$('sentence-detail'),fill=$('sentence-fill');
