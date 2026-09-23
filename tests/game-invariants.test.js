@@ -250,10 +250,50 @@ assert.equal(
   'release counter must not increase after the player is already free'
 );
 
+state.sentenceDays = 5;
+state.servedSentenceMinutes = 20;
+context.window.addSentence(2, 'extension test');
+
+assert.equal(
+  state.sentenceDays,
+  7,
+  'extending an active sentence must add days without replacing the existing sentence'
+);
+assert.equal(
+  state.servedSentenceMinutes,
+  20,
+  'extending an active sentence must preserve already served time'
+);
+
+state.sentenceDays = 0;
+state.servedSentenceMinutes = 0;
+context.window.addSentence(3, 'new sentence test');
+
+assert.equal(
+  state.sentenceDays,
+  103,
+  'adding a sentence after release must start a fresh sentence from the base term'
+);
+assert.equal(
+  state.servedSentenceMinutes,
+  0,
+  'new sentence after release must reset served time'
+);
+
+state.sentenceDays = 0;
+state.servedSentenceMinutes = 0;
+context.window.reduceSentence(3, 'free-state regression');
+
+assert.equal(
+  state.sentenceDays,
+  0,
+  'full lifecycle regression: a free player must remain free after sentence reduction'
+);
+
 assert.equal(
   context.window.getGameState().sentenceDays,
   0,
-  'sentenceDays=0 must remain a stable free state'
+  'sentence lifecycle must keep zero as the persistent free state'
 );
 
 console.log('Game invariants: OK');
