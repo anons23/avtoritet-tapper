@@ -90,6 +90,10 @@ function render(){leaveNpcModal();const c=$('modal-content');if(!c)return;c.inne
   function msgLocal(x){if(typeof window.msg==='function')window.msg(x);else alert(x)}
   window.renderBarrack=render;
 
-function init(){document.addEventListener('click',e=>{if(e.target.closest('#btn-more'))setTimeout(render,20);if(e.target.closest('#modal-close'))setTimeout(leaveNpcModal,0)})}
+function init(){
+    const btn=$('btn-more');
+    if(btn)btn.addEventListener('click',()=>render(),{capture:true});
+    document.addEventListener('click',e=>{if(e.target.closest('#modal-close'))setTimeout(leaveNpcModal,0)})
+  }
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});else init();
 })();
