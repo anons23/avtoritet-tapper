@@ -68,7 +68,7 @@ function nextSaveTimestamp(){
 function sentenceRemaining(){return Math.max(0,Math.ceil(Number(s.sentenceDays||100)-Number(s.servedSentenceMinutes||0)/SENTENCE_MINUTES_PER_DAY))}
 function addSentence(days,reason){
   days=Math.max(0,Math.floor(Number(days)||0));if(!days)return;
-  const base=Number(s.sentenceDays||0)<=0?100:Number(s.sentenceDays||100);s.sentenceDays=base+days;s.lastSentenceTick=Date.now();
+  const currentSentence=Number(s.sentenceDays||0);const base=currentSentence<=0?100:currentSentence;s.sentenceDays=base+days;if(currentSentence<=0)s.servedSentenceMinutes=0;s.lastSentenceTick=Date.now();
   msg('⛓️ Срок увеличен на '+days+' дн.'+(reason?' · '+reason:'')+' Осталось: '+sentenceRemaining()+' дн.');
   ui();saveNow();
 }
