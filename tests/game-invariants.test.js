@@ -16,7 +16,27 @@ const migrationSource = read('js/save-migration.js');
 
 assert.ok(gameSource.length > 10000, 'game.js looks truncated or replaced by a stub');
 assert.match(gameSource, /const TEST_MODE=true;/, 'test mode must remain enabled for the current test branch');
-assert.match(gameSource, /window\.saveGame=save;/, 'central save API is missing');
+assert.match(gameSource, /window\.saveGame=saveNow;/, 'central immediate save API is missing');
+assert.equal(
+  (gameSource.match(/window\.saveGame=/g)||[]).length,
+  1,
+  'game.js must expose exactly one saveGame API'
+);
+assert.match(
+  gameSource,
+  /const LOCAL_SAVE_DEBOUNCE=1500/,
+  'local save debounce is missing'
+);
+assert.match(
+  gameSource,
+  /const LOCAL_SAVE_BACKUP=15000/,
+  'periodic local save backup is missing'
+);
+assert.doesNotMatch(
+  gameSource,
+  /setInterval\(\(\)=>\{restoreEnergy\(Date\.now\(\)\);ui\(\);save\(\)\},1000\)/,
+  'game.js still writes localStorage every second'
+);
 assert.match(gameSource, /function trustedSaveTime\(\)/, 'trusted save time helper is missing');
 assert.match(gameSource, /serverTime\(\)/, 'Yandex server time is not used for save timestamps');
 assert.match(migrationSource, /const BACKUP_KEY='avtoritet_save_v2_backup';/, 'migration backup key is missing');
@@ -48,8 +68,32 @@ assert.match(
 
 assert.match(
   yandexSource,
+  /function backupConflict\(/,
+  'cloud conflict backup helper is missing'
+);
+
+assert.match(
+  yandexSource,
   /onRewarded:handleRewarded/,
   'rewarded-ad reward handler is missing'
+);
+
+assert.match(
+  yandexSource,
+  /function localSnapshotKey\(/,
+  'lightweight local snapshot polling is missing'
+);
+
+assert.doesNotMatch(
+  yandexSource,
+  /const data=snapshot\(\);const key=snapshotKey\(data\);/,
+  'cloud polling still serializes the full snapshot every cycle'
+);
+
+assert.match(
+  yandexSource,
+  /setInterval\(pollLocalChanges,2000\)/,
+  'cloud polling interval was not reduced to 2 seconds'
 );
 
 assert.match(
