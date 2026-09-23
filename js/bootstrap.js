@@ -19,7 +19,7 @@
     {src:'./js/authority-folder-fix.js?v=1.0',critical:false},
     {src:'./js/authority-gate.js?v=1.0',critical:false}
   ];
-  function ready(){
+  function preloadProgress(step,message){try{if(typeof window.__setPreloaderProgress==='function')window.__setPreloaderProgress(step,message)}catch(e){}}\n  function finishPreloader(){try{if(typeof window.__finishPreloader==='function')window.__finishPreloader()}catch(e){}}\n  function ready(){
     try{const s=window.ysdk;if(s&&s.features&&s.features.LoadingAPI&&typeof s.features.LoadingAPI.ready==='function')s.features.LoadingAPI.ready()}catch(e){console.debug('[Bootstrap] LoadingAPI.ready failed',e)}
   }
   function showFatal(src){
@@ -39,12 +39,12 @@
   }
   function appendScript(item,next){
     const script=document.createElement('script');script.src=item.src;script.async=false;
-    script.onload=()=>next();
-    script.onerror=()=>{console.error('[Bootstrap] Failed to load',item.src);if(item.critical){showFatal(item.src);return}next()};
+    script.onload=()=>{const loaded=Math.round(15+(i+1)*(81/scripts.length));preloadProgress(Math.min(96,loaded),item.critical?'Запускаем ядро':'Загружаем модули');next()};
+    script.onerror=()=>{console.error('[Bootstrap] Failed to load',item.src);if(item.critical){showFatal(item.src);return}const loaded=Math.round(15+(i+1)*(81/scripts.length));preloadProgress(Math.min(96,loaded),'Продолжаем запуск');next()};
     document.body.appendChild(script);
   }
   function loadScripts(i){
-    if(i>=scripts.length){ready();return}
+    if(i>=scripts.length){preloadProgress(96,'Почти готово');ready();finishPreloader();return}
     const item=scripts[i];
     if(item.src.indexOf('./js/game.js')===0){
       waitForYandexReady().then(()=>appendScript(item,()=>loadScripts(i+1)));
@@ -53,5 +53,5 @@
     appendScript(item,()=>loadScripts(i+1));
   }
   document.addEventListener('contextmenu',e=>{if(e.target.closest('#game-container'))e.preventDefault()},{passive:false});
-  loadScripts(0);Promise.resolve(window.YandexGameReady).catch(()=>{}).then(ready);
+  preloadProgress(16,'Подготавливаем игровой код');\n  loadScripts(0);Promise.resolve(window.YandexGameReady).catch(()=>{}).then(ready);
 })();
