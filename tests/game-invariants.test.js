@@ -6,6 +6,10 @@ const vm = require('node:vm');
 const root = path.resolve(__dirname, '..');
 const gamePath = path.join(root, 'js', 'game.js');
 const gameSource = fs.readFileSync(gamePath, 'utf8');
+const authoritySource = fs.readFileSync(path.join(root, 'js', 'authority-ui.js'), 'utf8');
+const authorityGateSource = fs.readFileSync(path.join(root, 'js', 'authority-gate.js'), 'utf8');
+const prisonSource = fs.readFileSync(path.join(root, 'js', 'prison-ui.js'), 'utf8');
+const yandexSource = fs.readFileSync(path.join(root, 'js', 'yandex-sdk.js'), 'utf8');
 
 assert.ok(gameSource.length > 10000, 'game.js looks truncated or replaced by a stub');
 assert.match(gameSource, /const TEST_MODE=true;/, 'test mode must remain enabled for the current test branch');
@@ -35,7 +39,8 @@ const context = {
   document: {
     readyState: 'loading',
     visibilityState: 'visible',
-    addEventListener() {}
+    addEventListener() {},
+    getElementById() { return null; }
   },
   localStorage: {
     data: Object.create(null),
