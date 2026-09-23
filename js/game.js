@@ -132,7 +132,6 @@ function saveNow(){
 }
 
 window.saveGame=saveNow;
-window.saveGame=save;
 function restoreEnergy(now){now=Number(now)||Date.now();if(!Number.isFinite(s.lastEnergyTime))s.lastEnergyTime=now;if(!Number.isFinite(s.energy))s.energy=0;if(!Number.isFinite(s.maxEnergy)||s.maxEnergy<1)s.maxEnergy=250;if(s.energy>=s.maxEnergy){s.energy=s.maxEnergy;s.lastEnergyTime=now;return 0}const elapsed=Math.max(0,now-s.lastEnergyTime),gain=Math.floor(elapsed/30000);if(gain>0){s.energy=Math.min(s.maxEnergy,s.energy+gain);s.lastEnergyTime+=gain*30000;if(s.energy>=s.maxEnergy)s.lastEnergyTime=now}return gain}
 function highestUnlocked(){let i=0;for(let j=0;j<R.length;j++)if(s.points>=R[j][1])i=j;return Math.min(i,O.length-1)}
 function syncObject(showMessage){const next=highestUnlocked(),old=s.currentObject;if(showMessage&&next>old)msg('🏆 Новая масть: '+R[next][0]+' · новый этап: '+O[next][0]);s.currentObject=next}
