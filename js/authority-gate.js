@@ -21,8 +21,7 @@
     if(!s)return false;
     if(Number(s.points)<MIN_POINTS&&Number(s.currentObject)>=MIN_OBJECT){
       s.currentObject=3;
-      s.saveUpdatedAt=Date.now();
-      try{localStorage.setItem('avtoritet_save_v2',JSON.stringify(s))}catch(e){}
+      if(typeof window.saveGame==='function')window.saveGame();
     }
     return eligible(s);
   }
