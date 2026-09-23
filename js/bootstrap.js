@@ -40,7 +40,7 @@
   function appendScript(item,index,next){
     const script=document.createElement('script');script.src=item.src;script.async=false;
     script.onload=()=>{const loaded=Math.round(15+(index+1)*(81/scripts.length));preloadProgress(Math.min(96,loaded),item.critical?'Запускаем ядро':'Загружаем модули');next()};
-    script.onerror=()=>{console.error('[Bootstrap] Failed to load',item.src);if(item.critical){showFatal(item.src);return}const loaded=Math.round(15+(i+1)*(81/scripts.length));preloadProgress(Math.min(96,loaded),'Продолжаем запуск');next()};
+    script.onerror=()=>{console.error('[Bootstrap] Failed to load',item.src);if(item.critical){showFatal(item.src);return}const loaded=Math.round(15+(index+1)*(81/scripts.length));preloadProgress(Math.min(96,loaded),'Продолжаем запуск');next()};
     document.body.appendChild(script);
   }
   function loadScripts(i){
