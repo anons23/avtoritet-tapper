@@ -26,12 +26,14 @@
     try{return JSON.parse(localStorage.getItem(SAVE_KEY)||'{}')||{};}catch(e){return null;}
   }
 
-  function save(s){
+  function save(){
     try{
-      s.saveUpdatedAt=Date.now();
-      localStorage.setItem(SAVE_KEY,JSON.stringify(s));
-      return true;
-    }catch(e){return false;}
+      if(typeof window.saveGame==='function'){
+        window.saveGame();
+        return true;
+      }
+    }catch(e){}
+    return false;
   }
 
   function rankData(s){
@@ -118,13 +120,13 @@
     const current=Math.max(0,Number(s.energy||0));
     const gain=Math.min(Math.ceil(max*ENERGY_PART),Math.max(0,max-current));
     if(gain<=0){showMessage('⚡ Энергия уже полностью восстановлена');open();return;}
-    if(Number(s.chifir||0)<c.chifir){showMessage('🍵 Не хватает сигарет для восстановления энергии');return;}
+    if(Number(s.chifir||0)<c.chifir){showMessage('🍵 Не хватает чифира для восстановления энергии');return;}
     if(Number(s.points||0)<c.points){showMessage('⭐ Не хватает понтов для восстановления энергии');return;}
     s.chifir-=c.chifir;
     s.points-=c.points;
     s.energy=Math.min(max,current+gain);
     s.lastEnergyTime=Date.now();
-    save(s);
+    save();
     if(typeof window.ui==='function')window.ui();
     if(typeof window.checkTasks==='function')window.checkTasks();
     showMessage('⚡ Энергия восстановлена на '+format(gain)+'. Потрачено 🍵 '+format(c.chifir)+' и ⭐ '+format(c.points));
