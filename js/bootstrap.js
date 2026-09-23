@@ -19,7 +19,9 @@
     {src:'./js/authority-folder-fix.js?v=1.0',critical:false},
     {src:'./js/authority-gate.js?v=1.0',critical:false}
   ];
-  function preloadProgress(step,message){try{if(typeof window.__setPreloaderProgress==='function')window.__setPreloaderProgress(step,message)}catch(e){}}\n  function finishPreloader(){try{if(typeof window.__finishPreloader==='function')window.__finishPreloader()}catch(e){}}\n  function ready(){
+  function preloadProgress(step,message){try{if(typeof window.__setPreloaderProgress==='function')window.__setPreloaderProgress(step,message)}catch(e){}}
+  function finishPreloader(){try{if(typeof window.__finishPreloader==='function')window.__finishPreloader()}catch(e){}}
+  function ready(){
     try{const s=window.ysdk;if(s&&s.features&&s.features.LoadingAPI&&typeof s.features.LoadingAPI.ready==='function')s.features.LoadingAPI.ready()}catch(e){console.debug('[Bootstrap] LoadingAPI.ready failed',e)}
   }
   function showFatal(src){
@@ -53,5 +55,6 @@
     appendScript(item,i,()=>loadScripts(i+1));
   }
   document.addEventListener('contextmenu',e=>{if(e.target.closest('#game-container'))e.preventDefault()},{passive:false});
-  preloadProgress(16,'Подготавливаем игровой код');\n  loadScripts(0);Promise.resolve(window.YandexGameReady).catch(()=>{}).then(ready);
+  preloadProgress(16,'Подготавливаем игровой код');
+  loadScripts(0);Promise.resolve(window.YandexGameReady).catch(()=>{}).then(ready);
 })();
