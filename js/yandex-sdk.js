@@ -9,9 +9,24 @@
   function gameplayStop(){try{if(ysdk?.features?.GameplayAPI?.stop)ysdk.features.GameplayAPI.stop();}catch(e){log('gameplay stop failed',e);}}
   function snapshot(){const out={};try{const s=localStorage.getItem(SAVE_KEY);if(s)out.gameSave=JSON.parse(s);}catch(e){}try{const h=localStorage.getItem(HEALTH_KEY);if(h)out.healthSave=JSON.parse(h);}catch(e){}return Object.keys(out).length?out:null;}
   function snapshotKey(data){try{return JSON.stringify(data||null)}catch(e){return ''}}
-  function queueCloudSave(flush){if(!player||!cloudReady)return;const data=snapshot();if(!data)return;pendingData=data;lastLocalSnapshot=snapshotKey(data);clearTimeout(saveTimer);if(flush)flushCloudSave(true);else saveTimer=setTimeout(()=>flushCloudSave(false),5000);}
+  function queueCloudSave(flush){if(!player||!cloudReady)return;const data=snapshot();if(!data)return;pendingData=data;lastLocalSnapshot=localSnapshotKey();clearTimeout(saveTimer);if(flush)flushCloudSave(true);else saveTimer=setTimeout(()=>flushCloudSave(false),5000);}
   function flushCloudSave(force){clearTimeout(saveTimer);saveTimer=null;if(!player||!cloudReady||!pendingData)return;const data=pendingData;pendingData=null;player.setData(data,!!force).catch(function(err){pendingData=data;log('cloud save failed',err);});}
-  function pollLocalChanges(){if(!cloudReady||!player)return;const data=snapshot();const key=snapshotKey(data);if(data&&key&&key!==lastLocalSnapshot)queueCloudSave(false);}
+  function localSnapshotKey(){
+    try{
+      return [
+        localStorage.getItem(SAVE_KEY)||'',
+        localStorage.getItem(HEALTH_KEY)||''
+      ].join('\\0');
+    }catch(e){
+      return '';
+    }
+  }
+
+  function pollLocalChanges(){
+    if(!cloudReady||!player)return;
+    const key=localSnapshotKey();
+    if(key&&key!==lastLocalSnapshot)queueCloudSave(false);
+  }
   function saveTime(obj){if(!obj||typeof obj!=='object')return 0;const t=Number(obj.saveUpdatedAt);return Number.isFinite(t)&&t>0?t:Number(obj.lastEnergyTime)||0;}
   async function clearCloudData(){
     if(!player||!cloudReady)return false;
@@ -158,7 +173,7 @@
       return false;
     }
   };
-  const pollTimer=setInterval(pollLocalChanges,1000);
+  const pollTimer=setInterval(pollLocalChanges,2000);
   window.addEventListener('pagehide',function(){clearInterval(pollTimer);flushCloudSave(true);});
   window.addEventListener('beforeunload',function(){flushCloudSave(true);});
 })();
