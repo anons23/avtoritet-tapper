@@ -89,6 +89,11 @@ function bind(){
   $('btn-tasks')?.addEventListener('click',tasksMenu);
   $('btn-more')?.addEventListener('click',more);
   $('modal-close')?.addEventListener('click',closeModal);
-  setInterval(()=>{restoreEnergy(Date.now());ui();save()},1000)
+  /* UI may refresh every second, but localStorage must not be written every second. */
+  setInterval(()=>{restoreEnergy(Date.now());ui()},1000);
+
+  /* Periodic autosave protects passive energy recovery without hammering localStorage. */
+  const AUTOSAVE_INTERVAL=15000;
+  setInterval(()=>{save()},AUTOSAVE_INTERVAL);
 }
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',bind,{once:true});else bind();
