@@ -49,8 +49,15 @@ let messageQueue=[],messageBusy=false,activeEvent=false;
 const $=id=>document.getElementById(id);
 const SENTENCE_MINUTES_PER_DAY=10;
 const SAVE_CLOCK_KEY='avtoritet_save_clock_v1';
+function trustedSaveTime(){
+  try{
+    const t=Number(window.ysdk&&typeof window.ysdk.serverTime==='function'?window.ysdk.serverTime():0);
+    if(Number.isFinite(t)&&t>0)return t;
+  }catch(e){}
+  return Date.now();
+}
 function nextSaveTimestamp(){
-  const now=Date.now();
+  const now=trustedSaveTime();
   let localClock=0;
   try{localClock=Number(localStorage.getItem(SAVE_CLOCK_KEY))||0}catch(e){}
   const previous=Number(s.saveUpdatedAt)||0;
