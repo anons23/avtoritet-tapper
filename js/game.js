@@ -48,6 +48,16 @@ let s={chifir:0,points:0,energy:250,maxEnergy:250,power:1,critChance:.05,respect
 let messageQueue=[],messageBusy=false,activeEvent=false;
 const $=id=>document.getElementById(id);
 const SENTENCE_MINUTES_PER_DAY=10;
+const SAVE_CLOCK_KEY='avtoritet_save_clock_v1';
+function nextSaveTimestamp(){
+  const now=Date.now();
+  let localClock=0;
+  try{localClock=Number(localStorage.getItem(SAVE_CLOCK_KEY))||0}catch(e){}
+  const previous=Number(s.saveUpdatedAt)||0;
+  const next=Math.max(now,localClock+1,previous+1);
+  try{localStorage.setItem(SAVE_CLOCK_KEY,String(next))}catch(e){}
+  return next;
+}
 function sentenceRemaining(){return Math.max(0,Math.ceil(Number(s.sentenceDays||100)-Number(s.servedSentenceMinutes||0)/SENTENCE_MINUTES_PER_DAY))}
 function addSentence(days,reason){
   days=Math.max(0,Math.floor(Number(days)||0));if(!days)return;
@@ -86,7 +96,7 @@ function tickSentence(now){
   s.servedSentenceMinutes=Math.min(Number(s.sentenceDays||100)*SENTENCE_MINUTES_PER_DAY,Number(s.servedSentenceMinutes||0)+elapsed/60000);
   return checkSentenceRelease();
 }
-function save(){try{s.saveUpdatedAt=Date.now();localStorage.setItem('avtoritet_save_v2',JSON.stringify(s))}catch(e){}}
+function save(){try{s.saveUpdatedAt=nextSaveTimestamp();localStorage.setItem('avtoritet_save_v2',JSON.stringify(s))}catch(e){}}
 function restoreEnergy(now){now=Number(now)||Date.now();if(!Number.isFinite(s.lastEnergyTime))s.lastEnergyTime=now;if(!Number.isFinite(s.energy))s.energy=0;if(!Number.isFinite(s.maxEnergy)||s.maxEnergy<1)s.maxEnergy=250;if(s.energy>=s.maxEnergy){s.energy=s.maxEnergy;s.lastEnergyTime=now;return 0}const elapsed=Math.max(0,now-s.lastEnergyTime),gain=Math.floor(elapsed/30000);if(gain>0){s.energy=Math.min(s.maxEnergy,s.energy+gain);s.lastEnergyTime+=gain*30000;if(s.energy>=s.maxEnergy)s.lastEnergyTime=now}return gain}
 function highestUnlocked(){let i=0;for(let j=0;j<R.length;j++)if(s.points>=R[j][1])i=j;return Math.min(i,O.length-1)}
 function syncObject(showMessage){const next=highestUnlocked(),old=s.currentObject;if(showMessage&&next>old)msg('🏆 Новая масть: '+R[next][0]+' · новый этап: '+O[next][0]);s.currentObject=next}
