@@ -32,3 +32,6 @@ jobs:
 
       - name: Run game logic tests
         run: node tests/game-invariants.test.js
+
+      - name: Run rewarded ad lifecycle tests
+        run: node tests/rewarded-ad-lifecycle.test.js
