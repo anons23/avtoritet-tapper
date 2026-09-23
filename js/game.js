@@ -65,7 +65,7 @@ function nextSaveTimestamp(){
   try{localStorage.setItem(SAVE_CLOCK_KEY,String(next))}catch(e){}
   return next;
 }
-function sentenceRemaining(){return Math.max(0,Math.ceil(Number(s.sentenceDays||100)-Number(s.servedSentenceMinutes||0)/SENTENCE_MINUTES_PER_DAY))}
+function sentenceRemaining(){const total=Number(s.sentenceDays);if(!Number.isFinite(total)||total<=0)return 0;return Math.max(0,Math.ceil(total-Number(s.servedSentenceMinutes||0)/SENTENCE_MINUTES_PER_DAY))}
 function addSentence(days,reason){
   days=Math.max(0,Math.floor(Number(days)||0));if(!days)return;
   const currentSentence=Number(s.sentenceDays||0);const base=currentSentence<=0?100:currentSentence;s.sentenceDays=base+days;if(currentSentence<=0)s.servedSentenceMinutes=0;s.lastSentenceTick=Date.now();
@@ -74,7 +74,7 @@ function addSentence(days,reason){
 }
 function reduceSentence(days,reason){
   days=Math.max(0,Math.floor(Number(days)||0));if(!days)return;
-  const before=Number(s.sentenceDays||100);
+  const before=Number(s.sentenceDays);if(!Number.isFinite(before)||before<=0)return;
   const served=Number(s.servedSentenceMinutes||0);
   const remaining=Math.max(0,before-served/SENTENCE_MINUTES_PER_DAY);
   const cut=Math.min(days,Math.ceil(remaining));
@@ -84,7 +84,8 @@ function reduceSentence(days,reason){
   ui();saveNow();
 }
 function checkSentenceRelease(){
-  if(Number(s.servedSentenceMinutes||0)+0.0001 < Number(s.sentenceDays||100)*SENTENCE_MINUTES_PER_DAY)return false;
+  const total=Number(s.sentenceDays);if(!Number.isFinite(total)||total<=0)return false;
+  if(Number(s.servedSentenceMinutes||0)+0.0001 < total*SENTENCE_MINUTES_PER_DAY)return false;
   if(s.jailed)return false;
   s.sentenceReleaseCount=(Number(s.sentenceReleaseCount)||0)+1;
   s.sentenceDays=0;
@@ -96,11 +97,12 @@ function checkSentenceRelease(){
 window.addSentence=addSentence;window.reduceSentence=reduceSentence;
 function tickSentence(now){
   if(s.jailed||typeof document==='undefined'||document.visibilityState!=='visible'){s.lastSentenceTick=now;return false}
+  const total=Number(s.sentenceDays);if(!Number.isFinite(total)||total<=0){s.lastSentenceTick=now;return false}
   if(!Number.isFinite(s.lastSentenceTick))s.lastSentenceTick=now;
   const elapsed=Math.max(0,Math.min(now-s.lastSentenceTick,60000));
   s.lastSentenceTick=now;
   if(elapsed<=0)return false;
-  s.servedSentenceMinutes=Math.min(Number(s.sentenceDays||100)*SENTENCE_MINUTES_PER_DAY,Number(s.servedSentenceMinutes||0)+elapsed/60000);
+  s.servedSentenceMinutes=Math.min(total*SENTENCE_MINUTES_PER_DAY,Number(s.servedSentenceMinutes||0)+elapsed/60000);
   return checkSentenceRelease();
 }
 let localSaveTimer=null;
@@ -180,7 +182,7 @@ function updateEnergyHint(){
 function updateSentenceUi(){
   const left=$('sentence-left'),detail=$('sentence-detail'),fill=$('sentence-fill');
   if(!left||!detail||!fill)return;
-  const total=Math.max(0,Number(s.sentenceDays||100));
+  const total=Math.max(0,Number(s.sentenceDays)||0);
   const served=Math.min(total,Number(s.servedSentenceMinutes||0)/SENTENCE_MINUTES_PER_DAY);
   const remaining=Math.max(0,total-served);
   left.textContent=remaining<=0?'Свобода':Math.ceil(remaining)+' дн.';
