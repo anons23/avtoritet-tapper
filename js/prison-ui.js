@@ -127,7 +127,23 @@
     const c=$('modal-content');
     if(c)new MutationObserver(rename).observe(c,{childList:true,subtree:true,characterData:true});
     check();
-    setInterval(check,100);
+
+    /*
+     * Prison progress changes from game.js when the player taps #tap-area.
+     * React to that user action instead of polling every 100ms.
+     * setTimeout(..., 0) lets the game's pointer handler update jailTaps first.
+     */
+    const tapArea=$('tap-area');
+    if(tapArea){
+      tapArea.addEventListener('pointerdown',()=>setTimeout(check,0),{passive:true});
+    }
+
+    document.addEventListener('visibilitychange',()=>{
+      if(!document.hidden)check();
+    });
+
+    window.addEventListener('focus',check,{passive:true});
+    window.addEventListener('pageshow',check,{passive:true});
   }
 
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});else init();
