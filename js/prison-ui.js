@@ -3,9 +3,9 @@
   const $=id=>document.getElementById(id);
   const SAVE_KEY='avtoritet_save_v2';
   const THRESHOLDS=[60,180,320];
-  const RANK_POINTS=[0,500,2500,10000,40000,150000];
-  const RANK_NAMES=['Салага','Пацан','Блатной','Смотрящий','Авторитет','Вор в законе'];
-  const RANK_MULTIPLIERS=[1,1.5,2.5,4,7,12];
+  const RANK_POINTS=[0,500,2500,10000,40000];
+  const RANK_NAMES=['Салага','Пацан','Блатной','Смотрящий','Авторитет'];
+  const RANK_MULTIPLIERS=[1,1.5,2.5,4,7];
   let busy=false;
   let count=0;
   let lastJailed=false;
