@@ -1,8 +1,8 @@
 'use strict';
 (function(){
-  const THRESHOLDS=[0,500,2500,10000,40000,150000];
-  const NAMES=['Салага','Пацан','Блатной','Смотрящий','Авторитет','Вор в законе'];
-  const DESCS=['Новенький. Пока только осваиваешься и смотришь, как тут всё устроено.','Освоился. Уже знаешь местные порядки и можешь постоять за себя.','Есть слово и вес. К тебе начинают прислушиваться.','Следишь за порядком и решаешь вопросы на своём уровне.','Большая шишка. Твои решения уже влияют на общак и расклад.','Высшая игровая ступень. Здесь уже не суетятся — здесь решают.'];
+  const THRESHOLDS=[0,500,2500,10000,40000];
+  const NAMES=['Салага','Пацан','Блатной','Смотрящий','Авторитет'];
+  const DESCS=['Новенький. Пока только осваиваешься и смотришь, как тут всё устроено.','Освоился. Уже знаешь местные порядки и можешь постоять за себя.','Есть слово и вес. К тебе начинают прислушиваться.','Следишь за порядком и решаешь вопросы на своём уровне.','Большая шишка. Твои решения уже влияют на общак и расклад.'];
   function points(){const text=String(document.getElementById('points')?.textContent||'0').trim().replace(/\s/g,'');const n=parseFloat(text.replace(/[^0-9.,KM]/gi,'').replace(',','.'))||0;if(/M$/i.test(text))return n*1000000;if(/K$/i.test(text))return n*1000;return n;}
   function index(){const p=points();let i=0;for(let j=0;j<THRESHOLDS.length;j++)if(p>=THRESHOLDS[j])i=j;return i;}
   function apply(){const el=document.getElementById('rank');if(!el)return;const i=index();if(el.textContent!==NAMES[i])el.textContent=NAMES[i];}
