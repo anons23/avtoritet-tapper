@@ -9,7 +9,7 @@
   const SQUAT_A='./assets/backgrounds/squat.png?v=1';
   const SQUAT_B='./assets/backgrounds/squat_2.png?v=1';
   const BAG_NAME='Груша',CELL_NAME='Сокамерник',PUSHUPS_NAME='Отжимания',TRAINER_NAME='Тренажёр';
-  const AUTHORITY_NAME='Разборка',BREAKTHROUGH_NAME='Прорыв';
+  const AUTHORITY_NAME='Разборка';
   let pushupQueue=0,pushupRunning=false,trainerQueue=0,trainerRunning=false;
   let squatQueue=0,squatRunning=false,squatLastTick=0,squatRunId=0;
   let pushupLastTick=0,trainerLastTick=0;
@@ -97,13 +97,12 @@
     emoji.dataset.objectIndex=String(idx);
 
     const bag=idx===0,cell=idx===1,push=idx===2,train=idx===3;
-    const auth=idx===4,breakth=idx===5;
+    const auth=idx===4;
     target.classList.toggle('bag-mode',bag);
     target.classList.toggle('cellmate-mode',cell);
     target.classList.toggle('pushups-mode',push);
     target.classList.toggle('trainer-mode',train);
     target.classList.toggle('authority-mode',auth);
-    target.classList.toggle('breakthrough-mode',breakth);
     target.classList.toggle('jail-mode',jailed);
 
     emoji.querySelectorAll('img[data-stage]').forEach(img=>{
@@ -295,7 +294,7 @@
       runSquat();
       return;
     }
-    if(n===AUTHORITY_NAME||n===BREAKTHROUGH_NAME)return;
+    if(n===AUTHORITY_NAME)return;
     const emoji=document.getElementById('object-emoji');
     if(!emoji)return;
     const stage=Number(emoji.dataset.objectIndex);
