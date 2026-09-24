@@ -1,15 +1,12 @@
-/* Backgrounds for the two highest ranks were missing from the original stylesheet. */
+/* Background for the current highest rank. */
 #game-container.rank-avtoritet{
   background-image:linear-gradient(rgba(8,8,8,.10),rgba(8,8,8,.22)),url('./assets/backgrounds/desktop/blatnoi.png');
   background-size:cover;
   background-position:center;
 }
-#game-container.rank-vor{
-  background-image:linear-gradient(rgba(8,8,8,.08),rgba(8,8,8,.20)),url('./assets/backgrounds/desktop/smotryashiy.png');
-  background-size:cover;
-  background-position:center;
-}
 @media(max-width:700px){
-  #game-container.rank-avtoritet{background-image:linear-gradient(rgba(8,8,8,.10),rgba(8,8,8,.22)),url('./assets/backgrounds/mobile/blatnoi.png');background-position:center center;}
-  #game-container.rank-vor{background-image:linear-gradient(rgba(8,8,8,.08),rgba(8,8,8,.20)),url('./assets/backgrounds/mobile/smotryashiy.png');background-position:center center;}
+  #game-container.rank-avtoritet{
+    background-image:linear-gradient(rgba(8,8,8,.10),rgba(8,8,8,.22)),url('./assets/backgrounds/mobile/blatnoi.png');
+    background-position:center center;
+  }
 }
