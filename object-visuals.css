@@ -25,18 +25,18 @@
   filter:drop-shadow(0 14px 18px rgba(0,0,0,.55));
 }
 
-#tap-object.cellmate-mode,#tap-object.pushups-mode,#tap-object.trainer-mode,#tap-object.authority-mode,#tap-object.breakthrough-mode{
+#tap-object.cellmate-mode,#tap-object.pushups-mode,#tap-object.trainer-mode,#tap-object.authority-mode{
   width:min(400px,96vw);height:min(420px,56vh);min-height:280px;border-radius:0;background:transparent;border:0;box-shadow:none;
   transform:none!important;
   animation:none!important;
   transform-origin:50% 100%;
 }
-#tap-object.cellmate-mode:active,#tap-object.cellmate-mode.punch,#tap-object.pushups-mode:active,#tap-object.pushups-mode.punch,#tap-object.trainer-mode:active,#tap-object.trainer-mode.punch,#tap-object.authority-mode:active,#tap-object.authority-mode.punch,#tap-object.breakthrough-mode:active,#tap-object.breakthrough-mode.punch{transform:none!important;animation:none!important}
+#tap-object.cellmate-mode:active,#tap-object.cellmate-mode.punch,#tap-object.pushups-mode:active,#tap-object.pushups-mode.punch,#tap-object.trainer-mode:active,#tap-object.trainer-mode.punch,#tap-object.authority-mode:active,#tap-object.authority-mode.punch{transform:none!important;animation:none!important}
 #tap-object.cellmate-mode #object-emoji,#tap-object.pushups-mode #object-emoji,#tap-object.trainer-mode #object-emoji{height:315px;flex:0 0 315px}
 #tap-object.cellmate-mode #object-name,#tap-object.cellmate-mode small,#tap-object.pushups-mode #object-name,#tap-object.pushups-mode small,#tap-object.trainer-mode #object-name,#tap-object.trainer-mode small{display:none!important}
 
 /* Hide legacy emoji text completely when a real image object is active. */
-#tap-object.cellmate-mode #object-emoji,#tap-object.pushups-mode #object-emoji,#tap-object.trainer-mode #object-emoji,#tap-object.authority-mode #object-emoji,#tap-object.breakthrough-mode #object-emoji{font-size:0;background:transparent}
+#tap-object.cellmate-mode #object-emoji,#tap-object.pushups-mode #object-emoji,#tap-object.trainer-mode #object-emoji,#tap-object.authority-mode #object-emoji{font-size:0;background:transparent}
 
 /* Disable the legacy punch animation on image objects; their own animation is handled by object-visuals.js. */
 #tap-object.cellmate-mode #object-emoji,#tap-object.pushups-mode #object-emoji,#tap-object.trainer-mode #object-emoji{animation:none!important}
@@ -108,7 +108,7 @@
 }
 
 /* Authority and final-stage objects are screen-driven; never show the legacy tap circle behind them. */
-#tap-object.authority-mode,#tap-object.breakthrough-mode{background:transparent!important;border:0!important;box-shadow:none!important;border-radius:0!important;}
+#tap-object.authority-mode{background:transparent!important;border:0!important;box-shadow:none!important;border-radius:0!important;}
 
 
 /* Animation safety: do not let static frame sizing with !important cancel runtime transforms. */
