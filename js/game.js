@@ -210,7 +210,7 @@ function feedback(e,n,c){
   x.classList.add('show');
 }
 function jailTap(e){if(!s.jailed)return;e&&e.preventDefault&&e.preventDefault();if(s.jailTaps>=s.jailRequired)return;s.jailTaps++;if(s.jailTaps%100===0)reduceSentence(1,'работа в карцере');const t=$('tap-object');if(t){t.classList.remove('punch');void t.offsetWidth;t.classList.add('punch')}if(typeof window.animateObjectVisual==='function')window.animateObjectVisual();feedback(e,1,false);if(s.jailTaps>=s.jailRequired)releaseFromJail();else ui();save()}
-function releaseFromJail(){const confiscated=Math.max(0,Math.floor(s.confiscatedChifir));s.jailed=false;s.confiscatedChifir=0;s.jailTaps=0;s.tasks.jail=(s.tasks.jail||0)+1;s.jailProtection=75;msg('🔓 Карцер пройден! Тебя выпустили. 🍵 Изъято чефира: '+fmt(confiscated));tasksCheck();ui();saveNow()}
+function releaseFromJail(){const confiscated=Math.max(0,Math.floor(s.confiscatedChifir));s.jailed=false;s.confiscatedChifir=0;s.jailTaps=0;s.tasks.jail=(s.tasks.jail||0)+1;s.jailProtection=250;msg('🔓 Карцер пройден! Тебя выпустили. 🍵 Изъято чефира: '+fmt(confiscated));tasksCheck();ui();saveNow()}
 function enterJail(reason){if(s.jailed)return;addSentence(3,'карцер');s.jailed=true;s.jailRequired=500;s.jailTaps=0;const jailRate=.20+Math.random()*.05;s.confiscatedChifir=Math.min(Math.max(0,Math.floor(s.chifir)),Math.floor(Math.max(0,s.chifir)*jailRate));s.chifir=Math.max(0,s.chifir-s.confiscatedChifir);s.jailProtection=0;activeEvent=false;const o=$('modal-overlay');if(o){o.dataset.locked='0';o.classList.add('hidden')}msg('🚨 Ты загремел в карцер из-за своего буйного характера. Надзиратели нашли твой тайник и забрали '+fmt(s.confiscatedChifir)+' 🍵 чефира.');if(reason)msg(reason+' Отсидеть: 500 тапов.');ui();saveNow()}
 function checkAchievements(){let changed=false;Object.entries(ACHIEVEMENTS).forEach(([id,a])=>{if(!s.achievements[id]&&a.check()){s.achievements[id]={unlockedAt:Date.now()};changed=true;msg('🏆 Достижение разблокировано: '+a.title)}});return changed}
 function tasksCheck(){if(!s.tasks)return;const storyChanged=checkStoryProgress();let changed=storyChanged;Object.entries(TASKS).forEach(([id,t])=>{if(!s.completed[id]&&t.get()>=t.target){s.completed[id]={completedAt:Date.now()};const reward=t.reward;if(t.rewardType==='points')s.points+=t.rewardAmount;else s.chifir+=t.rewardAmount;s.tasks.completedCount=(s.tasks.completedCount||0)+1;reduceSentence(1,'выполнено поручение');msg('🎯 Поручение выполнено: '+t.title+' · награда '+reward);changed=true}});if(checkAchievements())changed=true;if(changed){saveNow();ui()}}
@@ -247,7 +247,7 @@ function openEvent(){
     }else{
       const loss=Math.max(3,Math.ceil(Math.max(1,c[3])*1.5));addSentence(c[1]>=.6?2:1,'провал события');
       s.points=Math.max(0,s.points-loss);
-      if(c[1]>0&&s.jailProtection<=0&&Math.random()<.25){
+      if(c[1]>0&&s.jailProtection<=0&&Math.random()<.08){
         finishEvent();
         enterJail('❌ Рискованный ход провалился.');
       }else{
