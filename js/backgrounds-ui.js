@@ -1,13 +1,12 @@
 'use strict';
 (function(){
-  const BG_CLASSES=['rank-salaga','rank-pacan','rank-blatnoi','rank-smotryashiy','rank-avtoritet','rank-vor'];
+  const BG_CLASSES=['rank-salaga','rank-pacan','rank-blatnoi','rank-smotryashiy','rank-avtoritet'];
   const RANK_CLASSES={
     'Салага':'rank-salaga',
     'Пацан':'rank-pacan',
     'Блатной':'rank-blatnoi',
     'Смотрящий':'rank-smotryashiy',
-    'Авторитет':'rank-avtoritet',
-    'Вор в законе':'rank-vor'
+    'Авторитет':'rank-avtoritet'
   };
   function sync(){
     const game=document.getElementById('game-container');
