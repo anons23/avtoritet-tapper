@@ -1,0 +1,15 @@
+#preloader{position:fixed;inset:0;z-index:90000;display:flex;align-items:center;justify-content:center;overflow:hidden;background:#0d0d0d;opacity:1;visibility:visible;transition:opacity .45s ease,visibility .45s ease}
+#preloader.is-hidden{opacity:0;visibility:hidden;pointer-events:none}
+#preloader-bg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center}
+#preloader:after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,.18),rgba(0,0,0,.36) 55%,rgba(0,0,0,.58))}
+#preloader-content{position:relative;z-index:2;width:min(88vw,560px);display:flex;flex-direction:column;align-items:center;text-align:center;padding:24px}
+#preloader-title{margin:0 0 20px;color:#f4e8ce;font-size:clamp(28px,5vw,48px);font-weight:950;letter-spacing:3px;text-shadow:0 3px 18px #000}
+#preloader-handcuffs{width:clamp(100px,17vw,155px);height:auto;filter:drop-shadow(0 12px 18px rgba(0,0,0,.65));transform-origin:50% 5%;animation:preloader-swing 2.2s ease-in-out infinite alternate,preloader-glow 2.8s ease-in-out infinite}
+@keyframes preloader-swing{0%{transform:rotate(-12deg)}100%{transform:rotate(12deg)}}
+@keyframes preloader-glow{0%,100%{opacity:.32;filter:drop-shadow(0 8px 12px rgba(0,0,0,.55))}45%,65%{opacity:1;filter:drop-shadow(0 12px 22px rgba(213,168,74,.5))}}
+#preloader-status{margin-top:22px;color:#f1eee8;font-size:12px;font-weight:800;letter-spacing:2px;text-transform:uppercase;text-shadow:0 2px 8px #000}
+#preloader-track{width:min(76vw,390px);height:8px;margin-top:11px;border:1px solid rgba(255,255,255,.32);border-radius:999px;background:rgba(0,0,0,.45);overflow:hidden;box-shadow:0 4px 18px rgba(0,0,0,.45)}
+#preloader-progress{display:block;width:0;height:100%;border-radius:inherit;background:linear-gradient(90deg,#8d6b27,#d5a84a,#f0d38a);box-shadow:0 0 12px rgba(213,168,74,.35);transition:width .22s ease}
+#preloader-percent{margin-top:9px;color:#fff;font-size:13px;font-weight:900;letter-spacing:1px;text-shadow:0 2px 8px #000}
+@media(max-width:700px){#preloader-title{letter-spacing:2px;margin-bottom:14px}#preloader-handcuffs{width:120px}#preloader-content{padding:18px}#preloader-status{margin-top:18px;font-size:10px}#preloader-track{height:7px;width:min(78vw,340px)}}
+@media(prefers-reduced-motion:reduce){#preloader-handcuffs{animation:none;opacity:1}}

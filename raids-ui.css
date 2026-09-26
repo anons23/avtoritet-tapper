@@ -1,0 +1,288 @@
+/* RAID UI */
+#raid-open-button{position:absolute;right:12px;top:176px;z-index:25;width:68px;height:68px;padding:0;border:0;background:transparent;cursor:pointer;filter:drop-shadow(0 5px 12px rgba(0,0,0,.6))}
+#raid-open-button img{display:block;width:100%;height:100%;object-fit:contain}
+#raid-open-button:active{transform:scale(.94)}
+
+.raid-select{width:min(620px,92vw);max-height:min(760px,88vh);overflow:auto;padding:20px;border-radius:18px;background:linear-gradient(145deg,#252525,#101010);color:#fff;box-shadow:0 20px 70px rgba(0,0,0,.75)}
+.raid-select-head{display:flex;justify-content:space-between;gap:15px;align-items:flex-start;margin-bottom:16px}
+.raid-select-head h2{margin:0 0 5px;font-size:25px}.raid-select-head p{margin:0;color:#aaa;font-size:13px;line-height:1.4}
+.raid-menu-close{width:38px;height:38px;border:1px solid #555;border-radius:10px;background:#181818;color:#fff;font-size:18px;cursor:pointer}
+.raid-fighter-list{display:flex;flex-direction:column;gap:10px}
+.raid-fighter-card{display:flex;align-items:center;gap:14px;width:100%;min-height:105px;padding:10px 14px;border:1px solid #555;border-radius:14px;background:linear-gradient(135deg,#303030,#171717);color:#fff;text-align:left;cursor:pointer;transition:transform .12s,border-color .12s}
+.raid-fighter-card:hover{transform:translateY(-1px);border-color:#b38b45}
+.raid-fighter-card.locked{opacity:.42;filter:grayscale(.9);cursor:not-allowed}
+.raid-card-portrait{width:88px;height:88px;flex:0 0 88px;border:2px solid #777;border-radius:12px;background:#0d0d0d;display:flex;align-items:flex-end;justify-content:center;overflow:hidden;box-shadow:inset 0 0 15px #000}
+.raid-card-portrait img{width:100%;height:100%;object-fit:contain}
+.raid-card-info{display:flex;flex-direction:column;gap:6px;min-width:0}
+.raid-card-name{font-size:19px;letter-spacing:.06em}
+.raid-card-name.petrovich{color:#e7d2a3;font-family:Georgia,serif}.raid-card-name.vtirach{color:#eee;font-family:Impact,sans-serif}.raid-card-name.mafioznik{color:#e35b9d;font-family:cursive}.raid-card-name.mongol{color:#d9a85b;font-family:Trebuchet MS,sans-serif}
+.raid-card-info small{color:#bbb;font-size:12px}
+
+.raid-window{position:relative;width:min(1120px,96vw);height:min(760px,88vh);overflow:hidden;border-radius:18px;padding:0!important;background:#111;box-shadow:0 20px 70px rgba(0,0,0,.7)}
+.raid-scene{position:relative;width:100%;height:100%;overflow:hidden;background:#222 center/cover no-repeat}
+.raid-scene.talk{background-image:url('./assets/raids/backgrounds/petrovich_vtirach_pc.png')}.raid-scene.fight{background-image:url('./assets/raids/backgrounds/mafioznik_mongol_pc.png')}
+.raid-hud{position:absolute;left:16px;right:16px;top:14px;z-index:5;display:flex;justify-content:space-between;gap:12px;pointer-events:none}
+.raid-title,.raid-timer{padding:8px 12px;border-radius:10px;background:rgba(0,0,0,.72);color:#fff;font-weight:800;text-shadow:0 2px 3px #000}.raid-title{font-size:18px}.raid-timer{font-variant-numeric:tabular-nums}
+.raid-fighter{position:absolute;left:50%;bottom:7%;width:min(55%,520px);transform:translateX(-50%);z-index:3;text-align:center;user-select:none}
+.raid-fighter img{display:block;width:100%;height:auto;max-height:65vh;object-fit:contain;filter:drop-shadow(0 12px 16px rgba(0,0,0,.5));transform-origin:50% 90%}
+.raid-name{position:absolute;left:50%;bottom:96%;transform:translateX(-50%);white-space:nowrap;font-weight:1000;font-size:clamp(22px,3vw,42px);letter-spacing:.08em;text-shadow:0 3px 0 #111,0 0 12px rgba(0,0,0,.8);z-index:-1}
+.raid-name.petrovich{color:#e7d2a3;font-family:Georgia,serif}.raid-name.vtirach{color:#eee;font-family:Impact,sans-serif;letter-spacing:.02em}.raid-name.mafioznik{color:#e35b9d;font-family:cursive;letter-spacing:.01em}.raid-name.mongol{color:#d9a85b;font-family:Trebuchet MS,sans-serif}
+.raid-hp{position:absolute;left:50%;bottom:88%;transform:translateX(-50%);width:min(360px,70vw);z-index:4}
+.raid-hp-track{height:12px;background:rgba(0,0,0,.72);border:2px solid rgba(255,255,255,.45);border-radius:20px;overflow:hidden}.raid-hp-fill{height:100%;width:100%;background:#d84b4b;transition:width .16s ease}.raid-hp-text{text-align:center;color:#fff;font-weight:800;font-size:13px;margin-top:4px;text-shadow:0 2px 3px #000}
+.raid-damage{position:absolute;left:50%;top:42%;transform:translate(-50%,-50%);color:#ffd75a;font-weight:1000;font-size:clamp(24px,4vw,48px);text-shadow:0 3px 5px #000;pointer-events:none;z-index:10}.raid-damage.show{animation:raidDamage .55s ease-out forwards}
+@keyframes raidDamage{0%{opacity:0;transform:translate(-50%,-20%) scale(.7)}25%{opacity:1}100%{opacity:0;transform:translate(-50%,-130%) scale(1.15)}}
+
+/* Four deliberately different hit reactions — not the main game's side-to-side shake */
+.raid-fighter.petrovich-hit img{animation:petrovichHit .34s cubic-bezier(.2,.8,.25,1)}
+@keyframes petrovichHit{0%{transform:translate(0,0) scale(1)}22%{transform:translate(-12px,10px) rotate(-2deg) scale(.96,1.04)}48%{transform:translate(20px,-4px) rotate(1deg) scale(1.02,.98)}72%{transform:translate(5px,3px) scale(.99,1.01)}100%{transform:translate(0,0) rotate(0) scale(1)}}
+.raid-fighter.vtirach-hit img{animation:vtirachHit .42s cubic-bezier(.3,.7,.2,1)}.raid-fighter.vtirach-hit .raid-name{animation:vtirachName .42s ease-out}
+@keyframes vtirachHit{0%{transform:rotate(0) scale(1)}15%{transform:rotate(7deg) scale(.98,1.03)}30%{transform:rotate(-8deg) scale(1.02,.97)}45%{transform:rotate(6deg) translateY(-4px)}62%{transform:rotate(-3deg) translateY(3px)}100%{transform:rotate(0) scale(1)}}
+@keyframes vtirachName{0%,100%{transform:translateX(-50%) rotate(0)}25%{transform:translateX(-50%) rotate(6deg) scale(1.05)}50%{transform:translateX(-50%) rotate(-5deg) scale(.96)}}
+.raid-fighter.mafioznik-hit img{animation:mafioznikHit .5s cubic-bezier(.15,.85,.2,1)}
+@keyframes mafioznikHit{0%{transform:translate(0,0) rotate(0) scale(1)}28%{transform:translate(-5px,-18px) rotate(-9deg) scale(1.03)}52%{transform:translate(8px,8px) rotate(5deg) scale(.97,1.02)}75%{transform:translate(2px,-3px) rotate(-2deg)}100%{transform:translate(0,0) rotate(0) scale(1)}}
+.raid-fighter.mongol-hit img{animation:mongolHit .48s cubic-bezier(.12,.8,.25,1)}
+@keyframes mongolHit{0%{transform:translateY(0) scale(1,1)}24%{transform:translateY(18px) scale(1.08,.78)}46%{transform:translateY(-10px) scale(.94,1.12)}68%{transform:translateY(5px) scale(1.03,.96)}100%{transform:translateY(0) scale(1,1)}}
+
+.raid-controls{position:absolute;left:50%;bottom:16px;transform:translateX(-50%);z-index:6;display:flex;gap:8px}.raid-next{padding:9px 14px;border:1px solid rgba(255,255,255,.35);border-radius:10px;background:rgba(0,0,0,.75);color:#fff;font-weight:800;cursor:pointer}
+.raid-note{position:absolute;left:50%;bottom:68px;transform:translateX(-50%);z-index:6;color:#fff;background:rgba(0,0,0,.62);padding:6px 10px;border-radius:8px;font-size:13px;white-space:nowrap}
+.raid-result{position:absolute;inset:0;z-index:20;display:none;place-items:center;background:rgba(0,0,0,.65);color:#fff;text-align:center}.raid-result.show{display:grid}.raid-result-card{padding:28px;border-radius:16px;background:rgba(20,20,20,.95);box-shadow:0 15px 50px rgba(0,0,0,.7)}.raid-result-card h2{margin:0 0 10px}.raid-close{margin-top:16px;padding:10px 18px;border:0;border-radius:10px;cursor:pointer;font-weight:800}
+@media(max-width:700px){
+ #raid-open-button{right:8px;top:96px;width:58px;height:58px}
+ .raid-select{width:92vw;max-height:86vh;padding:14px}.raid-fighter-card{min-height:88px;padding:8px 10px}.raid-card-portrait{width:70px;height:70px;flex-basis:70px}
+ .raid-window{width:100vw;height:100vh;max-width:none;max-height:none;border-radius:0}.raid-scene.talk{background-image:url('./assets/raids/backgrounds/petrovich_vtirach_mobile.png')}.raid-scene.fight{background-image:url('./assets/raids/backgrounds/mafioznik_mongol_mobile.png')}
+ .raid-fighter{width:min(88%,430px);bottom:12%}.raid-fighter img{max-height:58vh}.raid-name{font-size:clamp(20px,7vw,34px)}.raid-hp{bottom:84%;width:76vw}.raid-note{bottom:66px;max-width:88vw;overflow:hidden;text-overflow:ellipsis}
+}
+
+/* Raid battle is a true full-screen desktop layer, not a modal inside a modal. */
+#modal-overlay.raid-fullscreen{
+  align-items:stretch;
+  justify-content:stretch;
+  padding:0;
+  background:rgba(0,0,0,.94);
+  z-index:3000;
+}
+#modal-overlay.raid-fullscreen #modal{
+  width:100%;
+  max-width:none;
+  height:100%;
+  max-height:none;
+  overflow:hidden;
+  padding:0;
+  border:0;
+  border-radius:0;
+  background:#050505;
+}
+#modal-overlay.raid-fullscreen #modal-close{z-index:50;top:12px;right:14px;width:42px;height:42px;border-radius:10px;background:rgba(0,0,0,.72);color:#fff;font-size:24px}
+#modal-overlay.raid-fullscreen #modal-content{width:100%;height:100%}
+#modal-overlay.raid-fullscreen .raid-window{width:100%;height:100%;max-width:none;max-height:none;border-radius:0;box-shadow:none}
+#modal-overlay.raid-fullscreen .raid-scene{min-height:100%}
+
+/* Strongly different physical reactions. None of these is a simple left/right shake. */
+.raid-fighter.petrovich-hit img{animation:petrovichHitStrong .58s cubic-bezier(.16,.8,.22,1)}
+@keyframes petrovichHitStrong{
+  0%{transform:translateY(0) rotate(0) scale(1)}
+  12%{transform:translateY(5px) rotate(-2deg) scale(.98,1.02)}
+  28%{transform:translateY(28px) rotate(-7deg) scale(.90,1.06)}
+  48%{transform:translateY(-7px) rotate(4deg) scale(1.04,.96)}
+  67%{transform:translateY(12px) rotate(-2deg) scale(.97,1.03)}
+  84%{transform:translateY(-3px) rotate(1deg) scale(1.01,.99)}
+  100%{transform:translateY(0) rotate(0) scale(1)}
+}
+.raid-fighter.vtirach-hit img{animation:vtirachHitStrong .62s cubic-bezier(.15,.75,.2,1)}
+@keyframes vtirachHitStrong{
+  0%{transform:translateY(0) rotate(0) skewX(0) scale(1)}
+  16%{transform:translateY(-8px) rotate(3deg) skewX(-3deg) scale(1.03,.97)}
+  32%{transform:translateY(15px) rotate(-5deg) skewX(5deg) scale(.95,1.05)}
+  50%{transform:translateY(-4px) rotate(7deg) skewX(-2deg) scale(1.04,.96)}
+  68%{transform:translateY(8px) rotate(-4deg) skewX(2deg) scale(.98,1.02)}
+  84%{transform:translateY(-2px) rotate(2deg) scale(1.01,.99)}
+  100%{transform:translateY(0) rotate(0) skewX(0) scale(1)}
+}
+.raid-fighter.mafioznik-hit img{animation:mafioznikHitStrong .68s cubic-bezier(.12,.82,.2,1)}
+@keyframes mafioznikHitStrong{
+  0%{transform:translateY(0) rotate(0) scale(1)}
+  18%{transform:translateY(-18px) rotate(-10deg) scale(1.05,.95)}
+  38%{transform:translateY(22px) rotate(8deg) scale(.92,1.08)}
+  56%{transform:translateY(-9px) rotate(-6deg) scale(1.06,.94)}
+  74%{transform:translateY(7px) rotate(4deg) scale(.97,1.03)}
+  100%{transform:translateY(0) rotate(0) scale(1)}
+}
+.raid-fighter.mongol-hit img{animation:mongolHitStrong .64s cubic-bezier(.12,.88,.2,1)}
+@keyframes mongolHitStrong{
+  0%{transform:translateY(0) scale(1)}
+  16%{transform:translateY(26px) scale(1.12,.72)}
+  32%{transform:translateY(-24px) scale(.90,1.16)}
+  48%{transform:translateY(10px) scale(1.08,.88)}
+  66%{transform:translateY(-8px) scale(.96,1.06)}
+  82%{transform:translateY(3px) scale(1.02,.98)}
+  100%{transform:translateY(0) scale(1)}
+}
+
+/* Hit impact: each fighter gets a different visual accent. */
+.raid-fighter.petrovich-hit::after,
+.raid-fighter.vtirach-hit::after,
+.raid-fighter.mafioznik-hit::after,
+.raid-fighter.mongol-hit::after{
+  content:"";
+  position:absolute;
+  left:50%;
+  top:48%;
+  width:22px;
+  height:22px;
+  border-radius:50%;
+  pointer-events:none;
+  z-index:12;
+  animation:raidImpact .36s ease-out forwards;
+}
+.raid-fighter.petrovich-hit::after{border:4px solid rgba(255,215,90,.9);box-shadow:0 0 0 0 rgba(255,215,90,.55)}
+.raid-fighter.vtirach-hit::after{border:3px dashed rgba(255,255,255,.9);border-radius:35%;transform:rotate(20deg)}
+.raid-fighter.mafioznik-hit::after{border:4px solid rgba(227,91,157,.9);transform:rotate(45deg)}
+.raid-fighter.mongol-hit::after{border:5px solid rgba(217,168,91,.9);border-radius:8px}
+@keyframes raidImpact{
+  0%{opacity:0;transform:translate(-50%,-50%) scale(.35)}
+  25%{opacity:1}
+  100%{opacity:0;transform:translate(-50%,-50%) scale(3.2)}
+}
+
+@media(max-width:700px){
+  #raid-open-button{right:8px;top:96px}
+  #modal-overlay.raid-fullscreen #modal-close{top:8px;right:8px}
+  #modal-overlay.raid-fullscreen .raid-window{width:100vw;height:100vh}
+}
+
+/* Keep only the resource bar from the main game visible above a raid battle. */
+#game-container:has(#modal-overlay.raid-fullscreen) #top-bar{
+  position:relative;
+  z-index:3105;
+}
+#modal-overlay.raid-fullscreen{
+  z-index:3000;
+  top:0;
+  left:0;
+  right:0;
+  bottom:0;
+}
+#modal-overlay.raid-fullscreen #modal-close{
+  display:none!important;
+}
+/* Everything below the resource bar is visually covered by the raid scene. */
+#modal-overlay.raid-fullscreen .raid-scene{
+  height:100%;
+  min-height:100%;
+}
+@media(max-width:700px){
+  #game-container:has(#modal-overlay.raid-fullscreen) #top-bar{
+    position:relative;
+    z-index:3105;
+  }
+  #modal-overlay.raid-fullscreen #modal-close{
+    display:none!important;
+  }
+}
+
+/* Fighter selection is the raid screen itself, not a modal floating over another modal. */
+#modal-overlay.raid-selection-fullscreen{
+  align-items:stretch;
+  justify-content:stretch;
+  padding:0;
+  background:#080808;
+  z-index:3000;
+}
+#modal-overlay.raid-selection-fullscreen #modal{
+  width:100%;
+  max-width:none;
+  height:100%;
+  max-height:none;
+  overflow:hidden;
+  padding:0;
+  border:0;
+  border-radius:0;
+  background:#080808;
+}
+#modal-overlay.raid-selection-fullscreen #modal-close{display:none!important}
+#modal-overlay.raid-selection-fullscreen #modal-content{width:100%;height:100%;overflow:auto}
+#modal-overlay.raid-selection-fullscreen .raid-select-screen{
+  min-height:100%;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:24px 16px;
+  box-sizing:border-box;
+  background:
+    radial-gradient(circle at 50% 0%,rgba(120,90,40,.12),transparent 45%),
+    #080808;
+}
+#modal-overlay.raid-selection-fullscreen .raid-select{
+  width:min(760px,94vw);
+  max-height:none;
+  overflow:visible;
+  background:linear-gradient(145deg,#252525,#101010);
+}
+#modal-overlay.raid-selection-fullscreen #game-container:has(&){position:relative}
+#game-container:has(#modal-overlay.raid-selection-fullscreen) #top-bar{
+  position:relative;
+  z-index:3105;
+}
+@media(max-width:700px){
+  #modal-overlay.raid-selection-fullscreen .raid-select-screen{
+    align-items:flex-start;
+    padding:14px 10px 80px;
+  }
+  #modal-overlay.raid-selection-fullscreen .raid-select{
+    width:96vw;
+  }
+}
+
+/* Fighter speech bubbles: chaotic positions around the head, clearly attached to the fighter. */
+.raid-shout{
+  position:absolute;
+  left:50%;
+  top:5%;
+  width:max-content;
+  max-width:min(300px,42vw);
+  padding:8px 12px;
+  border:2px solid rgba(255,255,255,.85);
+  border-radius:14px;
+  background:rgba(8,8,8,.92);
+  color:#fff;
+  font-weight:1000;
+  font-size:clamp(14px,1.65vw,22px);
+  line-height:1.08;
+  text-align:center;
+  text-shadow:0 2px 3px #000;
+  box-shadow:0 5px 18px rgba(0,0,0,.55);
+  opacity:0;
+  pointer-events:none;
+  z-index:30;
+  transform:translate(-50%,10px) rotate(-2deg) scale(.86);
+}
+.raid-shout::after{
+  content:"";
+  position:absolute;
+  bottom:-12px;
+  left:28%;
+  width:16px;height:16px;
+  background:rgba(8,8,8,.92);
+  border-right:2px solid rgba(255,255,255,.85);
+  border-bottom:2px solid rgba(255,255,255,.85);
+  transform:rotate(45deg);
+}
+.raid-shout.show{animation:raidShoutIn 1.25s ease-out forwards}
+.raid-shout.petrovich{left:24%;top:2%;transform:translate(-50%,8px) rotate(-5deg) scale(.86);border-color:#e7d2a3}
+.raid-shout.vtirach{left:76%;top:7%;transform:translate(-50%,8px) rotate(4deg) scale(.86);border-color:#fff}
+.raid-shout.mafioznik{left:25%;top:0%;transform:translate(-50%,8px) rotate(-4deg) scale(.86);border-color:#e35b9d}
+.raid-shout.mongol{left:74%;top:4%;transform:translate(-50%,8px) rotate(5deg) scale(.86);border-color:#d9a85b}
+@keyframes raidShoutIn{
+  0%{opacity:0;transform:translate(-50%,14px) rotate(-3deg) scale(.82)}
+  12%{opacity:1}
+  25%{transform:translate(-50%,-4px) rotate(3deg) scale(1.04)}
+  60%{opacity:1;transform:translate(-50%,0) rotate(-1deg) scale(1)}
+  100%{opacity:0;transform:translate(-50%,-10px) rotate(2deg) scale(.96)}
+}
+@media(max-width:700px){
+  .raid-shout{max-width:54vw;font-size:clamp(13px,3.5vw,19px);padding:7px 9px}
+  .raid-shout.petrovich{left:18%;top:1%}
+  .raid-shout.vtirach{left:82%;top:4%}
+  .raid-shout.mafioznik{left:17%;top:0}
+  .raid-shout.mongol{left:83%;top:2%}
+}

@@ -1,0 +1,22 @@
+/* Slightly smaller image tap objects on the main tap screen. */
+#tap-object.bag-mode,#tap-object.cellmate-mode,#tap-object.pushups-mode,#tap-object.trainer-mode{width:min(360px,90vw)!important;height:min(378px,52vh)!important;min-height:252px!important}
+#tap-object.bag-mode #object-emoji,#tap-object.cellmate-mode #object-emoji,#tap-object.pushups-mode #object-emoji,#tap-object.trainer-mode #object-emoji{height:284px!important;flex-basis:284px!important}
+.boxing-bag-image,.cellmate-image,.pushups-image,.trainer-image{width:min(540px,88vw)!important;height:min(540px,68vh)!important}
+@media(min-width:701px){#tap-object.bag-mode,#tap-object.cellmate-mode,#tap-object.pushups-mode,#tap-object.trainer-mode{width:504px!important;height:min(585px,61vh)!important;min-height:378px!important}#tap-object.bag-mode #object-emoji,#tap-object.cellmate-mode #object-emoji,#tap-object.pushups-mode #object-emoji,#tap-object.trainer-mode #object-emoji{height:450px!important;flex-basis:450px!important}.boxing-bag-image,.cellmate-image,.pushups-image,.trainer-image{width:min(720px,52vw)!important;height:min(720px,63vh)!important}}
+@media(max-height:650px){#tap-object.bag-mode,#tap-object.cellmate-mode,#tap-object.pushups-mode,#tap-object.trainer-mode{width:min(324px,90vw)!important;height:279px!important;min-height:225px!important}#tap-object.bag-mode #object-emoji,#tap-object.cellmate-mode #object-emoji,#tap-object.pushups-mode #object-emoji,#tap-object.trainer-mode #object-emoji{height:216px!important;flex-basis:216px!important}.boxing-bag-image,.cellmate-image,.pushups-image,.trainer-image{width:min(423px,88vw)!important;height:279px!important}}
+
+/* Cellmate must not overflow the tap area on phones */
+#tap-object.cellmate-mode{overflow:visible}
+#tap-object.cellmate-mode .cellmate-image{
+  width:min(480px,86vw)!important;
+  height:min(480px,62vh)!important;
+  transform:scale(2.04);
+  transform-origin:50% 55%;
+}
+@media(max-width:420px){
+  #tap-object.cellmate-mode .cellmate-image{
+    width:min(380px,90vw)!important;
+    height:min(380px,55vh)!important;
+    transform:scale(1.89);
+  }
+}
