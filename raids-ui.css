@@ -179,3 +179,110 @@
     display:none!important;
   }
 }
+
+/* Fighter selection is the raid screen itself, not a modal floating over another modal. */
+#modal-overlay.raid-selection-fullscreen{
+  align-items:stretch;
+  justify-content:stretch;
+  padding:0;
+  background:#080808;
+  z-index:3000;
+}
+#modal-overlay.raid-selection-fullscreen #modal{
+  width:100%;
+  max-width:none;
+  height:100%;
+  max-height:none;
+  overflow:hidden;
+  padding:0;
+  border:0;
+  border-radius:0;
+  background:#080808;
+}
+#modal-overlay.raid-selection-fullscreen #modal-close{display:none!important}
+#modal-overlay.raid-selection-fullscreen #modal-content{width:100%;height:100%;overflow:auto}
+#modal-overlay.raid-selection-fullscreen .raid-select-screen{
+  min-height:100%;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:24px 16px;
+  box-sizing:border-box;
+  background:
+    radial-gradient(circle at 50% 0%,rgba(120,90,40,.12),transparent 45%),
+    #080808;
+}
+#modal-overlay.raid-selection-fullscreen .raid-select{
+  width:min(760px,94vw);
+  max-height:none;
+  overflow:visible;
+  background:linear-gradient(145deg,#252525,#101010);
+}
+#modal-overlay.raid-selection-fullscreen #game-container:has(&){position:relative}
+#game-container:has(#modal-overlay.raid-selection-fullscreen) #top-bar{
+  position:relative;
+  z-index:3105;
+}
+@media(max-width:700px){
+  #modal-overlay.raid-selection-fullscreen .raid-select-screen{
+    align-items:flex-start;
+    padding:14px 10px 80px;
+  }
+  #modal-overlay.raid-selection-fullscreen .raid-select{
+    width:96vw;
+  }
+}
+
+/* Fighter speech bubbles: chaotic positions around the head, clearly attached to the fighter. */
+.raid-shout{
+  position:absolute;
+  left:50%;
+  top:5%;
+  width:max-content;
+  max-width:min(300px,42vw);
+  padding:8px 12px;
+  border:2px solid rgba(255,255,255,.85);
+  border-radius:14px;
+  background:rgba(8,8,8,.92);
+  color:#fff;
+  font-weight:1000;
+  font-size:clamp(14px,1.65vw,22px);
+  line-height:1.08;
+  text-align:center;
+  text-shadow:0 2px 3px #000;
+  box-shadow:0 5px 18px rgba(0,0,0,.55);
+  opacity:0;
+  pointer-events:none;
+  z-index:30;
+  transform:translate(-50%,10px) rotate(-2deg) scale(.86);
+}
+.raid-shout::after{
+  content:"";
+  position:absolute;
+  bottom:-12px;
+  left:28%;
+  width:16px;height:16px;
+  background:rgba(8,8,8,.92);
+  border-right:2px solid rgba(255,255,255,.85);
+  border-bottom:2px solid rgba(255,255,255,.85);
+  transform:rotate(45deg);
+}
+.raid-shout.show{animation:raidShoutIn 1.25s ease-out forwards}
+.raid-shout.petrovich{left:24%;top:2%;transform:translate(-50%,8px) rotate(-5deg) scale(.86);border-color:#e7d2a3}
+.raid-shout.vtirach{left:76%;top:7%;transform:translate(-50%,8px) rotate(4deg) scale(.86);border-color:#fff}
+.raid-shout.mafioznik{left:25%;top:0%;transform:translate(-50%,8px) rotate(-4deg) scale(.86);border-color:#e35b9d}
+.raid-shout.mongol{left:74%;top:4%;transform:translate(-50%,8px) rotate(5deg) scale(.86);border-color:#d9a85b}
+@keyframes raidShoutIn{
+  0%{opacity:0;transform:translate(-50%,14px) rotate(-3deg) scale(.82)}
+  12%{opacity:1}
+  25%{transform:translate(-50%,-4px) rotate(3deg) scale(1.04)}
+  60%{opacity:1;transform:translate(-50%,0) rotate(-1deg) scale(1)}
+  100%{opacity:0;transform:translate(-50%,-10px) rotate(2deg) scale(.96)}
+}
+@media(max-width:700px){
+  .raid-shout{max-width:54vw;font-size:clamp(13px,3.5vw,19px);padding:7px 9px}
+  .raid-shout.petrovich{left:18%;top:1%}
+  .raid-shout.vtirach{left:82%;top:4%}
+  .raid-shout.mafioznik{left:17%;top:0}
+  .raid-shout.mongol{left:83%;top:2%}
+}
