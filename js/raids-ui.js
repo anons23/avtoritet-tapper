@@ -68,6 +68,7 @@
   function renderBattle(){
     const f=fighter(),p=pFor(f),pct=Math.max(0,p.hp/f.hp*100);
     window.openModal?.('<div class="raid-window"><div id="raid-scene" class="raid-scene '+f.scene+'"></div></div>');
+    $('modal-overlay')?.classList.add('raid-fullscreen');
     const root=$('raid-scene');if(!root)return;
     root.innerHTML=
       '<div class="raid-hud"><div class="raid-title">⚔️ РЕЙД · '+f.name+'</div><div id="raid-timer" class="raid-timer">'+formatTime(remaining(f))+'</div></div>'+
@@ -78,7 +79,7 @@
       '<div id="raid-note" class="raid-note">⚡ Тапай по бойцу · расходуется энергия</div>'+
       '<div class="raid-controls"><button type="button" id="raid-back" class="raid-next">← К бойцам</button></div>'+
       '<div id="raid-result" class="raid-result"><div class="raid-result-card"><h2 id="raid-result-title"></h2><div id="raid-result-text"></div><button type="button" id="raid-close" class="raid-close">Закрыть</button></div></div>';
-    $('raid-back').addEventListener('click',openRaidMenu);
+    $('raid-back').addEventListener('click',()=>{ $('modal-overlay')?.classList.remove('raid-fullscreen'); openRaidMenu(); });
     $('raid-close').addEventListener('click',()=>window.closeModal?.());
     $('raid-fighter').addEventListener('pointerdown',onTap,{passive:false});
     updateTimer();
