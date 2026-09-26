@@ -119,7 +119,7 @@
     ]
   };
   function showFighterShout(id){
-    if(Math.random()>0.20)return;
+    if(Math.random()>0.08)return;
     const root=$('raid-fighter');if(!root)return;
     const list=FIGHTER_SHOUTS[id]||[];if(!list.length)return;
     let b=root.querySelector('.raid-shout');
