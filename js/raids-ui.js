@@ -11,6 +11,7 @@
   const $=id=>document.getElementById(id);
   const state=()=>window.getGameState?.();
   function fighter(){return RAID_FIGHTERS[raid.fighter]||RAID_FIGHTERS[0]}
+  function unlockedIndexes(){const s=state();const points=Number(s?.points)||0;return RAID_FIGHTERS.map((f,i)=>({f,i})).filter(x=>points>=x.f.rank*500).map(x=>x.i)}
   function ensureRaidButton(){
     if($('raid-open-button'))return;
     const b=document.createElement('button');
@@ -34,12 +35,13 @@
       '<div class="raid-note">Тапай по бойцу · урон = текущая сила</div>'+
       '<div class="raid-controls"><button type="button" id="raid-next" class="raid-next">Следующий</button></div>'+
       '<div id="raid-result" class="raid-result"><div class="raid-result-card"><h2 id="raid-result-title"></h2><div id="raid-result-text"></div><button type="button" id="raid-close" class="raid-close">Закрыть</button></div></div>';
-    $('raid-next').addEventListener('click',()=>{raid.fighter=(raid.fighter+1)%RAID_FIGHTERS.length;startFighter()});
+    $('raid-next').addEventListener('click',()=>{const ids=unlockedIndexes();const pos=ids.indexOf(raid.fighter);raid.fighter=ids[(pos+1)%ids.length];startFighter()});
     $('raid-close').addEventListener('click',()=>{raid.active=false;window.closeModal?.()});
     $('raid-fighter').addEventListener('pointerdown',onTap,{passive:false});
     updateTimer();
   }
   function startFighter(){
+    const ids=unlockedIndexes();if(!ids.includes(raid.fighter))raid.fighter=ids[0]??0;
     const f=fighter();raid.hp=f.hp;raid.startedAt=Date.now();raid.extensionUsed=false;raid.active=true;render();
   }
   function onTap(e){
@@ -77,16 +79,20 @@
     const rr=$('raid-result'),rt=$('raid-result-title'),rx=$('raid-result-text');
     if(!rr)return;
     if(rt)rt.textContent='⏱️ Время рейда вышло';
-    if(rx)rx.innerHTML='Прогресс сохранён на текущего бойца. Можно продолжить рейд, продлив его за просмотр рекламы.';
+    if(rx)rx.innerHTML='Текущий прогресс бойца сохранён в этом рейде. Продление на 15 минут доступно за просмотр рекламы.';
     rr.classList.add('show');
     const card=rr.querySelector('.raid-result-card');
     if(card&&!$('raid-extend')){const b=document.createElement('button');b.id='raid-extend';b.className='raid-close';b.textContent='Продлить на 15 минут';b.addEventListener('click',extendRaid);card.insertBefore(b,$('raid-close'))}
   }
   function extendRaid(){
     if(raid.extensionUsed)return;
-    raid.extensionUsed=true;raid.startedAt=Date.now();raid.active=true;
-    const rr=$('raid-result');if(rr)rr.classList.remove('show');
-    updateTimer();
+    if(typeof window.showRewardedAd!=='function'){showRaidNote('Реклама пока недоступна');return}
+    window.showRewardedAd(ok=>{
+      if(!ok){showRaidNote('Награда за рекламу не получена');return}
+      raid.extensionUsed=true;raid.startedAt=Date.now();raid.active=true;
+      const rr=$('raid-result');if(rr)rr.classList.remove('show');
+      updateTimer();
+    });
   }
   function openRaid(){
     if(window.openModal){
