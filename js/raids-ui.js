@@ -50,7 +50,9 @@
   }
   function openRaidMenu(){
     if(!window.openModal)return;
-    window.openModal('<div class="raid-select"><div class="raid-select-head"><div><h2>⚔️ РЕЙД</h2><p>Выбери противника. У каждого бойца свой бой и свой прогресс.</p></div><button type="button" id="raid-menu-close" class="raid-menu-close">✕</button></div><div class="raid-fighter-list">'+RAID_FIGHTERS.map(menuCard).join('')+'</div></div>');
+    $('modal-overlay')?.classList.remove('raid-fullscreen');
+    window.openModal('<div class="raid-select-screen"><div class="raid-select"><div class="raid-select-head"><div><h2>⚔️ РЕЙД</h2><p>Выбери противника. У каждого бойца свой бой и свой прогресс.</p></div><button type="button" id="raid-menu-close" class="raid-menu-close">✕</button></div><div class="raid-fighter-list">'+RAID_FIGHTERS.map(menuCard).join('')+'</div></div></div>');
+    $('modal-overlay')?.classList.add('raid-selection-fullscreen');
     $('raid-menu-close')?.addEventListener('click',()=>window.closeModal?.());
     document.querySelectorAll('[data-raid-fighter]').forEach(b=>b.addEventListener('click',()=>openBattle(b.dataset.raidFighter)));
   }
@@ -99,11 +101,33 @@
     if(fill)fill.style.width=(p.hp/f.hp*100)+'%';
     if(txt)txt.textContent=p.hp+' / '+f.hp;
     save();
-    if(f.id==='vtirach'&&Math.random()<.08)showRaidNote('Ты втираешь мне какую-то дичь!');
-    else if(f.id==='mongol'&&Math.random()<.07)showRaidNote('Роднулькины мои');
-    else if(f.id==='petrovich'&&Math.random()<.05)showRaidNote('Котлетки потом...');
-    else if(f.id==='mafioznik'&&Math.random()<.05)showRaidNote('Ну всё, братва...');
+    showFighterShout(f.id);
     if(p.hp<=0)win();
+  }
+  const FIGHTER_SHOUTS={
+    petrovich:[
+      'Котлетки потом!','Ща, брат, договорим!','Ты чего творишь?!','Давай без кипиша!','Я вообще-то занят!','Котлетки остывают!','Ну ты даёшь!','Погоди, братан!','Эй, полегче!','Не мешай котлетки делать!','Всё, хватит!','Я сейчас отвечу!'
+    ],
+    vtirach:[
+      'Ты втираешь мне какую-то дичь!','Ты это серьёзно сейчас?!','Что ты мне рассказываешь?','Не гони пургу!','Ты меня за кого держишь?!','Какая ещё дичь?!','Слышь, объясни нормально!','Вот это поворот!','Ты вообще о чём?!','Не втирай мне тут!','Я всё слышал!','Ну и что это было?!'
+    ],
+    mafioznik:[
+      'Ну всё, братва!','Спокойно, пацаны!','Ты нарываешься!','Разговор короткий!','Эй, полегче!','Так не пойдёт!','Давай по-хорошему!','Брат, остановись!','Ты чего начинаешь?!','Ща разберёмся!','Без лишних движений!','Всё, разговор окончен!'
+    ],
+    mongol:[
+      'Роднулькины мои!','Ой, всё!','Ну здравствуй!','Ты чё, родной?!','Ай, больно же!','Спокойно, спокойно!','Давай без этого!','Ну ты даёшь!','Эх, братцы!','Не трогай меня!','Вот это ты разошёлся!','Ладно, договорились!'
+    ]
+  };
+  function showFighterShout(id){
+    if(Math.random()>0.20)return;
+    const root=$('raid-fighter');if(!root)return;
+    const list=FIGHTER_SHOUTS[id]||[];if(!list.length)return;
+    let b=root.querySelector('.raid-shout');
+    if(!b){b=document.createElement('div');b.className='raid-shout';root.appendChild(b)}
+    b.className='raid-shout '+id;
+    b.textContent=list[Math.floor(Math.random()*list.length)];
+    b.classList.remove('show');void b.offsetWidth;b.classList.add('show');
+    clearTimeout(b._t);b._t=setTimeout(()=>b.classList.remove('show'),1250);
   }
   function showRaidNote(t){const n=$('raid-note');if(n){n.textContent=t;clearTimeout(n._t);n._t=setTimeout(()=>n.textContent='⚡ Тапай по бойцу · расходуется энергия',1400)}}
   function win(){
