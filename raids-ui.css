@@ -392,3 +392,12 @@
   .raid-note{bottom:50px;font-size:9px}
   .raid-controls{bottom:7px}
 }
+
+
+/* MOBILE RAID BUTTON: place it below the rank-goal panel instead of over it. */
+@media (max-width:700px) and (orientation:portrait){
+  #raid-open-button{top:158px!important;right:8px!important;width:58px!important;height:58px!important}
+}
+@media (max-width:700px) and (orientation:landscape){
+  #raid-open-button{top:72px!important;right:8px!important;width:52px!important;height:52px!important}
+}
