@@ -1,6 +1,7 @@
 /* RAID SYSTEM — selection screen, persistent fighter progress, energy and unique reactions */
 'use strict';
 (()=>{
+  const RAID_RANK_REQUIREMENTS=[0,1500];
   const RAID_FIGHTERS=[
     {id:'petrovich',name:'ПЕТРОВИЧ',rank:0,hp:1500,first:{chifir:2000,points:150},repeat:{chifir:500,points:40},scene:'talk'},
     {id:'vtirach',name:'ВТИРАЧ',rank:0,hp:2000,first:{chifir:2500,points:200},repeat:{chifir:625,points:50},scene:'talk'},
@@ -18,7 +19,7 @@
     if(!g.raidProgress||typeof g.raidProgress!=='object')g.raidProgress={};
     return g.raidProgress;
   }
-  function unlocked(f){return (Number(s()?.points)||0)>=f.rank*500}
+  function unlocked(f){return (Number(s()?.points)||0)>=Number(RAID_RANK_REQUIREMENTS[f.rank]??0)}
   function pFor(f){
     const p=progress();
     if(!p[f.id])p[f.id]={hp:f.hp,startedAt:0,extensionUsed:false,wins:0};
