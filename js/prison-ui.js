@@ -3,7 +3,7 @@
   const $=id=>document.getElementById(id);
   const SAVE_KEY='avtoritet_save_v2';
   const THRESHOLDS=[60,180,320];
-  const RANK_POINTS=[0,500,2500,10000,40000];
+  const RANK_POINTS=[0,1500,2500,10000,50000];
   const RANK_NAMES=['Салага','Пацан','Блатной','Смотрящий','Авторитет'];
   const RANK_MULTIPLIERS=[1,1.5,2.5,4,7];
   let busy=false;
