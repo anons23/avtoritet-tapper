@@ -10,7 +10,7 @@
   ];
   /* Idle loop video + hit stills on tap */
   const FIGHTER_IDLE_VIDEO={
-    mafioznik:'./assets/raids/fighters/mafioznik_idle.mp4'
+    mafioznik:'./assets/raids/fighters/mafioznik_idle.webm'
   };
   const FIGHTER_HIT_FRAMES={
     mafioznik:[
