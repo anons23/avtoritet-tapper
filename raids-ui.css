@@ -412,7 +412,8 @@
   /* Fighter is sized by height first so tall transparent PNGs cannot grow endlessly. */
   #modal-overlay.raid-fullscreen .raid-fighter{
     left:50%;
-    bottom:12%;
+    /* Reserve a dedicated bottom rail for the hint and back button. */
+    bottom:18%;
     width:min(92vw,430px);
     max-width:92vw;
     transform:translateX(-50%);
@@ -466,7 +467,7 @@
 
   #modal-overlay.raid-fullscreen .raid-note{
     left:50%;
-    bottom:calc(58px + env(safe-area-inset-bottom, 0px));
+    bottom:calc(72px + env(safe-area-inset-bottom, 0px));
     max-width:88vw;
     padding:5px 8px;
     font-size:10px;
@@ -615,7 +616,8 @@
   }
 
   #modal-overlay.raid-fullscreen .raid-fighter{
-    bottom:8%;
+    /* Keep the fighter above the dedicated bottom control rail. */
+    bottom:14%;
     width:min(48vw,360px);
     max-width:360px;
   }
@@ -641,7 +643,7 @@
   }
 
   #modal-overlay.raid-fullscreen .raid-note{
-    bottom:calc(50px + env(safe-area-inset-bottom, 0px));
+    bottom:calc(60px + env(safe-area-inset-bottom, 0px));
     font-size:9px;
   }
 
