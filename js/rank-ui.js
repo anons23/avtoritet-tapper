@@ -1,6 +1,6 @@
 'use strict';
 (function(){
-  const THRESHOLDS=[0,1500,2500,10000,50000];
+  const THRESHOLDS=[0,1500,5000,15000,50000];
   const NAMES=['Салага','Пацан','Блатной','Смотрящий','Авторитет'];
   const DESCS=['Новенький. Пока только осваиваешься и смотришь, как тут всё устроено.','Освоился. Уже знаешь местные порядки и можешь постоять за себя.','Есть слово и вес. К тебе начинают прислушиваться.','Следишь за порядком и решаешь вопросы на своём уровне.','Большая шишка. Твои решения уже влияют на общак и расклад.'];
   function points(){const text=String(document.getElementById('points')?.textContent||'0').trim().replace(/\s/g,'');const n=parseFloat(text.replace(/[^0-9.,KM]/gi,'').replace(',','.'))||0;if(/M$/i.test(text))return n*1000000;if(/K$/i.test(text))return n*1000;return n;}
