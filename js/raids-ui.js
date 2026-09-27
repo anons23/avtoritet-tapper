@@ -171,7 +171,29 @@
     if(rx)rx.innerHTML='HP и прогресс сохранены. Можно продлить этот бой на 15 минут за просмотр рекламы.';
     rr.classList.add('show');
     const card=rr.querySelector('.raid-result-card');
-    if(card&&!$('raid-extend')){const b=document.createElement('button');b.id='raid-extend';b.className='raid-close';b.textContent='Продлить на 15 минут';b.addEventListener('click',extendRaid);card.insertBefore(b,$('raid-close'))}
+    if(card&&!$('raid-restart')){
+      const b=document.createElement('button');
+      b.id='raid-restart';b.className='raid-close';b.textContent='Начать заново';
+      b.addEventListener('click',restartRaid);
+      card.insertBefore(b,$('raid-close'));
+    }
+    if(card&&!$('raid-extend')){
+      const b=document.createElement('button');
+      b.id='raid-extend';b.className='raid-close';b.textContent='Продлить на 15 минут';
+      b.addEventListener('click',extendRaid);
+      card.insertBefore(b,$('raid-close'));
+    }
+  }
+  function restartRaid(){
+    const f=fighter(),p=pFor(f);
+    if(p.hp>0 && remaining(f)>0)return;
+    p.hp=f.hp;
+    p.startedAt=Date.now();
+    p.extensionUsed=false;
+    raidTimeoutShown=false;
+    save();
+    $('raid-result')?.classList.remove('show');
+    renderBattle();
   }
   function extendRaid(){
     const f=fighter(),p=pFor(f);if(p.extensionUsed)return;
