@@ -233,6 +233,14 @@
   }
 }
 
+/* Talk-scene fighters need to read larger against the wide table background. */
+.raid-fighter.petrovich,
+.raid-fighter.vtirach{width:min(68%,640px)}
+@media(max-width:700px){
+  .raid-fighter.petrovich,
+  .raid-fighter.vtirach{width:min(100%,500px)}
+}
+
 /* Fighter speech bubbles: chaotic positions around the head, clearly attached to the fighter. */
 .raid-shout{
   position:absolute;
