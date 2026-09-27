@@ -690,3 +690,71 @@
     height:52px!important;
   }
 }
+
+
+/* FINAL MOBILE RAID FRAME — fill the real phone viewport, not the 520px game shell. */
+@media (max-width:700px){
+  #modal-overlay.raid-fullscreen{
+    position:fixed!important;
+    top:0!important;
+    right:auto!important;
+    bottom:auto!important;
+    left:50%!important;
+    width:100vw!important;
+    height:100dvh!important;
+    min-width:100vw!important;
+    max-width:none!important;
+    min-height:100dvh!important;
+    max-height:none!important;
+    margin:0!important;
+    padding:0!important;
+    transform:translateX(-50%)!important;
+    overflow:hidden!important;
+  }
+
+  #modal-overlay.raid-fullscreen #modal,
+  #modal-overlay.raid-fullscreen #modal-content,
+  #modal-overlay.raid-fullscreen .raid-window,
+  #modal-overlay.raid-fullscreen .raid-scene{
+    width:100vw!important;
+    min-width:100vw!important;
+    max-width:none!important;
+  }
+
+  #modal-overlay.raid-fullscreen #modal{
+    height:100dvh!important;
+    min-height:100dvh!important;
+    max-height:none!important;
+  }
+
+  #modal-overlay.raid-fullscreen #modal-content,
+  #modal-overlay.raid-fullscreen .raid-window,
+  #modal-overlay.raid-fullscreen .raid-scene{
+    height:100dvh!important;
+    min-height:100dvh!important;
+    max-height:none!important;
+  }
+
+  /* Cover the viewport edge-to-edge; a small zoom also removes any baked-in
+     edge slivers from the source background artwork. */
+  #modal-overlay.raid-fullscreen .raid-scene{
+    background-size:cover!important;
+    background-position:center center!important;
+  }
+
+  /* Petrovich's source PNG has much more transparent canvas around the body
+     than the other fighters. Enlarge only his image; Mongol/Mafioznik stay
+     at the already-correct scale. */
+  #modal-overlay.raid-fullscreen .raid-fighter.petrovich img{
+    position:absolute;
+    left:50%;
+    bottom:0;
+    width:142%;
+    height:142%;
+    max-width:none;
+    max-height:none;
+    margin-left:-71%;
+    object-fit:contain;
+    object-position:center bottom;
+  }
+}
