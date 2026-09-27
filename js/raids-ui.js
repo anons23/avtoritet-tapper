@@ -8,16 +8,24 @@
     {id:'mafioznik',name:'МАФИОЗНИК',rank:1,hp:3000,first:{chifir:4000,points:300},repeat:{chifir:1000,points:75},scene:'fight'},
     {id:'mongol',name:'МОНГОЛ',rank:1,hp:4000,first:{chifir:5500,points:400},repeat:{chifir:1375,points:100},scene:'fight'}
   ];
-  /* Hit reaction stills: random pose on each tap (no video seek). */
+  /* Idle loop video + hit stills on tap */
+  const FIGHTER_IDLE_VIDEO={
+    mafioznik:'./assets/raids/fighters/mafioznik_idle.mp4'
+  };
   const FIGHTER_HIT_FRAMES={
     mafioznik:[
-      './assets/raids/fighters/mafioznik_hit_1.jpg',
-      './assets/raids/fighters/mafioznik_hit_2.jpg',
-      './assets/raids/fighters/mafioznik_hit_3.jpg',
-      './assets/raids/fighters/mafioznik_hit_4.jpg'
+      './assets/raids/fighters/mafioznik_hit_1.png',
+      './assets/raids/fighters/mafioznik_hit_2.png',
+      './assets/raids/fighters/mafioznik_hit_3.png',
+      './assets/raids/fighters/mafioznik_hit_4.png'
     ]
   };
+  const FIGHTER_PORTRAIT={
+    mafioznik:'./assets/raids/fighters/mafioznik_hit_1.png'
+  };
   let lastHitFrame=-1;
+  let idleResumeTimer=0;
+  const IDLE_RESUME_MS=700;
 
   const $=id=>document.getElementById(id);
   const state=()=>window.getGameState?.();
@@ -44,6 +52,9 @@
     return Math.max(0,90*60*1000-(Date.now()-p.startedAt));
   }
   function save(){window.saveGame?.();window.ui?.()}
+  function portraitSrc(f){
+    return FIGHTER_PORTRAIT[f.id]||('./assets/raids/fighters/'+f.id+'.png');
+  }
   function ensureRaidButton(){
     if($('raid-open-button'))return;
     const b=document.createElement('button');
@@ -57,13 +68,14 @@
     const open=unlocked(f),p=pFor(f),time=remaining(f),started=!!p.startedAt&&p.hp>0;
     const status=!open?'🔒 Закрыто по масти':(!started?'Не начат':(time>0?'⏱ '+formatTime(time):'⏱ Время вышло'));
     return '<button type="button" class="raid-fighter-card '+(open?'':'locked')+'" data-raid-fighter="'+f.id+'" '+(open?'':'disabled')+'>'+
-      '<span class="raid-card-portrait"><img src="./assets/raids/fighters/'+f.id+'.png" alt=""></span>'+
+      '<span class="raid-card-portrait"><img src="'+portraitSrc(f)+'" alt=""></span>'+
       '<span class="raid-card-info"><b class="raid-card-name '+f.id+'">'+f.name+'</b><small class="raid-card-status">'+status+'</small>'+
       (open&&started?'<small class="raid-card-hp">HP: '+Math.max(0,p.hp)+' / '+f.hp+'</small>':'<small class="raid-card-hp"></small>')+
       '</span></button>';
   }
   function openRaidMenu(){
     if(!window.openModal)return;
+    clearTimeout(idleResumeTimer);
     $('modal-overlay')?.classList.remove('raid-fullscreen');
     window.openModal('<div class="raid-select-screen"><div class="raid-select"><div class="raid-select-head"><div><h2>⚔️ РЕЙД</h2><p>Выбери противника. У каждого бойца свой бой и свой прогресс.</p></div><button type="button" id="raid-menu-close" class="raid-menu-close">✕</button></div><div class="raid-fighter-list">'+RAID_FIGHTERS.map(menuCard).join('')+'</div></div></div>');
     $('modal-overlay')?.classList.add('raid-selection-fullscreen');
@@ -79,6 +91,7 @@
     if(!p.startedAt)p.startedAt=Date.now();
     raidTimeoutShown=false;
     lastHitFrame=-1;
+    clearTimeout(idleResumeTimer);
     save();
     renderBattle();
   }
@@ -95,11 +108,33 @@
     void scene.offsetWidth;
     scene.classList.add('shake');
   }
+  function startIdleVideo(){
+    const f=fighter();
+    const src=FIGHTER_IDLE_VIDEO[f.id];
+    const v=$('raid-idle-video');
+    const img=$('raid-fighter-still');
+    if(!src||!v)return;
+    if(img)img.classList.add('hide-for-idle');
+    v.classList.add('show');
+    if(v.getAttribute('src')!==src){v.src=src;v.load()}
+    v.loop=true;
+    v.muted=true;
+    v.playsInline=true;
+    const p=v.play();
+    if(p&&p.catch)p.catch(()=>{});
+  }
+  function stopIdleVideo(){
+    const v=$('raid-idle-video');
+    const img=$('raid-fighter-still');
+    if(v){v.pause();v.classList.remove('show')}
+    if(img)img.classList.remove('hide-for-idle');
+  }
   function showHitFrame(id){
     const frames=FIGHTER_HIT_FRAMES[id];
     if(!frames||!frames.length)return false;
     const img=$('raid-fighter-still');
     if(!img)return false;
+    stopIdleVideo();
     let i=Math.floor(Math.random()*frames.length);
     if(frames.length>1&&i===lastHitFrame)i=(i+1)%frames.length;
     lastHitFrame=i;
@@ -107,10 +142,18 @@
     img.classList.remove('hit-pop');
     void img.offsetWidth;
     img.classList.add('hit-pop');
+    clearTimeout(idleResumeTimer);
+    if(FIGHTER_IDLE_VIDEO[id]){
+      idleResumeTimer=setTimeout(()=>{
+        if(fighter().id===id)startIdleVideo();
+      },IDLE_RESUME_MS);
+    }
     return true;
   }
   function renderBattle(){
     const f=fighter(),p=pFor(f),pct=Math.max(0,p.hp/f.hp*100);
+    const hasIdle=!!FIGHTER_IDLE_VIDEO[f.id];
+    const stillSrc=FIGHTER_HIT_FRAMES[f.id]?.[0]||portraitSrc(f);
     window.openModal?.('<div class="raid-window"><div id="raid-scene" class="raid-scene '+f.scene+'"></div></div>');
     $('modal-overlay')?.classList.add('raid-fullscreen');
     const root=$('raid-scene');if(!root)return;
@@ -118,14 +161,16 @@
       '<div class="raid-hud"><div class="raid-title">⚔️ РЕЙД · '+f.name+'</div><div id="raid-timer" class="raid-timer">'+formatTime(remaining(f))+'</div></div>'+
       '<div class="raid-fighter '+f.id+'" id="raid-fighter"><div class="raid-name '+f.id+'">'+f.name+'</div>'+
       '<div class="raid-hp'+(pct<25?' low-hp':'')+'"><div class="raid-hp-track"><div id="raid-hp-fill" class="raid-hp-fill" style="width:'+pct+'%"></div></div><div id="raid-hp-text" class="raid-hp-text">'+Math.max(0,p.hp)+' / '+f.hp+'</div></div>'+
-      '<img id="raid-fighter-still" src="./assets/raids/fighters/'+f.id+'.png" alt="'+f.name+'">'+ 
+      '<img id="raid-fighter-still" src="'+stillSrc+'" alt="'+f.name+'">'+ 
+      (hasIdle?'<video id="raid-idle-video" class="raid-idle-video" muted loop playsinline preload="auto"></video>':'')+
       '</div>'+
       '<div id="raid-damage" class="raid-damage"></div>'+
       '<div id="raid-note" class="raid-note">⚡ Тапай по бойцу · расходуется энергия</div>'+
       '<div class="raid-controls"><button type="button" id="raid-back" class="raid-next">← К бойцам</button></div>'+
       '<div id="raid-result" class="raid-result"><div class="raid-result-card"><h2 id="raid-result-title"></h2><div id="raid-result-text"></div><button type="button" id="raid-close" class="raid-close">Закрыть</button></div></div>';
     (FIGHTER_HIT_FRAMES[f.id]||[]).forEach(src=>{const i=new Image();i.src=src});
-    $('raid-back').addEventListener('click',()=>{ $('modal-overlay')?.classList.remove('raid-fullscreen'); openRaidMenu(); });
+    if(hasIdle)startIdleVideo();
+    $('raid-back').addEventListener('click',()=>{ clearTimeout(idleResumeTimer); stopIdleVideo(); $('modal-overlay')?.classList.remove('raid-fullscreen'); openRaidMenu(); });
     $('raid-close').addEventListener('click',()=>window.closeModal?.());
     $('raid-fighter').addEventListener('pointerdown',onTap,{passive:false});
     updateTimer();
@@ -190,6 +235,8 @@
   }
   function showRaidNote(t){const n=$('raid-note');if(n){n.textContent=t;clearTimeout(n._t);n._t=setTimeout(()=>n.textContent='⚡ Тапай по бойцу · расходуется энергия',1400)}}
   function win(){
+    clearTimeout(idleResumeTimer);
+    stopIdleVideo();
     const f=fighter(),g=s(),p=pFor(f),first=!(Number(p.wins)||0);
     p.wins=(Number(p.wins)||0)+1;p.hp=0;
     const reward=first?f.first:f.repeat;g.chifir+=reward.chifir;g.tasks.earned=(Number(g.tasks.earned)||0)+reward.chifir;g.points+=reward.points;
@@ -236,6 +283,7 @@
     p.extensionUsed=false;
     raidTimeoutShown=false;
     lastHitFrame=-1;
+    clearTimeout(idleResumeTimer);
     save();
     $('raid-result')?.classList.remove('show');
     renderBattle();
