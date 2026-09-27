@@ -142,14 +142,17 @@
   border-radius:12px!important;
 }
 #player-info .rank-goal{
-  left:50%!important;
+  position:static!important;
+  left:auto!important;
   right:auto!important;
-  transform:translateX(-50%)!important;
-  width:min(205px,46vw)!important;
-  max-width:205px!important;
-  margin:0!important;
-  padding:4px 6px!important;
+  transform:none!important;
+  display:block!important;
+  width:min(270px,80vw)!important;
+  max-width:270px!important;
+  margin:4px auto 0!important;
+  padding:4px 8px!important;
   border-radius:8px!important;
+  box-sizing:border-box!important;
 }
 .rank-goal-head{font-size:9px!important;gap:6px!important}
 .rank-goal-head b{font-size:9px!important}
@@ -161,11 +164,13 @@
     margin:3px auto 0!important;
   }
   #player-info .rank-goal{
-    left:50%!important;
+    position:static!important;
+    left:auto!important;
     right:auto!important;
-    width:min(190px,52vw)!important;
-    max-width:190px!important;
-    transform:translateX(-50%)!important;
-    padding:4px 6px!important;
+    width:min(270px,80vw)!important;
+    max-width:270px!important;
+    transform:none!important;
+    margin:3px auto 0!important;
+    padding:4px 8px!important;
   }
 }
