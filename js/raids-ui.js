@@ -10,7 +10,8 @@
   ];
   /* Idle loop video + hit stills on tap */
   const FIGHTER_IDLE_VIDEO={
-    mafioznik:'./assets/raids/fighters/mafioznik_idle.webm'
+    mafioznik:'./assets/raids/fighters/mafioznik_idle.webm',
+    petrovich:'./assets/raids/fighters/petrovich_video.mp4'
   };
   const FIGHTER_HIT_FRAMES={
     mafioznik:[
@@ -18,10 +19,17 @@
       './assets/raids/fighters/mafioznik_hit_2.png',
       './assets/raids/fighters/mafioznik_hit_3.png',
       './assets/raids/fighters/mafioznik_hit_4.png'
+    ],
+    petrovich:[
+      './assets/raids/fighters/petrovich1.png',
+      './assets/raids/fighters/petrovich2.png',
+      './assets/raids/fighters/petrovich3.png',
+      './assets/raids/fighters/petrovich4.png'
     ]
   };
   const FIGHTER_PORTRAIT={
-    mafioznik:'./assets/raids/fighters/mafioznik_hit_1.png'
+    mafioznik:'./assets/raids/fighters/mafioznik_hit_1.png',
+    petrovich:'./assets/raids/fighters/petrovich1.png'
   };
   let lastHitFrame=-1;
   let idleResumeTimer=0;
