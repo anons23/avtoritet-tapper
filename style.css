@@ -130,3 +130,36 @@
   #bottom-bar{min-height:50px;padding:5px 8px calc(5px + env(safe-area-inset-bottom))}
   .nav-btn{min-height:38px;padding:6px 2px;font-size:10px}
 }
+
+
+/* TEST 086: compact centered progress panels — keep their existing vertical positions. */
+#sentence-panel{
+  width:min(330px,88vw)!important;
+  max-width:330px!important;
+  margin:10px auto 0!important;
+  border-left:1px solid rgba(213,168,74,.24)!important;
+  border-right:1px solid rgba(213,168,74,.24)!important;
+  border-radius:12px!important;
+}
+#player-info .rank-goal{
+  left:50%!important;
+  right:auto!important;
+  transform:translateX(-50%)!important;
+  width:min(330px,88vw)!important;
+  max-width:330px!important;
+  margin:0!important;
+}
+@media(max-width:700px){
+  #sentence-panel{
+    width:min(270px,80vw)!important;
+    max-width:270px!important;
+    margin:3px auto 0!important;
+  }
+  #player-info .rank-goal{
+    left:50%!important;
+    right:auto!important;
+    width:min(280px,82vw)!important;
+    max-width:280px!important;
+    transform:translateX(-50%)!important;
+  }
+}
