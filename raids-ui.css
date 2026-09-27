@@ -266,6 +266,12 @@
 .raid-fighter .raid-hp{bottom:106%!important}
 .raid-fighter .raid-name{bottom:94%!important}
 
+/* Petrovich & Vtirach: heads stick higher — raise HP + nickname so they stay readable */
+.raid-fighter.petrovich .raid-hp,
+.raid-fighter.vtirach .raid-hp{bottom:118%!important}
+.raid-fighter.petrovich .raid-name,
+.raid-fighter.vtirach .raid-name{bottom:106%!important}
+
 
 
 /* MOBILE RAID LAYOUT — rebuilt for portrait + landscape */
@@ -447,6 +453,16 @@
     white-space:nowrap;
   }
 
+  /* Petrovich & Vtirach: heads cover the default name/HP — lift both higher */
+  #modal-overlay.raid-fullscreen .raid-fighter.petrovich .raid-hp,
+  #modal-overlay.raid-fullscreen .raid-fighter.vtirach .raid-hp{
+    bottom:calc(100% + 36px)!important;
+  }
+  #modal-overlay.raid-fullscreen .raid-fighter.petrovich .raid-name,
+  #modal-overlay.raid-fullscreen .raid-fighter.vtirach .raid-name{
+    bottom:calc(100% - 4px)!important;
+  }
+
   #modal-overlay.raid-fullscreen .raid-hp-track{
     height:9px;
     border-width:1px;
@@ -458,52 +474,36 @@
   }
 
   /* Bottom rail is reserved for instructions + navigation. The fighter can
-     never overlap it. */
+     never sit on top of these controls. */
   #modal-overlay.raid-fullscreen .raid-note{
     left:50%;
     bottom:calc(68px + env(safe-area-inset-bottom,0px));
-    max-width:88vw;
-    padding:5px 8px;
-    font-size:10px;
-    line-height:16px;
-    white-space:nowrap;
-    overflow:hidden;
-    text-overflow:ellipsis;
+    transform:translateX(-50%);
+    z-index:20;
+    max-width:92vw;
+    padding:5px 10px;
+    font-size:11px;
+    text-align:center;
+    white-space:normal;
   }
 
   #modal-overlay.raid-fullscreen .raid-controls{
     left:50%;
     bottom:calc(12px + env(safe-area-inset-bottom,0px));
-    max-width:90vw;
+    transform:translateX(-50%);
+    z-index:20;
   }
 
   #modal-overlay.raid-fullscreen .raid-next{
-    min-height:38px;
-    padding:7px 14px;
-    font-size:12px;
-  }
-
-  #modal-overlay.raid-fullscreen .raid-result-card{
-    width:min(88vw,360px);
-    box-sizing:border-box;
-    padding:20px 16px;
+    min-height:40px;
+    padding:8px 14px;
     font-size:13px;
   }
 
-  #modal-overlay.raid-fullscreen .raid-result-card h2{
-    font-size:19px;
-  }
-
-  #modal-overlay.raid-fullscreen .raid-close{
-    padding:9px 14px;
-    font-size:12px;
-  }
-
-  /* Speech bubbles stay inside the battle scene and do not cover the HUD. */
   #modal-overlay.raid-fullscreen .raid-shout{
-    max-width:58vw;
-    padding:6px 8px;
-    font-size:clamp(12px,3.3vw,17px);
+    max-width:min(220px,56vw);
+    font-size:clamp(12px,3.4vw,16px);
+    padding:6px 9px;
   }
 
   #modal-overlay.raid-fullscreen .raid-shout.petrovich{left:22%;top:0}
@@ -511,37 +511,20 @@
   #modal-overlay.raid-fullscreen .raid-shout.mafioznik{left:22%;top:0}
   #modal-overlay.raid-fullscreen .raid-shout.mongol{left:78%;top:2%}
 
-  /* ---------- Fighter selection ---------- */
-  #modal-overlay.raid-selection-fullscreen #modal-content{
-    overflow:hidden;
-  }
-
+  /* Selection screen stays readable on narrow phones. */
   #modal-overlay.raid-selection-fullscreen .raid-select-screen{
-    min-height:100%;
-    height:100%;
-    box-sizing:border-box;
+    padding:16px 10px;
     align-items:flex-start;
-    justify-content:flex-start;
-    padding:calc(70px + env(safe-area-inset-top,0px)) 10px calc(76px + env(safe-area-inset-bottom,0px));
-    overflow-y:auto;
-    -webkit-overflow-scrolling:touch;
   }
 
   #modal-overlay.raid-selection-fullscreen .raid-select{
     width:100%;
     max-width:520px;
-    max-height:none;
-    margin:0 auto;
-    padding:12px;
-    box-sizing:border-box;
-    border-radius:14px;
-    overflow:visible;
+    padding:16px 12px;
   }
 
   #modal-overlay.raid-selection-fullscreen .raid-select-head{
-    gap:8px;
-    margin-bottom:10px;
-    align-items:center;
+    margin-bottom:12px;
   }
 
   #modal-overlay.raid-selection-fullscreen .raid-select-head h2{
@@ -550,39 +533,19 @@
   }
 
   #modal-overlay.raid-selection-fullscreen .raid-select-head p{
-    max-width:calc(100vw - 90px);
-    font-size:11px;
-    line-height:1.25;
-  }
-
-  #modal-overlay.raid-selection-fullscreen .raid-menu-close{
-    width:34px;
-    height:34px;
-    flex:0 0 34px;
-    font-size:16px;
-  }
-
-  #modal-overlay.raid-selection-fullscreen .raid-fighter-list{
-    gap:7px;
+    font-size:12px;
   }
 
   #modal-overlay.raid-selection-fullscreen .raid-fighter-card{
-    min-height:76px;
-    height:76px;
-    padding:6px 8px;
+    min-height:88px;
+    padding:8px 10px;
     gap:10px;
-    border-radius:12px;
   }
 
   #modal-overlay.raid-selection-fullscreen .raid-card-portrait{
-    width:60px;
-    height:60px;
-    flex:0 0 60px;
-    border-radius:9px;
-  }
-
-  #modal-overlay.raid-selection-fullscreen .raid-card-info{
-    gap:3px;
+    width:72px;
+    height:72px;
+    flex:0 0 72px;
   }
 
   #modal-overlay.raid-selection-fullscreen .raid-card-name{
@@ -590,21 +553,14 @@
   }
 
   #modal-overlay.raid-selection-fullscreen .raid-card-info small{
-    font-size:10px;
-    line-height:1.1;
-  }
-
-  #raid-open-button{
-    top:158px!important;
-    right:8px!important;
-    width:58px!important;
-    height:58px!important;
+    font-size:11px;
   }
 }
 
+/* Landscape mobile: tighter vertical budget. */
 @media (max-width:700px) and (orientation:landscape){
   #modal-overlay.raid-fullscreen .raid-scene{
-    padding-top:calc(52px + env(safe-area-inset-top,0px));
+    padding-top:calc(48px + env(safe-area-inset-top,0px));
     padding-bottom:calc(82px + env(safe-area-inset-bottom,0px));
   }
 
@@ -635,6 +591,16 @@
     font-size:clamp(16px,4vw,24px);
   }
 
+  /* Petrovich & Vtirach landscape: keep name/HP clear of heads */
+  #modal-overlay.raid-fullscreen .raid-fighter.petrovich .raid-hp,
+  #modal-overlay.raid-fullscreen .raid-fighter.vtirach .raid-hp{
+    bottom:calc(100% + 28px)!important;
+  }
+  #modal-overlay.raid-fullscreen .raid-fighter.petrovich .raid-name,
+  #modal-overlay.raid-fullscreen .raid-fighter.vtirach .raid-name{
+    bottom:calc(100% - 2px)!important;
+  }
+
   #modal-overlay.raid-fullscreen .raid-note{
     bottom:calc(47px + env(safe-area-inset-bottom,0px));
     font-size:9px;
@@ -648,70 +614,10 @@
     min-height:34px;
     padding:6px 10px;
   }
-
-  #modal-overlay.raid-selection-fullscreen .raid-select-screen{
-    padding:calc(58px + env(safe-area-inset-top,0px)) 12px calc(60px + env(safe-area-inset-bottom,0px));
-  }
-
-  #modal-overlay.raid-selection-fullscreen .raid-select{
-    max-width:760px;
-    padding:10px;
-  }
-
-  #modal-overlay.raid-selection-fullscreen .raid-fighter-list{
-    display:grid;
-    grid-template-columns:1fr 1fr;
-    gap:6px;
-  }
-
-  #modal-overlay.raid-selection-fullscreen .raid-fighter-card{
-    height:66px;
-    min-height:66px;
-  }
-
-  #modal-overlay.raid-selection-fullscreen .raid-card-portrait{
-    width:50px;
-    height:50px;
-    flex-basis:50px;
-  }
-
-  #modal-overlay.raid-selection-fullscreen .raid-card-name{
-    font-size:14px;
-  }
-
-  #modal-overlay.raid-selection-fullscreen .raid-card-info small{
-    font-size:9px;
-  }
-
-  #raid-open-button{
-    top:72px!important;
-    right:8px!important;
-    width:52px!important;
-    height:52px!important;
-  }
 }
 
-
-/* FINAL MOBILE RAID FRAME — fill the real phone viewport, not the 520px game shell. */
+/* Edge-to-edge raid on very small phones + safe-area cleanup. */
 @media (max-width:700px){
-  #modal-overlay.raid-fullscreen{
-    position:fixed!important;
-    top:0!important;
-    right:auto!important;
-    bottom:auto!important;
-    left:50%!important;
-    width:100vw!important;
-    height:100dvh!important;
-    min-width:100vw!important;
-    max-width:none!important;
-    min-height:100dvh!important;
-    max-height:none!important;
-    margin:0!important;
-    padding:0!important;
-    transform:translateX(-50%)!important;
-    overflow:hidden!important;
-  }
-
   #modal-overlay.raid-fullscreen #modal,
   #modal-overlay.raid-fullscreen #modal-content,
   #modal-overlay.raid-fullscreen .raid-window,
