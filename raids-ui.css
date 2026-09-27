@@ -466,7 +466,7 @@
 
   #modal-overlay.raid-fullscreen .raid-note{
     left:50%;
-    bottom:58px;
+    bottom:calc(58px + env(safe-area-inset-bottom, 0px));
     max-width:88vw;
     padding:5px 8px;
     font-size:10px;
@@ -477,7 +477,7 @@
 
   #modal-overlay.raid-fullscreen .raid-controls{
     left:50%;
-    bottom:10px;
+    bottom:calc(10px + env(safe-area-inset-bottom, 0px));
     max-width:90vw;
   }
 
@@ -641,12 +641,12 @@
   }
 
   #modal-overlay.raid-fullscreen .raid-note{
-    bottom:50px;
+    bottom:calc(50px + env(safe-area-inset-bottom, 0px));
     font-size:9px;
   }
 
   #modal-overlay.raid-fullscreen .raid-controls{
-    bottom:7px;
+    bottom:calc(7px + env(safe-area-inset-bottom, 0px));
   }
 
   #modal-overlay.raid-fullscreen .raid-next{
