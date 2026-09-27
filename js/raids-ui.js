@@ -71,6 +71,18 @@
     renderBattle();
   }
   function fighter(){return RAID_FIGHTERS[raid.fighter]}
+  function updateLowHp(pct){
+    const bar=document.querySelector('#raid-fighter .raid-hp');
+    if(!bar)return;
+    bar.classList.toggle('low-hp',pct<25);
+  }
+  function shakeScene(){
+    const scene=$('raid-scene');
+    if(!scene)return;
+    scene.classList.remove('shake');
+    void scene.offsetWidth;
+    scene.classList.add('shake');
+  }
   function renderBattle(){
     const f=fighter(),p=pFor(f),pct=Math.max(0,p.hp/f.hp*100);
     window.openModal?.('<div class="raid-window"><div id="raid-scene" class="raid-scene '+f.scene+'"></div></div>');
@@ -79,7 +91,7 @@
     root.innerHTML=
       '<div class="raid-hud"><div class="raid-title">⚔️ РЕЙД · '+f.name+'</div><div id="raid-timer" class="raid-timer">'+formatTime(remaining(f))+'</div></div>'+
       '<div class="raid-fighter '+f.id+'" id="raid-fighter"><div class="raid-name '+f.id+'">'+f.name+'</div>'+
-      '<div class="raid-hp"><div class="raid-hp-track"><div id="raid-hp-fill" class="raid-hp-fill" style="width:'+pct+'%"></div></div><div id="raid-hp-text" class="raid-hp-text">'+Math.max(0,p.hp)+' / '+f.hp+'</div></div>'+
+      '<div class="raid-hp'+(pct<25?' low-hp':'')+'"><div class="raid-hp-track"><div id="raid-hp-fill" class="raid-hp-fill" style="width:'+pct+'%"></div></div><div id="raid-hp-text" class="raid-hp-text">'+Math.max(0,p.hp)+' / '+f.hp+'</div></div>'+
       '<img src="./assets/raids/fighters/'+f.id+'.png" alt="'+f.name+'"></div>'+
       '<div id="raid-damage" class="raid-damage"></div>'+
       '<div id="raid-note" class="raid-note">⚡ Тапай по бойцу · расходуется энергия</div>'+
@@ -110,11 +122,14 @@
     const dmg=Math.min(damageValue(),p.hp);p.hp-=dmg;
     const el=$('raid-fighter');
     if(el){el.classList.remove(f.id+'-hit');void el.offsetWidth;el.classList.add(f.id+'-hit')}
+    shakeScene();
     const d=$('raid-damage');
     if(d){d.textContent='-'+dmg;d.classList.remove('show');void d.offsetWidth;d.classList.add('show')}
     const fill=$('raid-hp-fill'),txt=$('raid-hp-text');
-    if(fill)fill.style.width=(p.hp/f.hp*100)+'%';
+    const pct=p.hp/f.hp*100;
+    if(fill)fill.style.width=pct+'%';
     if(txt)txt.textContent=p.hp+' / '+f.hp;
+    updateLowHp(pct);
     save();
     showFighterShout(f.id);
     if(p.hp<=0)win();
@@ -201,7 +216,6 @@
     window.showRewardedAd(ok=>{
       if(!ok){showRaidNote('Награда за рекламу не получена');return}
       p.extensionUsed=true;
-      // Preserve the existing raid end time and add exactly 15 minutes.
       const now=Date.now();
       const currentEnd=(Number(p.startedAt)||now)+90*60*1000;
       const baseEnd=Math.max(now,currentEnd);
