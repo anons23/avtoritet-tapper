@@ -758,3 +758,24 @@
     object-position:center bottom;
   }
 }
+
+
+/* FINAL MOBILE RAID HUD/FIGHTER TUNING. */
+@media (max-width:700px){
+  /* Keep the raid title + timer clearly above the HP bar. */
+  #modal-overlay.raid-fullscreen .raid-hud{
+    top:calc(42px + env(safe-area-inset-top,0px))!important;
+  }
+
+  /* Vtirach visually sits too far left on the bench/background. Shift only
+     his fighter wrapper; all other fighters keep their current alignment. */
+  #modal-overlay.raid-fullscreen .raid-fighter.vtirach{
+    left:calc(50% + 22px)!important;
+  }
+}
+
+@media (max-width:700px) and (orientation:landscape){
+  #modal-overlay.raid-fullscreen .raid-hud{
+    top:calc(34px + env(safe-area-inset-top,0px))!important;
+  }
+}
