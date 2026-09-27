@@ -186,3 +186,28 @@
   40%{transform:scale(1.04)}
   100%{transform:scale(1)}
 }
+
+/* Idle loop video (calm state) */
+.raid-idle-video{
+  display:none;
+  position:absolute;
+  left:0;right:0;bottom:0;
+  width:100%;
+  height:auto;
+  max-height:65vh;
+  object-fit:contain;
+  object-position:center bottom;
+  pointer-events:none;
+  z-index:4;
+  filter:drop-shadow(0 12px 16px rgba(0,0,0,.5));
+}
+.raid-idle-video.show{display:block}
+#raid-fighter-still.hide-for-idle{opacity:0}
+@media (max-width:700px){
+  #modal-overlay.raid-fullscreen .raid-idle-video{
+    height:100%;
+    max-height:none;
+    object-fit:contain;
+    object-position:center bottom;
+  }
+}
