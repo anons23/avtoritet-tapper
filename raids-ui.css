@@ -303,3 +303,92 @@
   .raid-fighter .raid-hp{bottom:101%!important;width:76vw}
   .raid-fighter .raid-name{bottom:91%!important}
 }
+
+
+/* MOBILE RAID FINAL LAYOUT — portrait + landscape */
+@media (max-width:700px){
+  /* Fighter selection: keep the list below the resource bar and make cards readable. */
+  #modal-overlay.raid-selection-fullscreen #modal-content{height:100dvh;overflow:hidden}
+  #modal-overlay.raid-selection-fullscreen .raid-select-screen{
+    min-height:100dvh;
+    height:100dvh;
+    align-items:flex-start;
+    justify-content:flex-start;
+    padding:calc(70px + env(safe-area-inset-top)) 10px calc(76px + env(safe-area-inset-bottom));
+    overflow-y:auto;
+    -webkit-overflow-scrolling:touch;
+  }
+  #modal-overlay.raid-selection-fullscreen .raid-select{
+    width:100%;
+    max-width:520px;
+    margin:0 auto;
+    padding:12px;
+    border-radius:14px;
+  }
+  .raid-select-head{gap:8px;margin-bottom:10px;align-items:center}
+  .raid-select-head h2{font-size:20px;margin-bottom:3px}
+  .raid-select-head p{font-size:11px;line-height:1.25;max-width:calc(100vw - 90px)}
+  .raid-menu-close{width:34px;height:34px;flex:0 0 34px;font-size:16px}
+  .raid-fighter-list{gap:7px}
+  .raid-fighter-card{min-height:76px;height:76px;padding:6px 8px;gap:10px;border-radius:12px}
+  .raid-card-portrait{width:60px;height:60px;flex:0 0 60px;border-radius:9px}
+  .raid-card-info{gap:3px}
+  .raid-card-name{font-size:16px}
+  .raid-card-info small{font-size:10px;line-height:1.1}
+  .raid-card-hp:empty{display:none}
+
+  /* Battle: reserve the top area for the resource bar and bottom area for controls. */
+  #modal-overlay.raid-fullscreen .raid-window,
+  #modal-overlay.raid-fullscreen .raid-scene{
+    width:100vw;height:100dvh;min-height:100dvh;max-height:none;
+  }
+  #modal-overlay.raid-fullscreen .raid-scene{padding-top:64px;box-sizing:border-box}
+  .raid-hud{left:8px;right:8px;top:72px;gap:6px}
+  .raid-title,.raid-timer{padding:5px 8px;font-size:11px;border-radius:8px}
+  .raid-title{max-width:58vw;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .raid-timer{font-size:12px}
+  .raid-fighter{width:min(92vw,430px);max-width:92vw;bottom:12%;}
+  .raid-fighter.petrovich,.raid-fighter.vtirach{width:min(94vw,460px);max-width:94vw}
+  .raid-fighter img{width:100%;max-width:100%;max-height:54dvh;object-fit:contain}
+  .raid-fighter .raid-hp{bottom:101%!important;width:min(78vw,320px);max-width:78vw}
+  .raid-fighter .raid-name{bottom:91%!important;font-size:clamp(18px,6vw,30px);max-width:80vw;overflow:hidden;text-overflow:ellipsis}
+  .raid-hp-track{height:9px;border-width:1px}
+  .raid-hp-text{font-size:10px;margin-top:2px}
+  .raid-note{left:50%;bottom:58px;max-width:88vw;padding:5px 8px;font-size:10px;white-space:nowrap}
+  .raid-controls{bottom:10px;max-width:90vw}
+  .raid-next{padding:7px 11px;font-size:11px}
+  .raid-result-card{width:min(88vw,360px);padding:20px 16px}
+  .raid-result-card h2{font-size:19px}
+  .raid-result-card{font-size:13px}
+  .raid-close{padding:9px 14px;font-size:12px}
+
+  /* Speech bubbles stay inside the phone instead of hanging outside the fighter. */
+  .raid-shout{max-width:58vw;font-size:clamp(12px,3.3vw,17px);padding:6px 8px}
+  .raid-shout.petrovich{left:22%;top:-2%}
+  .raid-shout.vtirach{left:78%;top:0%}
+  .raid-shout.mafioznik{left:22%;top:-3%}
+  .raid-shout.mongol{left:78%;top:-1%}
+}
+
+@media (max-width:700px) and (orientation:landscape){
+  #modal-overlay.raid-selection-fullscreen .raid-select-screen{
+    padding:58px 12px 60px;
+    align-items:flex-start;
+  }
+  #modal-overlay.raid-selection-fullscreen .raid-select{max-width:760px;padding:10px}
+  .raid-select-head{margin-bottom:7px}
+  .raid-fighter-list{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+  .raid-fighter-card{height:66px;min-height:66px}
+  .raid-card-portrait{width:50px;height:50px;flex-basis:50px}
+  .raid-card-name{font-size:14px}
+  .raid-card-info small{font-size:9px}
+  #modal-overlay.raid-fullscreen .raid-scene{padding-top:52px}
+  .raid-hud{top:58px}
+  .raid-fighter{width:min(48vw,360px);bottom:8%}
+  .raid-fighter.petrovich,.raid-fighter.vtirach{width:min(54vw,410px)}
+  .raid-fighter img{max-height:68dvh}
+  .raid-fighter .raid-hp{width:min(44vw,280px);bottom:102%!important}
+  .raid-fighter .raid-name{bottom:91%!important;font-size:clamp(16px,4vw,24px)}
+  .raid-note{bottom:50px;font-size:9px}
+  .raid-controls{bottom:7px}
+}
