@@ -150,7 +150,7 @@
       '<div class="raid-hud"><div class="raid-title">⚔️ РЕЙД · '+f.name+'</div><div id="raid-timer" class="raid-timer">'+formatTime(remaining(f))+'</div></div>'+
       '<div class="raid-fighter '+f.id+'" id="raid-fighter"><div class="raid-name '+f.id+'">'+f.name+'</div>'+
       '<div class="raid-hp'+(pct<25?' low-hp':'')+'"><div class="raid-hp-track"><div id="raid-hp-fill" class="raid-hp-fill" style="width:'+pct+'%"></div></div><div id="raid-hp-text" class="raid-hp-text">'+Math.max(0,p.hp)+' / '+f.hp+'</div></div>'+
-      '<img id="raid-fighter-still" src="./assets/raids/fighters/'+f.id+'.png" alt="'+f.name+'">'+'
+      '<img id="raid-fighter-still" src="./assets/raids/fighters/'+f.id+'.png" alt="'+f.name+'">'+ 
       (hasVideo?'<video id="raid-hit-video" class="raid-hit-video" muted playsinline preload="auto"></video>':'')+
       '</div>'+
       '<div id="raid-damage" class="raid-damage"></div>'+
