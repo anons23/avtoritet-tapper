@@ -8,6 +8,16 @@
     {id:'mafioznik',name:'МАФИОЗНИК',rank:1,hp:3000,first:{chifir:4000,points:300},repeat:{chifir:1000,points:75},scene:'fight'},
     {id:'mongol',name:'МОНГОЛ',rank:1,hp:4000,first:{chifir:5500,points:400},repeat:{chifir:1375,points:100},scene:'fight'}
   ];
+  /* Micro-hit segments inside source mp4 (seconds). End card after ~4s is never used. */
+  const FIGHTER_HIT_VIDEO={
+    mafioznik:{
+      src:'./assets/raids/fighters/'+encodeURIComponent('мафиозник.mp4'),
+      segments:[[0.12,0.82],[0.90,1.70],[1.70,2.70]]
+    }
+  };
+  let hitClipIndex=0;
+  let hitVideoCleanup=null;
+
   const $=id=>document.getElementById(id);
   const state=()=>window.getGameState?.();
   let raid={fighter:0,active:false};
@@ -67,6 +77,7 @@
     if(p.hp<=0){p.hp=f.hp;p.startedAt=0;p.extensionUsed=false;}
     if(!p.startedAt)p.startedAt=Date.now();
     raidTimeoutShown=false;
+    hitClipIndex=0;
     save();
     renderBattle();
   }
@@ -83,8 +94,55 @@
     void scene.offsetWidth;
     scene.classList.add('shake');
   }
+  function stopHitVideo(){
+    if(typeof hitVideoCleanup==='function'){hitVideoCleanup();hitVideoCleanup=null}
+    const v=$('raid-hit-video'), img=$('raid-fighter-still');
+    if(v){v.pause();v.classList.remove('show')}
+    if(img)img.classList.remove('hide-for-video');
+  }
+  function playFighterHitVideo(id){
+    const cfg=FIGHTER_HIT_VIDEO[id];
+    if(!cfg)return false;
+    const v=$('raid-hit-video'), img=$('raid-fighter-still');
+    if(!v)return false;
+    stopHitVideo();
+    const segs=cfg.segments;
+    const [start,end]=segs[hitClipIndex%segs.length];
+    hitClipIndex++;
+    const onMeta=()=>{
+      try{v.currentTime=start}catch(_){}
+      const p=v.play();
+      if(p&&p.catch)p.catch(()=>{});
+    };
+    const onTime=()=>{
+      if(v.currentTime>=end-0.02){
+        v.pause();
+        v.classList.remove('show');
+        if(img)img.classList.remove('hide-for-video');
+        v.removeEventListener('timeupdate',onTime);
+        hitVideoCleanup=null;
+      }
+    };
+    v.onloadedmetadata=onMeta;
+    v.ontimeupdate=null;
+    v.addEventListener('timeupdate',onTime);
+    hitVideoCleanup=()=>{
+      v.removeEventListener('timeupdate',onTime);
+      v.onloadedmetadata=null;
+    };
+    if(img)img.classList.add('hide-for-video');
+    v.classList.add('show');
+    if(v.getAttribute('src')!==cfg.src){
+      v.src=cfg.src;
+      v.load();
+    }else{
+      onMeta();
+    }
+    return true;
+  }
   function renderBattle(){
     const f=fighter(),p=pFor(f),pct=Math.max(0,p.hp/f.hp*100);
+    const hasVideo=!!FIGHTER_HIT_VIDEO[f.id];
     window.openModal?.('<div class="raid-window"><div id="raid-scene" class="raid-scene '+f.scene+'"></div></div>');
     $('modal-overlay')?.classList.add('raid-fullscreen');
     const root=$('raid-scene');if(!root)return;
@@ -92,12 +150,18 @@
       '<div class="raid-hud"><div class="raid-title">⚔️ РЕЙД · '+f.name+'</div><div id="raid-timer" class="raid-timer">'+formatTime(remaining(f))+'</div></div>'+
       '<div class="raid-fighter '+f.id+'" id="raid-fighter"><div class="raid-name '+f.id+'">'+f.name+'</div>'+
       '<div class="raid-hp'+(pct<25?' low-hp':'')+'"><div class="raid-hp-track"><div id="raid-hp-fill" class="raid-hp-fill" style="width:'+pct+'%"></div></div><div id="raid-hp-text" class="raid-hp-text">'+Math.max(0,p.hp)+' / '+f.hp+'</div></div>'+
-      '<img src="./assets/raids/fighters/'+f.id+'.png" alt="'+f.name+'"></div>'+
+      '<img id="raid-fighter-still" src="./assets/raids/fighters/'+f.id+'.png" alt="'+f.name+'">'+'
+      (hasVideo?'<video id="raid-hit-video" class="raid-hit-video" muted playsinline preload="auto"></video>':'')+
+      '</div>'+
       '<div id="raid-damage" class="raid-damage"></div>'+
       '<div id="raid-note" class="raid-note">⚡ Тапай по бойцу · расходуется энергия</div>'+
       '<div class="raid-controls"><button type="button" id="raid-back" class="raid-next">← К бойцам</button></div>'+
       '<div id="raid-result" class="raid-result"><div class="raid-result-card"><h2 id="raid-result-title"></h2><div id="raid-result-text"></div><button type="button" id="raid-close" class="raid-close">Закрыть</button></div></div>';
-    $('raid-back').addEventListener('click',()=>{ $('modal-overlay')?.classList.remove('raid-fullscreen'); openRaidMenu(); });
+    if(hasVideo){
+      const v=$('raid-hit-video');
+      if(v){v.src=FIGHTER_HIT_VIDEO[f.id].src;v.load()}
+    }
+    $('raid-back').addEventListener('click',()=>{ stopHitVideo(); $('modal-overlay')?.classList.remove('raid-fullscreen'); openRaidMenu(); });
     $('raid-close').addEventListener('click',()=>window.closeModal?.());
     $('raid-fighter').addEventListener('pointerdown',onTap,{passive:false});
     updateTimer();
@@ -121,7 +185,11 @@
     if(!window.spendEnergyForRaid?.()){showRaidNote('⚡ Энергия закончилась');return}
     const dmg=Math.min(damageValue(),p.hp);p.hp-=dmg;
     const el=$('raid-fighter');
-    if(el){el.classList.remove(f.id+'-hit');void el.offsetWidth;el.classList.add(f.id+'-hit')}
+    const usedVideo=playFighterHitVideo(f.id);
+    if(el){
+      el.classList.remove(f.id+'-hit');void el.offsetWidth;el.classList.add(f.id+'-hit');
+      if(usedVideo)el.classList.add('video-hit');
+    }
     shakeScene();
     const d=$('raid-damage');
     if(d){d.textContent='-'+dmg;d.classList.remove('show');void d.offsetWidth;d.classList.add('show')}
@@ -161,6 +229,7 @@
   }
   function showRaidNote(t){const n=$('raid-note');if(n){n.textContent=t;clearTimeout(n._t);n._t=setTimeout(()=>n.textContent='⚡ Тапай по бойцу · расходуется энергия',1400)}}
   function win(){
+    stopHitVideo();
     const f=fighter(),g=s(),p=pFor(f),first=!(Number(p.wins)||0);
     p.wins=(Number(p.wins)||0)+1;p.hp=0;
     const reward=first?f.first:f.repeat;g.chifir+=reward.chifir;g.tasks.earned=(Number(g.tasks.earned)||0)+reward.chifir;g.points+=reward.points;
@@ -206,6 +275,7 @@
     p.startedAt=Date.now();
     p.extensionUsed=false;
     raidTimeoutShown=false;
+    hitClipIndex=0;
     save();
     $('raid-result')?.classList.remove('show');
     renderBattle();
