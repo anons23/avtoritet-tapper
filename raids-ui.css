@@ -294,3 +294,12 @@
   .raid-shout.mafioznik{left:17%;top:0}
   .raid-shout.mongol{left:83%;top:2%}
 }
+
+
+/* Raid layout: HP must be above the fighter nickname on every screen size. */
+.raid-fighter .raid-hp{bottom:106%!important}
+.raid-fighter .raid-name{bottom:94%!important}
+@media(max-width:700px){
+  .raid-fighter .raid-hp{bottom:101%!important;width:76vw}
+  .raid-fighter .raid-name{bottom:91%!important}
+}
