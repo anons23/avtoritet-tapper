@@ -174,3 +174,12 @@
     padding:4px 8px!important;
   }
 }
+
+
+/* FINAL: rank goal must stay compact and centered in every orientation. */
+#player-info #rank-goal.rank-goal{position:static!important;left:auto!important;right:auto!important;top:auto!important;bottom:auto!important;transform:none!important;display:block!important;width:min(270px,80vw)!important;max-width:270px!important;min-width:0!important;margin:4px auto 0!important;padding:4px 8px!important;box-sizing:border-box!important;border-radius:8px!important}
+#player-info #rank-goal .rank-goal-head{font-size:9px!important;gap:6px!important}
+#player-info #rank-goal .rank-goal-head b{font-size:9px!important}
+#player-info #rank-goal .rank-goal-track{height:4px!important;margin-top:4px!important}
+@media(max-width:700px){#player-info #rank-goal.rank-goal{width:min(270px,80vw)!important;max-width:270px!important;margin:3px auto 0!important}}
+@media (orientation:landscape) and (max-height:700px){#player-info #rank-goal.rank-goal{width:min(270px,80vw)!important;max-width:270px!important;margin:3px auto 0!important;padding:4px 8px!important;border-left:1px solid rgba(213,168,74,.28)!important;border-right:1px solid rgba(213,168,74,.28)!important;border-radius:8px!important;box-shadow:0 4px 14px rgba(0,0,0,.18)!important}}
