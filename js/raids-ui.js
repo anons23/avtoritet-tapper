@@ -10,6 +10,8 @@
   const $=id=>document.getElementById(id);
   const state=()=>window.getGameState?.();
   let raid={fighter:0,active:false};
+  let raidTimeoutShown=false;
+  let raidTicker=0;
   function s(){return state()}
   function progress(){
     const g=s(); if(!g)return {};
@@ -44,8 +46,8 @@
     const status=!open?'🔒 Закрыто по масти':(!started?'Не начат':(time>0?'⏱ '+formatTime(time):'⏱ Время вышло'));
     return '<button type="button" class="raid-fighter-card '+(open?'':'locked')+'" data-raid-fighter="'+f.id+'" '+(open?'':'disabled')+'>'+
       '<span class="raid-card-portrait"><img src="./assets/raids/fighters/'+f.id+'.png" alt=""></span>'+
-      '<span class="raid-card-info"><b class="raid-card-name '+f.id+'">'+f.name+'</b><small>'+status+'</small>'+
-      (open&&started?'<small>HP: '+Math.max(0,p.hp)+' / '+f.hp+'</small>':'')+
+      '<span class="raid-card-info"><b class="raid-card-name '+f.id+'">'+f.name+'</b><small class="raid-card-status">'+status+'</small>'+
+      (open&&started?'<small class="raid-card-hp">HP: '+Math.max(0,p.hp)+' / '+f.hp+'</small>':'<small class="raid-card-hp"></small>')+
       '</span></button>';
   }
   function openRaidMenu(){
@@ -63,6 +65,7 @@
     const p=pFor(f);
     if(p.hp<=0){p.hp=f.hp;p.startedAt=0;p.extensionUsed=false;}
     if(!p.startedAt)p.startedAt=Date.now();
+    raidTimeoutShown=false;
     save();
     renderBattle();
   }
@@ -85,6 +88,17 @@
     $('raid-close').addEventListener('click',()=>window.closeModal?.());
     $('raid-fighter').addEventListener('pointerdown',onTap,{passive:false});
     updateTimer();
+  }
+  function refreshRaidMenu(){
+    if(!$('modal-overlay')?.classList.contains('raid-selection-fullscreen'))return;
+    document.querySelectorAll('[data-raid-fighter]').forEach(card=>{
+      const f=RAID_FIGHTERS.find(x=>x.id===card.dataset.raidFighter);if(!f)return;
+      const p=pFor(f),time=remaining(f),started=!!p.startedAt&&p.hp>0;
+      const status=unlocked(f)?(!started?'Не начат':(time>0?'⏱ '+formatTime(time):'⏱ Время вышло')):'🔒 Закрыто по масти';
+      const statusEl=card.querySelector('.raid-card-status'),hp=card.querySelector('.raid-card-hp');
+      if(statusEl)statusEl.textContent=status;
+      if(hp)hp.textContent=unlocked(f)&&started?'HP: '+Math.max(0,p.hp)+' / '+f.hp:'';
+    });
   }
   function damageValue(){return Math.max(1,Math.floor(Number(s()?.power)||1))}
   function onTap(e){
@@ -143,8 +157,12 @@
   function updateTimer(){
     const f=fighter(),p=pFor(f);if(!p.startedAt||p.hp<=0)return;
     const left=remaining(f),t=$('raid-timer');if(t)t.textContent=formatTime(left);
-    if(left<=0){showRaidTimeout();return}
-    requestAnimationFrame(updateTimer);
+    if(left<=0&&!raidTimeoutShown){raidTimeoutShown=true;showRaidTimeout();}
+  }
+  function tickRaidClock(){
+    refreshRaidMenu();
+    const overlay=$('modal-overlay');
+    if(overlay?.classList.contains('raid-fullscreen'))updateTimer();
   }
   function showRaidTimeout(){
     const rr=$('raid-result'),rt=$('raid-result-title'),rx=$('raid-result-text');if(!rr)return;
@@ -159,11 +177,12 @@
     if(typeof window.showRewardedAd!=='function'){showRaidNote('Реклама пока недоступна');return}
     window.showRewardedAd(ok=>{
       if(!ok){showRaidNote('Награда за рекламу не получена');return}
-      p.extensionUsed=true;p.startedAt=Date.now();save();
+      p.extensionUsed=true;p.startedAt=Date.now();raidTimeoutShown=false;save();
       $('raid-result')?.classList.remove('show');updateTimer();
     });
   }
   window.openRaid=openRaidMenu;
   ensureRaidButton();
   window.addEventListener('load',ensureRaidButton);
+  raidTicker=window.setInterval(tickRaidClock,1000);
 })();
