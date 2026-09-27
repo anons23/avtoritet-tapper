@@ -105,8 +105,8 @@
   function onTap(e){
     e.preventDefault();e.stopPropagation();
     const f=fighter(),g=s(),p=pFor(f);if(!g||!raid.active&&false)return;
-    if(!window.spendEnergyForRaid?.()){showRaidNote('⚡ Энергия закончилась');return}
     if(p.hp<=0)return;
+    if(!window.spendEnergyForRaid?.()){showRaidNote('⚡ Энергия закончилась');return}
     const dmg=Math.min(damageValue(),p.hp);p.hp-=dmg;
     const el=$('raid-fighter');
     if(el){el.classList.remove(f.id+'-hit');void el.offsetWidth;el.classList.add(f.id+'-hit')}
@@ -200,7 +200,13 @@
     if(typeof window.showRewardedAd!=='function'){showRaidNote('Реклама пока недоступна');return}
     window.showRewardedAd(ok=>{
       if(!ok){showRaidNote('Награда за рекламу не получена');return}
-      p.extensionUsed=true;p.startedAt=Date.now();raidTimeoutShown=false;save();
+      p.extensionUsed=true;
+      // Preserve the existing raid end time and add exactly 15 minutes.
+      const now=Date.now();
+      const currentEnd=(Number(p.startedAt)||now)+90*60*1000;
+      const baseEnd=Math.max(now,currentEnd);
+      p.startedAt=baseEnd-90*60*1000+15*60*1000;
+      raidTimeoutShown=false;save();
       $('raid-result')?.classList.remove('show');updateTimer();
     });
   }
