@@ -145,10 +145,15 @@
   left:50%!important;
   right:auto!important;
   transform:translateX(-50%)!important;
-  width:min(330px,88vw)!important;
-  max-width:330px!important;
+  width:min(205px,46vw)!important;
+  max-width:205px!important;
   margin:0!important;
+  padding:4px 6px!important;
+  border-radius:8px!important;
 }
+.rank-goal-head{font-size:9px!important;gap:6px!important}
+.rank-goal-head b{font-size:9px!important}
+.rank-goal-track{height:4px!important;margin-top:4px!important}
 @media(max-width:700px){
   #sentence-panel{
     width:min(270px,80vw)!important;
@@ -158,8 +163,9 @@
   #player-info .rank-goal{
     left:50%!important;
     right:auto!important;
-    width:min(280px,82vw)!important;
-    max-width:280px!important;
+    width:min(190px,52vw)!important;
+    max-width:190px!important;
     transform:translateX(-50%)!important;
+    padding:4px 6px!important;
   }
 }
