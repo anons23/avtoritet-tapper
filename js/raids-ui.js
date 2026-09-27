@@ -11,7 +11,7 @@
   /* Idle loop video + hit stills on tap */
   const FIGHTER_IDLE_VIDEO={
     mafioznik:'./assets/raids/fighters/mafioznik_idle.webm',
-    petrovich:'./assets/raids/fighters/petrovich_video.mp4'
+    petrovich:'./assets/raids/fighters/petrovich.webm'
   };
   const FIGHTER_HIT_FRAMES={
     mafioznik:[
