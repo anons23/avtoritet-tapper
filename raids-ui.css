@@ -110,7 +110,7 @@
 .raid-shout.vtirach{left:76%;top:7%;transform:translate(-50%,8px) rotate(4deg) scale(.86);border-color:#fff}
 .raid-shout.mafioznik{left:25%;top:0%;transform:translate(-50%,8px) rotate(-4deg) scale(.86);border-color:#e35b9d}
 .raid-shout.mongol{left:74%;top:4%;transform:translate(-50%,8px) rotate(5deg) scale(.86);border-color:#d9a85b}
-@keyframes raidShoutIn{0%{opacity:0;transform:translate(-50%,14px) rotate(-3deg) scale(.82)}12%{opacity:1}25%{transform:translate(-50%,-4px) rotate(3deg) scale(1.04)}60%{opacity:1;transform:translate(-50%,0) rotate(-1deg) scale(1)}100%{opacity:0;transform:translate(-50%,-10px) rotate(2deg) scale(.96)}}
+@keyframes raidShoutIn{0%{opacity:0;transform:translate(-50%,-14px) rotate(-3deg) scale(.82)}12%{opacity:1}25%{transform:translate(-50%,-4px) rotate(3deg) scale(1.04)}60%{opacity:1;transform:translate(-50%,0) rotate(-1deg) scale(1)}100%{opacity:0;transform:translate(-50%,-10px) rotate(2deg) scale(.96)}}
 
 .raid-fighter .raid-hp{bottom:106%!important}
 .raid-fighter .raid-name{bottom:94%!important}
@@ -207,6 +207,31 @@
   #modal-overlay.raid-fullscreen .raid-idle-video{
     height:100%;
     max-height:none;
+    object-fit:contain;
+    object-position:center bottom;
+  }
+}
+
+/* Petrovich idle video — match hit-frame size */
+.raid-fighter.petrovich .raid-idle-video{
+  width:142%;
+  max-height:none;
+  left:50%;
+  right:auto;
+  transform:translateX(-50%);
+  height:auto;
+}
+@media (max-width:700px){
+  #modal-overlay.raid-fullscreen .raid-fighter.petrovich .raid-idle-video{
+    position:absolute;
+    left:50%;
+    bottom:0;
+    width:142%;
+    height:142%;
+    max-width:none;
+    max-height:none;
+    margin-left:0;
+    transform:translateX(-50%);
     object-fit:contain;
     object-position:center bottom;
   }
