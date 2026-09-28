@@ -110,7 +110,7 @@
 .raid-shout.vtirach{left:76%;top:7%;transform:translate(-50%,8px) rotate(4deg) scale(.86);border-color:#fff}
 .raid-shout.mafioznik{left:25%;top:0%;transform:translate(-50%,8px) rotate(-4deg) scale(.86);border-color:#e35b9d}
 .raid-shout.mongol{left:74%;top:4%;transform:translate(-50%,8px) rotate(5deg) scale(.86);border-color:#d9a85b}
-@keyframes raidShoutIn{0%{opacity:0;transform:translate(-50%,-14px) rotate(-3deg) scale(.82)}12%{opacity:1}25%{transform:translate(-50%,-4px) rotate(3deg) scale(1.04)}60%{opacity:1;transform:translate(-50%,0) rotate(-1deg) scale(1)}100%{opacity:0;transform:translate(-50%,-10px) rotate(2deg) scale(.96)}}
+@keyframes raidShoutIn{0%{opacity:0;transform:translate(-50%,14px) rotate(-3deg) scale(.82)}12%{opacity:1}25%{transform:translate(-50%,-4px) rotate(3deg) scale(1.04)}60%{opacity:1;transform:translate(-50%,0) rotate(-1deg) scale(1)}100%{opacity:0;transform:translate(-50%,-10px) rotate(2deg) scale(.96)}}
 
 .raid-fighter .raid-hp{bottom:106%!important}
 .raid-fighter .raid-name{bottom:94%!important}
@@ -167,7 +167,7 @@
 .raid-fighter.mafioznik-hit > img{animation:mafioznikHitStrong .68s cubic-bezier(.12,.82,.2,1)}
 .raid-fighter.mongol-hit > img{animation:mongolHitStrong .64s cubic-bezier(.12,.88,.2,1)}
 .raid-fighter.petrovich-hit > img,.raid-fighter.vtirach-hit > img,.raid-fighter.mafioznik-hit > img,.raid-fighter.mongol-hit > img{filter:drop-shadow(0 12px 16px rgba(0,0,0,.5)) brightness(1.18) sepia(.4) hue-rotate(-25deg) saturate(2.4)}
-.raid-fighter[class*="-hit"]::before{content:"";position:absolute;inset:8% 12% 18% 12%;border-radius:40%;background:radial-gradient(ellipse at 50% 40%,rgba(255,40,40,.38) 0%,transparent 70%);pointer-events:none;z-index:8;animation:raidRedFlash .35s ease-out forwards}
+.raid-fighter.crit::before{content:"";position:absolute;inset:8% 12% 18% 12%;border-radius:40%;background:radial-gradient(ellipse at 50% 40%,rgba(255,40,40,.45) 0%,transparent 70%);pointer-events:none;z-index:8;animation:raidRedFlash .4s ease-out forwards}
 @keyframes raidRedFlash{0%{opacity:0;transform:scale(.85)}18%{opacity:1}100%{opacity:0;transform:scale(1.15)}}
 .raid-hp.low-hp .raid-hp-track{border-color:rgba(255,80,80,.85);box-shadow:0 0 10px rgba(220,40,40,.55);animation:raidHpPulse .7s ease-in-out infinite}
 .raid-hp.low-hp .raid-hp-fill{background:linear-gradient(90deg,#ff3b3b,#c41e1e)!important}
@@ -235,4 +235,11 @@
     object-fit:contain;
     object-position:center bottom;
   }
+}
+
+/* Crit damage number */
+.raid-damage.crit{
+  color:#ff6b6b;
+  font-size:clamp(28px,5vw,56px);
+  text-shadow:0 0 12px rgba(255,60,60,.85),0 3px 5px #000;
 }
