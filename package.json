@@ -4,7 +4,9 @@
   "version": "1.0.0",
   "scripts": {
     "dev": "vite --host 0.0.0.0",
-    "start": "vite --host 0.0.0.0"
+    "start": "vite --host 0.0.0.0",
+    "compress:raids": "bash scripts/compress-raid-videos.sh",
+    "compress:raids:dry": "DRY_RUN=1 bash scripts/compress-raid-videos.sh"
   },
   "devDependencies": {
     "vite": "latest"
