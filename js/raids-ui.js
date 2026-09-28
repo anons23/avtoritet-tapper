@@ -12,7 +12,8 @@
   const FIGHTER_IDLE_VIDEO={
     mafioznik:'./assets/raids/fighters/mafioznik_idle.webm',
     petrovich:'./assets/raids/fighters/petrovich.webm',
-    vtirach:'./assets/raids/fighters/Vtirach.mp4'
+    vtirach:'./assets/raids/fighters/vtirach.webm',
+    mongol:'./assets/raids/fighters/mongol.webm'
   };
   const FIGHTER_HIT_FRAMES={
     mafioznik:[
@@ -32,12 +33,19 @@
       './assets/raids/fighters/Vtirach2.png',
       './assets/raids/fighters/Vtirach3.png',
       './assets/raids/fighters/Vtirach4.png'
+    ],
+    mongol:[
+      './assets/raids/fighters/Mongol1.png',
+      './assets/raids/fighters/Mongol2.png',
+      './assets/raids/fighters/Mongol3.png',
+      './assets/raids/fighters/Mongol4.png'
     ]
   };
   const FIGHTER_PORTRAIT={
     mafioznik:'./assets/raids/fighters/mafioznik_hit_1.png',
     petrovich:'./assets/raids/fighters/petrovich1.png',
-    vtirach:'./assets/raids/fighters/Vtirach1.png'
+    vtirach:'./assets/raids/fighters/Vtirach1.png',
+    mongol:'./assets/raids/fighters/Mongol1.png'
   };
   let lastHitFrame=-1;
   let idleResumeTimer=0;
