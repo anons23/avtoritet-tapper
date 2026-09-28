@@ -194,19 +194,33 @@
       if(hp)hp.textContent=unlocked(f)&&started?'HP: '+Math.max(0,p.hp)+' / '+f.hp:'';
     });
   }
+  const CRIT_CHANCE=0.12;
+  const CRIT_MULT=2;
   function damageValue(){return Math.max(1,Math.floor(Number(s()?.power)||1))}
   function onTap(e){
     e.preventDefault();e.stopPropagation();
     const f=fighter(),g=s(),p=pFor(f);if(!g||!raid.active&&false)return;
     if(p.hp<=0)return;
     if(!window.spendEnergyForRaid?.()){showRaidNote('⚡ Энергия закончилась');return}
-    const dmg=Math.min(damageValue(),p.hp);p.hp-=dmg;
+    const isCrit=Math.random()<CRIT_CHANCE;
+    let base=damageValue();
+    if(isCrit)base=Math.max(1,Math.floor(base*CRIT_MULT));
+    const dmg=Math.min(base,p.hp);p.hp-=dmg;
     const el=$('raid-fighter');
     showHitFrame(f.id);
-    if(el){el.classList.remove(f.id+'-hit');void el.offsetWidth;el.classList.add(f.id+'-hit')}
-    shakeScene();
+    if(el){
+      el.classList.remove(f.id+'-hit','crit');
+      void el.offsetWidth;
+      el.classList.add(f.id+'-hit');
+      if(isCrit)el.classList.add('crit');
+    }
+    if(isCrit)shakeScene();
     const d=$('raid-damage');
-    if(d){d.textContent='-'+dmg;d.classList.remove('show');void d.offsetWidth;d.classList.add('show')}
+    if(d){
+      d.textContent=(isCrit?'⚡КРИТ -':'-')+dmg;
+      d.classList.toggle('crit',isCrit);
+      d.classList.remove('show');void d.offsetWidth;d.classList.add('show');
+    }
     const fill=$('raid-hp-fill'),txt=$('raid-hp-text');
     const pct=p.hp/f.hp*100;
     if(fill)fill.style.width=pct+'%';
