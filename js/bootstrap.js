@@ -39,14 +39,31 @@
       new Promise(resolve=>setTimeout(resolve,4000))
     ]);
   }
+  function waitForRaidAssets(){
+    const p=window.__raidAssetsReady;
+    if(!p||typeof p.then!=='function')return Promise.resolve();
+    return Promise.race([
+      Promise.resolve(p).catch(()=>{}),
+      new Promise(resolve=>setTimeout(resolve,15000))
+    ]);
+  }
   function appendScript(item,index,next){
     const script=document.createElement('script');script.src=item.src;script.async=false;
-    script.onload=()=>{const loaded=Math.round(15+(index+1)*(81/scripts.length));preloadProgress(Math.min(96,loaded),item.critical?'Запускаем ядро':'Загружаем модули');next()};
-    script.onerror=()=>{console.error('[Bootstrap] Failed to load',item.src);if(item.critical){showFatal(item.src);return}const loaded=Math.round(15+(index+1)*(81/scripts.length));preloadProgress(Math.min(96,loaded),'Продолжаем запуск');next()};
+    /* scripts progress 42% → 96% (0–42% = preloader + raid assets) */
+    script.onload=()=>{const loaded=Math.round(42+(index+1)*(54/scripts.length));preloadProgress(Math.min(96,loaded),item.critical?'Запускаем ядро':'Загружаем модули');next()};
+    script.onerror=()=>{console.error('[Bootstrap] Failed to load',item.src);if(item.critical){showFatal(item.src);return}const loaded=Math.round(42+(index+1)*(54/scripts.length));preloadProgress(Math.min(96,loaded),'Продолжаем запуск');next()};
     document.body.appendChild(script);
   }
   function loadScripts(i){
-    if(i>=scripts.length){preloadProgress(96,'Почти готово');ready();finishPreloader();return}
+    if(i>=scripts.length){
+      preloadProgress(96,'Почти готово');
+      waitForRaidAssets().then(()=>{
+        preloadProgress(98,'Рейды на месте');
+        ready();
+        finishPreloader();
+      });
+      return;
+    }
     const item=scripts[i];
     if(item.src.indexOf('./js/game.js')===0){
       waitForYandexReady().then(()=>appendScript(item,i,()=>loadScripts(i+1)));
