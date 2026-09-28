@@ -1,7 +1,8 @@
 /* RAID SYSTEM — selection screen, persistent fighter progress, energy and unique reactions */
 'use strict';
 (()=>{
-  const RAID_RANK_REQUIREMENTS=[0,1500,4000];
+  /* 0 Салага, 1500 Пацан, 5000 Блатной — как в rank-ui / game.js */
+  const RAID_RANK_REQUIREMENTS=[0,1500,5000];
   const RAID_FIGHTERS=[
     {id:'petrovich',name:'ПЕТРОВИЧ',rank:0,hp:1500,first:{chifir:2000,points:150},repeat:{chifir:500,points:40},scene:'talk'},
     {id:'vtirach',name:'ВТИРАЧ',rank:0,hp:2000,first:{chifir:2500,points:200},repeat:{chifir:625,points:50},scene:'talk'},
@@ -9,12 +10,12 @@
     {id:'mongol',name:'МОНГОЛ',rank:1,hp:4000,first:{chifir:5500,points:400},repeat:{chifir:1375,points:100},scene:'fight'},
     {id:'glaz',name:'ГЛАЗ',rank:2,hp:5000,first:{chifir:7000,points:500},repeat:{chifir:1750,points:125},scene:'glaz'}
   ];
-  /* Idle loop video + hit stills on tap */
+  /* Idle loop video + hit stills on tap — пути как в assets/raids/fighters */
   const FIGHTER_IDLE_VIDEO={
     mafioznik:'./assets/raids/fighters/mafioznik_idle.webm',
-    petrovich:'./assets/raids/fighters/petrovich.mp4',
-    vtirach:'./assets/raids/fighters/vtirach.webm',
-    mongol:'./assets/raids/fighters/mongol.webm',
+    petrovich:'./assets/raids/fighters/petrovich.webm',
+    vtirach:'./assets/raids/fighters/Vtirach.webm',
+    mongol:'./assets/raids/fighters/Mongol.webm',
     glaz:'./assets/raids/fighters/Glaz.webm'
   };
   const FIGHTER_HIT_FRAMES={
