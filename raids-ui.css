@@ -53,18 +53,18 @@
 .raid-card-portrait img{width:100%;height:100%;object-fit:contain}
 .raid-card-info{display:flex;flex-direction:column;gap:6px;min-width:0}
 .raid-card-name{font-size:19px;letter-spacing:.06em}
-.raid-card-name.petrovich{color:#e7d2a3;font-family:Georgia,serif}.raid-card-name.vtirach{color:#eee;font-family:Impact,sans-serif}.raid-card-name.mafioznik{color:#e35b9d;font-family:cursive}.raid-card-name.mongol{color:#d9a85b;font-family:Trebuchet MS,sans-serif}
+.raid-card-name.petrovich{color:#e7d2a3;font-family:Georgia,serif}.raid-card-name.vtirach{color:#eee;font-family:Impact,sans-serif}.raid-card-name.mafioznik{color:#e35b9d;font-family:cursive}.raid-card-name.mongol{color:#d9a85b;font-family:Trebuchet MS,sans-serif}.raid-card-name.glaz{color:#7ec8e3;font-family:Segoe UI,sans-serif;letter-spacing:.1em}
 .raid-card-info small{color:#bbb;font-size:12px}
 
 .raid-window{position:relative;width:min(1120px,96vw);height:min(760px,88vh);overflow:hidden;border-radius:18px;padding:0!important;background:#111;box-shadow:0 20px 70px rgba(0,0,0,.7)}
 .raid-scene{position:relative;width:100%;height:100%;overflow:hidden;background:#222 center/cover no-repeat}
-.raid-scene.talk{background-image:url('./assets/raids/backgrounds/petrovich_vtirach_pc.png')}.raid-scene.fight{background-image:url('./assets/raids/backgrounds/mafioznik_mongol_pc.png')}
+.raid-scene.talk{background-image:url('./assets/raids/backgrounds/petrovich_vtirach_pc.png')}.raid-scene.fight{background-image:url('./assets/raids/backgrounds/mafioznik_mongol_pc.png')}.raid-scene.glaz{background-image:url('./assets/raids/backgrounds/%D1%84%D0%BE%D0%BD%20%D0%93%D0%BB%D0%B0%D0%B7%D0%9F%D0%9A.jpeg')}
 .raid-hud{position:absolute;left:16px;right:16px;top:14px;z-index:5;display:flex;justify-content:space-between;gap:12px;pointer-events:none}
 .raid-title,.raid-timer{padding:8px 12px;border-radius:10px;background:rgba(0,0,0,.72);color:#fff;font-weight:800;text-shadow:0 2px 3px #000}.raid-title{font-size:18px}.raid-timer{font-variant-numeric:tabular-nums}
 .raid-fighter{position:absolute;left:50%;bottom:7%;width:min(55%,520px);transform:translateX(-50%);z-index:3;text-align:center;user-select:none}
 .raid-fighter img{display:block;width:100%;height:auto;max-height:65vh;object-fit:contain;filter:drop-shadow(0 12px 16px rgba(0,0,0,.5));transform-origin:50% 90%}
 .raid-name{position:absolute;left:50%;bottom:96%;transform:translateX(-50%);white-space:nowrap;font-weight:1000;font-size:clamp(22px,3vw,42px);letter-spacing:.08em;text-shadow:0 3px 0 #111,0 0 12px rgba(0,0,0,.8);z-index:-1}
-.raid-name.petrovich{color:#e7d2a3;font-family:Georgia,serif}.raid-name.vtirach{color:#eee;font-family:Impact,sans-serif;letter-spacing:.02em}.raid-name.mafioznik{color:#e35b9d;font-family:cursive;letter-spacing:.01em}.raid-name.mongol{color:#d9a85b;font-family:Trebuchet MS,sans-serif}
+.raid-name.petrovich{color:#e7d2a3;font-family:Georgia,serif}.raid-name.vtirach{color:#eee;font-family:Impact,sans-serif;letter-spacing:.02em}.raid-name.mafioznik{color:#e35b9d;font-family:cursive;letter-spacing:.01em}.raid-name.mongol{color:#d9a85b;font-family:Trebuchet MS,sans-serif}.raid-name.glaz{color:#7ec8e3;font-family:Segoe UI,sans-serif;letter-spacing:.12em}
 .raid-hp{position:absolute;left:50%;bottom:88%;transform:translateX(-50%);width:min(360px,70vw);z-index:4}
 .raid-hp-track{height:12px;background:rgba(0,0,0,.72);border:2px solid rgba(255,255,255,.45);border-radius:20px;overflow:hidden}.raid-hp-fill{height:100%;width:100%;background:#d84b4b;transition:width .16s ease}.raid-hp-text{text-align:center;color:#fff;font-weight:800;font-size:13px;margin-top:4px;text-shadow:0 2px 3px #000}
 .raid-damage{position:absolute;left:50%;top:42%;transform:translate(-50%,-50%);color:#ffd75a;font-weight:1000;font-size:clamp(24px,4vw,48px);text-shadow:0 3px 5px #000;pointer-events:none;z-index:10}.raid-damage.show{animation:raidDamage .55s ease-out forwards}
@@ -79,6 +79,8 @@
 @keyframes mafioznikHitStrong{0%{transform:translateY(0) rotate(0) scale(1)}18%{transform:translateY(-18px) rotate(-10deg) scale(1.05,.95)}38%{transform:translateY(22px) rotate(8deg) scale(.92,1.08)}56%{transform:translateY(-9px) rotate(-6deg) scale(1.06,.94)}74%{transform:translateY(7px) rotate(4deg) scale(.97,1.03)}100%{transform:translateY(0) rotate(0) scale(1)}}
 .raid-fighter.mongol-hit img{animation:mongolHitStrong .64s cubic-bezier(.12,.88,.2,1)}
 @keyframes mongolHitStrong{0%{transform:translateY(0) scale(1)}16%{transform:translateY(26px) scale(1.12,.72)}32%{transform:translateY(-24px) scale(.90,1.16)}48%{transform:translateY(10px) scale(1.08,.88)}66%{transform:translateY(-8px) scale(.96,1.06)}82%{transform:translateY(3px) scale(1.02,.98)}100%{transform:translateY(0) scale(1)}}
+.raid-fighter.glaz-hit img{animation:glazHitStrong .6s cubic-bezier(.14,.8,.2,1)}
+@keyframes glazHitStrong{0%{transform:translateY(0) rotate(0) scale(1)}14%{transform:translateY(-6px) rotate(-3deg) scale(1.03)}30%{transform:translateY(14px) rotate(4deg) scale(.94,1.05)}48%{transform:translateY(-10px) rotate(-5deg) scale(1.05)}68%{transform:translateY(6px) rotate(2deg) scale(.98)}100%{transform:translateY(0) rotate(0) scale(1)}}
 
 .raid-controls{position:absolute;left:50%;bottom:16px;transform:translateX(-50%);z-index:6;display:flex;gap:8px}.raid-next{padding:9px 14px;border:1px solid rgba(255,255,255,.35);border-radius:10px;background:rgba(0,0,0,.75);color:#fff;font-weight:800;cursor:pointer}
 .raid-note{position:absolute;left:50%;bottom:68px;transform:translateX(-50%);z-index:6;color:#fff;background:rgba(0,0,0,.62);padding:6px 10px;border-radius:8px;font-size:13px;white-space:nowrap}
@@ -110,6 +112,7 @@
 .raid-shout.vtirach{left:76%;top:7%;transform:translate(-50%,8px) rotate(4deg) scale(.86);border-color:#fff}
 .raid-shout.mafioznik{left:25%;top:0%;transform:translate(-50%,8px) rotate(-4deg) scale(.86);border-color:#e35b9d}
 .raid-shout.mongol{left:74%;top:4%;transform:translate(-50%,8px) rotate(5deg) scale(.86);border-color:#d9a85b}
+.raid-shout.glaz{left:28%;top:3%;transform:translate(-50%,8px) rotate(-3deg) scale(.86);border-color:#7ec8e3}
 @keyframes raidShoutIn{0%{opacity:0;transform:translate(-50%,14px) rotate(-3deg) scale(.82)}12%{opacity:1}25%{transform:translate(-50%,-4px) rotate(3deg) scale(1.04)}60%{opacity:1;transform:translate(-50%,0) rotate(-1deg) scale(1)}100%{opacity:0;transform:translate(-50%,-10px) rotate(2deg) scale(.96)}}
 
 .raid-fighter .raid-hp{bottom:106%!important}
@@ -130,6 +133,7 @@
   #modal-overlay.raid-fullscreen .raid-scene{position:relative;width:100%;height:100%;box-sizing:border-box;overflow:hidden;padding-top:calc(64px + env(safe-area-inset-top,0px));padding-bottom:calc(108px + env(safe-area-inset-bottom,0px));background-position:center;background-size:cover;background-repeat:no-repeat}
   #modal-overlay.raid-fullscreen .raid-scene.talk{background-image:url('./assets/raids/backgrounds/petrovich_vtirach_mobile.png')}
   #modal-overlay.raid-fullscreen .raid-scene.fight{background-image:url('./assets/raids/backgrounds/mafioznik_mongol_mobile.png')}
+  #modal-overlay.raid-fullscreen .raid-scene.glaz{background-image:url('./assets/raids/backgrounds/%D1%84%D0%BE%D0%BD%20%D0%B3%D0%BB%D0%B0%D0%B7%20%D0%9C%D0%BE%D0%B1%D0%B8%D0%BB.jpeg')}
   #modal-overlay.raid-fullscreen .raid-hud{left:8px;right:8px;top:calc(42px + env(safe-area-inset-top,0px))!important;z-index:30;display:flex;align-items:center;gap:6px}
   #modal-overlay.raid-fullscreen .raid-title,#modal-overlay.raid-fullscreen .raid-timer{min-height:30px;padding:5px 8px;border-radius:8px;background:rgba(0,0,0,.74);font-size:11px;line-height:20px}
   #modal-overlay.raid-fullscreen .raid-title{min-width:0;max-width:calc(100% - 72px);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
@@ -166,7 +170,8 @@
 .raid-fighter.vtirach-hit > img{animation:vtirachHitStrong .62s cubic-bezier(.15,.75,.2,1)}
 .raid-fighter.mafioznik-hit > img{animation:mafioznikHitStrong .68s cubic-bezier(.12,.82,.2,1)}
 .raid-fighter.mongol-hit > img{animation:mongolHitStrong .64s cubic-bezier(.12,.88,.2,1)}
-.raid-fighter.petrovich-hit > img,.raid-fighter.vtirach-hit > img,.raid-fighter.mafioznik-hit > img,.raid-fighter.mongol-hit > img{filter:drop-shadow(0 12px 16px rgba(0,0,0,.5)) brightness(1.18) sepia(.4) hue-rotate(-25deg) saturate(2.4)}
+.raid-fighter.glaz-hit > img{animation:glazHitStrong .6s cubic-bezier(.14,.8,.2,1)}
+.raid-fighter.petrovich-hit > img,.raid-fighter.vtirach-hit > img,.raid-fighter.mafioznik-hit > img,.raid-fighter.mongol-hit > img,.raid-fighter.glaz-hit > img{filter:drop-shadow(0 12px 16px rgba(0,0,0,.5)) brightness(1.18) sepia(.4) hue-rotate(-25deg) saturate(2.4)}
 .raid-fighter.crit::before{content:"";position:absolute;inset:8% 12% 18% 12%;border-radius:40%;background:radial-gradient(ellipse at 50% 40%,rgba(255,40,40,.45) 0%,transparent 70%);pointer-events:none;z-index:8;animation:raidRedFlash .4s ease-out forwards}
 @keyframes raidRedFlash{0%{opacity:0;transform:scale(.85)}18%{opacity:1}100%{opacity:0;transform:scale(1.15)}}
 .raid-hp.low-hp .raid-hp-track{border-color:rgba(255,80,80,.85);box-shadow:0 0 10px rgba(220,40,40,.55);animation:raidHpPulse .7s ease-in-out infinite}
