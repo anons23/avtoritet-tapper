@@ -63,27 +63,27 @@
   }
 
   const RAID_IMAGES=[
-    './assets/raids/ui/raid-button.png',
-    './assets/raids/fighters/mafioznik_hit_1.png',
-    './assets/raids/fighters/mafioznik_hit_2.png',
-    './assets/raids/fighters/mafioznik_hit_3.png',
-    './assets/raids/fighters/mafioznik_hit_4.png',
-    './assets/raids/fighters/petrovich1.png',
-    './assets/raids/fighters/petrovich2.png',
-    './assets/raids/fighters/petrovich3.png',
-    './assets/raids/fighters/petrovich4.png',
-    './assets/raids/fighters/Vtirach1.png',
-    './assets/raids/fighters/Vtirach2.png',
-    './assets/raids/fighters/Vtirach3.png',
-    './assets/raids/fighters/Vtirach4.png',
-    './assets/raids/fighters/Mongol1.png',
-    './assets/raids/fighters/Mongol2.png',
-    './assets/raids/fighters/Mongol3.png',
-    './assets/raids/fighters/Mongol4.png',
-    './assets/raids/fighters/Glaz1.png',
-    './assets/raids/fighters/Glaz2.png',
-    './assets/raids/fighters/Glaz3.png',
-    './assets/raids/fighters/Glaz4.png'
+    './assets/raids/ui/raid-button.webp',
+    './assets/raids/fighters/mafioznik_hit_1.webp',
+    './assets/raids/fighters/mafioznik_hit_2.webp',
+    './assets/raids/fighters/mafioznik_hit_3.webp',
+    './assets/raids/fighters/mafioznik_hit_4.webp',
+    './assets/raids/fighters/petrovich1.webp',
+    './assets/raids/fighters/petrovich2.webp',
+    './assets/raids/fighters/petrovich3.webp',
+    './assets/raids/fighters/petrovich4.webp',
+    './assets/raids/fighters/Vtirach1.webp',
+    './assets/raids/fighters/Vtirach2.webp',
+    './assets/raids/fighters/Vtirach3.webp',
+    './assets/raids/fighters/Vtirach4.webp',
+    './assets/raids/fighters/Mongol1.webp',
+    './assets/raids/fighters/Mongol2.webp',
+    './assets/raids/fighters/Mongol3.webp',
+    './assets/raids/fighters/Mongol4.webp',
+    './assets/raids/fighters/Glaz1.webp',
+    './assets/raids/fighters/Glaz2.webp',
+    './assets/raids/fighters/Glaz3.webp',
+    './assets/raids/fighters/Glaz4.webp'
   ];
   const RAID_VIDEOS=[
     './assets/raids/fighters/mafioznik_idle.webm',
@@ -96,15 +96,15 @@
   function raidBackgrounds(mobile){
     if(mobile){
       return [
-        './assets/raids/backgrounds/petrovich_vtirach_mobile.png',
-        './assets/raids/backgrounds/mafioznik_mongol_mobile.png',
-        './assets/raids/backgrounds/%D1%84%D0%BE%D0%BD%20%D0%B3%D0%BB%D0%B0%D0%B7%20%D0%9C%D0%BE%D0%B1%D0%B8%D0%BB.jpeg'
+        './assets/raids/backgrounds/petrovich_vtirach_mobile.webp',
+        './assets/raids/backgrounds/mafioznik_mongol_mobile.webp',
+        './assets/raids/backgrounds/glaz_mobile.webp'
       ];
     }
     return [
-      './assets/raids/backgrounds/petrovich_vtirach_pc.png',
-      './assets/raids/backgrounds/mafioznik_mongol_pc.png',
-      './assets/raids/backgrounds/%D1%84%D0%BE%D0%BD%20%D0%93%D0%BB%D0%B0%D0%B7%D0%9F%D0%9A.jpeg'
+      './assets/raids/backgrounds/petrovich_vtirach_pc.webp',
+      './assets/raids/backgrounds/mafioznik_mongol_pc.webp',
+      './assets/raids/backgrounds/glaz_pc.webp'
     ];
   }
 
