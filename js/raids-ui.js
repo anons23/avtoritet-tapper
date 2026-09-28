@@ -1,19 +1,21 @@
 /* RAID SYSTEM — selection screen, persistent fighter progress, energy and unique reactions */
 'use strict';
 (()=>{
-  const RAID_RANK_REQUIREMENTS=[0,1500];
+  const RAID_RANK_REQUIREMENTS=[0,1500,4000];
   const RAID_FIGHTERS=[
     {id:'petrovich',name:'ПЕТРОВИЧ',rank:0,hp:1500,first:{chifir:2000,points:150},repeat:{chifir:500,points:40},scene:'talk'},
     {id:'vtirach',name:'ВТИРАЧ',rank:0,hp:2000,first:{chifir:2500,points:200},repeat:{chifir:625,points:50},scene:'talk'},
     {id:'mafioznik',name:'МАФИОЗНИК',rank:1,hp:3000,first:{chifir:4000,points:300},repeat:{chifir:1000,points:75},scene:'fight'},
-    {id:'mongol',name:'МОНГОЛ',rank:1,hp:4000,first:{chifir:5500,points:400},repeat:{chifir:1375,points:100},scene:'fight'}
+    {id:'mongol',name:'МОНГОЛ',rank:1,hp:4000,first:{chifir:5500,points:400},repeat:{chifir:1375,points:100},scene:'fight'},
+    {id:'glaz',name:'ГЛАЗ',rank:2,hp:5000,first:{chifir:7000,points:500},repeat:{chifir:1750,points:125},scene:'glaz'}
   ];
   /* Idle loop video + hit stills on tap */
   const FIGHTER_IDLE_VIDEO={
     mafioznik:'./assets/raids/fighters/mafioznik_idle.webm',
-    petrovich:'./assets/raids/fighters/petrovich.webm',
+    petrovich:'./assets/raids/fighters/petrovich.mp4',
     vtirach:'./assets/raids/fighters/vtirach.webm',
-    mongol:'./assets/raids/fighters/mongol.webm'
+    mongol:'./assets/raids/fighters/mongol.webm',
+    glaz:'./assets/raids/fighters/Glaz.webm'
   };
   const FIGHTER_HIT_FRAMES={
     mafioznik:[
@@ -39,13 +41,20 @@
       './assets/raids/fighters/Mongol2.png',
       './assets/raids/fighters/Mongol3.png',
       './assets/raids/fighters/Mongol4.png'
+    ],
+    glaz:[
+      './assets/raids/fighters/Glaz1.png',
+      './assets/raids/fighters/Glaz2.png',
+      './assets/raids/fighters/Glaz3.png',
+      './assets/raids/fighters/Glaz4.png'
     ]
   };
   const FIGHTER_PORTRAIT={
     mafioznik:'./assets/raids/fighters/mafioznik_hit_1.png',
     petrovich:'./assets/raids/fighters/petrovich1.png',
     vtirach:'./assets/raids/fighters/Vtirach1.png',
-    mongol:'./assets/raids/fighters/Mongol1.png'
+    mongol:'./assets/raids/fighters/Mongol1.png',
+    glaz:'./assets/raids/fighters/Glaz1.png'
   };
   let lastHitFrame=-1;
   let idleResumeTimer=0;
@@ -258,6 +267,9 @@
     ],
     mongol:[
       'Роднулькины мои!','Ой, всё!','Ну здравствуй!','Ты чё, родной?!','Ай, больно же!','Спокойно, спокойно!','Давай без этого!','Ну ты даёшь!','Эх, братцы!','Не трогай меня!','Вот это ты разошёлся!','Ладно, договорились!'
+    ],
+    glaz:[
+      'Я всё вижу.','Не моргай.','Глаз не сомкнёшь.','Смотри на меня.','Видел тебя.','Не спрячешься.','Я уже знаю.','Тише...','Не отводи взгляд.','Слежу.','Ошибочка.','Закрой глаза — поздно.'
     ]
   };
   function showFighterShout(id){
