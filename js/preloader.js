@@ -83,14 +83,20 @@
     './assets/raids/fighters/Glaz1.png',
     './assets/raids/fighters/Glaz2.png',
     './assets/raids/fighters/Glaz3.png',
-    './assets/raids/fighters/Glaz4.png'
+    './assets/raids/fighters/Glaz4.png',
+    './assets/raids/fighters/krest1.jpg',
+    './assets/raids/fighters/krest2.jpg',
+    './assets/raids/fighters/krest3.jpg',
+    './assets/raids/fighters/krest4.jpg',
+    './assets/raids/fighters/krest5.jpg'
   ];
   const RAID_VIDEOS=[
     './assets/raids/fighters/mafioznik_idle.webm',
     './assets/raids/fighters/petrovich.webm',
     './assets/raids/fighters/Vtirach.webm',
     './assets/raids/fighters/Mongol.webm',
-    './assets/raids/fighters/Glaz.webm'
+    './assets/raids/fighters/Glaz.webm',
+    './assets/raids/fighters/krest.webm'
   ];
 
   function raidBackgrounds(mobile){
@@ -98,13 +104,15 @@
       return [
         './assets/raids/backgrounds/petrovich_vtirach_mobile.png',
         './assets/raids/backgrounds/mafioznik_mongol_mobile.png',
-        './assets/raids/backgrounds/%D1%84%D0%BE%D0%BD%20%D0%B3%D0%BB%D0%B0%D0%B7%20%D0%9C%D0%BE%D0%B1%D0%B8%D0%BB.jpeg'
+        './assets/raids/backgrounds/glaz_mobile.jpeg',
+        './assets/raids/backgrounds/krest_mobile.jpeg'
       ];
     }
     return [
       './assets/raids/backgrounds/petrovich_vtirach_pc.png',
       './assets/raids/backgrounds/mafioznik_mongol_pc.png',
-      './assets/raids/backgrounds/%D1%84%D0%BE%D0%BD%20%D0%93%D0%BB%D0%B0%D0%B7%D0%9F%D0%9A.jpeg'
+      './assets/raids/backgrounds/glaz_pc.jpeg',
+      './assets/raids/backgrounds/krest_pc.jpeg'
     ];
   }
 
