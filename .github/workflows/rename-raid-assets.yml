@@ -1,0 +1,40 @@
+name: Rename raid assets to English
+on:
+  workflow_dispatch:
+jobs:
+  rename:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: fix/yandex-16plus-stability
+      - name: Rename files
+        run: |
+          set -e
+          cd assets/raids/fighters
+          [ -f "Crest (1).jpg" ] && git mv "Crest (1).jpg" krest1.jpg || true
+          [ -f "Crest (2).jpg" ] && git mv "Crest (2).jpg" krest2.jpg || true
+          [ -f "Crest (3).jpg" ] && git mv "Crest (3).jpg" krest3.jpg || true
+          [ -f "Crest (4).jpg" ] && git mv "Crest (4).jpg" krest4.jpg || true
+          [ -f "Crest (5).jpg" ] && git mv "Crest (5).jpg" krest5.jpg || true
+          [ -f "Crest.webm" ] && git mv "Crest.webm" krest.webm || true
+          cd ../backgrounds
+          for f in *; do
+            case "$f" in
+              *ГлазПК*|*глазПК*) git mv "$f" glaz_pc.jpeg 2>/dev/null || true ;;
+              *глаз*Мобил*|*глаз*мобил*) git mv "$f" glaz_mobile.jpeg 2>/dev/null || true ;;
+              *кРЕСТ_ПК*|*КРЕСТ_ПК*|*крест_ПК*) git mv "$f" krest_pc.jpeg 2>/dev/null || true ;;
+              *крест*Мобил*|*крест*мобил*) git mv "$f" krest_mobile.jpeg 2>/dev/null || true ;;
+            esac
+          done
+          ls -la
+          cd ../../..
+          git status
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git diff --cached --quiet && echo "Nothing to commit" && exit 0
+          git commit -m "chore: rename Krest/Glaz raid assets to English filenames"
+          git push
