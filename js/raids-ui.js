@@ -189,7 +189,7 @@
       v.playsInline=true;
       v.setAttribute('playsinline','');
       v.setAttribute('webkit-playsinline','');
-      v.style.cssText='position:absolute;left:0;top:0;width:100%;height:100%;object-fit:contain;z-index:2;pointer-events:none';
+      v.style.cssText='position:absolute;left:0;top:0;width:100%;height:100%;object-fit:contain;object-position:center bottom;z-index:2;pointer-events:none;background:transparent';
       host.appendChild(v);
     }
     v.src=src;
@@ -253,12 +253,15 @@
             '<div class="raid-title">'+f.name+'</div>'+
             '<div class="raid-timer" id="raid-timer">'+formatTime(remaining(f))+'</div>'+
           '</div>'+
-          '<div class="raid-fighter" id="raid-fighter">'+
+          '<div class="raid-fighter '+f.id+'" id="raid-fighter">'+
             '<div class="raid-name '+f.id+'">'+f.name+'</div>'+
             '<img id="raid-fighter-img" src="'+stillSrc+'" alt="'+f.name+'" style="'+(hasIdle?'opacity:0':'')+'">'+
           '</div>'+
-          '<div class="raid-hp'+(pct<25?' low-hp':'')+'"><div class="raid-hp-track"><div id="raid-hp-fill" class="raid-hp-fill" style="width:'+pct+'%"></div></div><div id="raid-hp-text" class="raid-hp-text">'+Math.max(0,p.hp)+' / '+f.hp+'</div></div>'+
+          '<div class="raid-hp'+(pct<25?' low-hp':'')+'" id="raid-hp"><div class="raid-hp-track"><div id="raid-hp-fill" class="raid-hp-fill" style="width:'+pct+'%"></div></div><div id="raid-hp-text" class="raid-hp-text">'+Math.max(0,p.hp)+' / '+f.hp+'</div></div>'+
           '<div class="raid-note" id="raid-note"></div>'+
+          '<div class="raid-controls">'+
+            '<button type="button" class="raid-next" id="raid-back-fighters">← К бойцам</button>'+
+          '</div>'+
           '<div class="raid-result" id="raid-result">'+
             '<div class="raid-result-card">'+
               '<div id="raid-result-title"></div>'+
@@ -272,11 +275,23 @@
     if(hasIdle)playIdleVideo(f);
     const scene=$('raid-scene');
     scene?.addEventListener('pointerdown',onTap);
+    const back=$('raid-back-fighters');
+    if(back){
+      back.addEventListener('pointerdown',e=>{e.stopPropagation();});
+      back.addEventListener('click',e=>{
+        e.preventDefault();
+        e.stopPropagation();
+        raid.active=false;
+        stopIdleVideo();
+        openRaidMenu();
+      });
+    }
     $('raid-result-ok')?.addEventListener('click',()=>{closeModal();openRaidMenu();});
   }
   function fighter(){return RAID_FIGHTERS[raid.fighter]}
   function onTap(e){
     if(!raid.active)return;
+    if(e.target&&(e.target.closest&&(e.target.closest('.raid-controls')||e.target.closest('.raid-result')||e.target.closest('button'))))return;
     const f=fighter(),p=pFor(f);
     if(p.hp<=0)return;
     if(remaining(f)<=0){showRaidNote('⏱ Время вышло');return;}
