@@ -141,6 +141,7 @@
     const overlay=$('modal-overlay');
     const content=$('modal-content');
     if(!overlay||!content)return;
+    overlay.classList.remove('hidden');
     overlay.classList.add('show','raid-selection-fullscreen');
     overlay.classList.remove('raid-fullscreen');
     content.innerHTML=
@@ -158,6 +159,7 @@
     const overlay=$('modal-overlay');
     if(!overlay)return;
     overlay.classList.remove('show','raid-fullscreen','raid-selection-fullscreen');
+    overlay.classList.add('hidden');
     stopIdleVideo();
   }
   function stopIdleVideo(){
@@ -226,6 +228,7 @@
     const overlay=$('modal-overlay');
     const content=$('modal-content');
     if(!overlay||!content)return;
+    overlay.classList.remove('hidden');
     overlay.classList.add('show','raid-fullscreen');
     overlay.classList.remove('raid-selection-fullscreen');
     const hasIdle=!!FIGHTER_IDLE_VIDEO[f.id];
