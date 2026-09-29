@@ -174,35 +174,43 @@
     p.hp=Math.max(0,p.hp-dmg);
     const fill=$('raid-hp-fill'),txt=$('raid-hp-text');const pct=p.hp/f.hp*100;
     if(fill)fill.style.width=pct+'%';if(txt)txt.textContent=p.hp+' / '+f.hp;
-    updateLowHp(pct);save();showFighterShout(f.id);showHitFrame(f.id);spawnBlood(crit);
+    updateLowHp(pct);save();
+    if(Math.random()<0.2)showFighterShout(f.id);
+    showHitFrame(f.id);
+    spawnBlood(crit,e);
     const scene=$('raid-scene');
     if(scene){scene.classList.remove('shake');void scene.offsetWidth;scene.classList.add('shake');}
     const fighterEl=$('raid-fighter');
     if(crit&&fighterEl){fighterEl.classList.add('crit');setTimeout(()=>fighterEl.classList.remove('crit'),400);}
     if(p.hp<=0)win();
   }
-  function spawnBlood(crit){
-    const host=$('raid-fighter-media')||$('raid-fighter');
-    if(!host)return;
+  function spawnBlood(crit,e){
+    const scene=$('raid-scene');
+    if(!scene)return;
+    const rect=scene.getBoundingClientRect();
+    const cx=(e&&typeof e.clientX==='number')?e.clientX:(rect.left+rect.width*0.5);
+    const cy=(e&&typeof e.clientY==='number')?e.clientY:(rect.top+rect.height*0.45);
+    const baseX=cx-rect.left;
+    const baseY=cy-rect.top;
     const n=crit?10:5;
     for(let i=0;i<n;i++){
       const d=document.createElement('span');
       d.className='raid-blood'+(crit?' crit':'');
       const angle=(Math.random()*360)|0;
-      const dist=18+Math.random()*(crit?70:42);
+      const dist=12+Math.random()*(crit?55:32);
       const size=4+Math.random()*(crit?14:8);
-      const ox=(Math.random()*30-15)|0;
-      const oy=(-10-Math.random()*40)|0;
+      const ox=Math.random()*18-9;
+      const oy=Math.random()*18-9;
       const dx=Math.cos(angle*Math.PI/180)*dist;
-      const dy=-Math.abs(Math.sin(angle*Math.PI/180)*dist)-8;
-      d.style.cssText='--dx:'+dx+'px;--dy:'+dy+'px;--s:'+size+'px;left:calc(50% + '+ox+'px);top:calc(42% + '+oy+'px);width:'+size+'px;height:'+(size*(0.7+Math.random()*0.6))+'px;animation-delay:'+(Math.random()*40)+'ms';
-      host.appendChild(d);
+      const dy=-Math.abs(Math.sin(angle*Math.PI/180)*dist)-6;
+      d.style.cssText='left:'+(baseX+ox)+'px;top:'+(baseY+oy)+'px;width:'+size+'px;height:'+(size*(0.7+Math.random()*0.6))+'px;--dx:'+dx+'px;--dy:'+dy+'px;animation-delay:'+(Math.random()*40)+'ms';
+      scene.appendChild(d);
       setTimeout(()=>d.remove(),700);
     }
     const splat=document.createElement('span');
     splat.className='raid-blood-splat'+(crit?' crit':'');
-    splat.style.cssText='left:calc(50% + '+(Math.random()*16-8)+'px);top:calc(40% + '+(Math.random()*12-6)+'px);';
-    host.appendChild(splat);
+    splat.style.cssText='left:'+baseX+'px;top:'+baseY+'px;';
+    scene.appendChild(splat);
     setTimeout(()=>splat.remove(),crit?650:480);
   }
   const FIGHTER_SHOUTS={
@@ -215,9 +223,23 @@
   };
   function showFighterShout(id){
     const list=FIGHTER_SHOUTS[id]||[];if(!list.length)return;
+    const scene=$('raid-scene');if(!scene)return;
     let el=$('raid-shout');
-    if(!el){el=document.createElement('div');el.id='raid-shout';el.className='raid-shout';$('raid-scene')?.appendChild(el);}
-    el.className='raid-shout '+id;el.textContent=list[Math.floor(Math.random()*list.length)];
+    if(!el){el=document.createElement('div');el.id='raid-shout';el.className='raid-shout';scene.appendChild(el);}
+    el.className='raid-shout '+id;
+    el.textContent=list[Math.floor(Math.random()*list.length)];
+    const media=$('raid-fighter-media')||$('raid-fighter');
+    if(media){
+      const mr=media.getBoundingClientRect();
+      const sr=scene.getBoundingClientRect();
+      const left=mr.left-sr.left+mr.width*(0.42+Math.random()*0.2);
+      const top=mr.top-sr.top+mr.height*(0.02+Math.random()*0.08);
+      el.style.left=left+'px';
+      el.style.top=top+'px';
+      el.style.right='auto';
+      el.style.bottom='auto';
+      el.style.transform='translate(-50%,0) rotate('+((Math.random()*6)-3)+'deg)';
+    }
     el.classList.remove('show');void el.offsetWidth;el.classList.add('show');
   }
   function showRaidNote(msg){
