@@ -104,14 +104,18 @@
     if(bar)bar.classList.toggle('low-hp',pct<=25&&pct>0);
   }
   function ensureRaidButton(){
-    if($('raid-open-button'))return;
+    if($('raid-open-button'))return true;
+    const parent=$('game-container')||document.body;
+    if(!parent)return false;
     const btn=document.createElement('button');
     btn.id='raid-open-button';
     btn.type='button';
     btn.title='Рейды';
+    btn.setAttribute('aria-label','Рейды');
     btn.innerHTML='<img src="./assets/raids/ui/raid-button.png" alt="Рейды">';
-    btn.addEventListener('click',()=>openRaidMenu());
-    document.body.appendChild(btn);
+    btn.addEventListener('click',e=>{e.preventDefault();e.stopPropagation();openRaidMenu();});
+    parent.appendChild(btn);
+    return true;
   }
   function refreshRaidMenu(){
     const list=$('raid-fighter-list');
@@ -140,7 +144,10 @@
   function openRaidMenu(){
     const overlay=$('modal-overlay');
     const content=$('modal-content');
-    if(!overlay||!content)return;
+    if(!overlay||!content){
+      console.warn('[raids] modal-overlay or modal-content not found');
+      return;
+    }
     overlay.classList.remove('hidden');
     overlay.classList.add('show','raid-selection-fullscreen');
     overlay.classList.remove('raid-fullscreen');
@@ -171,6 +178,8 @@
     stopIdleVideo();
     const src=FIGHTER_IDLE_VIDEO[f.id];
     if(!src)return;
+    const host=$('raid-fighter');
+    if(!host)return;
     let v=$('raid-idle-video');
     if(!v){
       v=document.createElement('video');
@@ -181,7 +190,7 @@
       v.setAttribute('playsinline','');
       v.setAttribute('webkit-playsinline','');
       v.style.cssText='position:absolute;left:0;top:0;width:100%;height:100%;object-fit:contain;z-index:2;pointer-events:none';
-      $('raid-fighter')?.appendChild(v);
+      host.appendChild(v);
     }
     v.src=src;
     v.style.display='block';
@@ -227,7 +236,10 @@
     save();
     const overlay=$('modal-overlay');
     const content=$('modal-content');
-    if(!overlay||!content)return;
+    if(!overlay||!content){
+      console.warn('[raids] cannot startRaid: modal missing');
+      return;
+    }
     overlay.classList.remove('hidden');
     overlay.classList.add('show','raid-fullscreen');
     overlay.classList.remove('raid-selection-fullscreen');
@@ -336,9 +348,11 @@
     p.hp=0;
     save();
     const card=$('raid-result');
+    const title=$('raid-result-title');
+    const text=$('raid-result-text');
     if(card){
-      $('raid-result-title').textContent='ПОБЕДА!';
-      $('raid-result-text').textContent='+'+rew.chifir+' чифира · +'+rew.points+' авторитета'+(first?' (первый раз)':'');
+      if(title)title.textContent='ПОБЕДА!';
+      if(text)text.textContent='+'+rew.chifir+' чифира · +'+rew.points+' авторитета'+(first?' (первый раз)':'');
       card.classList.add('show');
     }
     stopIdleVideo();
@@ -356,7 +370,10 @@
     if($('modal-overlay')?.classList.contains('raid-selection-fullscreen'))refreshRaidMenu();
   }
   function boot(){
-    ensureRaidButton();
+    if(!ensureRaidButton()){
+      window.setTimeout(boot,50);
+      return;
+    }
     if(!raidTicker)raidTicker=window.setInterval(tickRaidClock,1000);
   }
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot);else boot();
