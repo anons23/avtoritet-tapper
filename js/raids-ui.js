@@ -1,7 +1,7 @@
 /* RAID SYSTEM — selection screen, persistent fighter progress, energy and unique reactions */
 'use strict';
 (()=>{
-  /* 0 Салага, 1500 Пацан, 5000 Блатной, 15000 Смотрящий — как в rank-ui / game.js */
+  /* 0 Салага, 1500 Пацан, 5000 Блатной — как в rank-ui / game.js */
   const RAID_RANK_REQUIREMENTS=[0,1500,5000,15000];
   const RAID_FIGHTERS=[
     {id:'petrovich',name:'ПЕТРОВИЧ',rank:0,hp:1500,first:{chifir:2000,points:150},repeat:{chifir:500,points:40},scene:'talk'},
@@ -101,180 +101,198 @@
   }
   function ensureRaidButton(){
     if($('raid-open-button'))return;
-    const b=document.createElement('button');
-    b.id='raid-open-button';b.type='button';b.title='Рейд';b.setAttribute('aria-label','Открыть рейд');
-    b.innerHTML='<img src="./assets/raids/ui/raid-button.png" alt="Рейд">';
-    b.addEventListener('click',openRaidMenu);
-    const host=$('game-container');
-    (host||document.body).appendChild(b);
+    const btn=document.createElement('button');
+    btn.id='raid-open-button';
+    btn.type='button';
+    btn.title='Рейды';
+    btn.innerHTML='<img src="./assets/raids/ui/raid-button.png" alt="Рейды">';
+    btn.addEventListener('click',()=>openRaidMenu());
+    document.body.appendChild(btn);
   }
-  function menuCard(f){
-    const open=unlocked(f),p=pFor(f),time=remaining(f),started=!!p.startedAt&&p.hp>0;
-    const status=!open?'🔒 Закрыто по масти':(!started?'Не начат':(time>0?'⏱ '+formatTime(time):'⏱ Время вышло'));
-    return '<button type="button" class="raid-fighter-card '+(open?'':'locked')+'" data-raid-fighter="'+f.id+'" '+(open?'':'disabled')+'>'+
-      '<span class="raid-card-portrait"><img src="'+portraitSrc(f)+'" alt=""></span>'+
-      '<span class="raid-card-info"><b class="raid-card-name '+f.id+'">'+f.name+'</b><small class="raid-card-status">'+status+'</small>'+
-      (open&&started?'<small class="raid-card-hp">HP: '+Math.max(0,p.hp)+' / '+f.hp+'</small>':'<small class="raid-card-hp"></small>')+
-      '</span></button>';
+  function refreshRaidMenu(){
+    const list=$('raid-fighter-list');
+    if(!list)return;
+    list.innerHTML='';
+    RAID_FIGHTERS.forEach((f,i)=>{
+      const ok=unlocked(f);
+      const p=pFor(f);
+      const card=document.createElement('button');
+      card.type='button';
+      card.className='raid-fighter-card'+(ok?'':' locked');
+      card.dataset.idx=String(i);
+      const rankNeed=RAID_RANK_REQUIREMENTS[f.rank]??0;
+      const rankNames=['Салага','Пацан','Блатной','Смотрящий'];
+      const rankLabel=rankNames[f.rank]||('масть '+f.rank);
+      card.innerHTML=
+        '<div class="raid-card-portrait"><img src="'+portraitSrc(f)+'" alt="'+f.name+'"></div>'+
+        '<div class="raid-card-info">'+
+          '<div class="raid-card-name '+f.id+'">'+f.name+'</div>'+
+          '<small>'+(ok?('HP '+p.hp+'/'+f.hp+(p.wins?' · побед: '+p.wins:'')):('🔒 Нужна масть: '+rankLabel+' ('+rankNeed+' ⭐)'))+'</small>'+
+        '</div>';
+      if(ok)card.addEventListener('click',()=>startRaid(i));
+      list.appendChild(card);
+    });
   }
   function openRaidMenu(){
-    if(!window.openModal)return;
-    clearTimeout(idleResumeTimer);
-    $('modal-overlay')?.classList.remove('raid-fullscreen');
-    window.openModal('<div class="raid-select-screen"><div class="raid-select"><div class="raid-select-head"><div><h2>⚔️ РЕЙД</h2><p>Выбери противника. У каждого бойца свой бой и свой прогресс.</p></div><button type="button" id="raid-menu-close" class="raid-menu-close">✕</button></div><div class="raid-fighter-list">'+RAID_FIGHTERS.map(menuCard).join('')+'</div></div></div>');
-    $('modal-overlay')?.classList.add('raid-selection-fullscreen');
-    $('raid-menu-close')?.addEventListener('click',()=>window.closeModal?.());
-    document.querySelectorAll('[data-raid-fighter]').forEach(b=>b.addEventListener('click',()=>openBattle(b.dataset.raidFighter)));
+    const overlay=$('modal-overlay');
+    const content=$('modal-content');
+    if(!overlay||!content)return;
+    overlay.classList.add('show','raid-selection-fullscreen');
+    overlay.classList.remove('raid-fullscreen');
+    content.innerHTML=
+      '<div class="raid-select">'+
+        '<div class="raid-select-head">'+
+          '<div><h2>⚔️ РЕЙДЫ</h2><p>Выбери бойца. Тапай, пока не свалится. 90 минут на бой.</p></div>'+
+          '<button type="button" class="raid-menu-close" id="raid-menu-close">✕</button>'+
+        '</div>'+
+        '<div class="raid-fighter-list" id="raid-fighter-list"></div>'+
+      '</div>';
+    $('raid-menu-close')?.addEventListener('click',closeModal);
+    refreshRaidMenu();
   }
-  function openBattle(id){
-    const idx=RAID_FIGHTERS.findIndex(f=>f.id===id);if(idx<0)return;
-    const f=RAID_FIGHTERS[idx];if(!unlocked(f))return;
-    raid.fighter=idx;
-    const p=pFor(f);
-    if(p.hp<=0){p.hp=f.hp;p.startedAt=0;p.extensionUsed=false;}
-    if(!p.startedAt)p.startedAt=Date.now();
-    raidTimeoutShown=false;
-    lastHitFrame=-1;
-    clearTimeout(idleResumeTimer);
-    save();
-    renderBattle();
-  }
-  function fighter(){return RAID_FIGHTERS[raid.fighter]}
-  function updateLowHp(pct){
-    const bar=document.querySelector('#raid-fighter .raid-hp');
-    if(!bar)return;
-    bar.classList.toggle('low-hp',pct<25);
-  }
-  function shakeScene(){
-    const scene=$('raid-scene');
-    if(!scene)return;
-    scene.classList.remove('shake');
-    void scene.offsetWidth;
-    scene.classList.add('shake');
-  }
-  function startIdleVideo(){
-    const f=fighter();
-    const src=FIGHTER_IDLE_VIDEO[f.id];
-    const v=$('raid-idle-video');
-    const img=$('raid-fighter-still');
-    if(!src||!v)return;
-    if(img)img.classList.add('hide-for-idle');
-    v.classList.add('show');
-    if(v.getAttribute('src')!==src){v.src=src;v.load()}
-    v.loop=true;
-    v.muted=true;
-    v.playsInline=true;
-    const p=v.play();
-    if(p&&p.catch)p.catch(()=>{});
+  function closeModal(){
+    const overlay=$('modal-overlay');
+    if(!overlay)return;
+    overlay.classList.remove('show','raid-fullscreen','raid-selection-fullscreen');
+    stopIdleVideo();
   }
   function stopIdleVideo(){
     const v=$('raid-idle-video');
-    const img=$('raid-fighter-still');
-    if(v){v.pause();v.classList.remove('show')}
-    if(img)img.classList.remove('hide-for-idle');
+    if(v){try{v.pause()}catch(e){} v.removeAttribute('src'); v.load();}
+    if(idleResumeTimer){clearTimeout(idleResumeTimer);idleResumeTimer=0;}
+  }
+  function playIdleVideo(f){
+    stopIdleVideo();
+    const src=FIGHTER_IDLE_VIDEO[f.id];
+    if(!src)return;
+    let v=$('raid-idle-video');
+    if(!v){
+      v=document.createElement('video');
+      v.id='raid-idle-video';
+      v.muted=true;
+      v.loop=true;
+      v.playsInline=true;
+      v.setAttribute('playsinline','');
+      v.setAttribute('webkit-playsinline','');
+      v.style.cssText='position:absolute;left:0;top:0;width:100%;height:100%;object-fit:contain;z-index:2;pointer-events:none';
+      $('raid-fighter')?.appendChild(v);
+    }
+    v.src=src;
+    v.style.display='block';
+    const img=$('raid-fighter-img');
+    if(img)img.style.opacity='0';
+    v.play().catch(()=>{});
   }
   function showHitFrame(id){
     const frames=FIGHTER_HIT_FRAMES[id];
-    if(!frames||!frames.length)return false;
-    const img=$('raid-fighter-still');
-    if(!img)return false;
-    stopIdleVideo();
-    let i=Math.floor(Math.random()*frames.length);
-    if(frames.length>1&&i===lastHitFrame)i=(i+1)%frames.length;
-    lastHitFrame=i;
-    img.src=frames[i];
-    img.classList.remove('hit-pop');
-    void img.offsetWidth;
-    img.classList.add('hit-pop');
-    clearTimeout(idleResumeTimer);
-    if(FIGHTER_IDLE_VIDEO[id]){
-      idleResumeTimer=setTimeout(()=>{
-        if(fighter().id===id)startIdleVideo();
-      },IDLE_RESUME_MS);
+    if(!frames||!frames.length)return;
+    let idx=Math.floor(Math.random()*frames.length);
+    if(frames.length>1&&idx===lastHitFrame)idx=(idx+1)%frames.length;
+    lastHitFrame=idx;
+    const img=$('raid-fighter-img');
+    const v=$('raid-idle-video');
+    if(v)v.style.display='none';
+    if(img){
+      img.style.opacity='1';
+      img.src=frames[idx];
     }
-    return true;
+    const fighterEl=$('raid-fighter');
+    if(fighterEl){
+      fighterEl.classList.remove(id+'-hit');
+      void fighterEl.offsetWidth;
+      fighterEl.classList.add(id+'-hit');
+    }
+    if(idleResumeTimer)clearTimeout(idleResumeTimer);
+    idleResumeTimer=setTimeout(()=>{
+      if(FIGHTER_IDLE_VIDEO[id]){
+        if(v){v.style.display='block';v.play().catch(()=>{});}
+        if(img)img.style.opacity='0';
+      }
+    },IDLE_RESUME_MS);
   }
-  function renderBattle(){
-    const f=fighter(),p=pFor(f),pct=Math.max(0,p.hp/f.hp*100);
+  function startRaid(idx){
+    const f=RAID_FIGHTERS[idx];
+    if(!f||!unlocked(f))return;
+    const p=pFor(f);
+    if(p.hp<=0){p.hp=f.hp;p.startedAt=Date.now();p.extensionUsed=false;}
+    if(!p.startedAt)p.startedAt=Date.now();
+    raid={fighter:idx,active:true};
+    raidTimeoutShown=false;
+    save();
+    const overlay=$('modal-overlay');
+    const content=$('modal-content');
+    if(!overlay||!content)return;
+    overlay.classList.add('show','raid-fullscreen');
+    overlay.classList.remove('raid-selection-fullscreen');
     const hasIdle=!!FIGHTER_IDLE_VIDEO[f.id];
     const stillSrc=FIGHTER_HIT_FRAMES[f.id]?.[0]||portraitSrc(f);
-    window.openModal?.('<div class="raid-window"><div id="raid-scene" class="raid-scene '+f.scene+'"></div></div>');
-    $('modal-overlay')?.classList.add('raid-fullscreen');
-    const root=$('raid-scene');if(!root)return;
-    root.innerHTML=
-      '<div class="raid-hud"><div class="raid-title">⚔️ РЕЙД · '+f.name+'</div><div id="raid-timer" class="raid-timer">'+formatTime(remaining(f))+'</div></div>'+
-      '<div class="raid-fighter '+f.id+'" id="raid-fighter"><div class="raid-name '+f.id+'">'+f.name+'</div>'+
-      '<div class="raid-hp'+(pct<25?' low-hp':'')+'"><div class="raid-hp-track"><div id="raid-hp-fill" class="raid-hp-fill" style="width:'+pct+'%"></div></div><div id="raid-hp-text" class="raid-hp-text">'+Math.max(0,p.hp)+' / '+f.hp+'</div></div>'+
-      '<img id="raid-fighter-still" src="'+stillSrc+'" alt="'+f.name+'">'+ 
-      (hasIdle?'<video id="raid-idle-video" class="raid-idle-video" muted loop playsinline preload="auto"></video>':'')+
-      '</div>'+
-      '<div id="raid-damage" class="raid-damage"></div>'+
-      '<div id="raid-note" class="raid-note">⚡ Тапай по бойцу · расходуется энергия</div>'+
-      '<div class="raid-controls"><button type="button" id="raid-back" class="raid-next">← К бойцам</button></div>'+
-      '<div id="raid-result" class="raid-result"><div class="raid-result-card"><h2 id="raid-result-title"></h2><div id="raid-result-text"></div><button type="button" id="raid-close" class="raid-close">Закрыть</button></div></div>';
+    content.innerHTML=
+      '<div class="raid-window">'+
+        '<div class="raid-scene '+f.scene+'" id="raid-scene">'+
+          '<div class="raid-hud">'+
+            '<div class="raid-title">'+f.name+'</div>'+
+            '<div class="raid-timer" id="raid-timer">'+formatTime(remaining(f))+'</div>'+
+          '</div>'+
+          '<div class="raid-fighter" id="raid-fighter">'+
+            '<div class="raid-name '+f.id+'">'+f.name+'</div>'+
+            '<img id="raid-fighter-img" src="'+stillSrc+'" alt="'+f.name+'" style="'+(hasIdle?'opacity:0':'')+'">'+
+          '</div>'+
+          '<div class="raid-hp" id="raid-hp"><div class="raid-hp-fill" id="raid-hp-fill"></div></div>'+
+          '<div class="raid-note" id="raid-note"></div>'+
+          '<div class="raid-result" id="raid-result">'+
+            '<div class="raid-result-card">'+
+              '<div id="raid-result-title"></div>'+
+              '<div id="raid-result-text"></div>'+
+              '<button type="button" id="raid-result-ok">Ок</button>'+
+            '</div>'+
+          '</div>'+
+        '</div>'+
+      '</div>';
+    updateHpBar();
     (FIGHTER_HIT_FRAMES[f.id]||[]).forEach(src=>{const i=new Image();i.src=src});
-    if(hasIdle)startIdleVideo();
-    $('raid-back').addEventListener('click',()=>{ clearTimeout(idleResumeTimer); stopIdleVideo(); $('modal-overlay')?.classList.remove('raid-fullscreen'); openRaidMenu(); });
-    $('raid-close').addEventListener('click',()=>window.closeModal?.());
-    $('raid-fighter').addEventListener('pointerdown',onTap,{passive:false});
-    updateTimer();
+    if(hasIdle)playIdleVideo(f);
+    const scene=$('raid-scene');
+    scene?.addEventListener('pointerdown',onTap);
+    $('raid-result-ok')?.addEventListener('click',()=>{closeModal();openRaidMenu();});
   }
-  function refreshRaidMenu(){
-    if(!$('modal-overlay')?.classList.contains('raid-selection-fullscreen'))return;
-    document.querySelectorAll('[data-raid-fighter]').forEach(card=>{
-      const f=RAID_FIGHTERS.find(x=>x.id===card.dataset.raidFighter);if(!f)return;
-      const p=pFor(f),time=remaining(f),started=!!p.startedAt&&p.hp>0;
-      const status=unlocked(f)?(!started?'Не начат':(time>0?'⏱ '+formatTime(time):'⏱ Время вышло')):'🔒 Закрыто по масти';
-      const statusEl=card.querySelector('.raid-card-status'),hp=card.querySelector('.raid-card-hp');
-      if(statusEl)statusEl.textContent=status;
-      if(hp)hp.textContent=unlocked(f)&&started?'HP: '+Math.max(0,p.hp)+' / '+f.hp:'';
-    });
+  function fighter(){return RAID_FIGHTERS[raid.fighter]}
+  function updateHpBar(){
+    const f=fighter(),p=pFor(f);
+    const fill=$('raid-hp-fill'),bar=$('raid-hp');
+    if(!fill||!bar)return;
+    const pct=Math.max(0,Math.min(100,(p.hp/f.hp)*100));
+    fill.style.width=pct+'%';
+    bar.classList.toggle('low-hp',pct<=25&&pct>0);
   }
-  const CRIT_CHANCE=0.12;
-  const CRIT_MULT=2;
-  function damageValue(){return Math.max(1,Math.floor(Number(s()?.power)||1))}
   function onTap(e){
-    e.preventDefault();e.stopPropagation();
-    const f=fighter(),g=s(),p=pFor(f);if(!g||!raid.active&&false)return;
+    if(!raid.active)return;
+    const f=fighter(),p=pFor(f);
     if(p.hp<=0)return;
-    if(!window.spendEnergyForRaid?.()){showRaidNote('⚡ Энергия закончилась');return}
-    const isCrit=Math.random()<CRIT_CHANCE;
-    let base=damageValue();
-    if(isCrit)base=Math.max(1,Math.floor(base*CRIT_MULT));
-    const dmg=Math.min(base,p.hp);p.hp-=dmg;
-    const el=$('raid-fighter');
-    showHitFrame(f.id);
-    if(el){
-      el.classList.remove(f.id+'-hit','crit');
-      void el.offsetWidth;
-      el.classList.add(f.id+'-hit');
-      if(isCrit)el.classList.add('crit');
-    }
-    if(isCrit)shakeScene();
-    const d=$('raid-damage');
-    if(d){
-      d.textContent=(isCrit?'⚡КРИТ -':'-')+dmg;
-      d.classList.toggle('crit',isCrit);
-      d.classList.remove('show');void d.offsetWidth;d.classList.add('show');
-    }
-    const fill=$('raid-hp-fill'),txt=$('raid-hp-text');
-    const pct=p.hp/f.hp*100;
-    if(fill)fill.style.width=pct+'%';
-    if(txt)txt.textContent=p.hp+' / '+f.hp;
-    updateLowHp(pct);
+    if(remaining(f)<=0){showRaidNote('⏱ Время вышло');return;}
+    const power=Number(s()?.power)||1;
+    let dmg=power;
+    const crit=Math.random()<(Number(s()?.critChance)||0.05);
+    if(crit)dmg=Math.round(dmg*2.2);
+    p.hp=Math.max(0,p.hp-dmg);
     save();
+    updateHpBar();
+    showHitFrame(f.id);
     showFighterShout(f.id);
+    const scene=$('raid-scene');
+    if(scene){scene.classList.remove('shake');void scene.offsetWidth;scene.classList.add('shake');}
+    const fighterEl=$('raid-fighter');
+    if(crit&&fighterEl){fighterEl.classList.add('crit');setTimeout(()=>fighterEl.classList.remove('crit'),400);}
     if(p.hp<=0)win();
   }
   const FIGHTER_SHOUTS={
     petrovich:[
-      'Котлетки потом!','Ща, брат, договорим!','Ты чего творишь?!','Давай без кипиша!','Я вообще-то занят!','Котлетки остывают!','Ну ты даёшь!','Погоди, братан!','Эй, полегче!','Не мешай котлетки делать!','Всё, хватит!','Я сейчас отвечу!'
+      'Ой!','Больно!','Не бей!','Ай!','Хватит!','Пощади!','Уф!','Эй!','Стоял!','Полегче!','Ааа!','Не надо!'
     ],
     vtirach:[
-      'Ты втираешь мне какую-то дичь!','Ты это серьёзно сейчас?!','Что ты мне рассказываешь?','Не гони пургу!','Ты меня за кого держишь?!','Какая ещё дичь?!','Слышь, объясни нормально!','Вот это поворот!','Ты вообще о чём?!','Не втирай мне тут!','Я всё слышал!','Ну и что это было?!'
+      'Эй, браток!','По понятиям!','Не гони!','Слышь!','Спокойно!','Без базара!','Погоди!','Не шуми!','Ладно-ладно!','Остынь!','По делу!','Хватит!
     ],
     mafioznik:[
-      'По понятиям!','Ты че, охренел?!','Сейчас разберёмся!','Не на того наехал!','Погоди, браток!','Это серьёзный разговор!','Ты за кого меня держишь?','Слышь, полегче!','Я тебе покажу!','Не шути со мной!','Всё по понятиям будет!','Ты пожалеешь!'
+      'Ха!','Слабак!','Ещё!','Давай!','Не больно!','Сильнее!','Ха-ха!','Смешно!','Продолжай!','Слабо!','Ещё раз!','Ничего!'
     ],
     mongol:[
       'Аррр!','Сила!','Не сдамся!','Ещё!','Крепче!','Давай!','Ха!','Слабак!','Ещё раз!','Не больно!','Сильнее!','Продолжай!'
