@@ -99,6 +99,10 @@
   function portraitSrc(f){
     return FIGHTER_PORTRAIT[f.id]||('./assets/raids/fighters/'+f.id+'.png');
   }
+  function updateLowHp(pct){
+    const bar=$('raid-hp');
+    if(bar)bar.classList.toggle('low-hp',pct<=25&&pct>0);
+  }
   function ensureRaidButton(){
     if($('raid-open-button'))return;
     const btn=document.createElement('button');
@@ -226,6 +230,7 @@
     overlay.classList.remove('raid-selection-fullscreen');
     const hasIdle=!!FIGHTER_IDLE_VIDEO[f.id];
     const stillSrc=FIGHTER_HIT_FRAMES[f.id]?.[0]||portraitSrc(f);
+    const pct=p.hp/f.hp*100;
     content.innerHTML=
       '<div class="raid-window">'+
         '<div class="raid-scene '+f.scene+'" id="raid-scene">'+
@@ -237,7 +242,7 @@
             '<div class="raid-name '+f.id+'">'+f.name+'</div>'+
             '<img id="raid-fighter-img" src="'+stillSrc+'" alt="'+f.name+'" style="'+(hasIdle?'opacity:0':'')+'">'+
           '</div>'+
-          '<div class="raid-hp" id="raid-hp"><div class="raid-hp-fill" id="raid-hp-fill"></div></div>'+
+          '<div class="raid-hp'+(pct<25?' low-hp':'')+'"><div class="raid-hp-track"><div id="raid-hp-fill" class="raid-hp-fill" style="width:'+pct+'%"></div></div><div id="raid-hp-text" class="raid-hp-text">'+Math.max(0,p.hp)+' / '+f.hp+'</div></div>'+
           '<div class="raid-note" id="raid-note"></div>'+
           '<div class="raid-result" id="raid-result">'+
             '<div class="raid-result-card">'+
@@ -248,7 +253,6 @@
           '</div>'+
         '</div>'+
       '</div>';
-    updateHpBar();
     (FIGHTER_HIT_FRAMES[f.id]||[]).forEach(src=>{const i=new Image();i.src=src});
     if(hasIdle)playIdleVideo(f);
     const scene=$('raid-scene');
@@ -256,14 +260,6 @@
     $('raid-result-ok')?.addEventListener('click',()=>{closeModal();openRaidMenu();});
   }
   function fighter(){return RAID_FIGHTERS[raid.fighter]}
-  function updateHpBar(){
-    const f=fighter(),p=pFor(f);
-    const fill=$('raid-hp-fill'),bar=$('raid-hp');
-    if(!fill||!bar)return;
-    const pct=Math.max(0,Math.min(100,(p.hp/f.hp)*100));
-    fill.style.width=pct+'%';
-    bar.classList.toggle('low-hp',pct<=25&&pct>0);
-  }
   function onTap(e){
     if(!raid.active)return;
     const f=fighter(),p=pFor(f);
@@ -274,10 +270,14 @@
     const crit=Math.random()<(Number(s()?.critChance)||0.05);
     if(crit)dmg=Math.round(dmg*2.2);
     p.hp=Math.max(0,p.hp-dmg);
+    const fill=$('raid-hp-fill'),txt=$('raid-hp-text');
+    const pct=p.hp/f.hp*100;
+    if(fill)fill.style.width=pct+'%';
+    if(txt)txt.textContent=p.hp+' / '+f.hp;
+    updateLowHp(pct);
     save();
-    updateHpBar();
-    showHitFrame(f.id);
     showFighterShout(f.id);
+    showHitFrame(f.id);
     const scene=$('raid-scene');
     if(scene){scene.classList.remove('shake');void scene.offsetWidth;scene.classList.add('shake');}
     const fighterEl=$('raid-fighter');
@@ -286,13 +286,13 @@
   }
   const FIGHTER_SHOUTS={
     petrovich:[
-      'Ой!','Больно!','Не бей!','Ай!','Хватит!','Пощади!','Уф!','Эй!','Стоял!','Полегче!','Ааа!','Не надо!'
+      'Котлетки потом!','Ща, брат, договорим!','Ты чего творишь?!','Давай без кипиша!','Я вообще-то занят!','Котлетки остывают!','Ну ты даёшь!','Погоди, братан!','Эй, полегче!','Не мешай котлетки делать!','Всё, хватит!','Я сейчас отвечу!'
     ],
     vtirach:[
-      'Эй, браток!','По понятиям!','Не гони!','Слышь!','Спокойно!','Без базара!','Погоди!','Не шуми!','Ладно-ладно!','Остынь!','По делу!','Хватит!
+      'Ты втираешь мне какую-то дичь!','Ты это серьёзно сейчас?!','Что ты мне рассказываешь?','Не гони пургу!','Ты меня за кого держишь?!','Какая ещё дичь?!','Слышь, объясни нормально!','Вот это поворот!','Ты вообще о чём?!','Не втирай мне тут!','Я всё слышал!','Ну и что это было?!'
     ],
     mafioznik:[
-      'Ха!','Слабак!','Ещё!','Давай!','Не больно!','Сильнее!','Ха-ха!','Смешно!','Продолжай!','Слабо!','Ещё раз!','Ничего!'
+      'По понятиям!','Ты че, охренел?!','Сейчас разберёмся!','Не на того наехал!','Погоди, браток!','Это серьёзный разговор!','Ты за кого меня держишь?','Слышь, полегче!','Я тебе покажу!','Не шути со мной!','Всё по понятиям будет!','Ты пожалеешь!'
     ],
     mongol:[
       'Аррр!','Сила!','Не сдамся!','Ещё!','Крепче!','Давай!','Ха!','Слабак!','Ещё раз!','Не больно!','Сильнее!','Продолжай!'
