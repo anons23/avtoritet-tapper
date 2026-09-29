@@ -1,14 +1,15 @@
 /* RAID SYSTEM — selection screen, persistent fighter progress, energy and unique reactions */
 'use strict';
 (()=>{
-  /* 0 Салага, 1500 Пацан, 5000 Блатной — как в rank-ui / game.js */
-  const RAID_RANK_REQUIREMENTS=[0,1500,5000];
+  /* 0 Салага, 1500 Пацан, 5000 Блатной, 15000 Смотрящий — как в rank-ui / game.js */
+  const RAID_RANK_REQUIREMENTS=[0,1500,5000,15000];
   const RAID_FIGHTERS=[
     {id:'petrovich',name:'ПЕТРОВИЧ',rank:0,hp:1500,first:{chifir:2000,points:150},repeat:{chifir:500,points:40},scene:'talk'},
     {id:'vtirach',name:'ВТИРАЧ',rank:0,hp:2000,first:{chifir:2500,points:200},repeat:{chifir:625,points:50},scene:'talk'},
     {id:'mafioznik',name:'МАФИОЗНИК',rank:1,hp:3000,first:{chifir:4000,points:300},repeat:{chifir:1000,points:75},scene:'fight'},
     {id:'mongol',name:'МОНГОЛ',rank:1,hp:4000,first:{chifir:5500,points:400},repeat:{chifir:1375,points:100},scene:'fight'},
-    {id:'glaz',name:'ГЛАЗ',rank:2,hp:5000,first:{chifir:7000,points:500},repeat:{chifir:1750,points:125},scene:'glaz'}
+    {id:'glaz',name:'ГЛАЗ',rank:2,hp:5000,first:{chifir:7000,points:500},repeat:{chifir:1750,points:125},scene:'glaz'},
+    {id:'krest',name:'КРЕСТ',rank:3,hp:6500,first:{chifir:9000,points:700},repeat:{chifir:2250,points:175},scene:'krest'}
   ];
   /* Idle loop video + hit stills on tap — пути как в assets/raids/fighters */
   const FIGHTER_IDLE_VIDEO={
@@ -16,7 +17,8 @@
     petrovich:'./assets/raids/fighters/petrovich.webm',
     vtirach:'./assets/raids/fighters/Vtirach.webm',
     mongol:'./assets/raids/fighters/Mongol.webm',
-    glaz:'./assets/raids/fighters/Glaz.webm'
+    glaz:'./assets/raids/fighters/Glaz.webm',
+    krest:'./assets/raids/fighters/krest.webm'
   };
   const FIGHTER_HIT_FRAMES={
     mafioznik:[
@@ -48,6 +50,13 @@
       './assets/raids/fighters/Glaz2.png',
       './assets/raids/fighters/Glaz3.png',
       './assets/raids/fighters/Glaz4.png'
+    ],
+    krest:[
+      './assets/raids/fighters/krest1.jpg',
+      './assets/raids/fighters/krest2.jpg',
+      './assets/raids/fighters/krest3.jpg',
+      './assets/raids/fighters/krest4.jpg',
+      './assets/raids/fighters/krest5.jpg'
     ]
   };
   const FIGHTER_PORTRAIT={
@@ -55,7 +64,8 @@
     petrovich:'./assets/raids/fighters/petrovich1.png',
     vtirach:'./assets/raids/fighters/Vtirach1.png',
     mongol:'./assets/raids/fighters/Mongol1.png',
-    glaz:'./assets/raids/fighters/Glaz1.png'
+    glaz:'./assets/raids/fighters/Glaz1.png',
+    krest:'./assets/raids/fighters/krest1.jpg'
   };
   let lastHitFrame=-1;
   let idleResumeTimer=0;
@@ -271,6 +281,9 @@
     ],
     glaz:[
       'Вижу всё...','Интересно...','Продолжай.','Хм.','Забавно.','Неплохо.','Ещё.','Так-так.','Наблюдаю.','Продолжай тапать.','Записал.','Учёл.'
+    ],
+    krest:[
+      'Крест не гнётся.','По понятиям ответишь.','Тише, браток.','Не на того наехал.','Крест видишь?','Спокойно.','Ещё раз — и пожалеешь.','Я всё видел.','Держись.','Не шуми.','По делу говори.','Хватит.'
     ]
   };
   function showFighterShout(id){
