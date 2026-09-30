@@ -1,44 +1,67 @@
 'use strict';
 (function () {
-  /* Runtime patch: rarer random events (approx 2.5%) + 650ms soft-lock on choice buttons */
-  function softLockChoices() {
+  /* Soft-lock choice buttons 650ms when event modal opens; reduce event spam */
+
+  function softLockChoices(root) {
     try {
-      var choices = document.querySelectorAll("#modal-content .choice, .choices .choice");
+      var choices = (root || document).querySelectorAll('.choice');
       if (!choices.length) return;
       choices.forEach(function (b) {
         b.disabled = true;
-        b.style.opacity = "0.55";
-        b.style.pointerEvents = "none";
+        b.style.opacity = '0.55';
+        b.style.pointerEvents = 'none';
       });
       setTimeout(function () {
         choices.forEach(function (b) {
           b.disabled = false;
-          b.style.opacity = "";
-          b.style.pointerEvents = "";
+          b.style.opacity = '';
+          b.style.pointerEvents = '';
         });
       }, 650);
     } catch (e) {}
   }
 
-  function patchOpenEvent() {
-    if (typeof window.openEvent !== "function") return false;
-    if (window.openEvent.__eventUx) return true;
-    var orig = window.openEvent;
-    window.openEvent = function () {
-      var r = orig.apply(this, arguments);
-      softLockChoices();
-      return r;
-    };
-    window.openEvent.__eventUx = true;
-    return true;
+  var lastLock = 0;
+  function onModalMut(muts) {
+    for (var i = 0; i < muts.length; i++) {
+      var n = muts[i];
+      if (n.type === 'childList' && n.addedNodes && n.addedNodes.length) {
+        var content = document.getElementById('modal-content');
+        if (content && content.querySelector('.choice')) {
+          var now = Date.now();
+          if (now - lastLock > 400) {
+            lastLock = now;
+            softLockChoices(content);
+          }
+        }
+      }
+    }
   }
 
-  /* Reduce effective event rate: original is 10% with 30pt cooldown.
-     We intercept openEvent and only allow ~1/4 of calls + enforce 150pt cooldown. */
-  function patchRate() {
-    if (typeof window.openEvent !== "function") return false;
-    if (window.openEvent.__ratePatched) return true;
-    var inner = window.openEvent;
+  function boot() {
+    var content = document.getElementById('modal-content');
+    if (content) {
+      new MutationObserver(onModalMut).observe(content, { childList: true, subtree: true });
+    } else {
+      setTimeout(boot, 200);
+      return;
+    }
+    var overlay = document.getElementById('modal-overlay');
+    if (overlay) {
+      new MutationObserver(function () {
+        if (overlay.classList.contains('show')) {
+          setTimeout(function () {
+            softLockChoices(document.getElementById('modal-content'));
+          }, 30);
+        }
+      }).observe(overlay, { attributes: true, attributeFilter: ['class'] });
+    }
+  }
+
+  function tryPatchOpenEvent() {
+    if (typeof window.openEvent !== 'function') return;
+    if (window.openEvent.__eventUx) return;
+    var orig = window.openEvent;
     window.openEvent = function () {
       try {
         var st = window.getGameState && window.getGameState();
@@ -48,26 +71,13 @@
           if (pts - last < 150) return;
         }
       } catch (e) {}
-      /* Keep only ~25% of the original 10% rolls => ~2.5% */
       if (Math.random() > 0.25) return;
-      return inner.apply(this, arguments);
+      return orig.apply(this, arguments);
     };
-    window.openEvent.__ratePatched = true;
     window.openEvent.__eventUx = true;
-    return true;
   }
 
-  function boot() {
-    if (!patchOpenEvent()) {
-      setTimeout(boot, 150);
-      return;
-    }
-    patchRate();
-  }
-  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", boot);
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot);
   else boot();
-  setInterval(function () {
-    patchOpenEvent();
-    patchRate();
-  }, 2500);
+  setInterval(tryPatchOpenEvent, 500);
 })();
