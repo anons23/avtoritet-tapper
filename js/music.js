@@ -11,7 +11,7 @@
     raid: './assets/reid.mp3'
   };
   /* Background levels kept moderate so SFX stay audible */
-  const VOLUME = { main0: 0.22, main1: 0.22, raid: 0.28 };
+  const VOLUME = { main0: 0.18, main1: 0.18, raid: 0.24 };
   const FADE_MS = 450;
 
   let unlocked = false;
@@ -260,7 +260,7 @@
         VOLUME.raid = Math.max(0, Math.min(1, raidVol));
       }
       if (!muted && current && players[current]) {
-        players[current].volume = VOLUME[current] || 0.22;
+        players[current].volume = VOLUME[current] || 0.18;
       }
     }
   };

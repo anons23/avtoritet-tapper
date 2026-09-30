@@ -4,6 +4,9 @@
   let unlocked = false;
   let master = null;
 
+  /* SFX sit above quieter BGM (music ~0.18–0.24) */
+  const MASTER_GAIN = 0.48;
+
   function isMuted() {
     try {
       if (window.GameMusic && typeof window.GameMusic.isMuted === 'function') {
@@ -19,7 +22,7 @@
     if (!AC) return null;
     ctx = new AC();
     master = ctx.createGain();
-    master.gain.value = 0.55;
+    master.gain.value = MASTER_GAIN;
     master.connect(ctx.destination);
     return ctx;
   }
@@ -59,19 +62,17 @@
     unlock();
     const t0 = c.currentTime;
 
-    // body thud
     const osc = c.createOscillator();
     const g = c.createGain();
     osc.type = 'triangle';
     osc.frequency.setValueAtTime(crit ? 140 : 95, t0);
     osc.frequency.exponentialRampToValueAtTime(crit ? 55 : 40, t0 + 0.12);
-    env(g, t0, 0.005, 0.04, 0.35, 0.1, crit ? 0.55 : 0.38);
+    env(g, t0, 0.005, 0.04, 0.35, 0.1, crit ? 0.48 : 0.32);
     osc.connect(g);
     g.connect(master);
     osc.start(t0);
     osc.stop(t0 + 0.22);
 
-    // noise slap
     const buf = noiseBuffer(0.08);
     if (buf) {
       const src = c.createBufferSource();
@@ -81,7 +82,7 @@
       filt.frequency.value = crit ? 1800 : 900;
       filt.Q.value = 0.7;
       src.buffer = buf;
-      env(ng, t0, 0.001, 0.02, 0.2, 0.05, crit ? 0.35 : 0.22);
+      env(ng, t0, 0.001, 0.02, 0.2, 0.05, crit ? 0.3 : 0.18);
       src.connect(filt);
       filt.connect(ng);
       ng.connect(master);
@@ -89,13 +90,12 @@
     }
 
     if (crit) {
-      // bright click on top
       const o2 = c.createOscillator();
       const g2 = c.createGain();
-      o2.type = 'square';
+      o2.type = 'sine';
       o2.frequency.setValueAtTime(880, t0);
       o2.frequency.exponentialRampToValueAtTime(440, t0 + 0.08);
-      env(g2, t0, 0.002, 0.03, 0.15, 0.06, 0.12);
+      env(g2, t0, 0.002, 0.03, 0.15, 0.06, 0.1);
       o2.connect(g2);
       g2.connect(master);
       o2.start(t0);
@@ -104,7 +104,6 @@
   }
 
   function playHit(crit) {
-    // slightly heavier for raids
     if (isMuted()) return;
     const c = ensureCtx();
     if (!c || !master) return;
@@ -113,10 +112,10 @@
 
     const osc = c.createOscillator();
     const g = c.createGain();
-    osc.type = 'sawtooth';
-    osc.frequency.setValueAtTime(crit ? 160 : 110, t0);
+    osc.type = 'triangle';
+    osc.frequency.setValueAtTime(crit ? 110 : 80, t0);
     osc.frequency.exponentialRampToValueAtTime(crit ? 48 : 36, t0 + 0.14);
-    env(g, t0, 0.004, 0.05, 0.3, 0.12, crit ? 0.5 : 0.34);
+    env(g, t0, 0.004, 0.05, 0.3, 0.12, crit ? 0.42 : 0.28);
     osc.connect(g);
     g.connect(master);
     osc.start(t0);
@@ -128,9 +127,9 @@
       const ng = c.createGain();
       const filt = c.createBiquadFilter();
       filt.type = 'lowpass';
-      filt.frequency.value = crit ? 2400 : 1200;
+      filt.frequency.value = crit ? 2200 : 1200;
       src.buffer = buf;
-      env(ng, t0, 0.001, 0.025, 0.25, 0.07, crit ? 0.4 : 0.26);
+      env(ng, t0, 0.001, 0.025, 0.25, 0.07, crit ? 0.32 : 0.2);
       src.connect(filt);
       filt.connect(ng);
       ng.connect(master);
@@ -144,14 +143,14 @@
     if (!c || !master) return;
     unlock();
     const t0 = c.currentTime;
-    const notes = [523.25, 659.25, 783.99]; // C5 E5 G5
+    const notes = [523.25, 659.25, 783.99];
     notes.forEach(function (freq, i) {
       const osc = c.createOscillator();
       const g = c.createGain();
       osc.type = 'triangle';
       osc.frequency.value = freq;
       const start = t0 + i * 0.08;
-      env(g, start, 0.01, 0.08, 0.5, 0.2, 0.22);
+      env(g, start, 0.01, 0.08, 0.5, 0.2, 0.18);
       osc.connect(g);
       g.connect(master);
       osc.start(start);
@@ -159,22 +158,39 @@
     });
   }
 
+  /* Short UI click — soft tick for menu buttons */
   function playClick() {
     if (isMuted()) return;
     const c = ensureCtx();
     if (!c || !master) return;
     unlock();
     const t0 = c.currentTime;
+
     const osc = c.createOscillator();
     const g = c.createGain();
     osc.type = 'sine';
-    osc.frequency.setValueAtTime(1200, t0);
-    osc.frequency.exponentialRampToValueAtTime(800, t0 + 0.04);
-    env(g, t0, 0.001, 0.02, 0.2, 0.03, 0.1);
+    osc.frequency.setValueAtTime(1400, t0);
+    osc.frequency.exponentialRampToValueAtTime(900, t0 + 0.035);
+    env(g, t0, 0.001, 0.012, 0.25, 0.025, 0.09);
     osc.connect(g);
     g.connect(master);
     osc.start(t0);
-    osc.stop(t0 + 0.06);
+    osc.stop(t0 + 0.05);
+
+    const buf = noiseBuffer(0.025);
+    if (buf) {
+      const src = c.createBufferSource();
+      const ng = c.createGain();
+      const filt = c.createBiquadFilter();
+      filt.type = 'highpass';
+      filt.frequency.value = 2500;
+      src.buffer = buf;
+      env(ng, t0, 0.001, 0.008, 0.15, 0.015, 0.045);
+      src.connect(filt);
+      filt.connect(ng);
+      ng.connect(master);
+      src.start(t0);
+    }
   }
 
   function playEmpty() {
@@ -188,14 +204,13 @@
     osc.type = 'sine';
     osc.frequency.setValueAtTime(180, t0);
     osc.frequency.linearRampToValueAtTime(120, t0 + 0.15);
-    env(g, t0, 0.01, 0.05, 0.4, 0.1, 0.12);
+    env(g, t0, 0.01, 0.05, 0.4, 0.1, 0.1);
     osc.connect(g);
     g.connect(master);
     osc.start(t0);
     osc.stop(t0 + 0.2);
   }
 
-  // unlock with first gesture
   function boot() {
     const once = function () {
       unlock();
