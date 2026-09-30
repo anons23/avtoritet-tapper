@@ -9,7 +9,7 @@
     {id:'mongol',name:'МОНГОЛ',rank:1,hp:4000,first:{chifir:5500,points:400},repeat:{chifir:1375,points:100},scene:'fight'},
     {id:'glaz',name:'ГЛАЗ',rank:2,hp:5000,first:{chifir:7000,points:500},repeat:{chifir:1750,points:125},scene:'glaz'},
     {id:'krest',name:'КРЕСТ',rank:3,hp:6500,first:{chifir:9000,points:700},repeat:{chifir:2250,points:175},scene:'krest'},
-    {id:'psikh',name:'ПСИХ',rank:4,hp:8000,first:{chifir:12000,points:1000},repeat:{chifir:3000,points:250},scene:'psikh'}
+    {id:'psikh',name:'ПСИХ АРКАША',rank:4,hp:8000,first:{chifir:12000,points:1000},repeat:{chifir:3000,points:250},scene:'psikh'}
   ];
   const FIGHTER_IDLE_VIDEO={
     mafioznik:'./assets/raids/fighters/mafioznik_idle.webm',
