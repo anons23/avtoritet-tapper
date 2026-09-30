@@ -1,0 +1,74 @@
+/* Compact NPC portraits in dialogue screens. Keep every portrait inside a fixed visual box. */
+#modal.npc-modal .npc-hero,#modal.-modal .-hero{
+  position:relative!important;
+  box-sizing:border-box!important;
+  flex:0 0 auto!important;
+  width:100%!important;
+  height:220px!important;
+  max-height:36svh!important;
+  display:flex!important;
+  align-items:flex-end!important;
+  justify-content:center!important;
+  overflow:hidden!important;
+  background:transparent!important;
+}
+#modal.npc-modal .npc-hero-img,#modal.-modal .-hero-img,#modal.-modal .-hero img{
+  display:block!important;
+  width:auto!important;
+  height:auto!important;
+  max-width:68%!important;
+  max-height:180px!important;
+  object-fit:contain!important;
+  object-position:center center!important;
+  background:transparent!important;
+  margin:0 auto!important;
+  flex:0 0 auto!important;
+}
+/* The Authoritet NPC must never render at its native 1:1 image size. */
+#modal.-modal .-hero .-hero-img[src*="avtoritet_avatar"]{
+  display:block!important;
+  width:auto!important;
+  height:180px!important;
+  max-width:58%!important;
+  max-height:180px!important;
+  min-width:0!important;
+  min-height:0!important;
+  object-fit:contain!important;
+  object-position:center center!important;
+}
+@media(min-width:701px){
+  #modal.npc-modal .npc-hero,#modal.-modal .-hero{
+    flex:1 1 auto!important;
+    height:auto!important;
+    min-height:0!important;
+    max-height:none!important;
+    align-items:flex-end!important;
+  }
+  #modal.npc-modal .npc-hero-img,#modal.-modal .-hero-img,#modal.-modal .-hero img{
+    max-width:52%!important;
+    max-height:calc(100% - 20px)!important;
+    object-fit:contain!important;
+    object-position:center bottom!important;
+  }
+  #modal.-modal .-hero .-hero-img[src*="avtoritet_avatar"]{
+    width:auto!important;
+    height:auto!important;
+    max-width:52%!important;
+    max-height:calc(100% - 20px)!important;
+    object-fit:contain!important;
+    object-position:center bottom!important;
+  }
+}
+@media(max-width:700px) and (max-height:650px){
+  #modal.npc-modal .npc-hero,#modal.-modal .-hero{height:180px!important;min-height:120px!important;max-height:180px!important;}
+  #modal.npc-modal .npc-hero-img,#modal.-modal .-hero-img,#modal.-modal .-hero img{max-width:62%!important;max-height:150px!important;}
+  #modal.-modal .-hero .-hero-img[src*="avtoritet_avatar"]{width:auto!important;height:150px!important;max-width:55%!important;max-height:150px!important;}
+}
+
+/* Authority portrait workaround: the source artwork contains an opaque black matte.
+   Screen blending removes the black matte while preserving the bright character details. */
+#modal.npc-modal .npc-hero-img[src*="avtoritet_avatar"],
+#modal.-modal .-hero-img[src*="avtoritet_avatar"]{
+  mix-blend-mode:screen!important;
+  background:transparent!important;
+}

@@ -1,0 +1,68 @@
+/* Modern NPC dialogue. Supports both current npc-* classes and the legacy -class markup used by npc-ui.js. */
+#modal.npc-modal,#modal.-modal{width:100vw!important;max-width:none!important;height:100svh!important;max-height:none!important;padding:0!important;border:0!important;border-radius:0!important;background:transparent!important;}
+#modal.npc-modal #modal-content,#modal.-modal #modal-content{justify-content:flex-end!important;background:linear-gradient(to bottom,rgba(0,0,0,0) 38%,rgba(0,0,0,.35))!important;}
+#modal.npc-modal .npc-action-panel,#modal.-modal .-action-panel{position:relative!important;box-sizing:border-box!important;width:min(620px,calc(100vw - 20px))!important;max-height:54svh!important;margin:0 auto!important;padding:18px 18px calc(20px + env(safe-area-inset-bottom))!important;overflow-y:auto!important;border:1px solid rgba(255,255,255,.14)!important;border-bottom:0!important;border-radius:24px 24px 0 0!important;background:linear-gradient(145deg,rgba(25,25,28,.98),rgba(10,10,12,.98))!important;box-shadow:0 -16px 45px rgba(0,0,0,.5),inset 0 1px rgba(255,255,255,.06)!important;backdrop-filter:blur(12px)!important;-webkit-backdrop-filter:blur(12px)!important;}
+#modal.npc-modal .npc-action-panel:before,#modal.-modal .-action-panel:before{content:''!important;display:block!important;width:42px!important;height:4px!important;margin:0 auto 14px!important;border-radius:99px!important;background:rgba(255,255,255,.25)!important;}
+#modal.npc-modal .npc-dialogue,#modal.-modal .-dialogue{margin:0 0 14px!important;padding:14px 15px!important;border:1px solid rgba(255,255,255,.1)!important;border-radius:16px!important;background:rgba(255,255,255,.055)!important;box-shadow:inset 0 1px rgba(255,255,255,.035)!important;}
+#modal.npc-modal .npc-dialogue p,#modal.-modal .-dialogue p{margin:0!important;font-size:16px!important;line-height:1.5!important;color:#f0f0f2!important;}
+#modal.npc-modal .npc-choice,#modal.-modal .-choice{position:relative!important;display:flex!important;align-items:center!important;width:100%!important;min-height:54px!important;box-sizing:border-box!important;margin:9px 0 0!important;padding:13px 42px 13px 56px!important;border:1px solid rgba(255,255,255,.12)!important;border-radius:15px!important;background:linear-gradient(180deg,rgba(255,255,255,.09),rgba(255,255,255,.035))!important;color:#fff!important;font:inherit!important;font-size:15px!important;font-weight:700!important;line-height:1.25!important;text-align:left!important;cursor:pointer!important;}
+#modal.npc-modal .npc-choice:hover,#modal.-modal .-choice:hover{border-color:rgba(214,169,72,.65)!important;background:linear-gradient(180deg,rgba(214,169,72,.15),rgba(255,255,255,.045))!important;}
+#modal.npc-modal .npc-choice:active,#modal.-modal .-choice:active{transform:scale(.985)!important;}
+#modal.npc-modal .npc-result,#modal.npc-modal .npc-reward,#modal.-modal .-result{margin-top:12px!important;padding:14px!important;border-radius:14px!important;border:1px solid rgba(255,255,255,.1)!important;background:rgba(255,255,255,.05)!important;color:#e8e8eb!important;line-height:1.45!important;}
+#modal.npc-modal .npc-hero-title,#modal.-modal .-hero-title{padding:0 2px!important;margin:0 0 10px!important;color:#fff!important;}
+#modal.npc-modal .npc-hero-title b,#modal.-modal .-hero-title b{font-size:24px!important;color:#fff!important;}
+#modal.npc-modal .npc-hero-title span,#modal.-modal .-hero-title small{color:#aaaab2!important;}
+@media(min-width:701px){#modal.npc-modal .npc-action-panel,#modal.-modal .-action-panel{width:min(760px,calc(100vw - 40px))!important;max-height:50dvh!important;padding:22px 24px calc(24px + env(safe-area-inset-bottom))!important;border-radius:26px 26px 0 0!important;}#modal.npc-modal .npc-dialogue p,#modal.-modal .-dialogue p{font-size:18px!important;}#modal.npc-modal .npc-choice,#modal.-modal .-choice{min-height:60px!important;font-size:16px!important;padding-left:56px!important;}}
+@media(max-width:420px){#modal.npc-modal .npc-action-panel,#modal.-modal .-action-panel{width:100%!important;border-radius:20px 20px 0 0!important;padding-left:14px!important;padding-right:14px!important;}#modal.npc-modal .npc-hero-title b,#modal.-modal .-hero-title b{font-size:21px!important;}}
+
+/* NPC visual polish: no decorative emoji, name and role on separate lines. */
+#modal.npc-modal .npc-hero-title,#modal.-modal .-hero-title{display:flex!important;flex-direction:column!important;align-items:flex-start!important;justify-content:flex-end!important;gap:0!important;left:16px!important;right:24px!important;bottom:16px!important;}
+#modal.npc-modal .npc-hero-title span,#modal.-modal .-hero-title span{display:none!important;}
+#modal.npc-modal .npc-hero-title b,#modal.-modal .-hero-title b{display:block!important;margin:0!important;font-size:32px!important;line-height:1.02!important;font-weight:900!important;letter-spacing:.2px!important;text-shadow:0 3px 12px rgba(0,0,0,.9)!important;}
+#modal.npc-modal .npc-hero-title small,#modal.-modal .-hero-title small{display:block!important;margin:5px 0 0!important;font-size:14px!important;line-height:1!important;color:rgba(255,255,255,.72)!important;font-weight:700!important;letter-spacing:1.5px!important;text-transform:uppercase!important;text-shadow:0 2px 8px rgba(0,0,0,.9)!important;}
+
+/* Distinct but restrained name styles for each character. */
+@supports selector(:has(*)){
+  #modal.-modal .-hero:has(.-hero-img[src*="shaiba_avatar"]) .-hero-title b{font-family:Georgia,'Times New Roman',serif;font-style:italic;letter-spacing:.5px;}
+  #modal.-modal .-hero:has(.-hero-img[src*="Bugor_avatar"]) .-hero-title b{font-family:'Arial Black',Impact,sans-serif;letter-spacing:-.4px;}
+  #modal.-modal .-hero:has(.-hero-img[src*="Kosoy_avatar"]) .-hero-title b{font-family:'Trebuchet MS',system-ui,sans-serif;font-weight:900;letter-spacing:.8px;}
+  #modal.-modal .-hero:has(.-hero-img[src*="Smotraishia_avatar"]) .-hero-title b{font-family:Georgia,'Times New Roman',serif;font-weight:700;letter-spacing:1px;}
+  #modal.-modal .-hero:has(.-hero-img[src*="avtoritet_avatar"]) .-hero-title b{font-family:Georgia,'Times New Roman',serif;font-weight:900;letter-spacing:1.2px;}
+}
+
+/* Beautiful action buttons for all legacy NPC screens. */
+#modal.-modal .-action-panel button{appearance:none;-webkit-appearance:none;width:100%!important;box-sizing:border-box!important;min-height:54px!important;margin-top:10px!important;padding:13px 16px!important;border-radius:16px!important;border:1px solid rgba(255,255,255,.14)!important;background:linear-gradient(145deg,rgba(58,58,62,.98),rgba(30,30,34,.98))!important;color:#fff!important;font:inherit!important;font-size:15px!important;font-weight:800!important;line-height:1.25!important;box-shadow:0 7px 20px rgba(0,0,0,.3),inset 0 1px rgba(255,255,255,.07)!important;transition:transform .12s ease,border-color .12s ease,box-shadow .12s ease,background .12s ease!important;}
+#modal.-modal .-action-panel button:hover{border-color:rgba(213,168,74,.7)!important;background:linear-gradient(145deg,rgba(67,61,45,.98),rgba(35,32,25,.98))!important;box-shadow:0 9px 24px rgba(0,0,0,.38),inset 0 1px rgba(255,255,255,.08)!important;}
+#modal.-modal .-action-panel button:active{transform:translateY(1px) scale(.985)!important;}
+#modal.-modal .-action-panel button.-primary{border-color:rgba(213,168,74,.72)!important;background:linear-gradient(135deg,#5a4722,#302512)!important;box-shadow:0 8px 24px rgba(0,0,0,.38),inset 0 1px rgba(255,255,255,.08)!important;color:#fff!important;}
+#modal.-modal .-action-panel button.-primary:after{content:'  ›';font-size:18px;opacity:.8;}
+#modal.-modal .-action-panel button.-choice{min-height:58px!important;text-align:left!important;padding:13px 16px!important;background:linear-gradient(145deg,rgba(49,49,53,.98),rgba(25,25,29,.98))!important;}
+#modal.-modal .-action-panel button:not(.-primary):not(.-choice){background:linear-gradient(145deg,rgba(39,39,43,.98),rgba(22,22,26,.98))!important;color:rgba(255,255,255,.86)!important;border-color:rgba(255,255,255,.1)!important;}
+
+@media(max-width:420px){#modal.npc-modal .npc-choice{padding-left:53px!important;}#modal.npc-modal .npc-hero-title,#modal.-modal .-hero-title{left:14px!important;right:18px!important;bottom:13px!important;}#modal.npc-modal .npc-hero-title b,#modal.-modal .-hero-title b{font-size:27px!important;}#modal.npc-modal .npc-hero-title small,#modal.-modal .-hero-title small{font-size:12px!important;margin-top:4px!important;}#modal.-modal .-action-panel button{min-height:52px!important;border-radius:15px!important;font-size:14px!important;}}
+
+
+/* Desktop NPC hero: keep the full character visible and keep the name anchored to the hero. */
+@media(min-width:701px){
+  #modal.-modal{position:fixed!important;inset:0!important;z-index:2001!important;display:flex!important;flex-direction:column!important;justify-content:flex-end!important;align-items:center!important;width:100vw!important;max-width:none!important;height:100dvh!important;max-height:none!important;margin:0!important;padding:0!important;border:0!important;border-radius:0!important;background:transparent!important;overflow:hidden!important;}
+  #modal.-modal #modal-content{position:relative!important;width:100%!important;height:100%!important;max-height:none!important;display:flex!important;flex-direction:column!important;justify-content:flex-end!important;align-items:center!important;overflow:hidden!important;background:linear-gradient(to bottom,rgba(0,0,0,0) 34%,rgba(0,0,0,.5) 68%,rgba(0,0,0,.86) 100%)!important;}
+  #modal.-modal .-hero{position:relative!important;flex:1 1 auto!important;width:min(1180px,100vw)!important;height:auto!important;min-height:0!important;max-height:none!important;display:flex!important;align-items:center!important;justify-content:center!important;overflow:hidden!important;background:transparent!important;}
+  #modal.-modal .-hero-img{display:block!important;width:auto!important;height:auto!important;max-width:82%!important;max-height:calc(100% - 36px)!important;object-fit:contain!important;object-position:center center!important;margin:0 auto!important;}
+  #modal.-modal .-hero .-hero-title{position:absolute!important;left:28px!important;right:auto!important;bottom:24px!important;display:flex!important;flex-direction:column!important;align-items:flex-start!important;justify-content:flex-end!important;gap:0!important;z-index:3!important;margin:0!important;padding:0!important;}
+  #modal.-modal .-hero .-hero-title b{display:block!important;font-size:32px!important;line-height:1.05!important;}
+  #modal.-modal .-hero .-hero-title small{display:block!important;margin:5px 0 0!important;font-size:13px!important;}
+  #modal.-modal .-action-panel{position:relative!important;z-index:4!important;flex:0 0 auto!important;width:min(760px,calc(100vw - 40px))!important;max-height:46dvh!important;margin:0 auto!important;border-radius:24px 24px 0 0!important;}
+}
+
+
+/* Correct desktop selectors: the NPC modal uses npc-modal/npc-hero/npc-action-panel classes. */
+@media(min-width:701px){
+  #modal.npc-modal{width:100vw!important;max-width:none!important;height:100dvh!important;max-height:none!important;padding:0!important;border:0!important;border-radius:0!important;background:transparent!important;overflow:hidden!important;}
+  #modal.npc-modal #modal-content{width:100%!important;height:100%!important;display:flex!important;flex-direction:column!important;justify-content:flex-end!important;align-items:center!important;overflow:hidden!important;}
+  #modal.npc-modal .npc-hero{width:100vw!important;max-width:1280px!important;flex:1 1 auto!important;height:auto!important;min-height:0!important;display:flex!important;align-items:center!important;justify-content:center!important;background:transparent!important;}
+  #modal.npc-modal .npc-hero-img{width:auto!important;height:auto!important;max-width:92%!important;max-height:100%!important;object-fit:contain!important;object-position:center center!important;}
+  #modal.npc-modal .npc-hero-title{left:32px!important;right:auto!important;bottom:28px!important;display:flex!important;flex-direction:column!important;align-items:flex-start!important;gap:0!important;z-index:4!important;}
+  #modal.npc-modal .npc-hero-title b{font-size:32px!important;line-height:1.05!important;}
+  #modal.npc-modal .npc-hero-title small{margin:5px 0 0!important;font-size:13px!important;}
+  #modal.npc-modal .npc-action-panel{width:min(760px,calc(100vw - 48px))!important;max-height:44dvh!important;flex:0 0 auto!important;border-radius:24px 24px 0 0!important;}
+}

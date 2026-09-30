@@ -1,0 +1,62 @@
+name: Compress raid videos
+
+on:
+  push:
+    branches:
+      - fix/yandex-16plus-stability
+    paths:
+      - 'assets/raids/fighters/**.webm'
+      - 'assets/raids/fighters/**.mp4'
+      - 'scripts/compress-raid-videos.sh'
+  workflow_dispatch:
+    inputs:
+      crf:
+        description: 'VP9 CRF (ниже = лучше качество; 28–32 обычно ок)'
+        required: false
+        default: '30'
+      dry_run:
+        description: 'Только отчёт, без записи (1 = dry run)'
+        required: false
+        default: '0'
+
+permissions:
+  contents: write
+
+jobs:
+  compress:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          # чтобы action мог пушить коммит обратно
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Install ffmpeg
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ffmpeg
+
+      - name: Compress raid idle videos
+        env:
+          CRF: ${{ github.event.inputs.crf || '30' }}
+          DRY_RUN: ${{ github.event.inputs.dry_run || '0' }}
+          MAX_H: '720'
+          MAX_FPS: '24'
+          MIN_SAVE_PCT: '10'
+        run: |
+          chmod +x scripts/compress-raid-videos.sh
+          bash scripts/compress-raid-videos.sh
+
+      - name: Commit optimized videos
+        if: ${{ (github.event.inputs.dry_run || '0') != '1' }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add assets/raids/fighters/*.webm assets/raids/fighters/*.mp4 || true
+          if git diff --cached --quiet; then
+            echo "Нет изменений после сжатия — коммит не нужен."
+            exit 0
+          fi
+          git commit -m "chore: auto-compress raid idle videos (CRF ${{ github.event.inputs.crf || '30' }})"
+          git push
