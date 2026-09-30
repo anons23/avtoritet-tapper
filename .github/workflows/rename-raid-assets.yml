@@ -20,7 +20,15 @@ jobs:
           [ -f "Crest (4).jpg" ] && git mv "Crest (4).jpg" krest4.jpg || true
           [ -f "Crest (5).jpg" ] && git mv "Crest (5).jpg" krest5.jpg || true
           [ -f "Crest.webm" ] && git mv "Crest.webm" krest.webm || true
+          [ -f "Psish.webm" ] && git mv "Psish.webm" psikh.webm || true
+          [ -f "Psish1 (1).jpg" ] && git mv "Psish1 (1).jpg" psikh1.jpg || true
+          [ -f "Psish1 (2).jpg" ] && git mv "Psish1 (2).jpg" psikh2.jpg || true
+          [ -f "Psish1 (3).jpg" ] && git mv "Psish1 (3).jpg" psikh3.jpg || true
+          [ -f "Psish1 (4).jpg" ] && git mv "Psish1 (4).jpg" psikh4.jpg || true
+          [ -f "Psish1 (5).jpg" ] && git mv "Psish1 (5).jpg" psikh5.jpg || true
           cd ../backgrounds
+          [ -f "фонПсихМобил (1).jpg" ] && git mv "фонПсихМобил (1).jpg" psikh_mobile.jpg || true
+          [ -f "фонПсихМобил (2).jpg" ] && git mv "фонПсихМобил (2).jpg" psikh_pc.jpg || true
           for f in *; do
             case "$f" in
               *ГлазПК*|*глазПК*) git mv "$f" glaz_pc.jpeg 2>/dev/null || true ;;
@@ -36,5 +44,5 @@ jobs:
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add -A
           git diff --cached --quiet && echo "Nothing to commit" && exit 0
-          git commit -m "chore: rename Krest/Glaz raid assets to English filenames"
+          git commit -m "chore: rename Krest/Psikh/Glaz raid assets to English filenames"
           git push
