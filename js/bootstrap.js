@@ -2,7 +2,7 @@
 (function(){
   const scripts=[
     {src:'./js/save-migration.js?v=1.0',critical:true},
-    {src:'./js/game.js?v=4.18-ranks',critical:true},
+    {src:'./js/game.js?v=4.19-events',critical:true},
     {src:'./js/shop-ui.js?v=2.1',critical:false},
     {src:'./js/name-ui.js?v=2.2',critical:false},
     {src:'./js/prison-ui.js?v=3.4',critical:false},
@@ -49,7 +49,6 @@
   }
   function appendScript(item,index,next){
     const script=document.createElement('script');script.src=item.src;script.async=false;
-    /* scripts progress 42% → 96% (0–42% = preloader + raid assets) */
     script.onload=()=>{const loaded=Math.round(42+(index+1)*(54/scripts.length));preloadProgress(Math.min(96,loaded),item.critical?'Запускаем ядро':'Загружаем модули');next()};
     script.onerror=()=>{console.error('[Bootstrap] Failed to load',item.src);if(item.critical){showFatal(item.src);return}const loaded=Math.round(42+(index+1)*(54/scripts.length));preloadProgress(Math.min(96,loaded),'Продолжаем запуск');next()};
     document.body.appendChild(script);
