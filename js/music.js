@@ -1,15 +1,22 @@
 'use strict';
 (function () {
+  /* Two main-menu tracks rotate each time music is turned back on */
+  const MAIN_TRACKS = [
+    './assets/fon_osnova.mp3',
+    './assets/fon_osnova1.mp3'
+  ];
   const TRACKS = {
-    main: './assets/fon_osnova.mp3',
+    main0: MAIN_TRACKS[0],
+    main1: MAIN_TRACKS[1],
     raid: './assets/reid.mp3'
   };
-  const VOLUME = { main: 0.35, raid: 0.4 };
+  const VOLUME = { main0: 0.35, main1: 0.35, raid: 0.4 };
   const FADE_MS = 450;
 
   let unlocked = false;
   let muted = false;
-  let current = null; // 'main' | 'raid' | null
+  let current = null; // 'main0' | 'main1' | 'raid' | null
+  let mainIndex = 0; // 0 | 1 — which main track is active
   let fadeTimer = 0;
   const players = {};
 
@@ -25,9 +32,23 @@
       localStorage.setItem('avt_music_muted', muted ? '1' : '0');
     } catch (e) {}
   }
+  function loadMainIndex() {
+    try {
+      const v = parseInt(localStorage.getItem('avt_main_track') || '0', 10);
+      return v === 1 ? 1 : 0;
+    } catch (e) {
+      return 0;
+    }
+  }
+  function saveMainIndex() {
+    try {
+      localStorage.setItem('avt_main_track', String(mainIndex));
+    } catch (e) {}
+  }
 
   function ensure(id) {
     if (players[id]) return players[id];
+    if (!TRACKS[id]) return null;
     const a = new Audio(TRACKS[id]);
     a.loop = true;
     a.preload = 'auto';
@@ -60,12 +81,12 @@
 
   function playTrack(id) {
     if (!TRACKS[id]) return;
-    if (current === id && players[id] && !players[id].paused) return;
+    if (current === id && players[id] && !players[id].paused && players[id].volume > 0.01) return;
 
     const next = ensure(id);
+    if (!next) return;
     const targetVol = muted ? 0 : VOLUME[id];
 
-    // pause previous with fade
     const prevId = current;
     const prev = prevId ? players[prevId] : null;
     current = id;
@@ -81,7 +102,7 @@
           if (!muted) fadeTo(next, targetVol, FADE_MS);
           else next.volume = 0;
         }).catch(function () {
-          // autoplay blocked — wait for unlock
+          /* autoplay blocked — wait for unlock */
         });
       } else if (!muted) {
         fadeTo(next, targetVol, FADE_MS);
@@ -100,49 +121,61 @@
     }
   }
 
-  function unlock() {
-    if (unlocked) return;
-    unlocked = true;
-    // warm both
-    ensure('main');
-    ensure('raid');
-    if (!muted && !current) playTrack('main');
-    else if (current) playTrack(current);
+  function playMain() {
+    const id = 'main' + mainIndex;
+    playTrack(id);
   }
 
-  function playMain() {
-    if (muted) {
-      current = 'main';
-      return;
-    }
-    playTrack('main');
-  }
   function playRaid() {
-    if (muted) {
-      current = 'raid';
-      return;
-    }
     playTrack('raid');
   }
 
+  function unlock() {
+    if (unlocked) return;
+    unlocked = true;
+    ensure('main0');
+    ensure('main1');
+    ensure('raid');
+    if (!muted) {
+      if (current === 'raid') playRaid();
+      else playMain();
+    }
+  }
+
   function setMuted(v) {
+    const wasMuted = muted;
     muted = !!v;
     saveMuted();
     updateMuteBtn();
-    Object.keys(players).forEach(function (id) {
-      const a = players[id];
-      if (!a) return;
-      if (muted) {
+
+    if (muted) {
+      Object.keys(players).forEach(function (id) {
+        const a = players[id];
+        if (!a) return;
         try {
           a.pause();
         } catch (e) {}
         a.volume = 0;
-      } else if (current === id) {
-        a.volume = VOLUME[id];
-        a.play().catch(function () {});
+      });
+      return;
+    }
+
+    /* Turning sound ON: switch to the other main track (if in main menu) */
+    if (wasMuted) {
+      if (!current || String(current).indexOf('main') === 0) {
+        mainIndex = mainIndex === 0 ? 1 : 0;
+        saveMainIndex();
+        playMain();
+        return;
       }
-    });
-    if (!muted && unlocked && current) playTrack(current);
+      if (current === 'raid') {
+        playRaid();
+        return;
+      }
+    }
+
+    if (current) playTrack(current);
+    else playMain();
   }
 
   function toggleMute() {
@@ -155,16 +188,47 @@
     btn.textContent = muted ? '🔇' : '🔊';
     btn.title = muted ? 'Включить музыку' : 'Выключить музыку';
     btn.setAttribute('aria-label', btn.title);
+    btn.classList.toggle('is-muted', muted);
+  }
+
+  function injectMuteStyles() {
+    if (document.getElementById('music-mute-style')) return;
+    const s = document.createElement('style');
+    s.id = 'music-mute-style';
+    s.textContent =
+      '#music-mute-btn{' +
+      'position:absolute;left:8px;top:52px;z-index:40;' +
+      'width:38px;height:38px;padding:0;' +
+      'border:1px solid rgba(255,255,255,.28);border-radius:10px;' +
+      'background:rgba(0,0,0,.58);color:#fff;font-size:17px;line-height:1;' +
+      'cursor:pointer;backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);' +
+      'display:flex;align-items:center;justify-content:center;' +
+      'box-shadow:0 2px 8px rgba(0,0,0,.35);' +
+      '}' +
+      '#music-mute-btn:active{transform:scale(.92)}' +
+      '#music-mute-btn.is-muted{opacity:.85;border-color:rgba(255,120,120,.4)}' +
+      '@media (min-width:701px){' +
+      '#music-mute-btn{left:12px;top:14px;width:40px;height:40px;font-size:18px}' +
+      '}' +
+      '@media (max-width:700px){' +
+      '#music-mute-btn{left:8px;top:54px;width:36px;height:36px;font-size:16px}' +
+      '}' +
+      '@media (max-width:700px) and (orientation:landscape){' +
+      '#music-mute-btn{top:46px;width:32px;height:32px;font-size:14px}' +
+      '}';
+    document.head.appendChild(s);
   }
 
   function ensureMuteButton() {
-    if (document.getElementById('music-mute-btn')) return;
+    injectMuteStyles();
+    if (document.getElementById('music-mute-btn')) {
+      updateMuteBtn();
+      return;
+    }
     const parent = document.getElementById('game-container') || document.body;
     const btn = document.createElement('button');
     btn.id = 'music-mute-btn';
     btn.type = 'button';
-    btn.style.cssText =
-      'position:absolute;left:10px;top:12px;z-index:40;width:40px;height:40px;border:1px solid rgba(255,255,255,.25);border-radius:10px;background:rgba(0,0,0,.55);color:#fff;font-size:18px;cursor:pointer;backdrop-filter:blur(4px)';
     btn.addEventListener('click', function (e) {
       e.preventDefault();
       e.stopPropagation();
@@ -176,10 +240,10 @@
   }
 
   muted = loadMuted();
+  mainIndex = loadMainIndex();
 
   function boot() {
     ensureMuteButton();
-    // unlock on first interaction
     const unlockOnce = function () {
       unlock();
       document.removeEventListener('pointerdown', unlockOnce, true);
@@ -188,7 +252,6 @@
     document.addEventListener('pointerdown', unlockOnce, true);
     document.addEventListener('keydown', unlockOnce, true);
 
-    // start main after preloader if already unlocked somehow
     window.addEventListener('load', function () {
       setTimeout(function () {
         if (unlocked && !muted) playMain();
@@ -207,6 +270,9 @@
     setMuted: setMuted,
     isMuted: function () {
       return muted;
+    },
+    getMainTrackIndex: function () {
+      return mainIndex;
     }
   };
 })();
