@@ -39,7 +39,6 @@
     });
   }
 
-  /* Video: warm HTTP cache so raid idle starts without grey flash */
   function preloadVideo(src){
     return new Promise(resolve=>{
       let settled=false;
@@ -84,16 +83,16 @@
     './assets/raids/fighters/Glaz2.png',
     './assets/raids/fighters/Glaz3.png',
     './assets/raids/fighters/Glaz4.png',
-    './assets/raids/fighters/krest1.jpg',
-    './assets/raids/fighters/krest2.jpg',
-    './assets/raids/fighters/krest3.jpg',
-    './assets/raids/fighters/krest4.jpg',
-    './assets/raids/fighters/krest5.jpg',
-    './assets/raids/fighters/psikh1.jpg',
-    './assets/raids/fighters/psikh2.jpg',
-    './assets/raids/fighters/psikh3.jpg',
-    './assets/raids/fighters/psikh4.jpg',
-    './assets/raids/fighters/psikh5.jpg'
+    './assets/raids/fighters/Crest%20(1).jpg',
+    './assets/raids/fighters/Crest%20(2).jpg',
+    './assets/raids/fighters/Crest%20(3).jpg',
+    './assets/raids/fighters/Crest%20(4).jpg',
+    './assets/raids/fighters/Crest%20(5).jpg',
+    './assets/raids/fighters/Psish1%20(1).jpg',
+    './assets/raids/fighters/Psish1%20(2).jpg',
+    './assets/raids/fighters/Psish1%20(3).jpg',
+    './assets/raids/fighters/Psish1%20(4).jpg',
+    './assets/raids/fighters/Psish1%20(5).jpg'
   ];
   const RAID_VIDEOS=[
     './assets/raids/fighters/mafioznik_idle.webm',
@@ -102,7 +101,7 @@
     './assets/raids/fighters/Mongol.webm',
     './assets/raids/fighters/Glaz.webm',
     './assets/raids/fighters/krest.webm',
-    './assets/raids/fighters/psikh.webm'
+    './assets/raids/fighters/Psish.webm'
   ];
 
   function raidBackgrounds(mobile){
@@ -112,7 +111,7 @@
         './assets/raids/backgrounds/mafioznik_mongol_mobile.png',
         './assets/raids/backgrounds/glaz_mobile.jpeg',
         './assets/raids/backgrounds/krest_mobile.jpeg',
-        './assets/raids/backgrounds/psikh_mobile.jpg'
+        './assets/raids/backgrounds/%D1%84%D0%BE%D0%BD%D0%9F%D1%81%D0%B8%D1%85%D0%9C%D0%BE%D0%B1%D0%B8%D0%BB%20(1).jpg'
       ];
     }
     return [
@@ -120,7 +119,7 @@
       './assets/raids/backgrounds/mafioznik_mongol_pc.png',
       './assets/raids/backgrounds/glaz_pc.jpeg',
       './assets/raids/backgrounds/krest_pc.jpeg',
-      './assets/raids/backgrounds/psikh_pc.jpg'
+      './assets/raids/backgrounds/%D1%84%D0%BE%D0%BD%D0%9F%D1%81%D0%B8%D1%85%D0%9C%D0%BE%D0%B1%D0%B8%D0%BB%20(2).jpg'
     ];
   }
 
@@ -134,7 +133,6 @@
     let done=0;
     function tick(msg){
       done++;
-      /* progress band reserved for raids: 15% → 42% */
       const p=15+Math.round((done/total)*27);
       setProgress(p,msg||messages[messageIndex]);
     }
