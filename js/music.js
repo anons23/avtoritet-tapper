@@ -10,40 +10,34 @@
     main1: MAIN_TRACKS[1],
     raid: './assets/reid.mp3'
   };
-  const VOLUME = { main0: 0.35, main1: 0.35, raid: 0.4 };
+  /* Background levels kept moderate so SFX stay audible */
+  const VOLUME = { main0: 0.22, main1: 0.22, raid: 0.28 };
   const FADE_MS = 450;
 
   let unlocked = false;
   let muted = false;
-  let current = null; // 'main0' | 'main1' | 'raid' | null
-  let mainIndex = 0; // 0 | 1 — which main track is active
+  let current = null;
+  let mainIndex = 0;
   let fadeTimer = 0;
   const players = {};
 
   function loadMuted() {
-    try {
-      return localStorage.getItem('avt_music_muted') === '1';
-    } catch (e) {
-      return false;
-    }
+    try { return localStorage.getItem('avt_music_muted') === '1'; }
+    catch (e) { return false; }
   }
   function saveMuted() {
-    try {
-      localStorage.setItem('avt_music_muted', muted ? '1' : '0');
-    } catch (e) {}
+    try { localStorage.setItem('avt_music_muted', muted ? '1' : '0'); }
+    catch (e) {}
   }
   function loadMainIndex() {
     try {
       const v = parseInt(localStorage.getItem('avt_main_track') || '0', 10);
       return v === 1 ? 1 : 0;
-    } catch (e) {
-      return 0;
-    }
+    } catch (e) { return 0; }
   }
   function saveMainIndex() {
-    try {
-      localStorage.setItem('avt_main_track', String(mainIndex));
-    } catch (e) {}
+    try { localStorage.setItem('avt_main_track', String(mainIndex)); }
+    catch (e) {}
   }
 
   function ensure(id) {
@@ -58,10 +52,7 @@
   }
 
   function stopFade() {
-    if (fadeTimer) {
-      clearInterval(fadeTimer);
-      fadeTimer = 0;
-    }
+    if (fadeTimer) { clearInterval(fadeTimer); fadeTimer = 0; }
   }
 
   function fadeTo(audio, target, ms, onDone) {
@@ -92,18 +83,14 @@
     current = id;
 
     function startNext() {
-      try {
-        next.currentTime = 0;
-      } catch (e) {}
+      try { next.currentTime = 0; } catch (e) {}
       next.volume = 0;
       const p = next.play();
       if (p && typeof p.then === 'function') {
         p.then(function () {
           if (!muted) fadeTo(next, targetVol, FADE_MS);
           else next.volume = 0;
-        }).catch(function () {
-          /* autoplay blocked — wait for unlock */
-        });
+        }).catch(function () {});
       } else if (!muted) {
         fadeTo(next, targetVol, FADE_MS);
       }
@@ -111,9 +98,7 @@
 
     if (prev && prev !== next && !prev.paused) {
       fadeTo(prev, 0, FADE_MS, function () {
-        try {
-          prev.pause();
-        } catch (e) {}
+        try { prev.pause(); } catch (e) {}
         startNext();
       });
     } else {
@@ -122,8 +107,7 @@
   }
 
   function playMain() {
-    const id = 'main' + mainIndex;
-    playTrack(id);
+    playTrack('main' + mainIndex);
   }
 
   function playRaid() {
@@ -152,15 +136,12 @@
       Object.keys(players).forEach(function (id) {
         const a = players[id];
         if (!a) return;
-        try {
-          a.pause();
-        } catch (e) {}
+        try { a.pause(); } catch (e) {}
         a.volume = 0;
       });
       return;
     }
 
-    /* Turning sound ON: switch to the other main track (if in main menu) */
     if (wasMuted) {
       if (!current || String(current).indexOf('main') === 0) {
         mainIndex = mainIndex === 0 ? 1 : 0;
@@ -268,11 +249,19 @@
     unlock: unlock,
     toggleMute: toggleMute,
     setMuted: setMuted,
-    isMuted: function () {
-      return muted;
-    },
-    getMainTrackIndex: function () {
-      return mainIndex;
+    isMuted: function () { return muted; },
+    getMainTrackIndex: function () { return mainIndex; },
+    setVolume: function (mainVol, raidVol) {
+      if (typeof mainVol === 'number') {
+        VOLUME.main0 = Math.max(0, Math.min(1, mainVol));
+        VOLUME.main1 = VOLUME.main0;
+      }
+      if (typeof raidVol === 'number') {
+        VOLUME.raid = Math.max(0, Math.min(1, raidVol));
+      }
+      if (!muted && current && players[current]) {
+        players[current].volume = VOLUME[current] || 0.22;
+      }
     }
   };
 })();
