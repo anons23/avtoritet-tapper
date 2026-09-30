@@ -105,8 +105,10 @@
   }
   function closeModal(){
     const overlay=$('modal-overlay');if(!overlay)return;
+    const wasRaid=overlay.classList.contains('raid-fullscreen');
     overlay.classList.remove('show','raid-fullscreen','raid-selection-fullscreen');
     overlay.classList.add('hidden');stopIdleVideo();
+    if(wasRaid){try{window.GameMusic?.playMain()}catch(e){}}
   }
   function stopIdleVideo(){
     const v=$('raid-idle-video');
@@ -161,6 +163,7 @@
     content.innerHTML='<div class="raid-window"><div class="raid-scene '+f.scene+'" id="raid-scene"><div class="raid-hud"><div class="raid-title">'+f.name+'</div><div class="raid-timer" id="raid-timer">'+formatTime(remaining(f))+'</div></div><div class="raid-fighter '+f.id+'" id="raid-fighter"><div class="raid-name '+f.id+'">'+f.name+'</div><div class="raid-hp'+(pct<25?' low-hp':'')+'" id="raid-hp"><div class="raid-hp-track"><div id="raid-hp-fill" class="raid-hp-fill" style="width:'+pct+'%"></div></div><div id="raid-hp-text" class="raid-hp-text">'+Math.max(0,p.hp)+' / '+f.hp+'</div></div><div class="raid-fighter-media" id="raid-fighter-media"><img id="raid-fighter-img" src="'+stillSrc+'" alt="'+f.name+'" style="'+(hasIdle?'opacity:0':'')+'"></div></div><div class="raid-controls"><button type="button" class="raid-next" id="raid-back">← К бойцам</button></div><div class="raid-note" id="raid-note"></div><div class="raid-result" id="raid-result"><div class="raid-result-card"><div id="raid-result-title"></div><div id="raid-result-text"></div><button type="button" id="raid-result-ok">Ок</button></div></div></div></div>';
     (FIGHTER_HIT_FRAMES[f.id]||[]).forEach(src=>{const i=new Image();i.src=src});
     if(hasIdle)playIdleVideo(f);
+    try{window.GameMusic?.unlock();window.GameMusic?.playRaid()}catch(e){}
     $('raid-scene')?.addEventListener('pointerdown',onTap);
     $('raid-back')?.addEventListener('click',e=>{e.stopPropagation();closeModal();openRaidMenu();});
     $('raid-result-ok')?.addEventListener('click',()=>{closeModal();openRaidMenu();});
