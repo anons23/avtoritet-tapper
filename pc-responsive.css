@@ -134,3 +134,236 @@
     z-index:10!important;
   }
 }
+
+/* ===== Mobile landscape: keep the game readable and images uncropped ===== */
+@media (max-width:900px) and (orientation:landscape) {
+  html, body {
+    width: 100% !important;
+    height: 100% !important;
+    min-height: 100% !important;
+    max-height: 100% !important;
+    overflow: hidden !important;
+  }
+  body {
+    display: flex !important;
+    justify-content: center !important;
+    align-items: stretch !important;
+  }
+  #game-container {
+    width: 100vw !important;
+    max-width: none !important;
+    height: 100dvh !important;
+    min-height: 0 !important;
+    max-height: 100dvh !important;
+    padding-bottom: 48px !important;
+    overflow: hidden !important;
+    background-size: cover !important;
+    background-position: center center !important;
+    background-repeat: no-repeat !important;
+  }
+
+  /* Compact chrome so the tap image has room */
+  #top-bar {
+    padding: 4px 10px !important;
+    min-height: 0 !important;
+  }
+  .resource { font-size: 12px !important; }
+  .energy-hint { font-size: 7px !important; min-height: 8px !important; }
+
+  #sentence-panel {
+    margin: 2px auto 0 !important;
+    padding: 3px 10px !important;
+    width: min(240px, 55vw) !important;
+    max-width: 240px !important;
+  }
+  .sentence-head { font-size: 8px !important; }
+  .sentence-head b { font-size: 9px !important; }
+  .sentence-track { height: 3px !important; margin: 2px 0 !important; }
+  .sentence-panel small { font-size: 7px !important; line-height: 1 !important; }
+
+  #player-info {
+    padding: 2px 8px 1px !important;
+  }
+  #nickname { font-size: 15px !important; }
+  #rank { font-size: 10px !important; }
+  .stats { gap: 12px !important; margin-top: 1px !important; font-size: 9px !important; }
+
+  #player-info #rank-goal.rank-goal {
+    width: min(220px, 50vw) !important;
+    max-width: 220px !important;
+    margin: 2px auto 0 !important;
+    padding: 3px 8px !important;
+  }
+  #player-info #rank-goal .rank-goal-head { font-size: 8px !important; }
+  #player-info #rank-goal .rank-goal-head b { font-size: 8px !important; }
+  #player-info #rank-goal .rank-goal-track { height: 3px !important; margin-top: 2px !important; }
+
+  #jail-panel {
+    margin: 1px 10px 1px !important;
+    padding: 3px 8px !important;
+  }
+  .jail-title { font-size: 10px !important; }
+  .jail-counter { font-size: 16px !important; }
+  .jail-text { font-size: 10px !important; }
+  .jail-confiscated { font-size: 8px !important; }
+
+  #tap-area {
+    padding: 2px !important;
+    min-height: 0 !important;
+    flex: 1 1 auto !important;
+  }
+
+  /* Round bag / default target */
+  .tap-target {
+    width: min(28vh, 150px) !important;
+    height: min(28vh, 150px) !important;
+  }
+  #object-emoji { font-size: min(10vh, 52px) !important; }
+  #object-name { font-size: 13px !important; margin-top: 2px !important; }
+  .tap-target small { font-size: 8px !important; margin-top: 2px !important; }
+
+  /* Character image objects: fit into short landscape height */
+  #tap-object.cellmate-mode,
+  #tap-object.pushups-mode,
+  #tap-object.trainer-mode,
+  #tap-object.authority-mode,
+  #tap-object.bag-mode {
+    width: min(42vh, 280px) !important;
+    height: min(42vh, 280px) !important;
+    min-height: 0 !important;
+    max-height: 55vh !important;
+  }
+  #tap-object.cellmate-mode #object-emoji,
+  #tap-object.pushups-mode #object-emoji,
+  #tap-object.trainer-mode #object-emoji,
+  #tap-object.authority-mode #object-emoji {
+    height: min(38vh, 250px) !important;
+    flex-basis: min(38vh, 250px) !important;
+  }
+  .boxing-bag-image,
+  .cellmate-image,
+  .pushups-image,
+  .trainer-image {
+    width: min(48vh, 300px) !important;
+    height: min(48vh, 300px) !important;
+    max-width: 90vw !important;
+    max-height: 55vh !important;
+    object-fit: contain !important;
+  }
+  .cellmate-image {
+    --cellmate-scale: 1.35 !important;
+  }
+
+  #event-message {
+    bottom: calc(48px + env(safe-area-inset-bottom, 0px) + 4px) !important;
+    font-size: 12px !important;
+    min-height: 36px !important;
+    width: min(90vw, 520px) !important;
+  }
+
+  #bottom-bar {
+    width: 100vw !important;
+    max-width: none !important;
+    min-height: 44px !important;
+    padding: 4px 8px calc(4px + env(safe-area-inset-bottom, 0px)) !important;
+    gap: 6px !important;
+  }
+  .nav-btn {
+    min-height: 34px !important;
+    padding: 5px 2px !important;
+    font-size: 10px !important;
+  }
+
+  /* Mute button lower chrome in landscape */
+  #music-mute-btn {
+    top: 40px !important;
+    width: 30px !important;
+    height: 30px !important;
+    font-size: 13px !important;
+  }
+
+  /* Modals in landscape: side-friendly, not full-height slab */
+  #modal-overlay:not(.hidden):not(.raid-fullscreen):not(.raid-selection-fullscreen) {
+    align-items: center !important;
+    padding: 8px !important;
+  }
+  #modal-overlay:not(.raid-fullscreen):not(.raid-selection-fullscreen) #modal {
+    width: min(92vw, 640px) !important;
+    max-width: 640px !important;
+    height: auto !important;
+    max-height: 88dvh !important;
+    border-radius: 16px !important;
+    padding: 16px 14px calc(14px + env(safe-area-inset-bottom, 0px)) !important;
+  }
+}
+
+/* Very short landscape (phones ~320–380px tall) */
+@media (max-width:900px) and (orientation:landscape) and (max-height:380px) {
+  #game-container { padding-bottom: 42px !important; }
+  #top-bar { padding: 2px 8px !important; }
+  #player-info { padding: 1px 6px 0 !important; }
+  #nickname { font-size: 13px !important; }
+  #rank { font-size: 9px !important; }
+  .stats { display: none !important; }
+  #sentence-panel { display: none !important; }
+  #player-info #rank-goal.rank-goal { display: none !important; }
+  .tap-target {
+    width: min(30vh, 120px) !important;
+    height: min(30vh, 120px) !important;
+  }
+  #tap-object.cellmate-mode,
+  #tap-object.pushups-mode,
+  #tap-object.trainer-mode,
+  #tap-object.authority-mode,
+  #tap-object.bag-mode {
+    width: min(48vh, 200px) !important;
+    height: min(48vh, 200px) !important;
+  }
+  .boxing-bag-image,
+  .cellmate-image,
+  .pushups-image,
+  .trainer-image {
+    width: min(52vh, 220px) !important;
+    height: min(52vh, 220px) !important;
+  }
+  #bottom-bar { min-height: 38px !important; }
+  .nav-btn { min-height: 30px !important; font-size: 9px !important; }
+}
+
+/* Raids in mobile landscape */
+@media (max-width:900px) and (orientation:landscape) {
+  #modal-overlay.raid-fullscreen .raid-scene {
+    padding: calc(8px + env(safe-area-inset-top, 0px)) 8px calc(8px + env(safe-area-inset-bottom, 0px)) !important;
+    background-size: cover !important;
+    background-position: center center !important;
+  }
+  #modal-overlay.raid-fullscreen .raid-hud {
+    margin-bottom: 2px !important;
+  }
+  #modal-overlay.raid-fullscreen .raid-fighter {
+    width: min(55vh, 360px) !important;
+    max-height: 78vh !important;
+  }
+  #modal-overlay.raid-fullscreen .raid-fighter-media {
+    max-height: 70vh !important;
+  }
+  #modal-overlay.raid-fullscreen .raid-fighter-media img,
+  #modal-overlay.raid-fullscreen .raid-fighter-media #raid-idle-video {
+    object-fit: contain !important;
+    object-position: center bottom !important;
+    max-height: 70vh !important;
+  }
+  #modal-overlay.raid-selection-fullscreen .raid-select {
+    max-height: 100dvh !important;
+    padding: 12px 14px !important;
+  }
+  #modal-overlay.raid-selection-fullscreen .raid-fighter-card {
+    min-height: 72px !important;
+    padding: 6px 10px !important;
+  }
+  #modal-overlay.raid-selection-fullscreen .raid-card-portrait {
+    width: 56px !important;
+    height: 56px !important;
+    flex-basis: 56px !important;
+  }
+}
