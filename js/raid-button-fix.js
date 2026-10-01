@@ -16,10 +16,19 @@
         btn.addEventListener('click', function (e) {
           e.preventDefault();
           e.stopPropagation();
-          try {
-            if (typeof window.openRaidMenu === 'function') window.openRaidMenu();
-            else if (typeof window.__raidBoot === 'function') window.__raidBoot();
-          } catch (err) {}
+          var attempts = 0;
+          function open() {
+            try {
+              if (typeof window.openRaidMenu === 'function') {
+                window.openRaidMenu();
+                return;
+              }
+            } catch (err) {
+              console.error('[RaidButton] openRaidMenu failed', err);
+            }
+            if (attempts++ < 20) window.setTimeout(open, 100);
+          }
+          open();
         });
         parent.appendChild(btn);
       }
