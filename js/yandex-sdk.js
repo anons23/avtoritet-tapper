@@ -9,8 +9,8 @@
   function gameplayStop(){try{if(ysdk?.features?.GameplayAPI?.stop)ysdk.features.GameplayAPI.stop();}catch(e){log('gameplay stop failed',e);}}
   function snapshot(){const out={};try{const s=localStorage.getItem(SAVE_KEY);if(s)out.gameSave=JSON.parse(s);}catch(e){}try{const h=localStorage.getItem(HEALTH_KEY);if(h)out.healthSave=JSON.parse(h);}catch(e){}return Object.keys(out).length?out:null;}
   function snapshotKey(data){try{return JSON.stringify(data||null)}catch(e){return ''}}
-  function queueCloudSave(flush){if(!player||!cloudReady)return;const data=snapshot();if(!data)return;pendingData=data;lastLocalSnapshot=localSnapshotKey();clearTimeout(saveTimer);if(flush)flushCloudSave(true);else saveTimer=setTimeout(()=>flushCloudSave(false),5000);}
-  function flushCloudSave(force){clearTimeout(saveTimer);saveTimer=null;if(!player||!cloudReady||!pendingData)return;const data=pendingData;pendingData=null;player.setData(data,!!force).catch(function(err){pendingData=data;log('cloud save failed',err);});}
+  function queueCloudSave(flush){if(!player||!cloudReady||window.__AVT_RESET_LOCK)return;const data=snapshot();if(!data)return;pendingData=data;lastLocalSnapshot=localSnapshotKey();clearTimeout(saveTimer);if(flush)flushCloudSave(true);else saveTimer=setTimeout(()=>flushCloudSave(false),5000);}
+  function flushCloudSave(force){clearTimeout(saveTimer);saveTimer=null;if(!player||!cloudReady||!pendingData||window.__AVT_RESET_LOCK)return;const data=pendingData;pendingData=null;player.setData(data,!!force).catch(function(err){pendingData=data;log('cloud save failed',err);});}
   function localSnapshotKey(){
     try{
       return [
@@ -23,7 +23,7 @@
   }
 
   function pollLocalChanges(){
-    if(!cloudReady||!player)return;
+    if(!cloudReady||!player||window.__AVT_RESET_LOCK)return;
     const key=localSnapshotKey();
     if(key&&key!==lastLocalSnapshot)queueCloudSave(false);
   }
@@ -40,6 +40,13 @@ async function clearCloudData(){
     catch(e){log('cloud reset failed',e);return false;}
   }
   async function init(){
+    /* Sync: honor force-fresh before any cloud read */
+    try{
+      if(sessionStorage.getItem('avt_force_fresh')==='1'||sessionStorage.getItem('avt_skip_cloud_once')==='1'){
+        window.__AVT_RESET_LOCK=true;
+        try{['avtoritet_save_v2','avtoritet_save_v2_backup','avtoritet_health_v3'].forEach(function(k){localStorage.removeItem(k);});}catch(e){}
+      }
+    }catch(e){}
     if(!window.YaGames){log('SDK loader unavailable; local save remains active.');return;}
     try{
       ysdk=await window.YaGames.init();window.ysdk=ysdk;
@@ -47,6 +54,20 @@ async function clearCloudData(){
       if(player){
         cloudReady=true;
         try{
+          let skipCloud=false;
+          try{
+            skipCloud=sessionStorage.getItem('avt_skip_cloud_once')==='1'||sessionStorage.getItem('avt_force_fresh')==='1';
+            if(skipCloud){
+              sessionStorage.removeItem('avt_skip_cloud_once');
+              sessionStorage.removeItem('avt_force_fresh');
+            }
+          }catch(e){}
+          if(skipCloud){
+            log('skip cloud restore (force fresh reset)');
+            try{await player.setData({},true);await player.setStats({},true);}catch(e){log('post-reset cloud wipe failed',e);}
+            lastLocalSnapshot=localSnapshotKey();
+            throw new Error('skip-cloud-restore');
+          }
           const cloud=await player.getData(['gameSave','healthSave']);
           const localGameRaw=localStorage.getItem(SAVE_KEY),localHealthRaw=localStorage.getItem(HEALTH_KEY);
           let useCloudGame=false,useCloudHealth=false;
@@ -69,7 +90,7 @@ async function clearCloudData(){
           }
           if(useCloudHealth)localStorage.setItem(HEALTH_KEY,JSON.stringify(cloud.healthSave));
         }catch(e){log('cloud load failed; local save will continue and cloud writes remain enabled',e);}
-        queueCloudSave(false);
+        if(!window.__AVT_RESET_LOCK)queueCloudSave(false);
       }
       if(ysdk.on){ysdk.on('game_api_pause',function(){gameplayStop();flushCloudSave(true);});ysdk.on('game_api_resume',function(){gameplayStart();});}
       gameplayStart();log('initialized');
@@ -132,14 +153,7 @@ async function clearCloudData(){
     };
 
     const handleClose=function(wasShown){
-      /*
-       * A callback from an old ad session must not affect the current ad.
-       */
       if(sessionId!==adSessionId)return;
-      /*
-       * Yandex calls onClose when the video closes. Reward is granted only
-       * when onRewarded was received; closing without it means no reward.
-       */
       if(!rewarded)notify(false);
       cleanup();
       log('rewarded ad closed',wasShown);
@@ -152,10 +166,6 @@ async function clearCloudData(){
       log('rewarded ad error',err);
     };
 
-    /*
-     * Safety watchdog: if the SDK fails to fire both close/error callbacks,
-     * do not leave the game permanently locked in adBusy state.
-     */
     watchdog=setTimeout(function(){
       if(sessionId!==adSessionId||!active)return;
       notify(false);
@@ -179,6 +189,6 @@ async function clearCloudData(){
     }
   };
   const pollTimer=setInterval(pollLocalChanges,2000);
-  window.addEventListener('pagehide',function(){clearInterval(pollTimer);flushCloudSave(true);});
-  window.addEventListener('beforeunload',function(){flushCloudSave(true);});
+  window.addEventListener('pagehide',function(){clearInterval(pollTimer);if(!window.__AVT_RESET_LOCK)flushCloudSave(true);});
+  window.addEventListener('beforeunload',function(){if(!window.__AVT_RESET_LOCK)flushCloudSave(true);});
 })();
