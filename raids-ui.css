@@ -53,8 +53,15 @@
 .raid-card-portrait{width:88px;height:88px;flex:0 0 88px;border:2px solid #777;border-radius:12px;background:#0d0d0d;display:flex;align-items:flex-end;justify-content:center;overflow:hidden}
 .raid-card-portrait img{width:100%;height:100%;object-fit:contain}
 .raid-card-name{font-size:19px;letter-spacing:.06em}
-.raid-card-name.psikh{color:#b85c5c;font-family:Impact,sans-serif}
+.raid-card-name.petrovich{color:#e7d2a3;font-family:Georgia,serif}
+.raid-card-name.vtirach{color:#eee;font-family:Impact,sans-serif;letter-spacing:.02em}
+.raid-card-name.mafioznik{color:#e35b9d;font-family:cursive;letter-spacing:.01em}
+.raid-card-name.mongol{color:#d9a85b;font-family:Trebuchet MS,sans-serif}
+.raid-card-name.glaz{color:#8fd3ff;font-family:Georgia,serif;font-style:italic}
 .raid-card-name.krest{color:#c9b896;font-family:Georgia,serif}
+.raid-card-name.psikh{color:#b85c5c;font-family:Impact,sans-serif}
+.raid-card-info small{color:#bbb;font-size:12px}
+.raid-card-time{display:inline-block;margin-top:2px;color:#e7d2a3;font-size:11px;font-variant-numeric:tabular-nums;text-shadow:0 1px 2px #000}
 .raid-window{position:relative;width:100%;height:100%;overflow:hidden;padding:0!important;background:transparent}
 .raid-scene{position:relative;width:100%;height:100%;overflow:hidden;display:flex;flex-direction:column;align-items:center;background:#111 center/cover no-repeat;box-sizing:border-box;padding:14px 12px 12px}
 .raid-scene.talk{background-image:url('./assets/raids/backgrounds/petrovich_vtirach_pc.png')}
