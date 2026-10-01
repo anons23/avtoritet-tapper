@@ -41,6 +41,18 @@
         window.YandexGameBridge.flushSave = function () {};
       }
     } catch (e) {}
+    try {
+      if (!localStorage.__avtPatched) {
+        var orig = localStorage.setItem.bind(localStorage);
+        localStorage.setItem = function (k, v) {
+          if (window.__AVT_RESET_LOCK && k && (String(k).indexOf('avtoritet_') === 0 || String(k).indexOf('avt_') === 0)) {
+            return;
+          }
+          return orig(k, v);
+        };
+        localStorage.__avtPatched = true;
+      }
+    } catch (e) {}
   }
 
   async function hardReset() {
