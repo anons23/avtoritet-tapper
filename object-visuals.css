@@ -1,4 +1,11 @@
 /* Animated tap objects */
+
+/* Hide all tap-object labels (Груша, Сокамерник, ТАПАЙ и т.д.) */
+#tap-object #object-name,
+#tap-object #object-action,
+#tap-object > small{
+  display:none!important;
+}
 #object-emoji{width:100%;height:100px;display:flex;align-items:center;justify-content:center;line-height:1}
 
 /* Image tap objects: no gray circle behind them. */
@@ -23,6 +30,8 @@
 }
 #tap-object.bag-mode .boxing-bag-image{
   filter:drop-shadow(0 14px 18px rgba(0,0,0,.55));
+  width:min(480px,78vw)!important;
+  height:min(480px,62vh)!important;
 }
 
 #tap-object.cellmate-mode,#tap-object.pushups-mode,#tap-object.trainer-mode,#tap-object.authority-mode{
