@@ -91,16 +91,74 @@
 .raid-result{position:absolute;inset:0;z-index:20;display:none;place-items:center;background:rgba(0,0,0,.65);color:#fff;text-align:center}
 .raid-result.show{display:grid}
 .raid-result-card{padding:28px;border-radius:16px;background:rgba(20,20,20,.95);box-shadow:0 15px 50px rgba(0,0,0,.7)}
-#modal-overlay.raid-fullscreen{position:fixed;inset:0;align-items:stretch;justify-content:stretch;padding:0;margin:0;background:#000;z-index:3000}
-#modal-overlay.raid-fullscreen #modal{width:100%;max-width:none;height:100%;max-height:none;overflow:hidden;padding:0;margin:0;border:0;border-radius:0;background:transparent;box-shadow:none}
+#modal-overlay.raid-fullscreen{
+  position:fixed!important;inset:0!important;left:0!important;top:0!important;right:0!important;bottom:0!important;
+  width:100vw!important;height:100dvh!important;min-height:100dvh!important;max-height:100dvh!important;
+  align-items:stretch!important;justify-content:stretch!important;
+  padding:0!important;margin:0!important;background:#000!important;z-index:3000!important;
+  display:flex!important;
+}
+#modal-overlay.raid-fullscreen #modal{
+  width:100%!important;max-width:none!important;
+  height:100%!important;max-height:none!important;min-height:100%!important;
+  overflow:hidden!important;padding:0!important;margin:0!important;
+  border:0!important;border-radius:0!important;background:transparent!important;box-shadow:none!important;
+  align-self:stretch!important;
+}
 #modal-overlay.raid-fullscreen #modal-close{display:none!important}
-#modal-overlay.raid-fullscreen #modal-content{width:100%;height:100%;padding:0;margin:0;background:transparent;border:0;border-radius:0}
-#modal-overlay.raid-fullscreen .raid-window{width:100%;height:100%;border-radius:0;box-shadow:none;background:transparent}
-#modal-overlay.raid-fullscreen .raid-scene{min-height:100%;height:100%;border-radius:0}
-#modal-overlay.raid-selection-fullscreen{position:fixed;inset:0;align-items:stretch;justify-content:stretch;padding:0;margin:0;background:rgba(8,8,8,.96);z-index:3000}
-#modal-overlay.raid-selection-fullscreen #modal{width:100%;height:100%;max-width:none;max-height:none;overflow:hidden;padding:0;margin:0;border:0;border-radius:0;background:transparent}
+#modal-overlay.raid-fullscreen #modal-content{
+  width:100%!important;height:100%!important;max-height:none!important;
+  padding:0!important;margin:0!important;background:transparent!important;border:0!important;border-radius:0!important;
+}
+#modal-overlay.raid-fullscreen .raid-window{
+  width:100%!important;height:100%!important;min-height:100%!important;
+  border-radius:0!important;box-shadow:none!important;background:transparent!important;
+}
+#modal-overlay.raid-fullscreen .raid-scene{
+  min-height:100%!important;height:100%!important;width:100%!important;border-radius:0!important;
+  padding:calc(12px + env(safe-area-inset-top,0px)) 12px calc(12px + env(safe-area-inset-bottom,0px))!important;
+  background-size:cover!important;background-position:center center!important;
+}
+#modal-overlay.raid-selection-fullscreen{
+  position:fixed!important;inset:0!important;left:0!important;top:0!important;right:0!important;bottom:0!important;
+  width:100vw!important;height:100dvh!important;min-height:100dvh!important;max-height:100dvh!important;
+  align-items:stretch!important;justify-content:stretch!important;
+  padding:0!important;margin:0!important;
+  background:#0c0c0c!important;z-index:3000!important;
+  display:flex!important;
+}
+#modal-overlay.raid-selection-fullscreen #modal{
+  width:100%!important;max-width:none!important;
+  height:100%!important;max-height:none!important;min-height:100%!important;
+  overflow:hidden!important;padding:0!important;margin:0!important;
+  border:0!important;border-radius:0!important;background:transparent!important;box-shadow:none!important;
+  align-self:stretch!important;
+}
 #modal-overlay.raid-selection-fullscreen #modal-close{display:none!important}
-#modal-overlay.raid-selection-fullscreen #modal-content{width:100%;height:100%;overflow:auto;padding:0;margin:0;background:transparent}
+#modal-overlay.raid-selection-fullscreen #modal-content{
+  width:100%!important;height:100%!important;max-height:none!important;
+  overflow:auto!important;padding:0!important;margin:0!important;
+  background:transparent!important;border:0!important;border-radius:0!important;
+  display:flex!important;flex-direction:column!important;
+}
+#modal-overlay.raid-selection-fullscreen .raid-select{
+  width:100%!important;max-width:none!important;
+  height:100%!important;max-height:none!important;min-height:100%!important;
+  overflow:auto!important;
+  padding:calc(14px + env(safe-area-inset-top,0px)) 16px calc(18px + env(safe-area-inset-bottom,0px))!important;
+  border-radius:0!important;box-shadow:none!important;
+  background:linear-gradient(160deg,#1a1a1a 0%,#0c0c0c 55%,#080808 100%)!important;
+  color:#fff!important;
+  box-sizing:border-box!important;
+}
+#modal-overlay.raid-selection-fullscreen .raid-select-head{
+  position:sticky;top:0;z-index:5;
+  padding-bottom:10px;margin-bottom:12px;
+  background:linear-gradient(180deg,#1a1a1a 70%,transparent);
+}
+#modal-overlay.raid-selection-fullscreen .raid-fighter-list{
+  max-width:720px;width:100%;margin:0 auto;
+}
 .raid-shout{position:absolute;left:50%;top:12%;width:max-content;max-width:min(280px,48vw);padding:8px 12px;border:2px solid rgba(255,255,255,.85);border-radius:14px;background:rgba(8,8,8,.92);color:#fff;font-weight:1000;font-size:clamp(13px,1.6vw,20px);text-align:center;opacity:0;pointer-events:none;z-index:30;transform:translate(-50%,0) scale(.9)}
 .raid-shout.show{animation:raidShoutIn 1.35s ease-out forwards}
 .raid-shout.psikh{border-color:#b85c5c}
