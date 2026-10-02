@@ -1,7 +1,7 @@
-/* game.js v4.50 — multi-part full core loader */
+/* game.js v4.50 — 13-part full core loader */
 'use strict';
 (function(){
-  var parts=6, acc=[], i=0;
+  var parts=13, acc=[], i=0;
   function next(){
     if(i>=parts){
       try{
@@ -12,7 +12,7 @@
         var s=document.createElement('script');
         s.textContent=code;
         document.head.appendChild(s);
-        console.log('[game] full core v4.50 OK, TEST_MODE=', typeof TEST_MODE!=='undefined'?TEST_MODE:'?');
+        console.log('[game] full core v4.50 OK TEST_MODE=', typeof TEST_MODE!=='undefined'?TEST_MODE:'?');
       }catch(e){console.error('[game] decode failed',e)}
       return;
     }
