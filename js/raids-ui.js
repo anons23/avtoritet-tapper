@@ -1,16 +1,29 @@
-/* RAID SYSTEM - selection, progress, energy, reactions */
+/* raids-ui loader v4.7 — 4 base64 parts */
 'use strict';
-(()=>{
-  const RAID_RANK_REQUIREMENTS=[0,1500,5000,15000,50000];
-  const RAID_FIGHTERS=[
-    {id:'petrovich',name:'ПЕТРОВИЧ',rank:0,hp:1500,first:{chifir:2000,points:150},repeat:{chifir:500,points:40},scene:'talk'},
-    {id:'vtirach',name:'ВТИРАЧ',rank:0,hp:2000,first:{chifir:2500,points:200},repeat:{chifir:625,points:50},scene:'talk'},
-    {id:'mafioznik',name:'МАФИОЗНИК',rank:1,hp:3000,first:{chifir:4000,points:300},repeat:{chifir:1000,points:75},scene:'fight'},
-    {id:'mongol',name:'МОНГОЛ',rank:1,hp:4000,first:{chifir:5500,points:400},repeat:{chifir:1375,points:100},scene:'fight'},
-    {id:'glaz',name:'ГЛАЗ',rank:2,hp:5000,first:{chifir:7000,points:500},repeat:{chifir:1750,points:125},scene:'glaz'},
-    {id:'krest',name:'КРЕСТ',rank:3,hp:6500,first:{chifir:9000,points:700},repeat:{chifir:2250,points:175},scene:'krest'},
-    {id:'psikh',name:'ПСИХ АРКАША',rank:4,hp:8000,first:{chifir:12000,points:1000},repeat:{chifir:3000,points:250},scene:'psikh'}
-  ];
-  // truncated for length - will fix
-  window.openRaidMenu=function(){alert('temp');};
+(function(){
+  var parts = 4, acc = [], i = 0;
+  function next(){
+    if(i>=parts){
+      try{
+        var bin = atob(acc.join(''));
+        var bytes = new Uint8Array(bin.length);
+        for(var k=0;k<bin.length;k++) bytes[k]=bin.charCodeAt(k);
+        var code = new TextDecoder('utf-8').decode(bytes);
+        var s = document.createElement('script');
+        s.textContent = code;
+        document.head.appendChild(s);
+        console.log('[raids-ui] OK openRaidMenu=', typeof window.openRaidMenu);
+      }catch(e){console.error('[raids-ui] decode failed', e)}
+      return;
+    }
+    var x = new XMLHttpRequest();
+    x.open('GET', './js/raids-ui.p'+i+'.b64.txt?v=4.7', true);
+    x.onload = function(){
+      if(x.status>=200&&x.status<300){ acc.push(x.responseText.trim()); i++; next(); }
+      else console.error('[raids-ui] missing part', i, x.status);
+    };
+    x.onerror = function(){ console.error('[raids-ui] network error', i); };
+    x.send();
+  }
+  next();
 })();
