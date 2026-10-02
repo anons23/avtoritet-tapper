@@ -1,4 +1,15 @@
-/* АВТОРИТЕТ 2.0 — стабильная версия (anim trigger unified) */
+/* АВТОРИТЕТ 2.0 — multi-part load */
 'use strict';
-const TEST_MODE=false;
-const TEST_POINTS_PER_TAP=500;
+(function(){
+  var parts=['./js/game-part1.js?v=4.22','./js/game-part2.js?v=4.22','./js/game-part3.js?v=4.22'];
+  function next(i){
+    if(i>=parts.length)return;
+    var s=document.createElement('script');
+    s.src=parts[i];
+    s.async=false;
+    s.onload=function(){next(i+1)};
+    s.onerror=function(){console.error('[game] failed',parts[i])};
+    document.head.appendChild(s);
+  }
+  next(0);
+})();
