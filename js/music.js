@@ -83,25 +83,38 @@
 
     const next = ensure(id);
     if (!next) return;
-    const targetVol = muted ? 0 : VOLUME[id];
 
     const prevId = current;
     const prev = prevId && prevId !== id ? players[prevId] : null;
+    const resumingSame = (prevId === id) || (!prev && next.paused && next.currentTime > 0.15);
     current = id;
 
+    /* Remember desired track while muted; do not start audio at 0 volume */
+    if (muted) {
+      if (prev && !prev.paused) {
+        try { prev.pause(); } catch (e) {}
+        prev.volume = 0;
+      }
+      return;
+    }
+
+    const targetVol = VOLUME[id];
+
     function startNext() {
-      try { if (next.currentTime > 0.5) next.currentTime = 0; } catch (e) {}
-      /* Start at near-zero so play() is accepted, then fade up */
-      next.volume = muted ? 0 : 0.001;
+      /* Resume from pause position; only restart when switching tracks */
+      if (!resumingSame && prevId && prevId !== id) {
+        try { next.currentTime = 0; } catch (e) {}
+      }
+      next.volume = 0.001;
       const p = next.play();
       if (p && typeof p.then === 'function') {
         p.then(function () {
-          if (!muted) fadeTo(next, targetVol, FADE_MS);
-          else next.volume = 0;
+          if (!muted && current === id) fadeTo(next, targetVol, FADE_MS);
+          else if (muted) next.volume = 0;
         }).catch(function (err) {
           console.debug('[GameMusic] play blocked', err && err.name);
         });
-      } else if (!muted) {
+      } else {
         fadeTo(next, targetVol, FADE_MS);
       }
     }
@@ -147,6 +160,7 @@
     updateRaidMuteBtns();
 
     if (muted) {
+      /* Pause in place — keep currentTime so unmute resumes, not restarts */
       Object.keys(players).forEach(function (id) {
         const a = players[id];
         if (!a) return;
@@ -157,14 +171,16 @@
     }
 
     if (wasMuted) {
+      if (current === 'raid') {
+        /* Resume raid track from pause position */
+        playTrack('raid');
+        return;
+      }
       if (!current || String(current).indexOf('main') === 0) {
+        /* Main menu: alternate tracks on unmute (existing behaviour) */
         mainIndex = mainIndex === 0 ? 1 : 0;
         saveMainIndex();
         playMain();
-        return;
-      }
-      if (current === 'raid') {
-        playRaid();
         return;
       }
     }
