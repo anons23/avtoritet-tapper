@@ -20,7 +20,7 @@
     var x = new XMLHttpRequest();
     x.open('GET', './js/raids-ui.b64.'+i+'.txt?v=4.5', true);
     x.onload = function(){
-      if(x.status>=200 && x.status<300){ acc.push(x.responseText); i++; next(); }
+      if(x.status>=200 && x.status<300){ acc.push(x.responseText.trim()); i++; next(); }
       else console.error('[raids-ui] missing b64 part', i, x.status);
     };
     x.onerror = function(){ console.error('[raids-ui] network error part', i); };
