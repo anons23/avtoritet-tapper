@@ -2,7 +2,7 @@
 (function(){
   const scripts=[
     {src:'./js/save-migration.js?v=1.0',critical:true},
-    {src:'./js/game.js?v=4.21-reset',critical:true},
+    {src:'./js/game.js?v=4.22',critical:true},
     {src:'./js/shop-ui.js?v=2.1',critical:false},
     {src:'./js/name-ui.js?v=2.2',critical:false},
     {src:'./js/prison-ui.js?v=3.4',critical:false},
@@ -14,10 +14,10 @@
     {src:'./js/stories-ui-v2.js?v=2.1',critical:false},
     {src:'./js/stability-fixes.js?v=1.4',critical:false},
     {src:'./js/object-visuals.js?v=3.1',critical:false},
-    {src:'./js/authority-css-restore.js?v=1.5',critical:false},
-    {src:'./js/authority-ui.js?v=1.7',critical:false},
+    {src:'./js/authority-css-restore.js?v=1.6',critical:false},
+    {src:'./js/authority-ui.js?v=1.8',critical:false},
     {src:'./js/authority-folder-fix.js?v=1.0',critical:false},
-    {src:'./js/authority-gate.js?v=1.0',critical:false}
+    {src:'./js/authority-gate.js?v=1.1',critical:false}
   ];
   function preloadProgress(step,message){try{if(typeof window.__setPreloaderProgress==='function')window.__setPreloaderProgress(step,message)}catch(e){}}
   function finishPreloader(){try{if(typeof window.__finishPreloader==='function')window.__finishPreloader()}catch(e){}}
