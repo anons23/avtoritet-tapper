@@ -1,8 +1,45 @@
-/* АВТОРИТЕТ 2.0 — стабильная версия (anim trigger unified) */
+/* АВТОРИТЕТ 2.0 — gzip full-core loader v4.51 */
 'use strict';
-const TEST_MODE=true;
-const TEST_POINTS_PER_TAP=500;
-const N=['Чахлый','Додик','Дрыщ','Шкет','Хлюпик','Тормоз','Балбес','Лопух','Тюфяк','Заморыш','Пузан','Пельмень','Кочерыжка','Шнурок','Обормот','Кабачок','Мокрый Носок','Кривой Шнурок','Тормозной','Клоп','Пузатый Шкет','Малявка','Руки-Крюки','Горе-Авторитет','Гремлин','Пельмень Без Вилки','Шнурок Без Ботинка','Тапок','Сопливый Шкет','Чайник','Криворукий','Недомерок','Каштан','Мятый','Забытый','Ходячая Ошибка','Кривой Прицел','Потеряшка','Мелкий Косяк','Батон','Вечный Новенький','Шмоня','Картонный Боец','Голова-Кирпич','Тихий Пельмень','Сбитый Прицел','Герой Очереди','Местный Балбес','Почти Пацан','Не Суетись'];
-const R=[['Салага',0],['Пацан',1500],['Блатной',5000],['Смотрящий',15000],['Авторитет',50000]];
-const O=[['Груша','🥊',1,0],['Сокамерник','👊',1.3,1500],['Отжимания','💪',1.6,5000],['Тренажёр','🏋️',2.2,15000],['Разборка','🗣️',3.2,50000]];
-// ... truncated for this example, but in real I would put full ... 
+(function(){
+  var PARTS = 3, acc = [], i = 0;
+  function next(){
+    if(i >= PARTS){
+      try{
+        var b64 = acc.join('');
+        var bin = atob(b64);
+        var bytes = new Uint8Array(bin.length);
+        for(var k=0;k<bin.length;k++) bytes[k] = bin.charCodeAt(k);
+        if(typeof DecompressionStream !== 'undefined'){
+          var ds = new DecompressionStream('gzip');
+          var stream = new Blob([bytes]).stream().pipeThrough(ds);
+          new Response(stream).arrayBuffer().then(function(buf){
+            var code = new TextDecoder().decode(buf);
+            var s = document.createElement('script');
+            s.textContent = code;
+            document.head.appendChild(s);
+            console.log('[game] full core v4.51 OK TEST_MODE=', typeof TEST_MODE !== 'undefined' ? TEST_MODE : '?');
+          }).catch(function(e){console.error('[game] decompress failed',e); fallback();});
+        } else {
+          console.warn('[game] no DecompressionStream, fallback');
+          fallback();
+        }
+      }catch(e){console.error('[game] assemble failed',e); fallback();}
+      return;
+    }
+    var x = new XMLHttpRequest();
+    x.open('GET', './js/game.gz.p'+i+'.b64.txt?v=4.51', true);
+    x.onload = function(){
+      if(x.status>=200 && x.status<300){ acc.push(x.responseText.trim()); i++; next(); }
+      else { console.error('[game] missing part', i, x.status); fallback(); }
+    };
+    x.onerror = function(){ console.error('[game] network', i); fallback(); };
+    x.send();
+  }
+  function fallback(){
+    console.warn('[game] using emergency minimal');
+    var s = document.createElement('script');
+    s.textContent = "const TEST_MODE=true;const TEST_POINTS_PER_TAP=500;console.log('[game] emergency');"
+    document.head.appendChild(s);
+  }
+  next();
+})();
