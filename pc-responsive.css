@@ -354,8 +354,12 @@
     max-height: 70vh !important;
   }
   #modal-overlay.raid-selection-fullscreen .raid-select {
-    max-height: 100dvh !important;
-    padding: 12px 14px !important;
+    width: 100% !important;
+    max-width: none !important;
+    height: 100% !important;
+    max-height: none !important;
+    padding: calc(10px + env(safe-area-inset-top, 0px)) 14px calc(12px + env(safe-area-inset-bottom, 0px)) !important;
+    border-radius: 0 !important;
   }
   #modal-overlay.raid-selection-fullscreen .raid-fighter-card {
     min-height: 72px !important;
