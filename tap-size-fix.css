@@ -20,3 +20,28 @@
     transform:scale(1.89);
   }
 }
+
+/* bag slightly smaller */
+#tap-object.bag-mode{
+  width:min(300px,78vw)!important;
+  height:min(320px,46vh)!important;
+  min-height:210px!important;
+}
+#tap-object.bag-mode #object-emoji{
+  height:240px!important;
+  flex-basis:240px!important;
+}
+#tap-object.bag-mode .boxing-bag-image{
+  width:min(450px,76vw)!important;
+  height:min(450px,58vh)!important;
+}
+@media(min-width:701px){
+  #tap-object.bag-mode{width:420px!important;height:min(480px,52vh)!important;min-height:320px!important}
+  #tap-object.bag-mode #object-emoji{height:380px!important;flex-basis:380px!important}
+  #tap-object.bag-mode .boxing-bag-image{width:min(600px,44vw)!important;height:min(600px,54vh)!important}
+}
+@media(max-height:650px){
+  #tap-object.bag-mode{width:min(270px,78vw)!important;height:240px!important;min-height:190px!important}
+  #tap-object.bag-mode #object-emoji{height:185px!important;flex-basis:185px!important}
+  #tap-object.bag-mode .boxing-bag-image{width:min(360px,76vw)!important;height:240px!important}
+}
