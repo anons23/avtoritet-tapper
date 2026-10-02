@@ -47,7 +47,7 @@
   function unlocked(f){return (Number(s()?.points)||0)>=Number(RAID_RANK_REQUIREMENTS[f.rank]??0)}
   function pFor(f){const p=progress();if(!p[f.id])p[f.id]={hp:f.hp,startedAt:0,extensionUsed:false,wins:0};if(!Number.isFinite(p[f.id].hp)||p[f.id].hp<0)p[f.id].hp=f.hp;return p[f.id]}
   function formatTime(ms){const sec=Math.max(0,Math.ceil(ms/1000));return Math.floor(sec/60)+':'+String(sec%60).padStart(2,'0')}
-  function remaining(f){const p=progress()[f.id];const p2=pFor(f);if(!p2.startedAt||p2.hp<=0)return 0;return Math.max(0,90*60*1000-(Date.now()-p2.startedAt))}
+  function remaining(f){const p=pFor(f);if(!p.startedAt||p.hp<=0)return 0;return Math.max(0,90*60*1000-(Date.now()-p.startedAt))}
   function save(){window.saveGame?.();window.ui?.()}
   function portraitSrc(f){return FIGHTER_PORTRAIT[f.id]||('./assets/raids/fighters/'+f.id+'.png')}
   function updateLowHp(pct){const bar=$('raid-hp');if(bar)bar.classList.toggle('low-hp',pct<=25&&pct>0)}
