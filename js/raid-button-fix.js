@@ -1,6 +1,48 @@
 'use strict';
 (function () {
-  /* Guarantee the raid open button is present and visible after load / rotation. */
+  /* Guarantee the raid open button is present and opens the menu even if raids-ui.js failed to parse. */
+
+  function openMenuFallback() {
+    var overlay = document.getElementById('modal-overlay');
+    var content = document.getElementById('modal-content');
+    if (!overlay || !content) return false;
+    overlay.classList.remove('hidden');
+    overlay.classList.add('show', 'raid-selection-fullscreen');
+    overlay.classList.remove('raid-fullscreen');
+    content.innerHTML =
+      '<div class="raid-select">' +
+        '<div class="raid-select-head">' +
+          '<div><h2>⚔️ РЕЙДЫ</h2><p>Модуль рейдов загружается… Нажми ещё раз через секунду.</p></div>' +
+          '<div class="raid-select-actions">' +
+            '<button type="button" class="raid-menu-close" id="raid-menu-close">✕</button>' +
+          '</div>' +
+        '</div>' +
+        '<div class="raid-fighter-list" id="raid-fighter-list">' +
+          '<p style="padding:16px;color:#aaa">Если список пуст — обнови страницу (Ctrl+F5).</p>' +
+        '</div>' +
+      '</div>';
+    var closeBtn = document.getElementById('raid-menu-close');
+    if (closeBtn) {
+      closeBtn.addEventListener('click', function () {
+        overlay.classList.remove('show', 'raid-fullscreen', 'raid-selection-fullscreen');
+        overlay.classList.add('hidden');
+      });
+    }
+    return true;
+  }
+
+  function tryOpen() {
+    try {
+      if (typeof window.openRaidMenu === 'function') {
+        window.openRaidMenu();
+        return true;
+      }
+    } catch (err) {
+      console.error('[RaidButton] openRaidMenu failed', err);
+    }
+    return openMenuFallback();
+  }
+
   function ensure() {
     try {
       var parent = document.getElementById('game-container') || document.body;
@@ -18,21 +60,20 @@
           e.stopPropagation();
           var attempts = 0;
           function open() {
-            try {
-              if (typeof window.openRaidMenu === 'function') {
-                window.openRaidMenu();
-                return;
-              }
-            } catch (err) {
-              console.error('[RaidButton] openRaidMenu failed', err);
-            }
-            if (attempts++ < 20) window.setTimeout(open, 100);
+            if (tryOpen()) return;
+            if (attempts++ < 25) window.setTimeout(open, 120);
           }
           open();
         });
         parent.appendChild(btn);
+      } else if (!btn.__avtRaidBound) {
+        btn.addEventListener('click', function (e) {
+          e.preventDefault();
+          e.stopPropagation();
+          tryOpen();
+        });
       }
-      /* Force visible in case something hid it */
+      btn.__avtRaidBound = true;
       btn.style.display = 'block';
       btn.style.visibility = 'visible';
       btn.style.opacity = '1';
