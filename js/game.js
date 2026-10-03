@@ -161,10 +161,10 @@ function shop(){
     '<h2>💪 Качалка</h2>'+
     '<p class="section-subtitle">Трать чефир на постоянные улучшения. Новые этапы открываются автоматически при смене масти ⭐.</p>'+
     '<div class="shop-grid">'+
-    '<button type="button" class="shop-card" data-b="p"><span class="shop-icon">💪</span><b>Сила</b><small>+1 сила · сейчас '+s.power+'</small><span class="shop-price">'+costP+' 🍵</span></button>'+
-    '<button type="button" class="shop-card" data-b="c"><span class="shop-icon">🎯</span><b>Крит</b><small>+2% к шансу · сейчас '+Math.round(s.critChance*100)+'%</small><span class="shop-price">'+costC+' 🍵</span></button>'+
-    '<button type="button" class="shop-card" data-b="e"><span class="shop-icon">⚡</span><b>Энергия</b><small>+25 максимум · сейчас '+s.maxEnergy+'</small><span class="shop-price">'+costE+' 🍵</span></button>'+
-    '<button type="button" class="shop-card" data-b="d"><span class="shop-icon">🔥</span><b>Ускоритель</b><small>×2 на 100 тапов · запас '+(s.boosters.double||0)+'</small><span class="shop-price">500 🍵</span></button>'+
+    '<button type="button" data-b="p">💪 <b>Сила</b><br><small>+1 сила · сейчас '+s.power+'</small><br>Цена '+costP+' 🍵</button>'+
+    '<button type="button" data-b="c">🎯 <b>Крит</b><br><small>+2% к шансу · сейчас '+Math.round(s.critChance*100)+'%</small><br>Цена '+costC+' 🍵</button>'+
+    '<button type="button" data-b="e">⚡ <b>Энергия</b><br><small>+25 максимум · сейчас '+s.maxEnergy+'</small><br>Цена '+costE+' 🍵</button>'+
+    '<button type="button" data-b="d">🔥 <b>Ускоритель</b><br><small>×2 на 100 тапов · запас '+(s.boosters.double||0)+'</small><br>Цена 500 🍵</button>'+
     '</div></div>'
   );
   document.querySelectorAll('[data-b]').forEach(b=>b.addEventListener('click',()=>{
@@ -200,24 +200,9 @@ function tasksMenu(){
     const cur = Math.min(t.target, Math.floor(t.get()));
     const done = !!s.completed[id];
     const pct = Math.min(100, cur / t.target * 100);
-    return '<div class="task-card '+(done?'task-done':'')+'">'+'
-      '<div class="task-icon">'+(done?'✓':'🎯')+'</div>'+
-      '<div class="task-body">'+
-      '<b>'+t.title+'</b>'+
-      '<p>'+t.desc+'</p>'+
-      '<div class="task-progress"><span style="width:'+pct+'%"></span></div>'+
-      '<small>'+fmt(cur)+' / '+fmt(t.target)+' · Награда: <strong>'+t.reward+'</strong></small>'+
-      '</div></div>';
+    return '<div class="task-card '+(done?'task-done':'')+'"><div class="task-icon">'+(done?'✓':'🎯')+'</div><div class="task-body"><b>'+t.title+'</b><p>'+t.desc+'</p><div class="task-progress"><span style="width:'+pct+'%"></span></div><small>'+fmt(cur)+' / '+fmt(t.target)+' · Награда: <strong>'+t.reward+'</strong></small></div></div>';
   }).join('');
-  openModal(
-    '<div class="section-window tasks-window">'+
-    '<div class="section-kicker">ЦЕЛИ НА СЕЙЧАС</div>'+
-    '<h2>🎯 Поручения</h2>'+
-    '<p class="section-subtitle">Выполняй простые цели и забирай награды. Каждое поручение даёт приз.</p>'+
-    '<div class="tasks-list">'+cards+'</div>'+
-    '<div class="tasks-footer">Выполнено поручений: <b>'+Object.keys(s.completed).length+'</b></div>'+
-    '</div>'
-  );
+  openModal('<div class="section-window tasks-window"><div class="section-kicker">ЦЕЛИ НА СЕЙЧАС</div><h2>🎯 Поручения</h2><p class="section-subtitle">Выполняй простые цели и забирай награды. Каждое поручение даёт приз.</p><div class="tasks-list">'+cards+'</div><div class="tasks-footer">Выполнено поручений: <b>'+Object.keys(s.completed).length+'</b></div></div>');
 }
 
 function more(){
