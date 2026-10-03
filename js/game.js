@@ -1,4 +1,4 @@
-/* АВТОРИТЕТ 2.0 — core v4.73 (full shop + tasks) */
+/* АВТОРИТЕТ 2.0 — core v4.74 (shop + tasks + events) */
 'use strict';
 const TEST_MODE = true;
 const TEST_POINTS_PER_TAP = 500;
@@ -6,6 +6,16 @@ const N = ['Чахлый','Додик','Дрыщ','Шкет','Хлюпик','Т�
 const R = [['Салага',0],['Пацан',1500],['Блатной',5000],['Смотрящий',15000],['Авторитет',50000]];
 const O = [['Груша','🥊',1,0],['Сокамерник','👊',1.3,1500],['Отжимания','💪',1.6,5000],['Тренажёр','🏋️',2.2,15000],['Разборка','🗣️',3.2,50000]];
 const FUN = ['Надзиратель идёт... сделай умный вид.','Сегодня без шмона. Чудо.','Шайба в кармане греет душу.','В столовой сегодня мясо. Или что-то похожее.','Кто-то опять забрал папиросы. Классика.','Сегодня раздача посылок. Надежда умирает последней.'];
+const EVENTS=[
+  ['Шмон!','Надзиратели ворвались в камеру. Что делаешь?',[['Спрятать папиросы',.55,40,15,2],['Стоять спокойно',0,10,5,1],['Сделать вид, что спишь',.25,5,8,1]],0],
+  ['Малява','Тебе передали маляву. Что в ней?',[['Прочитать сразу',.4,30,20,2],['Спрятать до завтра',.15,15,10,1],['Выбросить',0,0,3,0]],0],
+  ['Посылка','Пришла посылка, но непонятно чья.',[['Забрать себе',.6,60,10,-1],['Отдать смотрящему',0,0,20,3],['Оставить',.1,0,5,0]],0],
+  ['Тихий разговор','Сосед по камере просит помочь решить мелкий спор.',[['Выслушать обе стороны',.65,35,18,3],['Не вмешиваться',.35,10,5,0],['Сразу поддержать знакомого',.2,20,2,-2]],1],
+  ['Проверка камеры','Кто-то ищет пропавшую вещь.',[['Помочь проверить',.7,45,22,3],['Спрятать свою вещь',.45,65,8,0],['Сделать вид, что не слышал',.2,0,4,-1]],1],
+  ['Слух','По бараку пошёл слух о твоём деле.',[['Проверить источник',.65,20,28,4],['Не обращать внимания',.5,5,12,1],['Спорить со всеми',.25,40,0,-4]],2],
+  ['Шайба','Шайба предлагает «выгодный обмен».',[['Согласиться',.45,50,20,1],['Торговаться',.3,20,10,2],['Отказаться',0,0,0,0]],1],
+  ['Карцерный слух','Ходят слухи, что тебя хотят закрыть.',[['Залечь на дно',.4,10,5,0],['Дать отпор',.35,30,25,3],['Игнорировать',.2,0,0,0]],2]
+];
 const TASKS = {
   taps10000:{title:'Первые 10 000 тапов',desc:'Сделай 10 000 обычных тапов.',target:10000,rewardAmount:500,rewardType:'chifir',reward:'500 🍵',get:()=>s.tasks.taps},
   bugor10:{title:'Десять тренировок',desc:'Успешно пройди 10 тренировок с Бугром.',target:10,rewardAmount:750,rewardType:'chifir',reward:'750 🍵',get:()=>s.tasks.bugorSuccess||0},
@@ -14,6 +24,7 @@ const TASKS = {
   tasks25:{title:'Опытный порученец',desc:'Успешно выполни 25 поручений.',target:25,rewardAmount:1500,rewardType:'points',reward:'1500 ⭐',get:()=>s.tasks.npcSuccess||0}
 };
 
+let activeEvent=false;
 let s = {
   chifir:0, points:0, energy:250, maxEnergy:250, power:1, critChance:0.05,
   respect:0, wealth:0, nickname:'', currentObject:0, prestige:0,
@@ -120,17 +131,21 @@ function load(){
   if(!Number.isFinite(s.maxEnergy)) s.maxEnergy = 250;
 }
 
-function openModal(h){
+function openModal(h,locked){
   const c = $('modal-content'), o = $('modal-overlay');
   if(!c || !o) return;
   c.innerHTML = h;
   o.classList.remove('hidden');
   o.classList.add('show');
+  o.dataset.locked = locked ? '1' : '0';
 }
 
 function closeModal(){
   const o = $('modal-overlay');
   if(!o) return;
+  if(o.dataset.locked==='1' && activeEvent) return;
+  activeEvent=false;
+  o.dataset.locked='0';
   o.classList.remove('raid-fullscreen','raid-selection-fullscreen','show');
   o.classList.add('hidden');
 }
@@ -150,6 +165,93 @@ function tasksCheck(){
   if(changed){ saveNow(); ui(); }
 }
 
+function choiceResult(x,ok){
+  const e=$('choice-result');
+  if(!e)return;
+  e.textContent=String(x);
+  e.classList.remove('show','success','fail');
+  e.classList.add(ok?'success':'fail');
+  void e.offsetWidth;
+  e.classList.add('show');
+  clearTimeout(choiceResult.timer);
+  choiceResult.timer=setTimeout(()=>e.classList.remove('show'),2600);
+}
+function finishEvent(){
+  activeEvent=false;
+  const o=$('modal-overlay');
+  if(o) o.dataset.locked='0';
+  closeModal();
+  tasksCheck();
+  ui();
+  saveNow();
+}
+function addSentence(days,reason){
+  days=Math.max(0,Math.floor(Number(days)||0));
+  if(!days)return;
+  const current=Number(s.sentenceDays||0);
+  const baseDays=current<=0?100:current;
+  s.sentenceDays=baseDays+days;
+  if(current<=0)s.servedSentenceMinutes=0;
+  s.lastSentenceTick=Date.now();
+  if(reason) msg('⛓️ Срок +'+days+' дн. · '+reason);
+}
+function enterJail(reason){
+  if(s.jailed)return;
+  addSentence(3,'карцер');
+  s.jailed=true;
+  s.jailRequired=500;
+  s.jailTaps=0;
+  const rate=.20+Math.random()*.05;
+  s.confiscatedChifir=Math.min(Math.max(0,Math.floor(s.chifir)),Math.floor(Math.max(0,s.chifir)*rate));
+  s.chifir=Math.max(0,s.chifir-s.confiscatedChifir);
+  s.jailProtection=0;
+  activeEvent=false;
+  const o=$('modal-overlay');
+  if(o){o.dataset.locked='0';o.classList.add('hidden');o.classList.remove('show')}
+  msg('🚨 Карцер. Изъято '+fmt(s.confiscatedChifir)+' 🍵. Отсидеть: 500 тапов.');
+  if(reason) msg(reason);
+  ui();
+  saveNow();
+}
+function openEvent(){
+  if(s.jailed||activeEvent)return;
+  const stage=Math.max(0,Number(s.currentObject)||0);
+  const available=EVENTS.filter(e=>stage>=Number(e[3]||0));
+  if(!available.length)return;
+  activeEvent=true;
+  const v=available[Math.floor(Math.random()*available.length)];
+  let h='<div class="section-window event-window"><div class="section-kicker">СОБЫТИЕ</div><h2>⚠️ '+v[0]+'</h2><p>'+v[1]+'</p><p><b>Решай быстро:</b></p><div class="choices">';
+  v[2].forEach((c,i)=>{ h+='<button type="button" class="choice" data-i="'+i+'">'+c[0]+'</button>'; });
+  h+='</div></div>';
+  openModal(h,true);
+  document.querySelectorAll('.choice').forEach(b=>b.addEventListener('click',()=>{
+    if(!activeEvent||s.jailed)return;
+    const c=v[2][Number(b.dataset.i)];
+    s.tasks.events=(s.tasks.events||0)+1;
+    s.lastChoiceEvent=s.points;
+    if(Math.random()<c[1]){
+      s.chifir+=c[2];
+      s.tasks.earned=(s.tasks.earned||0)+c[2];
+      s.points+=c[3];
+      s.respect=Math.max(0,(s.respect||0)+Number(c[4]||0));
+      const bonus=c[4]?(' · уважение '+(c[4]>0?'+':'')+c[4]):'';
+      choiceResult('Удачно! +'+c[2]+' 🍵 +'+c[3]+' ⭐'+bonus,true);
+      finishEvent();
+    }else{
+      const loss=Math.max(3,Math.ceil(Math.max(1,c[3])*1.5));
+      addSentence(c[1]>=.6?2:1,'провал события');
+      s.points=Math.max(0,s.points-loss);
+      if(c[1]>0&&(s.jailProtection||0)<=0&&Math.random()<.08){
+        finishEvent();
+        enterJail('❌ Рискованный ход провалился.');
+      }else{
+        choiceResult('Не повезло. Последствия уже чувствуются.',false);
+        finishEvent();
+      }
+    }
+  }));
+}
+
 function shop(){
   if(s.jailed){ msg('🔒 Качалка закрыта до выхода из карцера'); return; }
   const costP = 100 + s.upgrades.power * 250;
@@ -159,12 +261,12 @@ function shop(){
     '<div class="section-window shop-window">'+
     '<div class="section-kicker">ПРОКАЧКА</div>'+
     '<h2>💪 Качалка</h2>'+
-    '<p class="section-subtitle">Трать чефир на постоянные улучшения. Новые этапы открываются автоматически при смене масти ⭐.</p>'+
+    '<p class="section-subtitle">Трать чефир на постоянные улучшения.</p>'+
     '<div class="shop-grid">'+
     '<button type="button" data-b="p">💪 <b>Сила</b><br><small>+1 сила · сейчас '+s.power+'</small><br>Цена '+costP+' 🍵</button>'+
-    '<button type="button" data-b="c">🎯 <b>Крит</b><br><small>+2% к шансу · сейчас '+Math.round(s.critChance*100)+'%</small><br>Цена '+costC+' 🍵</button>'+
-    '<button type="button" data-b="e">⚡ <b>Энергия</b><br><small>+25 максимум · сейчас '+s.maxEnergy+'</small><br>Цена '+costE+' 🍵</button>'+
-    '<button type="button" data-b="d">🔥 <b>Ускоритель</b><br><small>×2 на 100 тапов · запас '+(s.boosters.double||0)+'</small><br>Цена 500 🍵</button>'+
+    '<button type="button" data-b="c">🎯 <b>Крит</b><br><small>+2% · сейчас '+Math.round(s.critChance*100)+'%</small><br>Цена '+costC+' 🍵</button>'+
+    '<button type="button" data-b="e">⚡ <b>Энергия</b><br><small>+25 макс · сейчас '+s.maxEnergy+'</small><br>Цена '+costE+' 🍵</button>'+
+    '<button type="button" data-b="d">🔥 <b>Ускоритель</b><br><small>×2 на 100 тапов · '+(s.boosters.double||0)+'</small><br>Цена 500 🍵</button>'+
     '</div></div>'
   );
   document.querySelectorAll('[data-b]').forEach(b=>b.addEventListener('click',()=>{
@@ -183,15 +285,7 @@ function shop(){
 function rankMenu(){
   const r = rank(), next = R.find(x => x[1] > s.points);
   const stage = O[s.currentObject] ? O[s.currentObject][0] : 'Груша';
-  openModal(
-    '<div class="section-window">'+
-    '<div class="section-kicker">ПРОГРЕСС</div>'+
-    '<h2>🏆 Масть</h2>'+
-    '<p>Твоя масть: <b>'+r[0]+'</b></p>'+
-    '<p>Текущий этап: <b>'+stage+'</b></p>'+
-    '<p>Следующая ступень: '+(next ? '<b>'+next[0]+'</b> · '+fmt(next[1])+' ⭐' : 'Максимальная масть')+'</p>'+
-    '</div>'
-  );
+  openModal('<div class="section-window"><div class="section-kicker">ПРОГРЕСС</div><h2>🏆 Масть</h2><p>Твоя масть: <b>'+r[0]+'</b></p><p>Этап: <b>'+stage+'</b></p><p>Дальше: '+(next ? '<b>'+next[0]+'</b> · '+fmt(next[1])+' ⭐' : 'Максимум')+'</p></div>');
 }
 
 function tasksMenu(){
@@ -202,16 +296,17 @@ function tasksMenu(){
     const pct = Math.min(100, cur / t.target * 100);
     return '<div class="task-card '+(done?'task-done':'')+'"><div class="task-icon">'+(done?'✓':'🎯')+'</div><div class="task-body"><b>'+t.title+'</b><p>'+t.desc+'</p><div class="task-progress"><span style="width:'+pct+'%"></span></div><small>'+fmt(cur)+' / '+fmt(t.target)+' · Награда: <strong>'+t.reward+'</strong></small></div></div>';
   }).join('');
-  openModal('<div class="section-window tasks-window"><div class="section-kicker">ЦЕЛИ НА СЕЙЧАС</div><h2>🎯 Поручения</h2><p class="section-subtitle">Выполняй простые цели и забирай награды. Каждое поручение даёт приз.</p><div class="tasks-list">'+cards+'</div><div class="tasks-footer">Выполнено поручений: <b>'+Object.keys(s.completed).length+'</b></div></div>');
+  openModal('<div class="section-window tasks-window"><div class="section-kicker">ЦЕЛИ НА СЕЙЧАС</div><h2>🎯 Поручения</h2><p class="section-subtitle">Выполняй цели и забирай награды.</p><div class="tasks-list">'+cards+'</div><div class="tasks-footer">Выполнено: <b>'+Object.keys(s.completed).length+'</b></div></div>');
 }
 
 function more(){
   if(typeof window.renderBarrack === 'function'){ window.renderBarrack(); return; }
-  openModal('<div class="section-window"><div class="section-kicker">ТВОЁ МЕСТО</div><h2>☰ Барак</h2><p class="section-subtitle">Персонажи барака загружаются…</p></div>');
+  openModal('<div class="section-window"><div class="section-kicker">ТВОЁ МЕСТО</div><h2>☰ Барак</h2><p class="section-subtitle">Персонажи загружаются…</p></div>');
 }
 
 function tap(e){
   if(e && e.preventDefault) e.preventDefault();
+  if(activeEvent) return;
   if(s.jailed){
     s.jailTaps++;
     const t = $('tap-object');
@@ -242,6 +337,7 @@ function tap(e){
   if(typeof window.refreshObjectVisuals === 'function') window.refreshObjectVisuals();
   feedback(e, g, c);
   if(Math.random() < 0.03) msg(FUN[Math.floor(Math.random()*FUN.length)]);
+  if(Math.random() < 0.10 && s.points - (s.lastChoiceEvent||0) > 30) openEvent();
   tasksCheck();
   ui();
   saveNow();
@@ -294,7 +390,7 @@ function bind(){
     return true;
   };
 
-  console.log('[game] v4.73 OK TEST_MODE=', TEST_MODE, 'pts/tap=', TEST_POINTS_PER_TAP);
+  console.log('[game] v4.74 OK TEST_MODE=', TEST_MODE, 'pts/tap=', TEST_POINTS_PER_TAP);
 }
 
 if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', bind, {once:true});
