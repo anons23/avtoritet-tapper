@@ -2,7 +2,7 @@
 (function(){
   const scripts=[
     {src:'./js/save-migration.js?v=1.0',critical:true},
-    {src:'./js/game.js?v=4.60',critical:true},
+    {src:'./js/game.js?v=4.70',critical:true},
     {src:'./js/shop-ui.js?v=2.1',critical:false},
     {src:'./js/name-ui.js?v=2.2',critical:false},
     {src:'./js/prison-ui.js?v=3.4',critical:false},
@@ -13,7 +13,7 @@
     {src:'./js/npc5-ui.js?v=1.1',critical:false},
     {src:'./js/stories-ui-v2.js?v=2.1',critical:false},
     {src:'./js/stability-fixes.js?v=1.4',critical:false},
-    {src:'./js/object-visuals.js?v=3.1',critical:false},
+    {src:'./js/object-visuals.js?v=3.2',critical:false},
     {src:'./js/authority-css-restore.js?v=1.6',critical:false},
     {src:'./js/authority-ui.js?v=1.8',critical:false},
     {src:'./js/authority-folder-fix.js?v=1.0',critical:false},
