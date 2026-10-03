@@ -1,17 +1,24 @@
-/* АВТОРИТЕТ 2.0 — core v4.55 (TEST_MODE) */
+/* АВТОРИТЕТ 2.0 — core v4.73 (full shop + tasks) */
 'use strict';
 const TEST_MODE = true;
 const TEST_POINTS_PER_TAP = 500;
-const N = ['Чахлый','Додик','Дрыщ','Шкет','Хлюпик','Тормоз','Балбес','Лопух','Тюфяк','Заморыш','Пузан','Пельмень','Кочерыжка','Шнурок','Обормот','Кабачок','Мокрый Носок','Кривой Шнурок','Тормозной','Клоп'];
+const N = ['Чахлый','Додик','Дрыщ','Шкет','Хлюпик','Тормоз','Балбес','Лопух','Тюфяк','Заморыш','Пузан','Пельмень','Кочерыжка','Шнурок','Обормот','Кабачок','Мокрый Носок','Кривой Шнурок','Тормозной','Клоп','Пузатый Шкет','Малявка','Руки-Крюки','Горе-Авторитет','Гремлин','Пельмень Без Вилки','Шнурок Без Ботинка','Тапок','Сопливый Шкет','Чайник'];
 const R = [['Салага',0],['Пацан',1500],['Блатной',5000],['Смотрящий',15000],['Авторитет',50000]];
 const O = [['Груша','🥊',1,0],['Сокамерник','👊',1.3,1500],['Отжимания','💪',1.6,5000],['Тренажёр','🏋️',2.2,15000],['Разборка','🗣️',3.2,50000]];
-const FUN = ['Надзиратель идёт... сделай умный вид.','Сегодня без шмона. Чудо.','Шайба в кармане греет душу.','В столовой сегодня мясо. Или что-то похожее.'];
+const FUN = ['Надзиратель идёт... сделай умный вид.','Сегодня без шмона. Чудо.','Шайба в кармане греет душу.','В столовой сегодня мясо. Или что-то похожее.','Кто-то опять забрал папиросы. Классика.','Сегодня раздача посылок. Надежда умирает последней.'];
+const TASKS = {
+  taps10000:{title:'Первые 10 000 тапов',desc:'Сделай 10 000 обычных тапов.',target:10000,rewardAmount:500,rewardType:'chifir',reward:'500 🍵',get:()=>s.tasks.taps},
+  bugor10:{title:'Десять тренировок',desc:'Успешно пройди 10 тренировок с Бугром.',target:10,rewardAmount:750,rewardType:'chifir',reward:'750 🍵',get:()=>s.tasks.bugorSuccess||0},
+  crit100:{title:'Точный удар',desc:'Сделай 100 критических тапов.',target:100,rewardAmount:1000,rewardType:'chifir',reward:'1000 🍵',get:()=>s.tasks.crit},
+  earned100k:{title:'Запас на чёрный день',desc:'Заработай 100 000 🍵 тапами и делами.',target:100000,rewardAmount:5000,rewardType:'chifir',reward:'5000 🍵',get:()=>Math.floor(s.tasks.earned||0)},
+  tasks25:{title:'Опытный порученец',desc:'Успешно выполни 25 поручений.',target:25,rewardAmount:1500,rewardType:'points',reward:'1500 ⭐',get:()=>s.tasks.npcSuccess||0}
+};
 
 let s = {
   chifir:0, points:0, energy:250, maxEnergy:250, power:1, critChance:0.05,
   respect:0, wealth:0, nickname:'', currentObject:0, prestige:0,
   upgrades:{power:0, crit:0, energyMax:0}, boosters:{double:0},
-  tasks:{taps:0, crit:0, events:0, earned:0, jail:0},
+  tasks:{taps:0, crit:0, events:0, earned:0, jail:0, bugorSuccess:0, npcSuccess:0},
   completed:{}, achievements:{}, lastEnergyTime:Date.now(),
   saveUpdatedAt:Date.now(), lastChoiceEvent:0, totalTaps:0,
   jailed:false, jailTaps:0, jailRequired:500, confiscatedChifir:0, jailProtection:0,
@@ -52,17 +59,29 @@ function ui(){
     if($('power-stat')) $('power-stat').textContent = fmt(s.power);
     if($('respect-stat')) $('respect-stat').textContent = fmt(s.respect);
     if($('wealth-stat')) $('wealth-stat').textContent = fmt(s.wealth);
-    if($('object-name')) $('object-name').textContent = O[s.currentObject][0];
-    if($('object-action')) $('object-action').textContent = 'ТАПАЙ!';
+    const o = O[s.currentObject] || O[0];
+    if($('object-name')) $('object-name').textContent = s.jailed ? 'Карцер' : o[0];
+    if($('object-action')) $('object-action').textContent = s.jailed ? 'ТАПАЙ ДЛЯ ВЫХОДА' : (s.currentObject===4 ? 'РАЗОБРАТЬ ДЕЛО' : 'ТАПАЙ!');
     if($('sentence-left')) $('sentence-left').textContent = Math.max(0, Math.ceil(s.sentenceDays - s.servedSentenceMinutes/1440)) + ' дней';
     const t = $('tap-object');
     if(t){ t.classList.remove('preload-hidden'); t.style.visibility = 'visible'; t.style.opacity = '1'; }
     const g = $('game-container');
-    if(g) g.classList.remove('game-booting');
+    if(g){ g.classList.remove('game-booting'); g.classList.toggle('jail-mode', !!s.jailed); }
     const pre = $('preloader');
     if(pre){ pre.style.display = 'none'; pre.remove(); }
     if(typeof window.__finishPreloader === 'function') try{ window.__finishPreloader(); }catch(e){}
     if(typeof window.refreshObjectVisuals === 'function') try{ window.refreshObjectVisuals(); }catch(e){}
+    const jp = $('jail-panel');
+    if(jp){
+      jp.classList.toggle('hidden', !s.jailed);
+      if(s.jailed){
+        if($('jail-count')) $('jail-count').textContent = Math.min(s.jailTaps,s.jailRequired)+' / '+s.jailRequired;
+        if($('jail-left')) $('jail-left').textContent = Math.max(0,s.jailRequired-s.jailTaps);
+      }
+    }
+    ['btn-shop','btn-rank','btn-tasks','btn-more'].forEach(id=>{
+      const b=$(id); if(b) b.disabled=!!s.jailed;
+    });
   }catch(e){ console.warn('[ui]', e); }
 }
 
@@ -86,7 +105,13 @@ function load(){
     const raw = localStorage.getItem('avtoritet_save_v2');
     if(raw){
       const d = JSON.parse(raw);
-      if(d && typeof d === 'object') Object.assign(s, d);
+      if(d && typeof d === 'object'){
+        Object.assign(s, d);
+        s.upgrades = Object.assign({power:0,crit:0,energyMax:0}, d.upgrades||{});
+        s.boosters = Object.assign({double:0}, d.boosters||{});
+        s.tasks = Object.assign({taps:0,crit:0,events:0,earned:0,jail:0,bugorSuccess:0,npcSuccess:0}, d.tasks||{});
+        s.completed = d.completed || {};
+      }
     }
   }catch(e){}
   if(!s.nickname) s.nickname = N[Math.floor(Math.random()*N.length)];
@@ -110,44 +135,106 @@ function closeModal(){
   o.classList.add('hidden');
 }
 
+function tasksCheck(){
+  if(!s.tasks) return;
+  let changed = false;
+  Object.entries(TASKS).forEach(([id,t])=>{
+    if(!s.completed[id] && t.get() >= t.target){
+      s.completed[id] = {completedAt:Date.now()};
+      if(t.rewardType==='points') s.points += t.rewardAmount;
+      else s.chifir += t.rewardAmount;
+      msg('🎯 Поручение выполнено: '+t.title+' · награда '+t.reward);
+      changed = true;
+    }
+  });
+  if(changed){ saveNow(); ui(); }
+}
+
 function shop(){
-  if(s.jailed){ msg('🔒 Закрыто'); return; }
-  openModal('<div class="section-window"><h2>💪 Качалка</h2><p>Сила: '+s.power+' · Крит: '+Math.round(s.critChance*100)+'%</p>'+
-    '<button type="button" data-b="p">Сила +1 · '+(100+s.upgrades.power*250)+' 🍵</button> '+
-    '<button type="button" data-b="c">Крит +2% · '+(300+s.upgrades.crit*500)+' 🍵</button> '+
-    '<button type="button" data-b="e">Энергия +25 · '+(400+s.upgrades.energyMax*700)+' 🍵</button></div>');
-  document.querySelectorAll('[data-b]').forEach(b => b.addEventListener('click', () => {
-    const t = b.dataset.b;
-    const cost = t==='p' ? 100+s.upgrades.power*250 : t==='c' ? 300+s.upgrades.crit*500 : 400+s.upgrades.energyMax*700;
-    if(s.chifir < cost){ msg('Мало чефира'); return; }
+  if(s.jailed){ msg('🔒 Качалка закрыта до выхода из карцера'); return; }
+  const costP = 100 + s.upgrades.power * 250;
+  const costC = 300 + s.upgrades.crit * 500;
+  const costE = 400 + s.upgrades.energyMax * 700;
+  openModal(
+    '<div class="section-window shop-window">'+
+    '<div class="section-kicker">ПРОКАЧКА</div>'+
+    '<h2>💪 Качалка</h2>'+
+    '<p class="section-subtitle">Трать чефир на постоянные улучшения. Новые этапы открываются автоматически при смене масти ⭐.</p>'+
+    '<div class="shop-grid">'+
+    '<button type="button" class="shop-card" data-b="p"><span class="shop-icon">💪</span><b>Сила</b><small>+1 сила · сейчас '+s.power+'</small><span class="shop-price">'+costP+' 🍵</span></button>'+
+    '<button type="button" class="shop-card" data-b="c"><span class="shop-icon">🎯</span><b>Крит</b><small>+2% к шансу · сейчас '+Math.round(s.critChance*100)+'%</small><span class="shop-price">'+costC+' 🍵</span></button>'+
+    '<button type="button" class="shop-card" data-b="e"><span class="shop-icon">⚡</span><b>Энергия</b><small>+25 максимум · сейчас '+s.maxEnergy+'</small><span class="shop-price">'+costE+' 🍵</span></button>'+
+    '<button type="button" class="shop-card" data-b="d"><span class="shop-icon">🔥</span><b>Ускоритель</b><small>×2 на 100 тапов · запас '+(s.boosters.double||0)+'</small><span class="shop-price">500 🍵</span></button>'+
+    '</div></div>'
+  );
+  document.querySelectorAll('[data-b]').forEach(b=>b.addEventListener('click',()=>{
+    const type = b.dataset.b;
+    const cost = type==='p' ? costP : type==='c' ? costC : type==='e' ? costE : 500;
+    if(s.chifir < cost){ msg('🍵 Не хватает чефира. Нужно '+fmt(cost)+'.'); return; }
     s.chifir -= cost;
-    if(t==='p'){ s.power++; s.upgrades.power++; }
-    if(t==='c'){ s.critChance = Math.min(0.5, s.critChance+0.02); s.upgrades.crit++; }
-    if(t==='e'){ s.maxEnergy += 25; s.energy = s.maxEnergy; s.upgrades.energyMax++; }
+    if(type==='p'){ s.power++; s.upgrades.power++; msg('💪 Сила теперь '+s.power); }
+    if(type==='c'){ s.critChance = Math.min(0.5, s.critChance+0.02); s.upgrades.crit++; msg('🎯 Крит '+Math.round(s.critChance*100)+'%'); }
+    if(type==='e'){ s.maxEnergy += 25; s.energy = s.maxEnergy; s.upgrades.energyMax++; s.lastEnergyTime = Date.now(); msg('⚡ Макс. энергия '+s.maxEnergy); }
+    if(type==='d'){ s.boosters.double = (s.boosters.double||0)+100; msg('🔥 Ускоритель +100 тапов'); }
     ui(); saveNow(); shop();
   }));
 }
 
 function rankMenu(){
   const r = rank(), next = R.find(x => x[1] > s.points);
-  openModal('<div class="section-window"><h2>🏆 Масть</h2><p>Твоя масть: <b>'+r[0]+'</b></p><p>Следующая: '+(next ? next[0]+' · '+fmt(next[1])+' ⭐' : 'Максимум')+'</p></div>');
+  const stage = O[s.currentObject] ? O[s.currentObject][0] : 'Груша';
+  openModal(
+    '<div class="section-window">'+
+    '<div class="section-kicker">ПРОГРЕСС</div>'+
+    '<h2>🏆 Масть</h2>'+
+    '<p>Твоя масть: <b>'+r[0]+'</b></p>'+
+    '<p>Текущий этап: <b>'+stage+'</b></p>'+
+    '<p>Следующая ступень: '+(next ? '<b>'+next[0]+'</b> · '+fmt(next[1])+' ⭐' : 'Максимальная масть')+'</p>'+
+    '</div>'
+  );
 }
 
 function tasksMenu(){
-  openModal('<div class="section-window"><h2>🎯 Поручения</h2><p>Тапов: '+fmt(s.tasks.taps)+'</p><p>Критов: '+fmt(s.tasks.crit)+'</p></div>');
+  if(s.jailed) return;
+  const cards = Object.entries(TASKS).map(([id,t])=>{
+    const cur = Math.min(t.target, Math.floor(t.get()));
+    const done = !!s.completed[id];
+    const pct = Math.min(100, cur / t.target * 100);
+    return '<div class="task-card '+(done?'task-done':'')+'">'+'
+      '<div class="task-icon">'+(done?'✓':'🎯')+'</div>'+
+      '<div class="task-body">'+
+      '<b>'+t.title+'</b>'+
+      '<p>'+t.desc+'</p>'+
+      '<div class="task-progress"><span style="width:'+pct+'%"></span></div>'+
+      '<small>'+fmt(cur)+' / '+fmt(t.target)+' · Награда: <strong>'+t.reward+'</strong></small>'+
+      '</div></div>';
+  }).join('');
+  openModal(
+    '<div class="section-window tasks-window">'+
+    '<div class="section-kicker">ЦЕЛИ НА СЕЙЧАС</div>'+
+    '<h2>🎯 Поручения</h2>'+
+    '<p class="section-subtitle">Выполняй простые цели и забирай награды. Каждое поручение даёт приз.</p>'+
+    '<div class="tasks-list">'+cards+'</div>'+
+    '<div class="tasks-footer">Выполнено поручений: <b>'+Object.keys(s.completed).length+'</b></div>'+
+    '</div>'
+  );
 }
 
 function more(){
   if(typeof window.renderBarrack === 'function'){ window.renderBarrack(); return; }
-  openModal('<div class="section-window"><h2>☰ Барак</h2><p>Персонажи загружаются…</p></div>');
+  openModal('<div class="section-window"><div class="section-kicker">ТВОЁ МЕСТО</div><h2>☰ Барак</h2><p class="section-subtitle">Персонажи барака загружаются…</p></div>');
 }
 
 function tap(e){
   if(e && e.preventDefault) e.preventDefault();
   if(s.jailed){
     s.jailTaps++;
-    if(s.jailTaps >= s.jailRequired){ s.jailed = false; msg('🔓 Вышел из карцера'); }
-    ui(); return;
+    const t = $('tap-object');
+    if(t){ t.classList.remove('punch'); void t.offsetWidth; t.classList.add('punch'); }
+    if(typeof window.animateObjectVisual === 'function') window.animateObjectVisual();
+    feedback(e, 1, false);
+    if(s.jailTaps >= s.jailRequired){ s.jailed = false; s.tasks.jail = (s.tasks.jail||0)+1; msg('🔓 Вышел из карцера'); }
+    ui(); saveNow(); return;
   }
   restoreEnergy(Date.now());
   if(s.energy < 1){ msg('⚡ Нет энергии'); return; }
@@ -157,16 +244,20 @@ function tap(e){
   let g = TEST_MODE ? TEST_POINTS_PER_TAP : s.power * O[s.currentObject][2];
   const c = Math.random() < s.critChance;
   if(c){ s.tasks.crit++; if(!TEST_MODE) g *= 2; }
+  if(s.boosters.double > 0 && !TEST_MODE){ g *= 2; s.boosters.double--; }
   s.chifir += g;
   s.points += g;
-  s.tasks.earned += g;
+  s.tasks.earned = (s.tasks.earned||0) + g;
+  const old = s.currentObject;
   s.currentObject = highestUnlocked();
+  if(old !== s.currentObject) msg('🏆 Новая масть: '+R[s.currentObject][0]+' · этап: '+O[s.currentObject][0]);
   const t = $('tap-object');
   if(t){ t.classList.remove('punch'); void t.offsetWidth; t.classList.add('punch'); }
   if(typeof window.animateObjectVisual === 'function') window.animateObjectVisual();
   if(typeof window.refreshObjectVisuals === 'function') window.refreshObjectVisuals();
   feedback(e, g, c);
   if(Math.random() < 0.03) msg(FUN[Math.floor(Math.random()*FUN.length)]);
+  tasksCheck();
   ui();
   saveNow();
 }
@@ -192,7 +283,6 @@ function bind(){
   };
   if(area){
     area.addEventListener('pointerdown', handler, {capture:true, passive:false});
-    area.addEventListener('click', handler, {capture:true});
   }
   $('btn-shop')?.addEventListener('click', shop);
   $('btn-rank')?.addEventListener('click', rankMenu);
@@ -209,6 +299,7 @@ function bind(){
   window.ui = ui;
   window.openModal = openModal;
   window.closeModal = closeModal;
+  window.checkTasks = tasksCheck;
   window.TEST_MODE = TEST_MODE;
   window.TEST_POINTS_PER_TAP = TEST_POINTS_PER_TAP;
   window.spendEnergyForRaid = function(){
@@ -218,7 +309,7 @@ function bind(){
     return true;
   };
 
-  console.log('[game] v4.55 OK TEST_MODE=', TEST_MODE, 'pts/tap=', TEST_POINTS_PER_TAP);
+  console.log('[game] v4.73 OK TEST_MODE=', TEST_MODE, 'pts/tap=', TEST_POINTS_PER_TAP);
 }
 
 if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', bind, {once:true});
