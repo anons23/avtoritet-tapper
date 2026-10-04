@@ -1,4 +1,4 @@
-/* RAID UI — button with label + larger fighters */
+/* RAID UI — per-fighter scale tweaks v4.5 */
 #raid-open-button{
   position:absolute!important;
   right:8px!important;
@@ -102,18 +102,30 @@
 .raid-scene.krest{background-image:url('./assets/raids/backgrounds/krest_pc.jpeg')}
 .raid-scene.psikh{background-image:url('./assets/raids/backgrounds/%D1%84%D0%BE%D0%BD%D0%9F%D1%81%D0%B8%D1%85%D0%9C%D0%BE%D0%B1%D0%B8%D0%BB%20(2).jpg')}
 .raid-hud{position:relative;z-index:5;display:flex;justify-content:flex-end;width:100%;flex:0 0 auto;pointer-events:none;margin-bottom:4px}
-/* Бойцы крупнее */
 .raid-fighter{position:relative;z-index:3;flex:1 1 auto;min-height:0;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;width:min(88%,720px);text-align:center;user-select:none;margin:0 auto}
 .raid-fighter.psikh{width:min(86%,700px)}
 .raid-fighter.krest{width:min(84%,680px)}
-/* Петрович и Глаз — доп. масштаб до уровня остальных */
-.raid-fighter.petrovich,.raid-fighter.glaz{width:min(94%,780px)}
+/* Пер-персонажные корректировки */
+.raid-fighter.petrovich{width:min(96%,800px)}
+.raid-fighter.glaz{width:min(94%,780px)}
 .raid-fighter.petrovich .raid-fighter-media img,
+.raid-fighter.petrovich #raid-idle-video{
+  transform:scale(1.36);
+  transform-origin:center bottom;
+}
 .raid-fighter.glaz .raid-fighter-media img,
-.raid-fighter.petrovich #raid-idle-video,
 .raid-fighter.glaz #raid-idle-video{
   transform:scale(1.22);
   transform-origin:center bottom;
+}
+.raid-fighter.mongol #raid-idle-video{
+  transform:scale(.86);
+  transform-origin:center bottom;
+}
+.raid-fighter.krest #raid-idle-video{
+  transform:scale(1.2) translateY(10%);
+  transform-origin:center bottom;
+  object-position:center bottom!important;
 }
 .raid-name{white-space:nowrap;font-weight:1000;font-size:clamp(24px,3.4vw,44px);letter-spacing:.08em;text-shadow:0 3px 0 #111;margin:0 0 6px;z-index:4;position:relative}
 .raid-name.petrovich{color:#e7d2a3;font-family:Georgia,serif}
