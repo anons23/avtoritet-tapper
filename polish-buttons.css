@@ -1,0 +1,73 @@
+/* polish-buttons v1.0 — press animation for UI buttons */
+
+.nav-btn,
+.eq-btn,
+button.eq-btn,
+.choice,
+.shop-grid button,
+#prestige,
+.raid-fighter-card:not(.locked),
+.raid-timeup-btn,
+#modal button:not(#modal-close),
+#modal-content button{
+  -webkit-tap-highlight-color: transparent;
+  transition:
+    transform .09s cubic-bezier(.2,.8,.25,1),
+    box-shadow .09s ease,
+    filter .1s ease,
+    border-color .12s ease !important;
+  transform: translateY(0) scale(1);
+  will-change: transform;
+}
+
+/* physical press: sink + slight scale */
+.nav-btn:active,
+.eq-btn:active,
+button.eq-btn:active,
+.choice:active,
+.shop-grid button:active,
+#prestige:active,
+.raid-fighter-card:not(.locked):active,
+.raid-timeup-btn:active,
+#modal button:not(#modal-close):active,
+#modal-content button:active{
+  transform: translateY(3px) scale(.96) !important;
+  filter: brightness(.92);
+}
+
+/* nav metal buttons — deeper sink matching 3px shadow */
+.nav-btn{
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.16),
+    0 3px 0 #0a0a0a,
+    0 5px 10px rgba(0,0,0,.4) !important;
+}
+.nav-btn:active{
+  box-shadow:
+    inset 0 2px 4px rgba(0,0,0,.35),
+    0 0 0 #0a0a0a,
+    0 1px 3px rgba(0,0,0,.3) !important;
+}
+
+/* brief CSS-only pulse class if JS adds .is-pressed */
+.nav-btn.is-pressed,
+.eq-btn.is-pressed,
+button.is-pressed{
+  animation: btn-press-pop .18s ease-out;
+}
+@keyframes btn-press-pop{
+  0%   { transform: translateY(0) scale(1); }
+  40%  { transform: translateY(3px) scale(.95); }
+  100% { transform: translateY(0) scale(1); }
+}
+
+@media (prefers-reduced-motion: reduce){
+  .nav-btn:active,
+  .eq-btn:active,
+  .choice:active,
+  .shop-grid button:active,
+  #prestige:active,
+  .raid-fighter-card:not(.locked):active{
+    transform: none !important;
+  }
+}
