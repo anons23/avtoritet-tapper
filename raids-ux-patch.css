@@ -1,0 +1,9 @@
+.raid-energy{padding:4px 10px;border-radius:8px;background:rgba(0,0,0,.72);color:#7ee0ff;font-weight:800;font-size:14px;letter-spacing:.03em;margin-top:2px}
+.raid-float-dmg{position:absolute;z-index:25;pointer-events:none;font-weight:1000;font-size:22px;color:#fff;text-shadow:0 2px 0 #000,0 0 8px rgba(0,0,0,.8);transform:translate(-50%,-50%);animation:raidFloatDmg .65s ease-out forwards;white-space:nowrap}
+.raid-float-dmg.is-crit{font-size:28px;color:#ffeb3b;text-shadow:0 2px 0 #000,0 0 12px rgba(255,200,0,.9)}
+@keyframes raidFloatDmg{0%{opacity:1;transform:translate(-50%,-50%) scale(.7)}25%{opacity:1;transform:translate(-50%,-90%) scale(1.15)}100%{opacity:0;transform:translate(-50%,-160%) scale(.95)}}
+.raid-blood{position:absolute;z-index:12;pointer-events:none;border-radius:50%;background:radial-gradient(circle at 35% 30%,#e33 0%,#9b0000 55%,#5a0000 100%);opacity:0;animation:raidBloodFly .55s ease-out forwards}
+@keyframes raidBloodFly{0%{opacity:1;transform:translate(0,0) scale(1)}100%{opacity:0;transform:translate(var(--dx),var(--dy)) scale(.4)}}
+.raid-blood-splat{position:absolute;z-index:11;pointer-events:none;width:28px;height:28px;margin:-14px 0 0 -14px;border-radius:50%;background:radial-gradient(circle,#a00 0%,transparent 70%);opacity:0;animation:raidSplat .5s ease-out forwards}
+@keyframes raidSplat{0%{opacity:.8;transform:scale(.3)}100%{opacity:0;transform:scale(1.6)}}
+.raid-fighter{cursor:crosshair;touch-action:manipulation;-webkit-tap-highlight-color:transparent}
