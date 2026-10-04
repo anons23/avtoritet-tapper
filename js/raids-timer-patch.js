@@ -1,9 +1,64 @@
-/* raids-timer v1 packed */
-(async function(){
-var b=Uint8Array.from(atob('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'),function(c){return c.charCodeAt(0);});
-var ds=new DecompressionStream('deflate');
-var ab=await new Response(new Blob([b]).stream().pipeThrough(ds)).arrayBuffer();
-var code=new TextDecoder().decode(ab);
-var s=document.createElement('script');s.text=code;
-(document.body||document.documentElement).appendChild(s);
-})().catch(function(e){console.error('[raid-timer]',e);});
+/* raid-timer v1.2 minimal */
+'use strict';
+(function(){
+var MS=90*60*1000,EX=15*60*1000,K='avt_rt_v2',tick=0;
+function $(i){return document.getElementById(i)}
+function now(){return Date.now()}
+function load(){try{return JSON.parse(localStorage.getItem(K)||'{}')}catch(e){return {}}}
+function save(p){try{localStorage.setItem(K,JSON.stringify(p))}catch(e){}}
+function fmt(ms){ms=Math.max(0,ms|0);var s=ms/1000|0,m=s/60|0,h=m/60|0;s%=60;m%=60;return(h?h+':':'')+String(m).padStart(2,'0')+':'+String(s).padStart(2,'0')}
+function idOf(){
+  var el=document.querySelector('.raid-name');if(!el)return null;
+  var c=el.className||'',ids=['petrovich','vtirach','mafioznik','mongol','glaz','krest','psikh'];
+  for(var i=0;i<ids.length;i++)if(c.indexOf(ids[i])>=0)return ids[i];
+  return null;
+}
+function ensure(id){var p=load();if(!p[id])p[id]={d:0};save(p);return p[id]}
+function left(pr){return Math.max(0,(pr.d||0)-now())}
+function hud(){
+  var id=idOf();if(!id)return;
+  var pr=ensure(id);
+  if(!pr.d){pr.d=now()+MS;var p=load();p[id]=pr;save(p)}
+  var el=$('raid-fight-timer');
+  if(!el){
+    var hudEl=document.querySelector('.raid-hud');if(!hudEl)return;
+    el=document.createElement('div');el.id='raid-fight-timer';
+    el.style.cssText='padding:6px 12px;border-radius:8px;background:rgba(0,0,0,.9);color:#f3d27a;font-weight:900;font-size:16px;margin:6px 0;display:inline-block;z-index:20;position:relative';
+    hudEl.appendChild(el);
+  }
+  var L=left(pr);
+  el.textContent='⏱ '+fmt(L);
+  el.style.color=L<=0?'#ff6b6b':(L<300000?'#ffb84d':'#f3d27a');
+  if(L<=0) timeUp(id);
+}
+function timeUp(id){
+  if($('raid-timeup'))return;
+  if(tick){clearInterval(tick);tick=0}
+  var c=$('modal-content');if(!c)return;
+  var name=(document.querySelector('.raid-name')||{}).textContent||id;
+  c.innerHTML='<div style="padding:24px;text-align:center;color:#fff;background:#111;min-height:50vh;display:flex;flex-direction:column;align-items:center;justify-content:center">'+
+    '<div id="raid-timeup" style="max-width:340px;width:92%;padding:20px;border:1px solid #555;border-radius:16px;background:#1a1a1a">'+
+    '<div style="font-size:22px;font-weight:900;color:#f3d27a;margin-bottom:10px">⏱ Время вышло</div>'+
+    '<p style="color:#ccc;margin:0 0 14px">Бой с <b>'+name+'</b> закончился по таймеру (90 мин).</p>'+
+    '<button id="rt-ad" style="width:100%;padding:14px;margin:0 0 8px;border-radius:12px;border:1px solid #80662e;background:#3a3420;color:#f3d27a;font-weight:900">🎬 Реклама · +15 мин</button>'+
+    '<button id="rt-reset" style="width:100%;padding:14px;margin:0 0 8px;border-radius:12px;border:1px solid #666;background:#2a2a2a;color:#fff;font-weight:900">Выйти · полное HP</button>'+
+    '<button id="rt-back" style="width:100%;padding:12px;border-radius:12px;border:1px solid #444;background:transparent;color:#aaa">← К бойцам</button>'+
+    '</div></div>';
+  var ad=$('rt-ad');if(ad)ad.onclick=function(){
+    function g(){var p=load();var pr=p[id]||{d:0};pr.d=Math.max(now(),pr.d||now())+EX;p[id]=pr;save(p);if(window.openRaidMenu)window.openRaidMenu()}
+    if(typeof window.showRewardedAd==='function')window.showRewardedAd(function(ok){if(ok!==false)g()});else g();
+  };
+  var rs=$('rt-reset');if(rs)rs.onclick=function(){var p=load();p[id]={d:0};save(p);if(window.openRaidMenu)window.openRaidMenu()};
+  var bk=$('rt-back');if(bk)bk.onclick=function(){if(window.openRaidMenu)window.openRaidMenu()};
+}
+setInterval(function(){
+  if(document.querySelector('#raid-fighter')&&document.querySelector('.raid-scene')&&!$('raid-timeup')){
+    hud();
+    if(!tick)tick=setInterval(function(){
+      if(!document.querySelector('#raid-fighter')){clearInterval(tick);tick=0;return}
+      hud();
+    },500);
+  }
+},400);
+console.log('[raid-timer] v1.2 ready');
+})();
