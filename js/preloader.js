@@ -124,12 +124,18 @@
   }
 
   let raidReadyResolve;
-  window.__raidAssetsReady=new Promise(function(r){raidReadyResolve=r;});
+  window.__raidAssetsReady=new Promise(r=>{raidReadyResolve=r});
 
+  /* Первая локация (груша + фон Салага) + барак (аватары НПС) — критично до старта */
   function stage0Assets(mobile){
     return [
       './assets/backgrounds/boxing-bag.png?v=7',
-      mobile ? './assets/backgrounds/mobile/salaga.png' : './assets/backgrounds/desktop/salaga.png'
+      mobile ? './assets/backgrounds/mobile/salaga.png' : './assets/backgrounds/desktop/salaga.png',
+      './assets/backgrounds/shaiba_avatar.png',
+      './assets/backgrounds/Bugor_avatar.png',
+      './assets/backgrounds/Kosoy_avatar.png',
+      './assets/backgrounds/Smotraishia_avatar.png',
+      './assets/backgrounds/avtoritet_avatar.png'
     ];
   }
   const STAGE_ASSETS = {
@@ -142,20 +148,16 @@
 
   async function preloadRaidAssets(){
     const mobile = window.matchMedia && window.matchMedia('(max-width:700px)').matches;
-    const essential = [
-      './assets/raids/ui/raid-button.png',
-      './assets/raids/fighters/petrovich1.png',
-      './assets/raids/fighters/Vtirach1.png'
-    ].concat(raidBackgrounds(mobile).slice(0,1));
+    const essential = ['./assets/raids/ui/raid-button.png'];
     let done = 0;
-    const tick = function(msg){
+    const tick = (msg)=>{
       done++;
-      const p = 28 + Math.round((done/Math.max(1,essential.length))*12);
-      setProgress(Math.min(40,p), msg||'Готовим рейды…');
+      const p = 28 + Math.round((done/Math.max(1,essential.length))*8);
+      setProgress(Math.min(36,p), msg||'Готовим рейды…');
     };
     setProgress(Math.max(current,26),'Кнопка рейдов…');
-    await Promise.all(essential.map(function(src){ return preloadImage(src).then(function(){ tick('Рейды…'); }); }));
-    setProgress(Math.max(current,40),'Рейды готовы к старту');
+    await Promise.all(essential.map(src=>preloadImage(src).then(()=>tick('Рейды…'))));
+    setProgress(Math.max(current,36),'Рейды готовы к старту');
     if(typeof raidReadyResolve==='function') raidReadyResolve(true);
     setTimeout(function(){
       const restImg = RAID_IMAGES.filter(function(s){ return essential.indexOf(s)<0; });
@@ -163,21 +165,17 @@
       (raidBackgrounds(mobile)||[]).forEach(function(src){ preloadImage(src); });
       const ua = navigator.userAgent||'';
       const ios = /iPad|iPhone|iPod/.test(ua) || (navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
-      if(!ios){
-        RAID_VIDEOS.forEach(function(src){ preloadVideo(src); });
-      }
-    }, 600);
+      if(!ios){ RAID_VIDEOS.forEach(function(src){ preloadVideo(src); }); }
+    }, 400);
     return true;
   }
 
   window.__preloadRaidAssets = preloadRaidAssets;
-
   window.__preloadStageAssets = function(stageIndex){
     const list = STAGE_ASSETS[stageIndex];
     if(!list) return Promise.resolve();
     return Promise.all(list.map(function(src){ return preloadImage(src); }));
   };
-
   window.__maybePreloadNextStage = function(points, pointsPerTap){
     points = Number(points)||0;
     pointsPerTap = Math.max(1, Number(pointsPerTap)||1);
@@ -203,17 +201,16 @@
       return;
     }
     setProgress(3,messages[messageIndex]);
-    messageTimer=window.setInterval(function(){messageIndex=(messageIndex+1)%messages.length;setProgress(current,messages[messageIndex]);},2200);
+    messageTimer=window.setInterval(()=>{messageIndex=(messageIndex+1)%messages.length;setProgress(current,messages[messageIndex]);},2200);
     const mobile=window.matchMedia&&window.matchMedia('(max-width:700px)').matches;
     const bg=mobile?'./assets/backgrounds/mobile/loading-mobile.jpg':'./assets/backgrounds/desktop/loading-desktop.jpg';
     await Promise.all([preloadImage(bg),preloadImage('./assets/backgrounds/handcuffs.png')]);
     setProgress(12,messages[messageIndex]);
     setProgress(16,'Грузим грушу…');
-    await Promise.all(stage0Assets(mobile).map(function(src){ return preloadImage(src); }));
+    await Promise.all(stage0Assets(mobile).map(src=>preloadImage(src)));
     setProgress(24,'Локация готова');
-    try{
-      await preloadRaidAssets();
-    }catch(e){
+    try{ await preloadRaidAssets(); }
+    catch(e){
       console.debug('[Preloader] raid assets',e);
       if(typeof raidReadyResolve==='function')raidReadyResolve(false);
     }
