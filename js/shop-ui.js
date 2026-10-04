@@ -1,43 +1,60 @@
-/* Качалка: без постоянного polling на мобильных устройствах */
+/* Качалка: обновление доступности без блокировки кликов */
 'use strict';
 (function(){
-  const $=id=>document.getElementById(id);
+  var $=function(id){return document.getElementById(id);};
   function parseCompact(value){
-    const v=String(value||'').trim().replace(',','.');
-    const n=parseFloat(v);
-    if(!Number.isFinite(n))return 0;
-    if(/M$/i.test(v))return Math.floor(n*1000000);
-    if(/K$/i.test(v))return Math.floor(n*1000);
+    var v=String(value||'').trim().replace(/\s/g,'').replace(',','.');
+    var n=parseFloat(v);
+    if(!Number.isFinite(n)) return 0;
+    if(/M$/i.test(v)) return Math.floor(n*1000000);
+    if(/K$/i.test(v)) return Math.floor(n*1000);
     return Math.floor(n);
   }
-  function chifir(){return parseCompact(($('chifir')||{}).textContent);}
+  function chifir(){
+    var el=$('chifir');
+    return parseCompact(el && el.textContent);
+  }
   function refreshShop(){
-    const content=$('modal-content');
-    if(!content)return;
-    content.querySelectorAll('[data-b]').forEach(function(btn){
-      const m=btn.innerHTML.match(/Цена\s+([0-9.,]+(?:K|M)?)/i);
-      if(!m)return;
-      const cost=parseCompact(m[1]);
-      if(!btn.dataset.priceDecorated){
-        btn.innerHTML=btn.innerHTML.replace(/Цена\s+[0-9.,]+(?:K|M)?/i,'Цена '+m[1]+' 🍵');
-        btn.dataset.priceDecorated='1';
+    var content=$('modal-content');
+    if(!content) return;
+    var money=chifir();
+    content.querySelectorAll('button.shop-card[data-b], button[data-b]').forEach(function(btn){
+      var cost=0;
+      var priceEl=btn.querySelector('.shop-price');
+      if(priceEl){
+        cost=parseCompact(priceEl.textContent.replace(/[^\d.,KMkm]/g,''));
+      } else {
+        var m=btn.innerHTML.match(/(?:Цена\s*)?([0-9.,]+(?:K|M)?)\s*🍵/i) || btn.innerHTML.match(/([0-9.,]+(?:K|M)?)/);
+        if(m) cost=parseCompact(m[1]);
       }
-      btn.disabled=chifir()<cost;
-      btn.title=btn.disabled?'Не хватает чефира':'Купить за '+m[1]+' 🍵';
+      if(!cost) return;
+      // Только визуал: не disabled (на Android disabled-кнопки часто «мёртвые» после перерисовки)
+      if(money < cost){
+        btn.classList.add('shop-card-locked');
+        btn.style.opacity='0.55';
+        btn.title='Не хватает чефира';
+      } else {
+        btn.classList.remove('shop-card-locked');
+        btn.style.opacity='1';
+        btn.title='Купить';
+      }
+      try { btn.disabled=false; } catch(e){}
     });
   }
   function init(){
-    const shop=$('btn-shop'),rank=$('btn-rank');
-    if(shop)shop.textContent='💪 Качалка';
-    if(rank)rank.textContent='🏆 Масть';
-    const content=$('modal-content');
-    if(content)new MutationObserver(refreshShop).observe(content,{childList:true,subtree:true,characterData:true});
-    if(shop)shop.addEventListener('click',()=>setTimeout(refreshShop,0));
-    document.addEventListener('click',function(e){
-      if(e.target.closest('[data-b]'))setTimeout(refreshShop,0);
-    },true);
+    var shop=$('btn-shop'), rank=$('btn-rank');
+    if(shop) shop.textContent='💪 Качалка';
+    if(rank) rank.textContent='🏆 Масть';
+    var content=$('modal-content');
+    if(content){
+      new MutationObserver(function(){ setTimeout(refreshShop, 0); }).observe(content,{childList:true,subtree:true});
+    }
+    if(shop) shop.addEventListener('click', function(){ setTimeout(refreshShop, 30); });
+    document.addEventListener('click', function(e){
+      if(e.target && e.target.closest && e.target.closest('[data-b]')) setTimeout(refreshShop, 30);
+    }, true);
     refreshShop();
   }
-  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded', init, {once:true});
   else init();
 })();
