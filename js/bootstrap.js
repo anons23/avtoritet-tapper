@@ -2,7 +2,7 @@
 (function(){
   const scripts=[
     {src:'./js/save-migration.js?v=1.0',critical:true},
-    {src:'./js/game.js?v=4.74',critical:true},
+    {src:'./js/game.js?v=4.80',critical:true},
     {src:'./js/shop-ui.js?v=2.2',critical:false},
     {src:'./js/name-ui.js?v=2.2',critical:false},
     {src:'./js/prison-ui.js?v=3.4',critical:false},
