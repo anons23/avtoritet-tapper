@@ -2,7 +2,7 @@
 (function(){
   const scripts=[
     {src:'./js/save-migration.js?v=1.0',critical:true},
-    {src:'./js/game.js?v=4.80',critical:true},
+    {src:'./js/game.js?v=4.81',critical:true},
     {src:'./js/shop-ui.js?v=2.2',critical:false},
     {src:'./js/name-ui.js?v=2.2',critical:false},
     {src:'./js/prison-ui.js?v=3.4',critical:false},
@@ -44,7 +44,7 @@
     if(!p||typeof p.then!=='function')return Promise.resolve();
     return Promise.race([
       Promise.resolve(p).catch(()=>{}),
-      new Promise(resolve=>setTimeout(resolve,15000))
+      new Promise(resolve=>setTimeout(resolve,8000))
     ]);
   }
   function appendScript(item,index,next){
