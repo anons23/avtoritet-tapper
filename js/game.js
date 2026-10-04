@@ -1,4 +1,4 @@
-/* АВТОРИТЕТ 2.0 — core v4.81 (full shop + tasks) */
+/* АВТОРИТЕТ 2.0 — core v4.82 (menus + barrack) */
 'use strict';
 const TEST_MODE = true;
 const TEST_POINTS_PER_TAP = 500;
@@ -90,7 +90,6 @@ function ui(){
         if($('jail-left')) $('jail-left').textContent = Math.max(0,s.jailRequired-s.jailTaps);
       }
     }
-    /* Прогресс до следующей масти */
     try{
       const nextRank = R.find(x => x[1] > s.points);
       const curIdx = (()=>{ let i=0; for(let k=0;k<R.length;k++) if(s.points>=R[k][1]) i=k; return i; })();
@@ -307,39 +306,38 @@ function shop(){
 function rankMenu(){
   const r = rank(), next = R.find(x => x[1] > s.points);
   const stage = O[s.currentObject] ? O[s.currentObject][0] : 'Груша';
+  const curIdx = (()=>{ let i=0; for(let k=0;k<R.length;k++) if(s.points>=R[k][1]) i=k; return i; })();
+  let ladder = '';
+  R.forEach(function(row, j){
+    const unlocked = j <= curIdx;
+    const mark = unlocked ? '✓ ' : '🔒 ';
+    ladder += '<div class="rank-ladder-row" style="padding:9px 10px;border-radius:9px;border:1px solid rgba(255,255,255,.12);margin:0 0 7px;opacity:'+(unlocked?'1':'.48')+'"><b>'+mark+row[0]+'</b><br><small>от '+fmt(row[1])+' ⭐</small></div>';
+  });
   openModal(
     '<div class="section-window">'+
-    '<div class="section-kicker">СТАТУС</div>'+
+    '<div class="section-kicker">ПРОГРЕСС</div>'+
     '<h2>🏆 Масть</h2>'+
-    '<p>Текущая масть: <b>'+r[0]+'</b></p>'+
-    '<p>Текущий этап: <b>'+stage+'</b></p>'+
-    (next ? '<p>До «'+next[0]+'»: <b>'+fmt(Math.max(0,next[1]-s.points))+'</b> ⭐</p>' : '<p>Ты на максимальной масти.</p>')+
+    '<p>Твоя масть: <b>'+r[0]+'</b> · этап: <b>'+stage+'</b></p>'+
+    (next ? '<p>До «'+next[0]+'»: <b>'+fmt(Math.max(0,next[1]-s.points))+'</b> ⭐</p>' : '<p>Максимальная масть.</p>')+
+    '<div style="margin-top:10px">'+ladder+'</div>'+
     '</div>'
   );
 }
 
 function tasksMenu(){
-  let h='<div class="section-window"><div class="section-kicker">ЗАДАНИЯ</div><h2>🎯 Поручения</h2>';
-  Object.keys(TASKS).forEach(id=>{
-    const t=TASKS[id];
-    const cur=Math.min(t.target, Number(t.get())||0);
-    const done=!!s.completed[id];
-    h+='<div class="task-row'+(done?' done':'')+'"><b>'+t.title+'</b><br><small>'+t.desc+'</small><br>'+(done?'✅ Выполнено':'📊 '+fmt(cur)+' / '+fmt(t.target))+' · '+t.reward+'</div>';
-  });
-  h+='</div>';
-  openModal(h);
+  if(s.jailed) return;
+  const cards = Object.entries(TASKS).map(([id,t])=>{
+    const cur = Math.min(t.target, Math.floor(t.get()));
+    const done = !!s.completed[id];
+    const pct = Math.min(100, cur / t.target * 100);
+    return '<div class="task-card '+(done?'task-done':'')+'"><div class="task-icon">'+(done?'✓':'🎯')+'</div><div class="task-body"><b>'+t.title+'</b><p>'+t.desc+'</p><div class="task-progress"><span style="width:'+pct+'%"></span></div><small>'+fmt(cur)+' / '+fmt(t.target)+' · Награда: <strong>'+t.reward+'</strong></small></div></div>';
+  }).join('');
+  openModal('<div class="section-window tasks-window"><div class="section-kicker">ЦЕЛИ НА СЕЙЧАС</div><h2>🎯 Поручения</h2><p class="section-subtitle">Выполняй простые цели и забирай награды. Каждое поручение даёт приз.</p><div class="tasks-list">'+cards+'</div><div class="tasks-footer">Выполнено поручений: <b>'+Object.keys(s.completed).length+'</b></div></div>');
 }
 
 function more(){
-  openModal(
-    '<div class="section-window">'+
-    '<div class="section-kicker">ЕЩЁ</div>'+
-    '<h2>☰ Барак</h2>'+
-    '<p>Ник: <b>'+(s.nickname||'Салага')+'</b></p>'+
-    '<p>Тапов всего: <b>'+fmt(s.totalTaps)+'</b></p>'+
-    '<p>Срок: <b>'+Math.max(0, Math.ceil(s.sentenceDays - s.servedSentenceMinutes/1440))+' дн.</b></p>'+
-    '</div>'
-  );
+  if(typeof window.renderBarrack === 'function'){ window.renderBarrack(); return; }
+  openModal('<div class="section-window"><div class="section-kicker">ТВОЁ МЕСТО</div><h2>☰ Барак</h2><p class="section-subtitle">Персонажи барака загружаются…</p></div>');
 }
 
 function tap(e){
@@ -431,7 +429,7 @@ function bind(){
     return true;
   };
 
-  console.log('[game] v4.81 OK TEST_MODE=', TEST_MODE, 'pts/tap=', TEST_POINTS_PER_TAP);
+  console.log('[game] v4.82 OK TEST_MODE=', TEST_MODE, 'pts/tap=', TEST_POINTS_PER_TAP);
 }
 
 if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', bind, {once:true});
