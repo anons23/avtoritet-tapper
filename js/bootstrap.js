@@ -3,8 +3,8 @@
   const scripts=[
     {src:'./js/save-migration.js?v=1.0',critical:true},
     {src:'./js/game.js?v=4.83',critical:true},
-    /* Визуалы груши сразу после ядра — чтобы локация появлялась без серой задержки */
     {src:'./js/object-visuals.js?v=3.3',critical:true},
+    {src:'./js/equipment.js?v=1.0',critical:false},
     {src:'./js/shop-ui.js?v=2.2',critical:false},
     {src:'./js/name-ui.js?v=2.2',critical:false},
     {src:'./js/prison-ui.js?v=3.4',critical:false},
@@ -43,7 +43,6 @@
   function waitForRaidAssets(){
     const p=window.__raidAssetsReady;
     if(!p||typeof p.then!=='function')return Promise.resolve();
-    /* Не блокируем старт больше 4с — рейды догрузятся в фоне */
     return Promise.race([
       Promise.resolve(p).catch(()=>{}),
       new Promise(resolve=>setTimeout(resolve,4000))
