@@ -1,4 +1,4 @@
-/* RAID UI — button with label + scenes */
+/* RAID UI — button with label + larger fighters */
 #raid-open-button{
   position:absolute!important;
   right:8px!important;
@@ -102,9 +102,19 @@
 .raid-scene.krest{background-image:url('./assets/raids/backgrounds/krest_pc.jpeg')}
 .raid-scene.psikh{background-image:url('./assets/raids/backgrounds/%D1%84%D0%BE%D0%BD%D0%9F%D1%81%D0%B8%D1%85%D0%9C%D0%BE%D0%B1%D0%B8%D0%BB%20(2).jpg')}
 .raid-hud{position:relative;z-index:5;display:flex;justify-content:flex-end;width:100%;flex:0 0 auto;pointer-events:none;margin-bottom:4px}
-.raid-fighter{position:relative;z-index:3;flex:1 1 auto;min-height:0;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;width:min(70%,640px);text-align:center;user-select:none;margin:0 auto}
-.raid-fighter.psikh{width:min(70%,600px)}
-.raid-fighter.krest{width:min(68%,580px)}
+/* Бойцы крупнее */
+.raid-fighter{position:relative;z-index:3;flex:1 1 auto;min-height:0;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;width:min(88%,720px);text-align:center;user-select:none;margin:0 auto}
+.raid-fighter.psikh{width:min(86%,700px)}
+.raid-fighter.krest{width:min(84%,680px)}
+/* Петрович и Глаз — доп. масштаб до уровня остальных */
+.raid-fighter.petrovich,.raid-fighter.glaz{width:min(94%,780px)}
+.raid-fighter.petrovich .raid-fighter-media img,
+.raid-fighter.glaz .raid-fighter-media img,
+.raid-fighter.petrovich #raid-idle-video,
+.raid-fighter.glaz #raid-idle-video{
+  transform:scale(1.22);
+  transform-origin:center bottom;
+}
 .raid-name{white-space:nowrap;font-weight:1000;font-size:clamp(24px,3.4vw,44px);letter-spacing:.08em;text-shadow:0 3px 0 #111;margin:0 0 6px;z-index:4;position:relative}
 .raid-name.petrovich{color:#e7d2a3;font-family:Georgia,serif}
 .raid-name.vtirach{color:#eee;font-family:Impact,sans-serif;letter-spacing:.02em}
@@ -118,8 +128,8 @@
 .raid-hp-fill{height:100%;width:100%;background:#d84b4b;transition:width .16s ease}
 .raid-hp-text{text-align:center;color:#fff;font-weight:800;font-size:13px;margin-top:4px;text-shadow:0 2px 3px #000}
 .raid-fighter-media{position:relative;flex:1 1 auto;min-height:0;width:100%;display:flex;align-items:flex-end;justify-content:center}
-.raid-fighter-media img,.raid-fighter img{display:block;width:100%;height:100%;max-height:100%;object-fit:contain;object-position:center bottom;filter:drop-shadow(0 12px 16px rgba(0,0,0,.5))}
-.raid-fighter-media #raid-idle-video{position:absolute;left:0;top:0;width:100%;height:100%;object-fit:contain;object-position:center bottom;background:transparent;pointer-events:none}
+.raid-fighter-media img,.raid-fighter img{display:block;width:100%;height:100%;max-height:min(72vh,720px);object-fit:contain;object-position:center bottom;filter:drop-shadow(0 12px 16px rgba(0,0,0,.5))}
+.raid-fighter-media #raid-idle-video{position:absolute;left:0;top:0;width:100%;height:100%;max-height:min(72vh,720px);object-fit:contain;object-position:center bottom;background:transparent;pointer-events:none}
 .raid-controls{position:relative;z-index:40;display:flex;justify-content:center;gap:8px;flex:0 0 auto;width:100%;margin-top:8px}
 .raid-next{padding:10px 16px;border:1px solid rgba(255,255,255,.4);border-radius:12px;background:rgba(0,0,0,.82);color:#fff;font-weight:800;cursor:pointer;font-size:14px}
 .raid-note{position:absolute;left:50%;bottom:68px;transform:translateX(-50%);z-index:6;color:#fff;background:rgba(0,0,0,.62);padding:6px 10px;border-radius:8px;font-size:13px;pointer-events:none}
@@ -193,4 +203,9 @@
 #modal-overlay.raid-fullscreen .raid-scene.glaz{background-image:url('./assets/raids/backgrounds/glaz_mobile.jpeg')}
 #modal-overlay.raid-fullscreen .raid-scene.krest{background-image:url('./assets/raids/backgrounds/krest_mobile.jpeg')}
 #modal-overlay.raid-fullscreen .raid-scene.psikh{background-image:url('./assets/raids/backgrounds/%D1%84%D0%BE%D0%BD%D0%9F%D1%81%D0%B8%D1%85%D0%9C%D0%BE%D0%B1%D0%B8%D0%BB%20(1).jpg')}
+#modal-overlay.raid-fullscreen .raid-fighter{width:min(98vw,560px)}
+#modal-overlay.raid-fullscreen .raid-fighter.psikh{width:min(96vw,540px)}
+#modal-overlay.raid-fullscreen .raid-fighter.krest{width:min(94vw,520px)}
+#modal-overlay.raid-fullscreen .raid-fighter.petrovich,
+#modal-overlay.raid-fullscreen .raid-fighter.glaz{width:min(100vw,620px)}
 }
