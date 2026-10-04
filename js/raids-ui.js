@@ -1,4 +1,4 @@
-/* raids-ui v4.76 — menu, backgrounds, hit frames, idle video, layout */
+/* raids-ui v4.77 — menu, backgrounds, hit frames, idle video, layout */
 'use strict';
 (function(){
   var REQS=[0,1500,5000,15000,50000];
@@ -53,21 +53,53 @@
     if(idleTimer){clearTimeout(idleTimer);idleTimer=0;}
   }
 
+  function isIOSLike(){
+    var ua=navigator.userAgent||'';
+    if(/iPad|iPhone|iPod/.test(ua)) return true;
+    // iPadOS 13+ reports as Mac but has touch
+    if(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1) return true;
+    return false;
+  }
+  function canPlayWebm(){
+    if(isIOSLike()) return false; // Safari/iOS: WebM often black box or unsupported
+    try{
+      var v=document.createElement('video');
+      var t=v.canPlayType('video/webm; codecs="vp9"')||v.canPlayType('video/webm; codecs="vp8"')||v.canPlayType('video/webm');
+      return !!t && t!=='';
+    }catch(e){ return false; }
+  }
   function playIdle(f){
     stopIdle();
-    var src=IDLE[f.id]; if(!src) return;
+    var img=$('raid-fighter-img');
     var media=$('raid-fighter-media'); if(!media) return;
+    // iOS / no WebM: keep transparent PNG portrait, no black video layer
+    if(!canPlayWebm() || !IDLE[f.id]){
+      if(img){ img.style.opacity='1'; img.style.display='block'; }
+      return;
+    }
+    var src=IDLE[f.id];
     var v=$('raid-idle-video');
     if(!v){
       v=document.createElement('video');
       v.id='raid-idle-video'; v.muted=true; v.loop=true; v.playsInline=true;
       v.setAttribute('playsinline',''); v.setAttribute('webkit-playsinline','');
+      v.setAttribute('preload','auto');
+      // transparent canvas-like: avoid solid black fill where possible
       v.style.cssText='position:absolute;left:0;top:0;width:100%;height:100%;object-fit:contain;object-position:center bottom;z-index:2;pointer-events:none;background:transparent';
+      v.addEventListener('error',function(){
+        // fallback to portrait if decode fails
+        try{v.style.display='none';}catch(e){}
+        if(img){ img.style.opacity='1'; img.style.display='block'; }
+      });
       media.appendChild(v);
     }
     v.src=src; v.style.display='block';
-    var img=$('raid-fighter-img'); if(img) img.style.opacity='0';
-    v.play().catch(function(){});
+    if(img) img.style.opacity='0';
+    var p=v.play();
+    if(p&&p.catch) p.catch(function(){
+      if(img){ img.style.opacity='1'; }
+      try{v.style.display='none';}catch(e){}
+    });
   }
 
   function showHit(f){
@@ -79,13 +111,17 @@
     var v=$('raid-idle-video');
     var media=$('raid-fighter-media');
     if(v){try{v.pause();}catch(e){} v.style.display='none';}
-    if(img){img.style.opacity='1'; img.src=frames[idx];}
+    if(img){img.style.opacity='1'; img.style.display='block'; img.src=frames[idx];}
     if(media){media.classList.remove('hit-pulse'); void media.offsetWidth; media.classList.add('hit-pulse');}
     if(idleTimer) clearTimeout(idleTimer);
     idleTimer=setTimeout(function(){
-      if(IDLE[f.id]){
-        if(v){v.style.display='block'; v.play().catch(function(){});}
+      // restore idle video only where it actually works (not iOS)
+      if(canPlayWebm() && IDLE[f.id] && v){
+        v.style.display='block';
+        v.play().catch(function(){});
         if(img) img.style.opacity='0';
+      } else if(img){
+        img.style.opacity='1';
       }
       if(media) media.classList.remove('hit-pulse');
     },280);
@@ -132,7 +168,7 @@
     overlay.classList.add('show','raid-fullscreen');
     var pct=hp/f.hp*100;
     var still=PORTRAIT[f.id];
-    var hasIdle=!!IDLE[f.id];
+    var hasIdle=!!IDLE[f.id] && canPlayWebm();
     content.innerHTML='<div class="raid-window"><div class="raid-scene '+f.scene+'" id="raid-scene">'+
       '<div class="raid-hud"><div class="raid-name '+f.id+'">'+f.name+'</div>'+
       '<div class="raid-hp'+(pct<=25?' low-hp':'')+'" id="raid-hp"><div class="raid-hp-track"><div id="raid-hp-fill" class="raid-hp-fill" style="width:'+pct+'%"></div></div>'+
