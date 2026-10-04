@@ -44,7 +44,6 @@
         if (e.button != null && e.button !== 0) return;
         const t = e.target;
         if (!isClickTarget(t)) return;
-        /* Never click-sfx on the raid fight scene body (fighter taps) */
         if (t.closest && t.closest('#raid-scene') && !t.closest('.raid-controls, #raid-back, .raid-result, .raid-next, .raid-menu-close')) return;
         playClick();
       },
@@ -56,11 +55,16 @@
     const obj = document.getElementById('tap-object');
     if (!obj || obj.dataset.sfxPunch === '1') return;
     obj.dataset.sfxPunch = '1';
+    let hadPunch = obj.classList.contains('punch');
     new MutationObserver(function (muts) {
       for (let i = 0; i < muts.length; i++) {
-        if (muts[i].attributeName === 'class' && obj.classList.contains('punch')) {
+        if (muts[i].attributeName !== 'class') continue;
+        const now = obj.classList.contains('punch');
+        /* Только появление класса punch — иначе ui()/refresh дергают звук каждую секунду */
+        if (now && !hadPunch) {
           playPunch(obj.classList.contains('crit'));
         }
+        hadPunch = now;
       }
     }).observe(obj, { attributes: true, attributeFilter: ['class'] });
   }
@@ -80,12 +84,11 @@
   }
 
   function boot() {
+    uiClickCapture();
     observePunch();
     observeRaidResult();
-    uiClickCapture();
     setInterval(observePunch, 2500);
   }
-
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot);
   else boot();
 })();
