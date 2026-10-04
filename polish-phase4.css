@@ -1,11 +1,11 @@
-/* polish-phase4 v1.0 — transitions, micro-animations */
+/* polish-phase4 v1.1 — transitions, micro-animations */
 
 /* Modal: slide up + fade */
 #modal-overlay{
   transition: opacity .22s ease, visibility .22s ease;
 }
 #modal-overlay.hidden{
-  display: flex !important; /* override global display:none for fade */
+  display: flex !important;
   opacity: 0;
   visibility: hidden;
   pointer-events: none;
@@ -38,13 +38,11 @@
   transition: width .45s cubic-bezier(.2,.8,.25,1) !important;
 }
 
-/* Event / choice toast */
 #event-message,
 #choice-result{
   transition: opacity .2s ease, transform .2s ease;
 }
 
-/* Resource numbers soft pulse on change */
 .resource.is-bump{
   animation: phase4-bump .28s ease-out;
 }
@@ -54,7 +52,6 @@
   100% { transform: scale(1); }
 }
 
-/* Crit / hard hit screen flash */
 #game-container.phase4-flash::after{
   content: "";
   position: absolute;
@@ -69,7 +66,6 @@
   100% { opacity: 0; }
 }
 
-/* Card press polish */
 .eq-card,
 .raid-fighter-card{
   transition: transform .15s ease, box-shadow .15s ease, border-color .15s ease, filter .15s ease !important;
@@ -78,18 +74,8 @@
   transform: scale(.98);
 }
 
-/* Jail panel appear */
-#jail-panel{
-  transition: opacity .25s ease, transform .25s ease;
-}
-#jail-panel.hidden{
-  opacity: 0;
-  transform: translateY(-6px);
-  pointer-events: none;
-}
 #jail-panel:not(.hidden){
-  opacity: 1;
-  transform: translateY(0);
+  transition: opacity .25s ease, transform .25s ease;
 }
 
 .nav-btn{
@@ -106,7 +92,6 @@
   #sentence-fill,
   .eq-card,
   .raid-fighter-card,
-  #jail-panel,
   .resource.is-bump{
     transition: none !important;
     animation: none !important;

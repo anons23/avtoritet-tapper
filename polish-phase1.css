@@ -1,6 +1,6 @@
-/* polish-phase1 v1.0 — bag hit, +N float, metal nav buttons, vignette */
+/* polish-phase1 v1.1 — bag hit, +N float, metal nav, vignette */
 
-/* 1) Punch bag hit — animate the image when parent has .punch */
+/* 1) Punch bag hit */
 #tap-object.bag-mode.punch .boxing-bag-image,
 #tap-object.punch .boxing-bag-image{
   animation: phase1-bag-hit .2s cubic-bezier(.2,.8,.25,1) both !important;
@@ -12,7 +12,6 @@
   55%  { transform: rotate(3deg) scale(.97); }
   100% { transform: rotate(0deg) scale(1); }
 }
-/* fallback for non-image bag circle */
 .tap-target.punch:not(.bag-mode):not(.cellmate-mode):not(.pushups-mode):not(.trainer-mode):not(.jail-mode){
   animation: phase1-circle-hit .18s ease-out both !important;
 }
@@ -44,11 +43,11 @@
   100% { opacity: 0; transform: translate(-50%, -120%) scale(.92); }
 }
 
-/* 3) Volumetric bottom nav buttons */
+/* 3) Volumetric bottom nav buttons — transparent bar so room bg shows */
 #bottom-bar{
-  background: linear-gradient(180deg, #1c1c1c 0%, #121212 100%) !important;
-  border-top: 1px solid #3a3a3a !important;
-  box-shadow: 0 -6px 18px rgba(0,0,0,.35);
+  background: transparent !important;
+  border-top: none !important;
+  box-shadow: none !important;
 }
 .nav-btn{
   border: 1px solid #666 !important;
@@ -74,7 +73,7 @@
   outline-offset: 2px;
 }
 
-/* 4) Soft vignette over main game (not jail bars layer) */
+/* 4) Soft vignette */
 #game-container:not(.jail-mode)::after{
   content: "";
   position: absolute;
@@ -87,17 +86,17 @@
     rgba(0,0,0,.38) 100%
   );
 }
-/* keep interactive UI above vignette */
 #top-bar,
 #player-info,
 #jail-panel,
 #sentence-panel,
 #rank-goal,
 #tap-area,
-#event-message,
-#bottom-bar,
-#modal-overlay{
+#event-message{
   position: relative;
   z-index: 3;
 }
+/* do NOT force position on #bottom-bar — it is position:fixed in style.css */
+#bottom-bar{ z-index: 1000; }
+#modal-overlay{ z-index: 2000; }
 #tap-area{ z-index: 3; }

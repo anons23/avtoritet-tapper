@@ -1,6 +1,6 @@
-/* polish-phase3 v1.0 — scanlines, modal blur, metal shine */
+/* polish-phase3 v1.1 — scanlines, modal blur, metal shine */
 
-/* 8) Scanlines — very subtle CRT/dirt camera */
+/* 8) Scanlines */
 #game-container:not(.jail-mode)::before{
   content: "";
   position: absolute;
@@ -23,11 +23,11 @@
 #sentence-panel,
 #rank-goal,
 #tap-area,
-#event-message,
-#bottom-bar{
+#event-message{
   position: relative;
   z-index: 5;
 }
+#bottom-bar{ z-index: 1000; }
 #modal-overlay{
   z-index: 2000;
 }
@@ -55,7 +55,7 @@
   background: #0a0a0a !important;
 }
 
-/* 10) Slow metal shine on bottom nav + key buttons */
+/* 10) Slow metal shine */
 .nav-btn,
 .eq-btn,
 button.eq-btn,
