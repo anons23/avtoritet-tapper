@@ -77,32 +77,48 @@
     return !!(a && !a.paused && !a.ended && a.volume > 0.01);
   }
 
+  function stopOthers(exceptId) {
+    Object.keys(players).forEach(function (pid) {
+      if (pid === exceptId) return;
+      const a = players[pid];
+      if (!a) return;
+      try {
+        if (!a.paused) a.pause();
+      } catch (e) {}
+      a.volume = 0;
+    });
+  }
+
   function playTrack(id) {
     if (!TRACKS[id]) return;
-    if (isAudible(id)) return;
 
     const next = ensure(id);
     if (!next) return;
 
     const prevId = current;
-    const prev = prevId && prevId !== id ? players[prevId] : null;
-    const resumingSame = (prevId === id) || (!prev && next.paused && next.currentTime > 0.15);
+    const already = isAudible(id) && prevId === id;
+    if (already) {
+      /* Still silence any leaked parallel tracks */
+      stopOthers(id);
+      return;
+    }
+
+    const resumingSame = (prevId === id) || (next.paused && next.currentTime > 0.15 && prevId === id);
     current = id;
 
-    /* Remember desired track while muted; do not start audio at 0 volume */
+    /* Mute/stop every other track immediately so main+raid never overlap */
+    stopOthers(id);
+
     if (muted) {
-      if (prev && !prev.paused) {
-        try { prev.pause(); } catch (e) {}
-        prev.volume = 0;
-      }
+      try { next.pause(); } catch (e) {}
+      next.volume = 0;
       return;
     }
 
     const targetVol = VOLUME[id];
 
     function startNext() {
-      /* Resume from pause position; only restart when switching tracks */
-      if (!resumingSame && prevId && prevId !== id) {
+      if (!resumingSame) {
         try { next.currentTime = 0; } catch (e) {}
       }
       next.volume = 0.001;
@@ -119,14 +135,7 @@
       }
     }
 
-    if (prev && !prev.paused) {
-      fadeTo(prev, 0, FADE_MS, function () {
-        try { prev.pause(); } catch (e) {}
-        startNext();
-      });
-    } else {
-      startNext();
-    }
+    startNext();
   }
 
   function playMain() {
@@ -160,7 +169,6 @@
     updateRaidMuteBtns();
 
     if (muted) {
-      /* Pause in place — keep currentTime so unmute resumes, not restarts */
       Object.keys(players).forEach(function (id) {
         const a = players[id];
         if (!a) return;
@@ -172,12 +180,10 @@
 
     if (wasMuted) {
       if (current === 'raid') {
-        /* Resume raid track from pause position */
         playTrack('raid');
         return;
       }
       if (!current || String(current).indexOf('main') === 0) {
-        /* Main menu: alternate tracks on unmute (existing behaviour) */
         mainIndex = mainIndex === 0 ? 1 : 0;
         saveMainIndex();
         playMain();
