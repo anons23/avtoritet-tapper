@@ -1,4 +1,4 @@
-/* АВТОРИТЕТ 2.0 — core v4.80 (rank-goal + shop + tasks + events) */
+/* АВТОРИТЕТ 2.0 — core v4.81 (punch clear + preload + rank-goal) */
 'use strict';
 const TEST_MODE = true;
 const TEST_POINTS_PER_TAP = 500;
@@ -90,7 +90,6 @@ function ui(){
         if($('jail-left')) $('jail-left').textContent = Math.max(0,s.jailRequired-s.jailTaps);
       }
     }
-    /* Прогресс до следующей масти */
     try{
       const nextRank = R.find(x => x[1] > s.points);
       const curIdx = (()=>{ let i=0; for(let k=0;k<R.length;k++) if(s.points>=R[k][1]) i=k; return i; })();
@@ -326,7 +325,7 @@ function tap(e){
   if(s.jailed){
     s.jailTaps++;
     const t = $('tap-object');
-    if(t){ t.classList.remove('punch'); void t.offsetWidth; t.classList.add('punch'); }
+    if(t){ t.classList.remove('punch','crit'); void t.offsetWidth; t.classList.add('punch'); clearTimeout(t._punchT); t._punchT=setTimeout(function(){ t.classList.remove('punch','crit'); },280); }
     if(typeof window.animateObjectVisual === 'function') window.animateObjectVisual();
     feedback(e, 1, false);
     if(s.jailTaps >= s.jailRequired){ s.jailed = false; s.tasks.jail = (s.tasks.jail||0)+1; msg('🔓 Вышел из карцера'); }
@@ -348,13 +347,14 @@ function tap(e){
   s.currentObject = highestUnlocked();
   if(old !== s.currentObject) msg('🏆 Новая масть: '+R[s.currentObject][0]+' · этап: '+O[s.currentObject][0]);
   const t = $('tap-object');
-  if(t){ t.classList.remove('punch'); void t.offsetWidth; t.classList.add('punch'); }
+  if(t){ t.classList.remove('punch','crit'); void t.offsetWidth; t.classList.add('punch'); if(c) t.classList.add('crit'); clearTimeout(t._punchT); t._punchT=setTimeout(function(){ t.classList.remove('punch','crit'); },280); }
   if(typeof window.animateObjectVisual === 'function') window.animateObjectVisual();
   if(typeof window.refreshObjectVisuals === 'function') window.refreshObjectVisuals();
   feedback(e, g, c);
   if(Math.random() < 0.03) msg(FUN[Math.floor(Math.random()*FUN.length)]);
   if(Math.random() < 0.10 && s.points - (s.lastChoiceEvent||0) > 30) openEvent();
   tasksCheck();
+  try{ if(typeof window.__maybePreloadNextStage==='function') window.__maybePreloadNextStage(s.points, TEST_MODE ? TEST_POINTS_PER_TAP : Math.max(1, s.power)); }catch(e){}
   ui();
   saveNow();
 }
