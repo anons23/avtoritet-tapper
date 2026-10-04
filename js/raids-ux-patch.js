@@ -1,4 +1,4 @@
-/* raids-ux-patch v1.0 — energy HUD, float dmg, blood, hit only on fighter */
+/* raids-ux-patch v1.1 — energy HUD, float dmg, blood, HP bar anim */
 'use strict';
 (function(){
   function $(id){ return document.getElementById(id); }
@@ -9,12 +9,12 @@
     return '\u26a1 '+Math.max(0,Number(s.energy)||0)+' / '+Math.max(0,Number(s.maxEnergy)||250);
   }
   function ensureEnergyHud(){
-    var left=document.querySelector('.raid-hud-left')||document.querySelector('.raid-hud');
+    var left=document.querySelector('.raid-hud-left') || document.querySelector('.raid-top') || $('raid-scene');
     if(!left) return;
-    var el=$('raid-energy');
+    var el=$('raid-energy-hud');
     if(!el){
       el=document.createElement('div');
-      el.id='raid-energy';
+      el.id='raid-energy-hud';
       el.className='raid-energy';
       left.appendChild(el);
     }
@@ -53,6 +53,68 @@
       (function(d){ setTimeout(function(){ try{d.remove();}catch(e){} },560); })(drop);
     }
   }
+
+  var _hpLastPct = 100;
+  function ensureHpGhost(){
+    var track = document.querySelector('#raid-hp .raid-hp-track, .raid-hp .raid-hp-track');
+    if(!track) return null;
+    var ghost = track.querySelector('.raid-hp-ghost');
+    if(!ghost){
+      ghost = document.createElement('div');
+      ghost.className = 'raid-hp-ghost';
+      track.insertBefore(ghost, track.firstChild);
+    }
+    return ghost;
+  }
+  function pulseHpBar(){
+    var bar = $('raid-hp') || document.querySelector('.raid-hp');
+    if(!bar) return;
+    bar.classList.remove('is-hit');
+    void bar.offsetWidth;
+    bar.classList.add('is-hit');
+    setTimeout(function(){ try{ bar.classList.remove('is-hit'); }catch(e){} }, 300);
+  }
+  function syncHpAnim(){
+    var fill = $('raid-hp-fill');
+    var bar = $('raid-hp') || document.querySelector('.raid-hp');
+    if(!fill || !bar) return;
+    var ghost = ensureHpGhost();
+    var w = fill.style.width || '';
+    var pct = parseFloat(w);
+    if(!Number.isFinite(pct)){
+      var cs = window.getComputedStyle(fill);
+      pct = parseFloat(cs.width);
+      var parentW = fill.parentElement ? fill.parentElement.clientWidth : 0;
+      if(parentW > 0 && Number.isFinite(pct)) pct = (pct / parentW) * 100;
+      else return;
+    }
+    if(pct < _hpLastPct - 0.2){
+      if(ghost){
+        ghost.style.width = _hpLastPct + '%';
+        requestAnimationFrame(function(){
+          requestAnimationFrame(function(){
+            ghost.style.width = pct + '%';
+          });
+        });
+      }
+      pulseHpBar();
+    } else if(pct > _hpLastPct + 0.5 && ghost){
+      ghost.style.width = pct + '%';
+    }
+    _hpLastPct = pct;
+    bar.classList.toggle('low-hp', pct <= 25);
+  }
+  function watchHpBar(){
+    var fill = $('raid-hp-fill');
+    if(!fill || fill.dataset.hpAnim === '1') return;
+    fill.dataset.hpAnim = '1';
+    _hpLastPct = parseFloat(fill.style.width) || 100;
+    ensureHpGhost();
+    var ghost = ensureHpGhost();
+    if(ghost) ghost.style.width = _hpLastPct + '%';
+    new MutationObserver(function(){ syncHpAnim(); }).observe(fill, { attributes: true, attributeFilter: ['style', 'class'] });
+  }
+
   function bindFightUx(){
     var scene=$('raid-scene');
     var fighter=$('raid-fighter');
@@ -80,9 +142,12 @@
         spawnFloatDmg(cx,cy,dmg,crit);
         spawnBlood(cx,cy);
         ensureEnergyHud();
+        setTimeout(syncHpAnim, 30);
+        setTimeout(syncHpAnim, 120);
       },0);
     }, true);
     ensureEnergyHud();
+    watchHpBar();
     if(!scene._energyTimer){
       scene._energyTimer=setInterval(function(){
         if(!$('raid-scene')){ clearInterval(scene._energyTimer); return; }
@@ -91,7 +156,7 @@
     }
   }
   var obs=new MutationObserver(function(){
-    if($('raid-scene')&&$('raid-fighter')) bindFightUx();
+    if($('raid-scene')&&$('raid-fighter')){ bindFightUx(); watchHpBar(); }
   });
   function start(){
     if(document.body) obs.observe(document.body,{childList:true,subtree:true});
