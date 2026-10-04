@@ -3,6 +3,8 @@
   const scripts=[
     {src:'./js/save-migration.js?v=1.0',critical:true},
     {src:'./js/game.js?v=4.81',critical:true},
+    /* Визуалы груши сразу после ядра — чтобы локация появлялась без серой задержки */
+    {src:'./js/object-visuals.js?v=3.3',critical:true},
     {src:'./js/shop-ui.js?v=2.2',critical:false},
     {src:'./js/name-ui.js?v=2.2',critical:false},
     {src:'./js/prison-ui.js?v=3.4',critical:false},
@@ -13,7 +15,6 @@
     {src:'./js/npc5-ui.js?v=1.1',critical:false},
     {src:'./js/stories-ui-v2.js?v=2.1',critical:false},
     {src:'./js/stability-fixes.js?v=1.4',critical:false},
-    {src:'./js/object-visuals.js?v=3.2',critical:false},
     {src:'./js/authority-css-restore.js?v=1.6',critical:false},
     {src:'./js/authority-ui.js?v=1.8',critical:false},
     {src:'./js/authority-folder-fix.js?v=1.0',critical:false},
@@ -42,9 +43,10 @@
   function waitForRaidAssets(){
     const p=window.__raidAssetsReady;
     if(!p||typeof p.then!=='function')return Promise.resolve();
+    /* Не блокируем старт больше 4с — рейды догрузятся в фоне */
     return Promise.race([
       Promise.resolve(p).catch(()=>{}),
-      new Promise(resolve=>setTimeout(resolve,8000))
+      new Promise(resolve=>setTimeout(resolve,4000))
     ]);
   }
   function appendScript(item,index,next){
