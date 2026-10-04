@@ -18,7 +18,14 @@
   function $(id){ return document.getElementById(id); }
   function st(){ return typeof window.getGameState==='function' ? window.getGameState() : null; }
   function fmt(n){ return String(Math.floor(Number(n)||0)).replace(/\B(?=(\d{3})+(?!\d))/g,' '); }
-  function msg(t){ if(typeof window.msg==='function') window.msg(t); }
+  function msg(t){
+    if(typeof window.msg==='function'){ window.msg(t); return; }
+    var el=$('event-message');
+    if(!el) return;
+    el.textContent=t;
+    el.classList.add('show');
+    setTimeout(function(){ el.classList.remove('show'); }, 2200);
+  }
 
   function ensure(s){
     if(!s) return;
