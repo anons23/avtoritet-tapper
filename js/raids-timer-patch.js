@@ -1,4 +1,4 @@
-/* raid-patch v1.6 — 90min fight timer + 30min win cooldown */
+/* raid-patch v1.7 — cooldown + raid drops */
 'use strict';
 (function(){
 var MS=90*60*1000,EX=15*60*1000,CD=30*60*1000,K='avt_rt_v2';
@@ -24,8 +24,6 @@ function cdLeft(pr){return Math.max(0,(pr&&pr.cd||0)-now())}
 function expired(pr){return !!(pr&&pr.d&&left(pr)<=0)}
 function onCd(pr){return !!(pr&&pr.cd&&cdLeft(pr)>0)}
 function killFT(){var e=$('raid-fight-timer');if(e)try{e.remove()}catch(x){}}
-
-/* after victory → 30 min cooldown */
 function markWin(id){
 if(!id)return;
 var key=id+':'+Math.floor(now()/1000);
@@ -33,20 +31,18 @@ if(lastWinMark===key)return;
 lastWinMark=key;
 var p=load(),pr=p[id]||{d:0,cd:0};
 pr.cd=now()+CD;
-/* fight window can end after win */
 p[id]=pr;save(p);
+try{ if(typeof window.rollRaidDrops==='function') window.rollRaidDrops(id); }catch(e){}
 }
 function watchWin(){
 var res=$('raid-result');
 if(!res)return;
 var id=fightId();
 if(!id)return;
-/* only mark when result card is visible */
 var style=window.getComputedStyle?getComputedStyle(res):null;
 if(style&&style.display==='none')return;
 markWin(id);
 }
-
 function onFight(){
 killFT();
 var id=fightId();if(!id)return;
@@ -55,7 +51,6 @@ if(!pr.d){pr.d=now()+MS;var p=load();p[id]=pr;save(p)}
 fixHud();
 watchWin();
 }
-
 function fixHud(){
 var hud=document.querySelector('.raid-hud');if(!hud)return;
 hud.style.cssText='display:flex;flex-wrap:wrap;align-items:flex-start;justify-content:space-between;gap:8px;padding:10px 12px;pointer-events:none';
@@ -75,7 +70,6 @@ en.style.cssText='padding:6px 12px;border-radius:12px;background:rgba(0,0,0,.35)
 var s=typeof window.getGameState==='function'?window.getGameState():null;
 en.textContent=s?('⚡ '+Math.max(0,s.energy|0)+' / '+Math.max(0,s.maxEnergy|250)):'⚡ —';
 }
-
 function cards(){
 var list=document.querySelector('.raid-fighter-list');if(!list)return;var p=load();
 list.querySelectorAll('.raid-fighter-card').forEach(function(card){
@@ -83,25 +77,18 @@ var id=cardId(card);if(!id)return;var pr=p[id];var info=card.querySelector('.rai
 var el=card.querySelector('.raid-card-timer');
 if(!el){el=document.createElement('div');el.className='raid-card-timer';
 el.style.cssText='margin-top:4px;font-size:12px;font-weight:800';info.appendChild(el)}
-/* priority: cooldown after win */
-if(pr&&pr.cd&&cdLeft(pr)>0){
-el.textContent='⏳ '+fmt(cdLeft(pr));
-el.style.color='#7ec8ff';
-return;
-}
+if(pr&&pr.cd&&cdLeft(pr)>0){el.textContent='⏳ '+fmt(cdLeft(pr));el.style.color='#7ec8ff';return;}
 if(!pr||!pr.d){el.textContent='⏱ 1:30:00';el.style.color='#9a9a9a';return}
 var L=left(pr);
 if(L<=0){el.textContent='⏱ 00:00';el.style.color='#ff4d4d'}
 else{el.textContent='⏱ '+fmt(L);el.style.color=L<300000?'#ffb84d':'#f3d27a'}
 });
 }
-
 function box(html){
 var content=$('modal-content');if(!content)return null;
 content.innerHTML='<div style="padding:20px;display:flex;align-items:center;justify-content:center;min-height:40vh"><div style="width:min(340px,92vw);padding:20px 16px;border-radius:16px;background:#1a1a1a;border:1px solid #555;text-align:center;color:#fff">'+html+'</div></div>';
 return content;
 }
-
 function modalExpired(id){
 var name=NAMES[id]||id;
 box('<div style="font-size:20px;font-weight:1000;color:#f3d27a;margin-bottom:8px">⏱ Время боя закончилось</div>'+
@@ -114,7 +101,6 @@ if(typeof window.showRewardedAd==='function')window.showRewardedAd(function(ok){
 var rs=$('rt-reset');if(rs)rs.onclick=function(){var p=load();p[id]={d:0,cd:(p[id]&&p[id].cd)||0};save(p);if(window.openRaidMenu)window.openRaidMenu()};
 var bk=$('rt-back');if(bk)bk.onclick=function(){if(window.openRaidMenu)window.openRaidMenu()};
 }
-
 function modalCooldown(id){
 var pr=ensure(id);var name=NAMES[id]||id;var leftMs=cdLeft(pr);
 box('<div style="font-size:20px;font-weight:1000;color:#7ec8ff;margin-bottom:8px">⏳ Боец отдыхает</div>'+
@@ -126,17 +112,15 @@ var ad=$('rt-cd-ad');if(ad)ad.onclick=function(){function g(){var p=load(),pr=p[
 if(typeof window.showRewardedAd==='function')window.showRewardedAd(function(ok){if(ok!==false)g()});else g()};
 var bk=$('rt-cd-back');if(bk)bk.onclick=function(){if(window.openRaidMenu)window.openRaidMenu()};
 }
-
 document.addEventListener('click',function(e){
 var card=e.target.closest&&e.target.closest('.raid-fighter-card:not(.locked)');if(!card)return;
 var id=cardId(card);if(!id)return;var pr=ensure(id);
 if(onCd(pr)){e.preventDefault();e.stopPropagation();e.stopImmediatePropagation();modalCooldown(id);return}
 if(expired(pr)){e.preventDefault();e.stopPropagation();e.stopImmediatePropagation();modalExpired(id);return}
 },true);
-
 setInterval(function(){
 if(document.querySelector('#raid-fighter')&&document.querySelector('.raid-scene'))onFight();
 if(document.querySelector('.raid-fighter-list'))cards();
 },400);
-console.log('[raid-patch] v1.6 cooldown');
+console.log('[raid-patch] v1.7 drops');
 })();
