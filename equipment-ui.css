@@ -1,16 +1,23 @@
-/* equipment-ui v1.0 — shop tabs for weapons/armor */
+/* equipment-ui v2.0 — rarities */
 .shop-tabs{display:flex;gap:8px;margin:0 0 14px;flex-wrap:wrap}
 .shop-tab{flex:1 1 auto;min-width:90px;padding:10px 12px;border-radius:12px;border:1px solid #555;background:#1e1e1e;color:#ccc;font-weight:800;font-size:13px;cursor:pointer}
 .shop-tab.is-active{border-color:#c9a227;background:linear-gradient(145deg,#3a3420,#2a2418);color:#f3d27a}
-.eq-grid{display:grid;grid-template-columns:1fr;gap:10px}
+.eq-grid,.eq-list{display:grid;grid-template-columns:1fr;gap:10px}
+.eq-section-title{margin:14px 0 8px;font-weight:900;font-size:14px;color:#ddd}
 .eq-card{display:flex;align-items:center;gap:12px;padding:12px;border-radius:14px;border:1px solid #444;background:linear-gradient(135deg,#2a2a2a,#181818);color:#fff}
-.eq-card.is-owned{border-color:#4a6}
-.eq-card.is-equipped{border-color:#c9a227;box-shadow:0 0 0 1px rgba(201,162,39,.35)}
+.eq-card.eq-equipped{border-color:#c9a227;box-shadow:0 0 0 1px rgba(201,162,39,.35)}
+.eq-card.eq-r-uncommon{border-color:#3a7a45}
+.eq-card.eq-r-rare{border-color:#3a6a9a}
+.eq-card.eq-r-epic{border-color:#6a3a9a}
+.eq-card.eq-r-legendary{border-color:#b8860b;box-shadow:0 0 12px rgba(255,184,77,.15)}
 .eq-icon{font-size:28px;width:40px;text-align:center}
 .eq-body{flex:1;min-width:0}
 .eq-body b{display:block;font-size:15px}
 .eq-body small{color:#aaa;font-size:12px}
+.eq-rarity{font-size:11px;font-weight:800;margin-left:4px}
 .eq-btn{padding:10px 14px;border-radius:10px;border:1px solid #666;background:#2a2a2a;color:#fff;font-weight:800;font-size:13px;cursor:pointer;white-space:nowrap}
 .eq-btn:disabled{opacity:.45;cursor:not-allowed}
 .eq-btn.is-equip{border-color:#c9a227;color:#f3d27a}
 .eq-badge{display:inline-block;margin-left:6px;padding:2px 6px;border-radius:6px;background:#c9a227;color:#111;font-size:10px;font-weight:900}
+.eq-badge.eq-drop{background:#444;color:#f3d27a;border:1px solid #80662e}
+.eq-badge.eq-on{background:#c9a227;color:#111}
