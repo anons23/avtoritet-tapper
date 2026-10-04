@@ -1,4 +1,4 @@
-/* raids-ui v4.77 — menu, backgrounds, hit frames, idle video, layout */
+/* raids-ui v4.78 — menu, backgrounds, hit frames, idle video, raid music */
 'use strict';
 (function(){
   var REQS=[0,1500,5000,15000,50000];
@@ -47,6 +47,20 @@
   function pFor(f){if(!progress[f.id])progress[f.id]={hp:f.hp,wins:0};return progress[f.id];}
   function unlocked(f){return pts()>=(REQS[f.rank]||0);}
 
+  function raidMusicOn(){
+    try{
+      if(window.GameMusic){
+        if(typeof window.GameMusic.unlock==='function') window.GameMusic.unlock();
+        if(typeof window.GameMusic.playRaid==='function') window.GameMusic.playRaid();
+      }
+    }catch(e){}
+  }
+  function mainMusicOn(){
+    try{
+      if(window.GameMusic && typeof window.GameMusic.playMain==='function') window.GameMusic.playMain();
+    }catch(e){}
+  }
+
   function stopIdle(){
     var v=$('raid-idle-video');
     if(v){try{v.pause();}catch(e){} v.removeAttribute('src'); try{v.load();}catch(e){}}
@@ -56,12 +70,11 @@
   function isIOSLike(){
     var ua=navigator.userAgent||'';
     if(/iPad|iPhone|iPod/.test(ua)) return true;
-    // iPadOS 13+ reports as Mac but has touch
     if(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1) return true;
     return false;
   }
   function canPlayWebm(){
-    if(isIOSLike()) return false; // Safari/iOS: WebM often black box or unsupported
+    if(isIOSLike()) return false;
     try{
       var v=document.createElement('video');
       var t=v.canPlayType('video/webm; codecs="vp9"')||v.canPlayType('video/webm; codecs="vp8"')||v.canPlayType('video/webm');
@@ -72,7 +85,6 @@
     stopIdle();
     var img=$('raid-fighter-img');
     var media=$('raid-fighter-media'); if(!media) return;
-    // iOS / no WebM: keep transparent PNG portrait, no black video layer
     if(!canPlayWebm() || !IDLE[f.id]){
       if(img){ img.style.opacity='1'; img.style.display='block'; }
       return;
@@ -84,10 +96,8 @@
       v.id='raid-idle-video'; v.muted=true; v.loop=true; v.playsInline=true;
       v.setAttribute('playsinline',''); v.setAttribute('webkit-playsinline','');
       v.setAttribute('preload','auto');
-      // transparent canvas-like: avoid solid black fill where possible
       v.style.cssText='position:absolute;left:0;top:0;width:100%;height:100%;object-fit:contain;object-position:center bottom;z-index:2;pointer-events:none;background:transparent';
       v.addEventListener('error',function(){
-        // fallback to portrait if decode fails
         try{v.style.display='none';}catch(e){}
         if(img){ img.style.opacity='1'; img.style.display='block'; }
       });
@@ -115,7 +125,6 @@
     if(media){media.classList.remove('hit-pulse'); void media.offsetWidth; media.classList.add('hit-pulse');}
     if(idleTimer) clearTimeout(idleTimer);
     idleTimer=setTimeout(function(){
-      // restore idle video only where it actually works (not iOS)
       if(canPlayWebm() && IDLE[f.id] && v){
         v.style.display='block';
         v.play().catch(function(){});
@@ -131,6 +140,7 @@
     var overlay=$('modal-overlay'), content=$('modal-content');
     if(!overlay||!content) return;
     stopIdle(); raidActive=false;
+    raidMusicOn();
     overlay.classList.remove('hidden','raid-fullscreen');
     overlay.classList.add('show','raid-selection-fullscreen');
     var list='';
@@ -143,17 +153,25 @@
         '<small>'+(ok?('HP '+hpShow+'/'+f.hp+(pr.wins?' · побед: '+pr.wins:'')):('🔒 '+RANK_NAMES[f.rank]+' ('+need+' ⭐)'))+'</small></div></button>';
     });
     content.innerHTML='<div class="raid-select"><div class="raid-select-head"><div><h2>⚔️ РЕЙДЫ</h2><p>Выбери бойца. Тапай, пока не свалится.</p></div>'+
-      '<button type="button" class="raid-menu-close" id="raid-menu-close">✕</button></div>'+
+      '<div class="raid-select-actions"><button type="button" class="raid-music-mute" aria-label="Музыка">🔊</button>'+
+      '<button type="button" class="raid-menu-close" id="raid-menu-close">✕</button></div></div>'+
       '<div class="raid-fighter-list">'+list+'</div></div>';
     var cl=$('raid-menu-close');
     if(cl) cl.addEventListener('click',function(){
       overlay.classList.remove('show','raid-fullscreen','raid-selection-fullscreen');
       overlay.classList.add('hidden');
       stopIdle();
+      mainMusicOn();
     });
     content.querySelectorAll('.raid-fighter-card:not(.locked)').forEach(function(btn){
       btn.addEventListener('click',function(){ startRaid(+btn.dataset.i); });
     });
+    try{
+      var mb=content.querySelector('.raid-music-mute');
+      if(mb && window.GameMusic && typeof window.GameMusic.bindRaidMuteBtn==='function'){
+        window.GameMusic.bindRaidMuteBtn(mb);
+      }
+    }catch(e){}
   }
 
   function startRaid(i){
@@ -166,6 +184,7 @@
     if(!overlay||!content) return;
     overlay.classList.remove('raid-selection-fullscreen','hidden');
     overlay.classList.add('show','raid-fullscreen');
+    raidMusicOn();
     var pct=hp/f.hp*100;
     var still=PORTRAIT[f.id];
     var hasIdle=!!IDLE[f.id] && canPlayWebm();
