@@ -1,0 +1,122 @@
+/* polish-phase3 v1.0 — scanlines, modal blur, metal shine */
+
+/* 8) Scanlines — very subtle CRT/dirt camera */
+#game-container:not(.jail-mode)::before{
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 4;
+  opacity: 0.035;
+  background: repeating-linear-gradient(
+    0deg,
+    rgba(255,255,255,.9) 0px,
+    rgba(255,255,255,.9) 1px,
+    transparent 1px,
+    transparent 4px
+  );
+  mix-blend-mode: soft-light;
+}
+#top-bar,
+#player-info,
+#jail-panel,
+#sentence-panel,
+#rank-goal,
+#tap-area,
+#event-message,
+#bottom-bar{
+  position: relative;
+  z-index: 5;
+}
+#modal-overlay{
+  z-index: 2000;
+}
+
+/* 9) Glass blur — modals only */
+#modal-overlay{
+  background: rgba(0,0,0,.62) !important;
+  -webkit-backdrop-filter: blur(6px);
+  backdrop-filter: blur(6px);
+}
+#modal{
+  background: rgba(24,24,24,.88) !important;
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255,255,255,.12) !important;
+}
+#modal-overlay.raid-fullscreen{
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
+  background: #000 !important;
+}
+#modal-overlay.raid-fullscreen #modal{
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
+  background: #0a0a0a !important;
+}
+
+/* 10) Slow metal shine on bottom nav + key buttons */
+.nav-btn,
+.eq-btn,
+button.eq-btn,
+.shop-eq-link{
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+}
+.nav-btn::after,
+.eq-btn::after,
+button.eq-btn::after,
+.shop-eq-link::after{
+  content: "";
+  position: absolute;
+  inset: -20% -40%;
+  background: linear-gradient(
+    110deg,
+    transparent 35%,
+    rgba(255,255,255,.14) 48%,
+    transparent 62%
+  );
+  transform: translateX(-120%);
+  animation: phase3-metal-shine 7s ease-in-out infinite;
+  pointer-events: none;
+  z-index: 1;
+}
+.nav-btn:nth-child(2)::after{ animation-delay: 1.2s; }
+.nav-btn:nth-child(3)::after{ animation-delay: 2.4s; }
+.nav-btn:nth-child(4)::after{ animation-delay: 3.6s; }
+
+@keyframes phase3-metal-shine{
+  0%, 72%, 100% { transform: translateX(-120%); }
+  80% { transform: translateX(120%); }
+}
+
+.nav-btn,
+.eq-btn,
+button.eq-btn{
+  z-index: 0;
+}
+
+@media (prefers-reduced-motion: reduce){
+  #game-container:not(.jail-mode)::before{ opacity: 0.02; }
+  .nav-btn::after,
+  .eq-btn::after,
+  button.eq-btn::after,
+  .shop-eq-link::after{
+    animation: none !important;
+    display: none !important;
+  }
+  #modal-overlay,
+  #modal{
+    -webkit-backdrop-filter: none !important;
+    backdrop-filter: none !important;
+  }
+}
+
+@media (max-width: 360px){
+  #game-container:not(.jail-mode)::before{ opacity: 0.025; }
+  #modal-overlay{
+    -webkit-backdrop-filter: blur(3px);
+    backdrop-filter: blur(3px);
+  }
+}
