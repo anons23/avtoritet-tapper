@@ -1,4 +1,4 @@
-/* raid-patch v1.4 */
+/* raid-patch v1.5 */
 'use strict';
 (function(){
 var MS=90*60*1000,EX=15*60*1000,K='avt_rt_v2';
@@ -47,7 +47,7 @@ var id=cardId(card);if(!id)return;var pr=p[id];var info=card.querySelector('.rai
 var el=card.querySelector('.raid-card-timer');
 if(!el){el=document.createElement('div');el.className='raid-card-timer';
 el.style.cssText='margin-top:4px;font-size:12px;font-weight:800';info.appendChild(el)}
-if(!pr||!pr.d){el.textContent='⏱ 90:00';el.style.color='#9a9a9a';return}
+if(!pr||!pr.d){el.textContent='⏱ 1:30:00';el.style.color='#9a9a9a';return}
 var L=left(pr);
 if(L<=0){el.textContent='⏱ 00:00';el.style.color='#ff4d4d'}
 else{el.textContent='⏱ '+fmt(L);el.style.color=L<300000?'#ffb84d':'#f3d27a'}
@@ -59,7 +59,7 @@ var names={petrovich:'ПЕТРОВИЧ',vtirach:'ВТИРАЧ',mafioznik:'МАФ
 var name=names[id]||id;
 content.innerHTML='<div style="padding:20px;display:flex;align-items:center;justify-content:center;min-height:40vh"><div style="width:min(340px,92vw);padding:20px 16px;border-radius:16px;background:#1a1a1a;border:1px solid #555;text-align:center;color:#fff">'+
 '<div style="font-size:20px;font-weight:1000;color:#f3d27a;margin-bottom:8px">⏱ Время боя закончилось</div>'+
-'<p style="margin:0 0 16px;color:#bbb;font-size:14px">Бой с <b style="color:#fff">'+name+'</b> истёк (90 мин).</p>'+
+'<p style="margin:0 0 16px;color:#bbb;font-size:14px">Бой с <b style="color:#fff">'+name+'</b> истёк (1:30).</p>'+
 '<button id="rt-ad" style="width:100%;margin:0 0 10px;padding:14px;border-radius:12px;border:1px solid #80662e;background:#3a3420;color:#f3d27a;font-weight:900;font-size:14px">🎬 Продлить на 15 мин</button>'+
 '<button id="rt-reset" style="width:100%;margin:0 0 10px;padding:14px;border-radius:12px;border:1px solid #666;background:#2a2a2a;color:#fff;font-weight:900">Начать заново</button>'+
 '<button id="rt-back" style="width:100%;padding:12px;border-radius:12px;border:1px solid #444;background:transparent;color:#aaa">← Назад</button></div></div>';
@@ -77,5 +77,5 @@ setInterval(function(){
 if(document.querySelector('#raid-fighter')&&document.querySelector('.raid-scene'))onFight();
 if(document.querySelector('.raid-fighter-list'))cards();
 },400);
-console.log('[raid-patch] v1.4');
+console.log('[raid-patch] v1.5');
 })();
