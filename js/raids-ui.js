@@ -1,4 +1,4 @@
-/* raids-ui v4.78 — menu, backgrounds, hit frames, idle video, raid music */
+/* raids-ui v4.79 — menu lock, label, music, iOS png */
 'use strict';
 (function(){
   var REQS=[0,1500,5000,15000,50000];
@@ -39,7 +39,7 @@
     krest:['./assets/raids/fighters/Crest%20(1).jpg','./assets/raids/fighters/Crest%20(2).jpg','./assets/raids/fighters/Crest%20(3).jpg','./assets/raids/fighters/Crest%20(4).jpg','./assets/raids/fighters/Crest%20(5).jpg'],
     psikh:['./assets/raids/fighters/Psish1%20(1).jpg','./assets/raids/fighters/Psish1%20(2).jpg','./assets/raids/fighters/Psish1%20(3).jpg','./assets/raids/fighters/Psish1%20(4).jpg','./assets/raids/fighters/Psish1%20(5).jpg']
   };
-  var progress={}, idleTimer=0, lastHit=-1, raidActive=false;
+  var progress={}, idleTimer=0, lastHit=-1, raidActive=false, menuOpenedAt=0;
 
   function $(id){return document.getElementById(id);}
   function st(){return typeof window.getGameState==='function'?window.getGameState():null;}
@@ -140,6 +140,7 @@
     var overlay=$('modal-overlay'), content=$('modal-content');
     if(!overlay||!content) return;
     stopIdle(); raidActive=false;
+    menuOpenedAt=Date.now();
     raidMusicOn();
     overlay.classList.remove('hidden','raid-fullscreen');
     overlay.classList.add('show','raid-selection-fullscreen');
@@ -164,7 +165,7 @@
       mainMusicOn();
     });
     content.querySelectorAll('.raid-fighter-card:not(.locked)').forEach(function(btn){
-      btn.addEventListener('click',function(){ startRaid(+btn.dataset.i); });
+      btn.addEventListener('click',function(){ if(Date.now()-menuOpenedAt<400) return; startRaid(+btn.dataset.i); });
     });
     try{
       var mb=content.querySelector('.raid-music-mute');
@@ -254,14 +255,20 @@
   }
 
   function ensureBtn(){
-    if($('raid-open-button')) return;
     var parent=$('game-container')||document.body; if(!parent) return;
-    var btn=document.createElement('button');
-    btn.id='raid-open-button'; btn.type='button'; btn.title='Рейды';
-    btn.setAttribute('aria-label','Рейды');
-    btn.innerHTML='<img src="./assets/raids/ui/raid-button.png" alt="Рейды" onerror="this.parentElement.textContent=\'⚔️\'">';
-    btn.addEventListener('click',function(e){e.preventDefault();e.stopPropagation();openRaidMenu();});
-    parent.appendChild(btn);
+    var btn=$('raid-open-button');
+    if(!btn){
+      btn=document.createElement('button');
+      btn.id='raid-open-button'; btn.type='button'; btn.title='Рейды';
+      btn.setAttribute('aria-label','Рейды');
+      btn.innerHTML='<span class="raid-btn-icon"><img src="./assets/raids/ui/raid-button.png" alt="" onerror="this.parentElement.textContent=\'⚔️\'"></span><span class="raid-btn-label">Рейды</span>';
+      btn.addEventListener('click',function(e){e.preventDefault();e.stopPropagation();openRaidMenu();});
+      parent.appendChild(btn);
+    } else if(!btn.querySelector('.raid-btn-label')){
+      var img=btn.querySelector('img');
+      var src=img?img.getAttribute('src'):'./assets/raids/ui/raid-button.png';
+      btn.innerHTML='<span class="raid-btn-icon"><img src="'+src+'" alt=""></span><span class="raid-btn-label">Рейды</span>';
+    }
   }
   function boot(){ensureBtn();setTimeout(ensureBtn,500);setTimeout(ensureBtn,2000);}
   if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',boot);
