@@ -1,0 +1,115 @@
+/* polish-phase4 v1.0 — transitions, micro-animations */
+
+/* Modal: slide up + fade */
+#modal-overlay{
+  transition: opacity .22s ease, visibility .22s ease;
+}
+#modal-overlay.hidden{
+  display: flex !important; /* override global display:none for fade */
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+#modal-overlay:not(.hidden){
+  opacity: 1;
+  visibility: visible;
+}
+#modal{
+  transform: translateY(18px);
+  transition: transform .28s cubic-bezier(.2,.8,.25,1), opacity .22s ease;
+  opacity: .96;
+}
+#modal-overlay:not(.hidden) #modal,
+#modal-overlay.show #modal{
+  transform: translateY(0);
+  opacity: 1;
+}
+#modal-overlay.raid-fullscreen #modal,
+#modal-overlay.raid-selection-fullscreen #modal{
+  transform: none !important;
+  transition: none !important;
+}
+
+/* Progress bars smooth fill */
+#rank-goal-fill,
+#sentence-fill,
+.rank-goal-track > span,
+.sentence-track > span{
+  transition: width .45s cubic-bezier(.2,.8,.25,1) !important;
+}
+
+/* Event / choice toast */
+#event-message,
+#choice-result{
+  transition: opacity .2s ease, transform .2s ease;
+}
+
+/* Resource numbers soft pulse on change */
+.resource.is-bump{
+  animation: phase4-bump .28s ease-out;
+}
+@keyframes phase4-bump{
+  0% { transform: scale(1); }
+  40% { transform: scale(1.12); }
+  100% { transform: scale(1); }
+}
+
+/* Crit / hard hit screen flash */
+#game-container.phase4-flash::after{
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 50;
+  background: radial-gradient(circle at 50% 55%, rgba(255,240,180,.22), transparent 55%);
+  animation: phase4-flash .22s ease-out forwards;
+}
+@keyframes phase4-flash{
+  0% { opacity: 1; }
+  100% { opacity: 0; }
+}
+
+/* Card press polish */
+.eq-card,
+.raid-fighter-card{
+  transition: transform .15s ease, box-shadow .15s ease, border-color .15s ease, filter .15s ease !important;
+}
+.raid-fighter-card:not(.locked):active{
+  transform: scale(.98);
+}
+
+/* Jail panel appear */
+#jail-panel{
+  transition: opacity .25s ease, transform .25s ease;
+}
+#jail-panel.hidden{
+  opacity: 0;
+  transform: translateY(-6px);
+  pointer-events: none;
+}
+#jail-panel:not(.hidden){
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.nav-btn{
+  transition:
+    transform .08s ease,
+    box-shadow .08s ease,
+    filter .12s ease,
+    border-color .15s ease !important;
+}
+
+@media (prefers-reduced-motion: reduce){
+  #modal,
+  #rank-goal-fill,
+  #sentence-fill,
+  .eq-card,
+  .raid-fighter-card,
+  #jail-panel,
+  .resource.is-bump{
+    transition: none !important;
+    animation: none !important;
+  }
+  #game-container.phase4-flash::after{ display: none; }
+}
