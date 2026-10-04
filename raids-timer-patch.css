@@ -1,0 +1,13 @@
+.raid-card-timer{margin-top:4px;font-size:12px;font-weight:800;color:#f3d27a}
+.raid-card-timer.is-expired{color:#ff6b6b}
+.raid-fight-timer{padding:4px 10px;border-radius:8px;background:rgba(0,0,0,.72);color:#f3d27a;font-weight:800;font-size:14px;letter-spacing:.04em;margin-top:2px}
+.raid-fight-timer.is-low{color:#ffb84d}
+.raid-fight-timer.is-expired{color:#ff6b6b}
+.raid-timeup{position:absolute;inset:0;z-index:50;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.72);padding:20px}
+.raid-timeup-card{width:min(360px,92vw);padding:22px 18px;border-radius:18px;background:linear-gradient(160deg,#252525,#141414);border:1px solid #555;text-align:center;color:#fff;box-shadow:0 16px 50px rgba(0,0,0,.6)}
+.raid-timeup-title{font-size:22px;font-weight:1000;margin-bottom:10px;color:#f3d27a}
+.raid-timeup-text{margin:0 0 16px;color:#ccc;font-size:14px;line-height:1.4}
+.raid-timeup-btn{display:block;width:100%;margin:0 0 10px;padding:14px 12px;border-radius:12px;border:1px solid #666;background:#2a2a2a;color:#fff;font-weight:900;font-size:14px;cursor:pointer}
+.raid-timeup-btn.raid-timeup-ad{border-color:#80662e;background:linear-gradient(145deg,#3a3420,#2a2418);color:#f3d27a}
+.raid-timeup-btn.raid-timeup-exit{border-color:#555}
+.raid-timeup-btn.raid-timeup-back{background:transparent;border-color:#444;color:#aaa;font-weight:700}
