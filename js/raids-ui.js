@@ -1,4 +1,4 @@
-/* raids-ui v4.79 — menu lock, label, music, iOS png */
+/* raids-ui v4.80 — weapon bonus dmg */
 'use strict';
 (function(){
   var REQS=[0,1500,5000,15000,50000];
@@ -214,9 +214,14 @@
         var n=$('raid-note'); if(n){n.textContent='⚡ Нет энергии';n.classList.add('show');setTimeout(function(){n.classList.remove('show');},1500);}
         return;
       }
-      var dmg=300;
       var s=st();
-      var crit=Math.random()<(Number(s&&s.critChance)||0.05);
+      var bonus=0;
+      try{ if(typeof window.getEquipRaidBonus==='function') bonus=Number(window.getEquipRaidBonus())||0; }catch(err){}
+      var dmg=300+bonus;
+      var critChance=0.05;
+      try{ if(typeof window.getEffectiveCrit==='function') critChance=Number(window.getEffectiveCrit())||0.05; }
+      catch(err){ critChance=Number(s&&s.critChance)||0.05; }
+      var crit=Math.random()<critChance;
       if(crit) dmg=Math.round(dmg*2.2);
       hp=Math.max(0,hp-dmg); pr.hp=hp;
       var fill=$('raid-hp-fill'), txt=$('raid-hp-text'), bar=$('raid-hp');
