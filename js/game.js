@@ -1,4 +1,4 @@
-/* АВТОРИТЕТ 2.0 — core v4.74 (shop + tasks + events) */
+/* АВТОРИТЕТ 2.0 — core v4.80 (rank-goal + shop + tasks + events) */
 'use strict';
 const TEST_MODE = true;
 const TEST_POINTS_PER_TAP = 500;
@@ -90,6 +90,22 @@ function ui(){
         if($('jail-left')) $('jail-left').textContent = Math.max(0,s.jailRequired-s.jailTaps);
       }
     }
+    /* Прогресс до следующей масти */
+    try{
+      const nextRank = R.find(x => x[1] > s.points);
+      const curIdx = (()=>{ let i=0; for(let k=0;k<R.length;k++) if(s.points>=R[k][1]) i=k; return i; })();
+      const from = R[curIdx] ? R[curIdx][1] : 0;
+      const to = nextRank ? nextRank[1] : (R[R.length-1][1] || from);
+      const span = Math.max(1, to - from);
+      const progressed = Math.max(0, Math.min(span, s.points - from));
+      const pct = nextRank ? Math.min(100, (progressed / span) * 100) : 100;
+      const label = $('rank-goal-label');
+      const value = $('rank-goal-value');
+      const fill = $('rank-goal-fill');
+      if(label) label.textContent = nextRank ? ('До масти «'+nextRank[0]+'»') : 'Максимальная масть';
+      if(value) value.textContent = nextRank ? (fmt(s.points)+' / '+fmt(to)+' ⭐') : (fmt(s.points)+' ⭐');
+      if(fill) fill.style.width = pct + '%';
+    }catch(e){}
     ['btn-shop','btn-rank','btn-tasks','btn-more'].forEach(id=>{
       const b=$(id); if(b) b.disabled=!!s.jailed;
     });
@@ -350,31 +366,19 @@ function bind(){
   const pre = document.getElementById('preloader');
   if(pre){ pre.style.display='none'; pre.remove(); }
   document.body.classList.remove('game-booting');
-  const gc = document.getElementById('game-container');
-  if(gc) gc.classList.remove('game-booting');
-
-  const area = $('tap-area') || $('tap-object');
-  let last = 0;
-  const handler = e => {
-    const n = Date.now();
-    if(n - last < 80) return;
-    last = n;
-    if(e.cancelable) e.preventDefault();
-    tap(e);
-  };
+  const area = $('tap-area');
   if(area){
-    area.addEventListener('pointerdown', handler, {capture:true, passive:false});
+    area.addEventListener('pointerdown', tap);
+    area.addEventListener('click', function(e){ if(e.detail) tap(e); });
   }
   $('btn-shop')?.addEventListener('click', shop);
   $('btn-rank')?.addEventListener('click', rankMenu);
   $('btn-tasks')?.addEventListener('click', tasksMenu);
   $('btn-more')?.addEventListener('click', more);
   $('modal-close')?.addEventListener('click', closeModal);
-
   setInterval(()=>{ restoreEnergy(Date.now()); ui(); }, 1000);
   setInterval(saveNow, 15000);
   window.addEventListener('pagehide', saveNow);
-
   window.getGameState = () => s;
   window.saveGame = saveNow;
   window.ui = ui;
@@ -389,9 +393,7 @@ function bind(){
     ui();
     return true;
   };
-
-  console.log('[game] v4.74 OK TEST_MODE=', TEST_MODE, 'pts/tap=', TEST_POINTS_PER_TAP);
 }
 
-if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', bind, {once:true});
+if(document.readyState==='loading') document.addEventListener('DOMContentLoaded', bind);
 else bind();
