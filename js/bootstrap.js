@@ -2,7 +2,7 @@
 (function(){
   const scripts=[
     {src:'./js/save-migration.js?v=1.0',critical:true},
-    {src:'./js/game.js?v=4.81',critical:true},
+    {src:'./js/game.js?v=4.82',critical:true},
     /* Визуалы груши сразу после ядра — чтобы локация появлялась без серой задержки */
     {src:'./js/object-visuals.js?v=3.3',critical:true},
     {src:'./js/shop-ui.js?v=2.2',critical:false},
