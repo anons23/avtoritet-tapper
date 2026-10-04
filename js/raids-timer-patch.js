@@ -1,8 +1,10 @@
-/* raid-patch v1.5 */
+/* raid-patch v1.6 — 90min fight timer + 30min win cooldown */
 'use strict';
 (function(){
-var MS=90*60*1000,EX=15*60*1000,K='avt_rt_v2';
+var MS=90*60*1000,EX=15*60*1000,CD=30*60*1000,K='avt_rt_v2';
 var HP={petrovich:1500,vtirach:2000,mafioznik:3000,mongol:4000,glaz:5000,krest:6500,psikh:8000};
+var NAMES={petrovich:'ПЕТРОВИЧ',vtirach:'ВТИРАЧ',mafioznik:'МАФИОЗНИК',mongol:'МОНГОЛ',glaz:'ГЛАЗ',krest:'КРЕСТ',psikh:'ПСИХ АРКАША'};
+var lastWinMark='';
 function $(i){return document.getElementById(i)}
 function now(){return Date.now()}
 function load(){try{return JSON.parse(localStorage.getItem(K)||'{}')}catch(e){return{}}}
@@ -16,11 +18,44 @@ if(/Psish|psikh/i.test(s))return'psikh';return null}
 function fightId(){var el=document.querySelector('.raid-name');if(!el)return null;var c=el.className||'';
 var ids=['petrovich','vtirach','mafioznik','mongol','glaz','krest','psikh'];
 for(var i=0;i<ids.length;i++)if(c.indexOf(ids[i])>=0)return ids[i];return null}
-function ensure(id){var p=load();if(!p[id])p[id]={d:0};save(p);return p[id]}
+function ensure(id){var p=load();if(!p[id])p[id]={d:0,cd:0};if(typeof p[id].cd!=='number')p[id].cd=0;if(typeof p[id].d!=='number')p[id].d=0;save(p);return p[id]}
 function left(pr){return Math.max(0,(pr&&pr.d||0)-now())}
+function cdLeft(pr){return Math.max(0,(pr&&pr.cd||0)-now())}
 function expired(pr){return !!(pr&&pr.d&&left(pr)<=0)}
+function onCd(pr){return !!(pr&&pr.cd&&cdLeft(pr)>0)}
 function killFT(){var e=$('raid-fight-timer');if(e)try{e.remove()}catch(x){}}
-function onFight(){killFT();var id=fightId();if(!id)return;var pr=ensure(id);if(!pr.d){pr.d=now()+MS;var p=load();p[id]=pr;save(p)}fixHud()}
+
+/* after victory → 30 min cooldown */
+function markWin(id){
+if(!id)return;
+var key=id+':'+Math.floor(now()/1000);
+if(lastWinMark===key)return;
+lastWinMark=key;
+var p=load(),pr=p[id]||{d:0,cd:0};
+pr.cd=now()+CD;
+/* fight window can end after win */
+p[id]=pr;save(p);
+}
+function watchWin(){
+var res=$('raid-result');
+if(!res)return;
+var id=fightId();
+if(!id)return;
+/* only mark when result card is visible */
+var style=window.getComputedStyle?getComputedStyle(res):null;
+if(style&&style.display==='none')return;
+markWin(id);
+}
+
+function onFight(){
+killFT();
+var id=fightId();if(!id)return;
+var pr=ensure(id);
+if(!pr.d){pr.d=now()+MS;var p=load();p[id]=pr;save(p)}
+fixHud();
+watchWin();
+}
+
 function fixHud(){
 var hud=document.querySelector('.raid-hud');if(!hud)return;
 hud.style.cssText='display:flex;flex-wrap:wrap;align-items:flex-start;justify-content:space-between;gap:8px;padding:10px 12px;pointer-events:none';
@@ -40,6 +75,7 @@ en.style.cssText='padding:6px 12px;border-radius:12px;background:rgba(0,0,0,.35)
 var s=typeof window.getGameState==='function'?window.getGameState():null;
 en.textContent=s?('⚡ '+Math.max(0,s.energy|0)+' / '+Math.max(0,s.maxEnergy|250)):'⚡ —';
 }
+
 function cards(){
 var list=document.querySelector('.raid-fighter-list');if(!list)return;var p=load();
 list.querySelectorAll('.raid-fighter-card').forEach(function(card){
@@ -47,35 +83,60 @@ var id=cardId(card);if(!id)return;var pr=p[id];var info=card.querySelector('.rai
 var el=card.querySelector('.raid-card-timer');
 if(!el){el=document.createElement('div');el.className='raid-card-timer';
 el.style.cssText='margin-top:4px;font-size:12px;font-weight:800';info.appendChild(el)}
+/* priority: cooldown after win */
+if(pr&&pr.cd&&cdLeft(pr)>0){
+el.textContent='⏳ '+fmt(cdLeft(pr));
+el.style.color='#7ec8ff';
+return;
+}
 if(!pr||!pr.d){el.textContent='⏱ 1:30:00';el.style.color='#9a9a9a';return}
 var L=left(pr);
 if(L<=0){el.textContent='⏱ 00:00';el.style.color='#ff4d4d'}
 else{el.textContent='⏱ '+fmt(L);el.style.color=L<300000?'#ffb84d':'#f3d27a'}
 });
 }
-function modal(id){
-var content=$('modal-content');if(!content)return;
-var names={petrovich:'ПЕТРОВИЧ',vtirach:'ВТИРАЧ',mafioznik:'МАФИОЗНИК',mongol:'МОНГОЛ',glaz:'ГЛАЗ',krest:'КРЕСТ',psikh:'ПСИХ АРКАША'};
-var name=names[id]||id;
-content.innerHTML='<div style="padding:20px;display:flex;align-items:center;justify-content:center;min-height:40vh"><div style="width:min(340px,92vw);padding:20px 16px;border-radius:16px;background:#1a1a1a;border:1px solid #555;text-align:center;color:#fff">'+
-'<div style="font-size:20px;font-weight:1000;color:#f3d27a;margin-bottom:8px">⏱ Время боя закончилось</div>'+
+
+function box(html){
+var content=$('modal-content');if(!content)return null;
+content.innerHTML='<div style="padding:20px;display:flex;align-items:center;justify-content:center;min-height:40vh"><div style="width:min(340px,92vw);padding:20px 16px;border-radius:16px;background:#1a1a1a;border:1px solid #555;text-align:center;color:#fff">'+html+'</div></div>';
+return content;
+}
+
+function modalExpired(id){
+var name=NAMES[id]||id;
+box('<div style="font-size:20px;font-weight:1000;color:#f3d27a;margin-bottom:8px">⏱ Время боя закончилось</div>'+
 '<p style="margin:0 0 16px;color:#bbb;font-size:14px">Бой с <b style="color:#fff">'+name+'</b> истёк (1:30).</p>'+
 '<button id="rt-ad" style="width:100%;margin:0 0 10px;padding:14px;border-radius:12px;border:1px solid #80662e;background:#3a3420;color:#f3d27a;font-weight:900;font-size:14px">🎬 Продлить на 15 мин</button>'+
 '<button id="rt-reset" style="width:100%;margin:0 0 10px;padding:14px;border-radius:12px;border:1px solid #666;background:#2a2a2a;color:#fff;font-weight:900">Начать заново</button>'+
-'<button id="rt-back" style="width:100%;padding:12px;border-radius:12px;border:1px solid #444;background:transparent;color:#aaa">← Назад</button></div></div>';
-var ad=$('rt-ad');if(ad)ad.onclick=function(){function g(){var p=load(),pr=p[id]||{d:0};pr.d=Math.max(now(),pr.d||now())+EX;p[id]=pr;save(p);if(window.openRaidMenu)window.openRaidMenu()}
+'<button id="rt-back" style="width:100%;padding:12px;border-radius:12px;border:1px solid #444;background:transparent;color:#aaa">← Назад</button>');
+var ad=$('rt-ad');if(ad)ad.onclick=function(){function g(){var p=load(),pr=p[id]||{d:0,cd:0};pr.d=Math.max(now(),pr.d||now())+EX;p[id]=pr;save(p);if(window.openRaidMenu)window.openRaidMenu()}
 if(typeof window.showRewardedAd==='function')window.showRewardedAd(function(ok){if(ok!==false)g()});else g()};
-var rs=$('rt-reset');if(rs)rs.onclick=function(){var p=load();p[id]={d:0};save(p);if(window.openRaidMenu)window.openRaidMenu()};
+var rs=$('rt-reset');if(rs)rs.onclick=function(){var p=load();p[id]={d:0,cd:(p[id]&&p[id].cd)||0};save(p);if(window.openRaidMenu)window.openRaidMenu()};
 var bk=$('rt-back');if(bk)bk.onclick=function(){if(window.openRaidMenu)window.openRaidMenu()};
 }
+
+function modalCooldown(id){
+var pr=ensure(id);var name=NAMES[id]||id;var leftMs=cdLeft(pr);
+box('<div style="font-size:20px;font-weight:1000;color:#7ec8ff;margin-bottom:8px">⏳ Боец отдыхает</div>'+
+'<p style="margin:0 0 8px;color:#bbb;font-size:14px">Ты уже победил <b style="color:#fff">'+name+'</b>.</p>'+
+'<p style="margin:0 0 16px;color:#9ad;font-size:15px;font-weight:800">Повтор через '+fmt(leftMs)+'</p>'+
+'<button id="rt-cd-ad" style="width:100%;margin:0 0 10px;padding:14px;border-radius:12px;border:1px solid #80662e;background:#3a3420;color:#f3d27a;font-weight:900;font-size:14px">🎬 Реклама — напасть сейчас</button>'+
+'<button id="rt-cd-back" style="width:100%;padding:12px;border-radius:12px;border:1px solid #444;background:transparent;color:#aaa">← Назад</button>');
+var ad=$('rt-cd-ad');if(ad)ad.onclick=function(){function g(){var p=load(),pr=p[id]||{d:0,cd:0};pr.cd=0;p[id]=pr;save(p);if(window.openRaidMenu)window.openRaidMenu()}
+if(typeof window.showRewardedAd==='function')window.showRewardedAd(function(ok){if(ok!==false)g()});else g()};
+var bk=$('rt-cd-back');if(bk)bk.onclick=function(){if(window.openRaidMenu)window.openRaidMenu()};
+}
+
 document.addEventListener('click',function(e){
 var card=e.target.closest&&e.target.closest('.raid-fighter-card:not(.locked)');if(!card)return;
 var id=cardId(card);if(!id)return;var pr=ensure(id);
-if(expired(pr)){e.preventDefault();e.stopPropagation();e.stopImmediatePropagation();modal(id)}
+if(onCd(pr)){e.preventDefault();e.stopPropagation();e.stopImmediatePropagation();modalCooldown(id);return}
+if(expired(pr)){e.preventDefault();e.stopPropagation();e.stopImmediatePropagation();modalExpired(id);return}
 },true);
+
 setInterval(function(){
 if(document.querySelector('#raid-fighter')&&document.querySelector('.raid-scene'))onFight();
 if(document.querySelector('.raid-fighter-list'))cards();
 },400);
-console.log('[raid-patch] v1.5');
+console.log('[raid-patch] v1.6 cooldown');
 })();
