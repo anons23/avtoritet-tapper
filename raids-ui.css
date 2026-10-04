@@ -1,17 +1,22 @@
-/* RAID UI restored - loading from override + core */
+/* RAID UI — button with label + scenes */
 #raid-open-button{
   position:absolute!important;
-  right:10px!important;
-  top:138px!important;
+  right:8px!important;
+  top:128px!important;
   z-index:60!important;
-  width:64px!important;
-  height:64px!important;
-  padding:0!important;
+  width:72px!important;
+  min-height:78px!important;
+  height:auto!important;
+  padding:4px 4px 6px!important;
   margin:0!important;
   border:0!important;
   background:transparent!important;
   cursor:pointer!important;
-  display:block!important;
+  display:flex!important;
+  flex-direction:column!important;
+  align-items:center!important;
+  justify-content:flex-start!important;
+  gap:2px!important;
   visibility:visible!important;
   opacity:1!important;
   pointer-events:auto!important;
@@ -19,28 +24,56 @@
   animation:raidBtnPulse 2.4s ease-in-out infinite;
   transform-origin:center center;
 }
-#raid-open-button img{
+#raid-open-button .raid-btn-icon{
+  display:block!important;
+  width:56px!important;
+  height:56px!important;
+  flex:0 0 56px!important;
+}
+#raid-open-button .raid-btn-icon img,
+#raid-open-button > img{
   display:block!important;
   width:100%!important;
   height:100%!important;
   object-fit:contain!important;
   pointer-events:none!important;
 }
+#raid-open-button .raid-btn-label{
+  display:block!important;
+  width:100%!important;
+  text-align:center!important;
+  font-size:11px!important;
+  font-weight:900!important;
+  letter-spacing:.6px!important;
+  line-height:1.15!important;
+  color:#f3d27a!important;
+  text-shadow:
+    0 1px 0 #1a1206,
+    0 0 6px rgba(0,0,0,.85),
+    0 2px 4px rgba(0,0,0,.7)!important;
+  pointer-events:none!important;
+  white-space:nowrap!important;
+  text-transform:uppercase!important;
+}
 @media (max-width:700px){
   #raid-open-button{
-    right:8px!important;
-    top:128px!important;
-    width:56px!important;
-    height:56px!important;
+    right:6px!important;
+    top:118px!important;
+    width:68px!important;
+    min-height:74px!important;
   }
+  #raid-open-button .raid-btn-icon{width:52px!important;height:52px!important;flex-basis:52px!important}
+  #raid-open-button .raid-btn-label{font-size:10px!important}
 }
 @media (max-width:900px) and (orientation:landscape){
   #raid-open-button{
-    right:8px!important;
-    top:68px!important;
-    width:44px!important;
-    height:44px!important;
+    right:6px!important;
+    top:56px!important;
+    width:56px!important;
+    min-height:60px!important;
   }
+  #raid-open-button .raid-btn-icon{width:40px!important;height:40px!important;flex-basis:40px!important}
+  #raid-open-button .raid-btn-label{font-size:9px!important}
 }
 @keyframes raidBtnPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.08)}}
 .raid-select{width:min(620px,92vw);max-height:min(760px,88vh);overflow:auto;padding:20px;border-radius:18px;background:linear-gradient(145deg,#252525,#101010);color:#fff;box-shadow:0 20px 70px rgba(0,0,0,.75)}
@@ -61,7 +94,6 @@
 .raid-card-name.krest{color:#c9b896;font-family:Georgia,serif}
 .raid-card-name.psikh{color:#b85c5c;font-family:Impact,sans-serif}
 .raid-card-info small{color:#bbb;font-size:12px}
-.raid-card-time{display:inline-block;margin-top:2px;color:#e7d2a3;font-size:11px;font-variant-numeric:tabular-nums;text-shadow:0 1px 2px #000}
 .raid-window{position:relative;width:100%;height:100%;overflow:hidden;padding:0!important;background:transparent}
 .raid-scene{position:relative;width:100%;height:100%;overflow:hidden;display:flex;flex-direction:column;align-items:center;background:#111 center/cover no-repeat;box-sizing:border-box;padding:14px 12px 12px}
 .raid-scene.talk{background-image:url('./assets/raids/backgrounds/petrovich_vtirach_pc.png')}
@@ -70,8 +102,6 @@
 .raid-scene.krest{background-image:url('./assets/raids/backgrounds/krest_pc.jpeg')}
 .raid-scene.psikh{background-image:url('./assets/raids/backgrounds/%D1%84%D0%BE%D0%BD%D0%9F%D1%81%D0%B8%D1%85%D0%9C%D0%BE%D0%B1%D0%B8%D0%BB%20(2).jpg')}
 .raid-hud{position:relative;z-index:5;display:flex;justify-content:flex-end;width:100%;flex:0 0 auto;pointer-events:none;margin-bottom:4px}
-.raid-title{display:none}
-.raid-timer{padding:8px 12px;border-radius:10px;background:rgba(0,0,0,.72);color:#fff;font-weight:800;font-size:16px}
 .raid-fighter{position:relative;z-index:3;flex:1 1 auto;min-height:0;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;width:min(70%,640px);text-align:center;user-select:none;margin:0 auto}
 .raid-fighter.psikh{width:min(70%,600px)}
 .raid-fighter.krest{width:min(68%,580px)}
@@ -83,54 +113,6 @@
 .raid-name.glaz{color:#8fd3ff;font-family:Georgia,serif;font-style:italic}
 .raid-name.krest{color:#c9b896;font-family:Georgia,serif}
 .raid-name.psikh{color:#b85c5c;font-family:Impact,sans-serif}
-/* Crit name pop: shake + stars */
-.raid-name.crit-pop{animation:raidNameCrit .65s ease-out}
-.raid-name.crit-pop::before,.raid-name.crit-pop::after{
-  content:'✦';position:absolute;top:50%;font-size:.55em;opacity:0;pointer-events:none;
-  text-shadow:0 0 8px #ffd700,0 0 14px #fff;
-  color:#ffe566;
-}
-.raid-name.crit-pop::before{left:-.9em;animation:raidStarL .65s ease-out forwards}
-.raid-name.crit-pop::after{right:-.9em;animation:raidStarR .65s ease-out forwards}
-@keyframes raidNameCrit{
-  0%{transform:scale(1) rotate(0)}
-  15%{transform:scale(1.18) rotate(-4deg)}
-  30%{transform:scale(1.12) rotate(4deg)}
-  45%{transform:scale(1.2) rotate(-3deg)}
-  60%{transform:scale(1.08) rotate(2deg)}
-  100%{transform:scale(1) rotate(0)}
-}
-@keyframes raidStarL{
-  0%{opacity:0;transform:translate(0,0) scale(.4)}
-  25%{opacity:1;transform:translate(-8px,-14px) scale(1.2)}
-  100%{opacity:0;transform:translate(-18px,-28px) scale(.6)}
-}
-@keyframes raidStarR{
-  0%{opacity:0;transform:translate(0,0) scale(.4)}
-  25%{opacity:1;transform:translate(8px,-14px) scale(1.2)}
-  100%{opacity:0;transform:translate(18px,-28px) scale(.6)}
-}
-/* Crit screen flash + stronger shake */
-.raid-scene.crit-flash{animation:raidCritFlash .42s ease-out}
-.raid-scene.crit-flash::after{
-  content:'';position:absolute;inset:0;z-index:15;pointer-events:none;
-  background:radial-gradient(circle at 50% 45%,rgba(255,40,40,.45) 0%,rgba(180,0,0,.22) 45%,transparent 70%);
-  animation:raidRedPulse .42s ease-out forwards;
-}
-@keyframes raidCritFlash{
-  0%,100%{transform:translateX(0)}
-  10%{transform:translateX(-10px) translateY(2px)}
-  22%{transform:translateX(10px) translateY(-2px)}
-  34%{transform:translateX(-8px)}
-  48%{transform:translateX(8px)}
-  62%{transform:translateX(-4px)}
-  76%{transform:translateX(4px)}
-}
-@keyframes raidRedPulse{
-  0%{opacity:1}
-  55%{opacity:.75}
-  100%{opacity:0}
-}
 .raid-hp{width:min(380px,92%);z-index:4;margin:0 0 10px}
 .raid-hp-track{height:12px;background:rgba(0,0,0,.72);border:2px solid rgba(255,255,255,.45);border-radius:20px;overflow:hidden}
 .raid-hp-fill{height:100%;width:100%;background:#d84b4b;transition:width .16s ease}
@@ -145,27 +127,22 @@
 .raid-result.show{display:grid}
 .raid-result-card{padding:28px;border-radius:16px;background:rgba(20,20,20,.95);box-shadow:0 15px 50px rgba(0,0,0,.7)}
 #modal-overlay.raid-fullscreen{
-  position:fixed!important;inset:0!important;left:0!important;top:0!important;right:0!important;bottom:0!important;
-  width:100vw!important;height:100dvh!important;min-height:100dvh!important;max-height:100dvh!important;
+  position:fixed!important;inset:0!important;
+  width:100vw!important;height:100dvh!important;
   align-items:stretch!important;justify-content:stretch!important;
   padding:0!important;margin:0!important;background:#000!important;z-index:3000!important;
   display:flex!important;
 }
 #modal-overlay.raid-fullscreen #modal{
   width:100%!important;max-width:none!important;
-  height:100%!important;max-height:none!important;min-height:100%!important;
+  height:100%!important;max-height:none!important;
   overflow:hidden!important;padding:0!important;margin:0!important;
   border:0!important;border-radius:0!important;background:transparent!important;box-shadow:none!important;
-  align-self:stretch!important;
 }
 #modal-overlay.raid-fullscreen #modal-close{display:none!important}
 #modal-overlay.raid-fullscreen #modal-content{
   width:100%!important;height:100%!important;max-height:none!important;
   padding:0!important;margin:0!important;background:transparent!important;border:0!important;border-radius:0!important;
-}
-#modal-overlay.raid-fullscreen .raid-window{
-  width:100%!important;height:100%!important;min-height:100%!important;
-  border-radius:0!important;box-shadow:none!important;background:transparent!important;
 }
 #modal-overlay.raid-fullscreen .raid-scene{
   min-height:100%!important;height:100%!important;width:100%!important;border-radius:0!important;
@@ -173,8 +150,8 @@
   background-size:cover!important;background-position:center center!important;
 }
 #modal-overlay.raid-selection-fullscreen{
-  position:fixed!important;inset:0!important;left:0!important;top:0!important;right:0!important;bottom:0!important;
-  width:100vw!important;height:100dvh!important;min-height:100dvh!important;max-height:100dvh!important;
+  position:fixed!important;inset:0!important;
+  width:100vw!important;height:100dvh!important;
   align-items:stretch!important;justify-content:stretch!important;
   padding:0!important;margin:0!important;
   background:#0c0c0c!important;z-index:3000!important;
@@ -182,10 +159,9 @@
 }
 #modal-overlay.raid-selection-fullscreen #modal{
   width:100%!important;max-width:none!important;
-  height:100%!important;max-height:none!important;min-height:100%!important;
+  height:100%!important;max-height:none!important;
   overflow:hidden!important;padding:0!important;margin:0!important;
   border:0!important;border-radius:0!important;background:transparent!important;box-shadow:none!important;
-  align-self:stretch!important;
 }
 #modal-overlay.raid-selection-fullscreen #modal-close{display:none!important}
 #modal-overlay.raid-selection-fullscreen #modal-content{
@@ -196,7 +172,7 @@
 }
 #modal-overlay.raid-selection-fullscreen .raid-select{
   width:100%!important;max-width:none!important;
-  height:100%!important;max-height:none!important;min-height:100%!important;
+  height:100%!important;max-height:none!important;
   overflow:auto!important;
   padding:calc(14px + env(safe-area-inset-top,0px)) 16px calc(18px + env(safe-area-inset-bottom,0px))!important;
   border-radius:0!important;box-shadow:none!important;
@@ -204,19 +180,12 @@
   color:#fff!important;
   box-sizing:border-box!important;
 }
-#modal-overlay.raid-selection-fullscreen .raid-select-head{
-  position:sticky;top:0;z-index:5;
-  padding-bottom:10px;margin-bottom:12px;
-  background:linear-gradient(180deg,#1a1a1a 70%,transparent);
-}
-#modal-overlay.raid-selection-fullscreen .raid-fighter-list{
-  max-width:720px;width:100%;margin:0 auto;
-}
-.raid-shout{position:absolute;left:50%;top:12%;width:max-content;max-width:min(280px,48vw);padding:8px 12px;border:2px solid rgba(255,255,255,.85);border-radius:14px;background:rgba(8,8,8,.92);color:#fff;font-weight:1000;font-size:clamp(13px,1.6vw,20px);text-align:center;opacity:0;pointer-events:none;z-index:30;transform:translate(-50%,0) scale(.9)}
-.raid-shout.show{animation:raidShoutIn 1.35s ease-out forwards}
-.raid-shout.psikh{border-color:#b85c5c}
-.raid-shout.krest{border-color:#c9b896}
-@keyframes raidShoutIn{0%{opacity:0;transform:translate(-50%,10px) scale(.82)}12%{opacity:1}70%{opacity:1}100%{opacity:0}}
+.raid-fighter-media.hit-pulse{animation:raidHitPulse .42s cubic-bezier(.2,.8,.2,1);transform-origin:50% 90%}
+@keyframes raidHitPulse{0%{transform:scale(1)}18%{transform:scale(.97)}42%{transform:scale(1.03)}100%{transform:scale(1)}}
+.raid-hp.low-hp .raid-hp-fill{background:linear-gradient(90deg,#ff3b3b,#c41e1e)!important}
+.raid-scene.shake{animation:shake .38s cubic-bezier(.36,.07,.19,.97)}
+@keyframes shake{0%,100%{transform:translateX(0)}12%{transform:translateX(-5px)}28%{transform:translateX(5px)}44%{transform:translateX(-3px)}60%{transform:translateX(3px)}}
+.raid-select-actions{display:flex;align-items:center;gap:8px;flex:0 0 auto}
 @media (max-width:700px){
 #modal-overlay.raid-fullscreen .raid-scene{padding:calc(48px + env(safe-area-inset-top,0px)) 8px calc(10px + env(safe-area-inset-bottom,0px));background-color:#0a0a0a;background-size:cover;background-position:center}
 #modal-overlay.raid-fullscreen .raid-scene.talk{background-image:url('./assets/raids/backgrounds/petrovich_vtirach_mobile.png')}
@@ -224,17 +193,4 @@
 #modal-overlay.raid-fullscreen .raid-scene.glaz{background-image:url('./assets/raids/backgrounds/glaz_mobile.jpeg')}
 #modal-overlay.raid-fullscreen .raid-scene.krest{background-image:url('./assets/raids/backgrounds/krest_mobile.jpeg')}
 #modal-overlay.raid-fullscreen .raid-scene.psikh{background-image:url('./assets/raids/backgrounds/%D1%84%D0%BE%D0%BD%D0%9F%D1%81%D0%B8%D1%85%D0%9C%D0%BE%D0%B1%D0%B8%D0%BB%20(1).jpg')}
-#modal-overlay.raid-fullscreen .raid-fighter{width:min(96vw,480px)}
-#modal-overlay.raid-fullscreen .raid-fighter.psikh{width:min(94vw,460px)}
-#modal-overlay.raid-fullscreen .raid-fighter.krest{width:min(92vw,440px)}
 }
-.raid-fighter-media.hit-pulse{animation:raidHitPulse .42s cubic-bezier(.2,.8,.2,1);transform-origin:50% 90%}
-@keyframes raidHitPulse{0%{transform:scale(1)}18%{transform:scale(.97)}42%{transform:scale(1.03)}100%{transform:scale(1)}}
-.raid-hp.low-hp .raid-hp-fill{background:linear-gradient(90deg,#ff3b3b,#c41e1e)!important}
-.raid-scene.shake{animation:shake .38s cubic-bezier(.36,.07,.19,.97)}
-@keyframes shake{0%,100%{transform:translateX(0)}12%{transform:translateX(-5px)}28%{transform:translateX(5px)}44%{transform:translateX(-3px)}60%{transform:translateX(3px)}}
-.raid-blood{position:absolute;z-index:12;pointer-events:none;border-radius:50%;background:radial-gradient(circle at 35% 30%,#e33 0%,#9b0000 55%,#5a0000 100%);opacity:0;animation:raidBloodFly .55s ease-out forwards}
-@keyframes raidBloodFly{0%{opacity:1;transform:translate(0,0) scale(1)}100%{opacity:0;transform:translate(var(--dx),var(--dy)) scale(.4)}}
-.raid-blood-splat{position:absolute;z-index:11;pointer-events:none;width:28px;height:28px;margin:-14px 0 0 -14px;border-radius:50%;background:radial-gradient(circle,#a00 0%,transparent 70%);opacity:0;animation:raidSplat .5s ease-out forwards}
-@keyframes raidSplat{0%{opacity:.8;transform:scale(.3)}100%{opacity:0;transform:scale(1.6)}}
-.raid-select-actions{display:flex;align-items:center;gap:8px;flex:0 0 auto}
