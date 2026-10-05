@@ -22,7 +22,7 @@
   var ARMORS=[
     {id:'tee',name:'Майка',icon:'👕',img:'tee.webp',cost:0,energy:0,crit:0,rarity:'common',shop:true,desc:'Без защиты'},
     {id:'fufayka',name:'Фуфайка',icon:'🧥',cost:1800,energy:15,crit:0,rarity:'common',shop:true,desc:'+15 макс. энергия'},
-    {id:'vatnik',name:'Ватник',icon:'🧶',img:'vatnik.webp',cost:3500,energy:25,crit:0.005,rarity:'common',shop:true,desc:'+25 энергия · +0.5% крит'},
+    {id:'vatnik',name:'Ватник',icon:'🧶',img:'padded_jacket.webp',cost:3500,energy:25,crit:0.005,rarity:'common',shop:true,desc:'+25 энергия · +0.5% крит'},
     {id:'leather',name:'Кожанка',icon:'🧥',img:'leather.webp',cost:15000,energy:45,crit:0.015,rarity:'rare',shop:true,desc:'+45 энергия · +1.5% крит'},
     {id:'crosschain',name:'Цепь с крестом',icon:'✝️',img:'cross_chain.png',cost:28000,energy:60,crit:0.025,rarity:'rare',shop:true,desc:'+60 энергия · +2.5% крит'},
     {id:'plate',name:'Броник',icon:'🛡️',img:'plate.webp',cost:55000,energy:90,crit:0.03,rarity:'extreme',shop:true,desc:'+90 энергия · +3% крит'},

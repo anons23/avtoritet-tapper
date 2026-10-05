@@ -15,14 +15,13 @@ jobs:
           set -e
           cd assets/equipment-icons
 
-          # helpers
           mv_if() { [ -f "$1" ] && git mv -f "$1" "$2" || true; }
           rm_if() { [ -f "$1" ] && git rm -f "$1" || true; }
 
-          # bad / auto names
+          # auto-generated name
           mv_if grok_1791220348303.webp sekira.webp
 
-          # align with item ids / shorter English
+          # shorter clean English
           mv_if crown_of_the_zone.png zone_crown.png
           mv_if knuckle.webp knuckles.webp
           mv_if rusty_nail.png nail.png
@@ -31,16 +30,17 @@ jobs:
           mv_if gold_chain_cross.png cross_chain.png
           mv_if tactical_vest.png vest.png
           mv_if body_armor.webp plate.webp
-          mv_if padded_jacket.webp vatnik.webp
           mv_if tank_top.webp tee.webp
           mv_if shiv.webp shank.webp
           mv_if leather_jacket.webp leather.webp
+          # padded_jacket.webp stays as-is (English)
 
-          # remove unused duplicates / leftovers
+          # unused duplicates
           rm_if padded_jacket.png
           rm_if tank_top.png
           rm_if leather_jacket_gold_chain.png
 
+          echo "=== result ==="
           ls -la
       - name: Commit
         run: |
