@@ -1,36 +1,84 @@
-/* equipment-v2 overlay — prices, rarities, drops, png icons */
+/* equipment-v2 — rebalanced rarities, new items, png icons */
 'use strict';
 (function(){
   var ICON_BASE='./assets/equipment-icons/';
+  /* rarity: common | rare | extreme | authority
+     common raid dmg: 2–6 */
   var WEAPONS=[
     {id:'fists',name:'Кулаки',icon:'👊',img:'fists.png',cost:0,power:0,raid:0,rarity:'common',shop:true,desc:'Голые руки'},
-    {id:'knuckles',name:'Кастет',icon:'✊',img:'knuckle.png',cost:5000,power:1,raid:50,rarity:'common',shop:true,desc:'+1 сила · +50 урон в рейдах'},
-    {id:'shank',name:'Заточка',icon:'🗡️',img:'shiv.png',cost:18000,power:2,raid:110,rarity:'uncommon',shop:true,desc:'+2 сила · +110 урон в рейдах'},
-    {id:'bat',name:'Бита',icon:'🏏',img:'bat.png',cost:55000,power:4,raid:220,rarity:'rare',shop:true,desc:'+4 сила · +220 урон в рейдах'},
-    {id:'pipe',name:'Труба',icon:'🔩',img:'pipe.png',cost:140000,power:6,raid:350,rarity:'epic',shop:true,desc:'+6 сила · +350 урон в рейдах'},
-    {id:'razor',name:'Бритва',icon:'🪒',cost:0,power:5,raid:280,rarity:'rare',shop:false,desc:'Только из рейдов · +5 сила · +280 урон'},
-    {id:'chain',name:'Цепь',icon:'⛓️',cost:0,power:8,raid:420,rarity:'epic',shop:false,desc:'Только из рейдов · +8 сила · +420 урон'},
-    {id:'authority',name:'Авторитетка',icon:'⚔️',cost:0,power:12,raid:600,rarity:'legendary',shop:false,desc:'Только с босса · +12 сила · +600 урон'}
+    {id:'nail',name:'Ржавый гвоздь',icon:'📌',cost:800,power:0,raid:2,rarity:'common',shop:true,desc:'+2 урон в рейдах'},
+    {id:'glass',name:'Осколок стекла',icon:'🔪',cost:1200,power:0,raid:3,rarity:'common',shop:true,desc:'+3 урон в рейдах'},
+    {id:'knuckles',name:'Кастет',icon:'✊',img:'knuckle.png',cost:2500,power:0,raid:5,rarity:'common',shop:true,desc:'+5 урон в рейдах'},
+    {id:'awl',name:'Шило',icon:'📍',cost:4000,power:0,raid:6,rarity:'common',shop:true,desc:'+6 урон в рейдах'},
+    {id:'hammer',name:'Молоток',icon:'🔨',cost:12000,power:1,raid:18,rarity:'rare',shop:true,desc:'+1 сила · +18 урон в рейдах'},
+    {id:'shank',name:'Заточка',icon:'🗡️',img:'shiv.png',cost:18000,power:1,raid:24,rarity:'rare',shop:true,desc:'+1 сила · +24 урон в рейдах'},
+    {id:'bat',name:'Бита',icon:'🏏',img:'bat.png',cost:35000,power:2,raid:36,rarity:'rare',shop:true,desc:'+2 сила · +36 урон в рейдах'},
+    {id:'butterfly',name:'Нож-бабочка',icon:'🦋',cost:0,power:3,raid:55,rarity:'extreme',shop:false,desc:'Только из рейдов · +3 сила · +55 урон'},
+    {id:'razor',name:'Бритва',icon:'🪒',cost:0,power:3,raid:70,rarity:'extreme',shop:false,desc:'Только из рейдов · +3 сила · +70 урон'},
+    {id:'pipe',name:'Труба',icon:'🔩',img:'pipe.png',cost:90000,power:4,raid:90,rarity:'extreme',shop:true,desc:'+4 сила · +90 урон в рейдах'},
+    {id:'chain',name:'Цепь',icon:'⛓️',cost:0,power:5,raid:110,rarity:'extreme',shop:false,desc:'Только из рейдов · +5 сила · +110 урон'},
+    {id:'authority',name:'Авторитетка',icon:'⚔️',cost:0,power:8,raid:200,rarity:'authority',shop:false,desc:'Только с босса · +8 сила · +200 урон'}
   ];
   var ARMORS=[
     {id:'tee',name:'Майка',icon:'👕',img:'tank_top.png',cost:0,energy:0,crit:0,rarity:'common',shop:true,desc:'Без защиты'},
-    {id:'vatnik',name:'Ватник',icon:'🧶',img:'padded_jacket.png',cost:7000,energy:30,crit:0.01,rarity:'common',shop:true,desc:'+30 макс. энергия'},
-    {id:'leather',name:'Кожанка',icon:'🧥',img:'leather_jacket.png',cost:28000,energy:60,crit:0.02,rarity:'uncommon',shop:true,desc:'+60 энергия · +2% крит'},
-    {id:'plate',name:'Броник',icon:'🛡️',img:'body_armor.png',cost:95000,energy:120,crit:0.04,rarity:'rare',shop:true,desc:'+120 энергия · +4% крит'},
-    {id:'vest',name:'Разгрузка',icon:'🦺',cost:0,energy:100,crit:0.03,rarity:'epic',shop:false,desc:'Только из рейдов · +100 энергия · +3% крит'},
-    {id:'crown',name:'Корона зоны',icon:'👑',cost:0,energy:180,crit:0.06,rarity:'legendary',shop:false,desc:'Только с босса · +180 энергия · +6% крит'}
+    {id:'telnyashka',name:'Тельняшка',icon:'🎽',cost:900,energy:8,crit:0,rarity:'common',shop:true,desc:'+8 макс. энергия'},
+    {id:'fufayka',name:'Фуфайка',icon:'🧥',cost:1800,energy:15,crit:0,rarity:'common',shop:true,desc:'+15 макс. энергия'},
+    {id:'vatnik',name:'Ватник',icon:'🧶',img:'padded_jacket.png',cost:3500,energy:25,crit:0.005,rarity:'common',shop:true,desc:'+25 энергия · +0.5% крит'},
+    {id:'leather',name:'Кожанка',icon:'🧥',img:'leather_jacket.png',cost:15000,energy:45,crit:0.015,rarity:'rare',shop:true,desc:'+45 энергия · +1.5% крит'},
+    {id:'robe',name:'Халат',icon:'🥼',cost:22000,energy:55,crit:0.02,rarity:'rare',shop:true,desc:'+55 энергия · +2% крит'},
+    {id:'plate',name:'Броник',icon:'🛡️',img:'body_armor.png',cost:55000,energy:90,crit:0.03,rarity:'extreme',shop:true,desc:'+90 энергия · +3% крит'},
+    {id:'vest',name:'Разгрузка',icon:'🦺',cost:0,energy:110,crit:0.04,rarity:'extreme',shop:false,desc:'Только из рейдов · +110 энергия · +4% крит'},
+    {id:'crown',name:'Корона зоны',icon:'👑',cost:0,energy:160,crit:0.06,rarity:'authority',shop:false,desc:'Только с босса · +160 энергия · +6% крит'}
   ];
-  var RL={common:'Обычное',uncommon:'Необычное',rare:'Редкое',epic:'Эпическое',legendary:'Легендарное'};
-  var RC={common:'#b0b0b0',uncommon:'#5dcf6e',rare:'#5da8ff',epic:'#c77dff',legendary:'#ffb84d'};
+
+  var RL={common:'Обычное',rare:'Редкое',extreme:'Крайне редкое',authority:'Авторитетное'};
+  var RC={common:'#9a9a9a',rare:'#3dcf5a',extreme:'#e74c3c',authority:'#ffd24a'};
+
   var DROPS={
-    petrovich:[{id:'knuckles',kind:'weapon',chance:0.18},{id:'vatnik',kind:'armor',chance:0.14}],
-    vtirach:[{id:'knuckles',kind:'weapon',chance:0.2},{id:'shank',kind:'weapon',chance:0.1},{id:'vatnik',kind:'armor',chance:0.16}],
-    mafioznik:[{id:'shank',kind:'weapon',chance:0.18},{id:'bat',kind:'weapon',chance:0.08},{id:'leather',kind:'armor',chance:0.12}],
-    mongol:[{id:'bat',kind:'weapon',chance:0.14},{id:'razor',kind:'weapon',chance:0.08},{id:'leather',kind:'armor',chance:0.14}],
-    glaz:[{id:'razor',kind:'weapon',chance:0.12},{id:'pipe',kind:'weapon',chance:0.06},{id:'plate',kind:'armor',chance:0.1}],
-    krest:[{id:'pipe',kind:'weapon',chance:0.1},{id:'chain',kind:'weapon',chance:0.06},{id:'vest',kind:'armor',chance:0.08},{id:'plate',kind:'armor',chance:0.1}],
-    psikh:[{id:'authority',kind:'weapon',chance:0.12},{id:'crown',kind:'armor',chance:0.12},{id:'chain',kind:'weapon',chance:0.18},{id:'vest',kind:'armor',chance:0.15}]
+    petrovich:[
+      {id:'nail',kind:'weapon',chance:0.22},
+      {id:'glass',kind:'weapon',chance:0.18},
+      {id:'knuckles',kind:'weapon',chance:0.1},
+      {id:'telnyashka',kind:'armor',chance:0.16},
+      {id:'fufayka',kind:'armor',chance:0.12}
+    ],
+    vtirach:[
+      {id:'glass',kind:'weapon',chance:0.14},
+      {id:'awl',kind:'weapon',chance:0.12},
+      {id:'knuckles',kind:'weapon',chance:0.1},
+      {id:'vatnik',kind:'armor',chance:0.14},
+      {id:'fufayka',kind:'armor',chance:0.1}
+    ],
+    mafioznik:[
+      {id:'hammer',kind:'weapon',chance:0.12},
+      {id:'shank',kind:'weapon',chance:0.1},
+      {id:'leather',kind:'armor',chance:0.1}
+    ],
+    mongol:[
+      {id:'bat',kind:'weapon',chance:0.1},
+      {id:'hammer',kind:'weapon',chance:0.1},
+      {id:'robe',kind:'armor',chance:0.08},
+      {id:'leather',kind:'armor',chance:0.1}
+    ],
+    glaz:[
+      {id:'butterfly',kind:'weapon',chance:0.08},
+      {id:'razor',kind:'weapon',chance:0.07},
+      {id:'plate',kind:'armor',chance:0.07}
+    ],
+    krest:[
+      {id:'pipe',kind:'weapon',chance:0.07},
+      {id:'chain',kind:'weapon',chance:0.06},
+      {id:'vest',kind:'armor',chance:0.07},
+      {id:'butterfly',kind:'weapon',chance:0.06}
+    ],
+    psikh:[
+      {id:'authority',kind:'weapon',chance:0.1},
+      {id:'crown',kind:'armor',chance:0.1},
+      {id:'chain',kind:'weapon',chance:0.12},
+      {id:'vest',kind:'armor',chance:0.12}
+    ]
   };
+
   function st(){return window.s||null}
   function fmt(n){n=Math.floor(Number(n)||0);return n.toString().replace(/\B(?=(\d{3})+(?!\d))/g,' ')}
   function save(){try{if(typeof window.saveNow==='function')window.saveNow()}catch(e){}}
@@ -66,12 +114,12 @@
     var onlyDrop=item.shop===false&&!owned;
     var btn='';
     if(isOn)btn='<span class="eq-badge eq-on">Надето</span>';
-    else if(owned)btn='<button type="button" class="eq-btn" data-eq="'+kind+'" data-id="'+item.id+'">Надеть</button>';
+    else if(owned)btn='<button type="button" class="eq-btn" data-eq="'+kind+'" data-id="'+item.id+'">Выбрать</button>';
     else if(canBuy)btn='<button type="button" class="eq-btn" data-buy="'+kind+'" data-id="'+item.id+'">'+fmt(item.cost)+' 🍵</button>';
     else if(onlyDrop)btn='<span class="eq-badge eq-drop">Дроп</span>';
     else btn='<span class="eq-badge">—</span>';
     return '<div class="eq-card eq-r-'+item.rarity+(isOn?' eq-equipped':'')+'">'
-      +'<div class="eq-icon">'+iconHtml(item)+'</div>'
+      +'<div class="eq-icon eq-icon-'+item.rarity+'">'+iconHtml(item)+'</div>'
       +'<div class="eq-body"><b>'+item.name+' '+rarityTag(item.rarity)+'</b><small>'+item.desc+'</small></div>'
       +btn+'</div>';
   }
@@ -81,7 +129,7 @@
     var w=s.equipment.weapon||'fists';
     var a=s.equipment.armor||'tee';
     var html='<div class="eq-window"><div class="eq-kicker">СНАРЯЖЕНИЕ</div><h2>Оружие и броня</h2>';
-    html+='<p class="eq-sub">Чем круче вещь — тем выше урон в рейдах и бонусы</p>';
+    html+='<p class="eq-sub">Обычное — серое · Редкое — зелёное · Крайне редкое — красное · Авторитетное — золото</p>';
     html+='<div class="eq-section"><b>🗡 Оружие</b>';
     WEAPONS.forEach(function(it){html+=card(it,'weapon',s.ownedWeapons.indexOf(it.id)>=0,w)});
     html+='</div><div class="eq-section"><b>🛡 Броня</b>';
@@ -113,7 +161,7 @@
         var kind=btn.dataset.eq,id=btn.dataset.id;
         if(kind==='weapon'){if(s.ownedWeapons.indexOf(id)<0)return;s.equipment.weapon=id}
         else{if(s.ownedArmor.indexOf(id)<0)return;s.equipment.armor=id}
-        var item=find(id,kind);msg((item.icon||'')+' Надел: '+item.name);save();ui();openEquipment();
+        var item=find(id,kind);msg((item.icon||'')+' Выбрал: '+item.name);save();ui();openEquipment();
       };
     });
   }
@@ -141,5 +189,5 @@
   window.getEquipRaidBonus=function(){var s=st();if(!s||!s.equipment)return 0;var w=WEAPONS.find(function(x){return x.id===s.equipment.weapon});return w?Number(w.raid)||0:0};
   window.getEffectivePower=function(){var s=st();if(!s)return 1;var w=WEAPONS.find(function(x){return x.id===(s.equipment&&s.equipment.weapon)});var bonus=w?Number(w.power)||0:0;return Math.max(1,(Number(s.power)||1)+bonus)};
   window.getEffectiveCrit=function(){var s=st();if(!s)return 0.05;var a=ARMORS.find(function(x){return x.id===(s.equipment&&s.equipment.armor)});var bonus=a?Number(a.crit)||0:0;return Math.min(0.55,(Number(s.critChance)||0.05)+bonus)};
-  console.log('[equipment-v2] png icons v2.2');
+  console.log('[equipment-v2] rebalance v2.3');
 })();
