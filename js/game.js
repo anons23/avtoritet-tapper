@@ -284,12 +284,22 @@ function shop(){
     '<button type="button" data-b="c">🎯 <b>Крит</b><br><small>+2% · сейчас '+Math.round(s.critChance*100)+'%</small><br>Цена '+costC+' 🍵</button>'+
     '<button type="button" data-b="e">⚡ <b>Энергия</b><br><small>+25 макс · сейчас '+s.maxEnergy+'</small><br>Цена '+costE+' 🍵</button>'+
     '<button type="button" data-b="d">🔥 <b>Ускоритель</b><br><small>×2 на 100 тапов · '+(s.boosters.double||0)+'</small><br>Цена 500 🍵</button>'+
-    '</div></div>'
+    '</div>'+
+    '<button type="button" id="shop-eq-btn" class="eq-btn shop-eq-link" style="width:100%;margin:12px 0 0;padding:12px;font-size:14px">⚔️ Оружие и броня</button>'+
+    '</div>'
   );
   document.querySelectorAll('[data-b]').forEach(b=>{
     b.style.pointerEvents = 'auto';
     b.addEventListener('click', (e)=>{ e.preventDefault(); e.stopPropagation(); buy(b); });
   });
+  var eqBtn=document.getElementById('shop-eq-btn');
+  if(eqBtn){
+    eqBtn.addEventListener('click', function(e){
+      e.preventDefault(); e.stopPropagation();
+      if(typeof window.openEquipment==='function') window.openEquipment();
+      else if(typeof window.msg==='function') window.msg('⚔️ Снаряжение ещё загружается…');
+    });
+  }
   function buy(b){
     const type = b.dataset.b;
     const cost = type==='p' ? costP : type==='c' ? costC : type==='e' ? costE : 500;

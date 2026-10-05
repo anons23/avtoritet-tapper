@@ -184,10 +184,39 @@
     if(got.length){save();return got}
     return null;
   }
+  function $(id){return document.getElementById(id);}
+  function injectShopTab(){
+    var content=$('modal-content');
+    if(!content) return;
+    if(content.querySelector('.shop-eq-link')) return;
+    var h2=content.querySelector('h2');
+    if(!h2 || h2.textContent.indexOf('Качалка')<0) return;
+    var link=document.createElement('button');
+    link.type='button';
+    link.className='eq-btn shop-eq-link';
+    link.id='shop-eq-btn';
+    link.style.cssText='width:100%;margin:12px 0 0;padding:12px;font-size:14px';
+    link.textContent='⚔️ Оружие и броня';
+    link.addEventListener('click', function(e){ e.preventDefault(); e.stopPropagation(); openEquipment(); });
+    var grid=content.querySelector('.shop-grid');
+    if(grid && grid.parentNode) grid.parentNode.appendChild(link);
+    else if(h2.parentNode) h2.parentNode.appendChild(link);
+  }
+  function bootEq(){
+    var overlay=$('modal-overlay');
+    if(overlay){
+      new MutationObserver(function(){ setTimeout(injectShopTab, 20); })
+        .observe(overlay, {childList:true, subtree:true, attributes:true});
+    }
+    var shop=$('btn-shop');
+    if(shop) shop.addEventListener('click', function(){ setTimeout(injectShopTab, 30); setTimeout(injectShopTab, 120); });
+  }
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded', bootEq);
+  else bootEq();
   window.__raidTryDrop=tryDrop;
   window.openEquipment=openEquipment;
   window.getEquipRaidBonus=function(){var s=st();if(!s||!s.equipment)return 0;var w=WEAPONS.find(function(x){return x.id===s.equipment.weapon});return w?Number(w.raid)||0:0};
   window.getEffectivePower=function(){var s=st();if(!s)return 1;var w=WEAPONS.find(function(x){return x.id===(s.equipment&&s.equipment.weapon)});var bonus=w?Number(w.power)||0:0;return Math.max(1,(Number(s.power)||1)+bonus)};
   window.getEffectiveCrit=function(){var s=st();if(!s)return 0.05;var a=ARMORS.find(function(x){return x.id===(s.equipment&&s.equipment.armor)});var bonus=a?Number(a.crit)||0:0;return Math.min(0.55,(Number(s.critChance)||0.05)+bonus)};
-  console.log('[equipment-v2] rebalance v2.3');
+  console.log('[equipment-v2] rebalance v2.5');
 })();
