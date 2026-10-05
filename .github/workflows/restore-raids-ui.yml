@@ -1,0 +1,33 @@
+name: Restore raids-ui.js
+on:
+  workflow_dispatch:
+jobs:
+  restore:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: fix/yandex-16plus-stability
+          fetch-depth: 20
+      - name: Restore raids-ui.js from webp commit and fix jpg
+        run: |
+          git show ab4417616d7e1ffcfaea4db6dc669bfb1f709388:js/raids-ui.js > js/raids-ui.js
+          python3 - <<'PY'
+          from pathlib import Path
+          p = Path('js/raids-ui.js')
+          t = p.read_text(encoding='utf-8')
+          t = t.replace('.jpg', '.webp')
+          p.write_text(t, encoding='utf-8')
+          print('size', p.stat().st_size)
+          assert 'startRaid' in t
+          assert '.jpg' not in t
+          PY
+      - name: Commit and push
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add js/raids-ui.js
+          git commit -m "restore: full raids-ui.js with webp asset refs" || echo "no change"
+          git push origin HEAD:fix/yandex-16plus-stability
