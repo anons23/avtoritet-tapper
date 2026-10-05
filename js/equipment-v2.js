@@ -1,21 +1,22 @@
-/* equipment-v2 overlay — prices, rarities, drops */
+/* equipment-v2 overlay — prices, rarities, drops, png icons */
 'use strict';
 (function(){
+  var ICON_BASE='./assets/equipment-icons/';
   var WEAPONS=[
-    {id:'fists',name:'Кулаки',icon:'👊',cost:0,power:0,raid:0,rarity:'common',shop:true,desc:'Голые руки'},
-    {id:'knuckles',name:'Кастет',icon:'✊',cost:5000,power:1,raid:50,rarity:'common',shop:true,desc:'+1 сила · +50 урон в рейдах'},
-    {id:'shank',name:'Заточка',icon:'🗡️',cost:18000,power:2,raid:110,rarity:'uncommon',shop:true,desc:'+2 сила · +110 урон в рейдах'},
-    {id:'bat',name:'Бита',icon:'🏏',cost:55000,power:4,raid:220,rarity:'rare',shop:true,desc:'+4 сила · +220 урон в рейдах'},
-    {id:'pipe',name:'Труба',icon:'🔩',cost:140000,power:6,raid:350,rarity:'epic',shop:true,desc:'+6 сила · +350 урон в рейдах'},
+    {id:'fists',name:'Кулаки',icon:'👊',img:'fists.png',cost:0,power:0,raid:0,rarity:'common',shop:true,desc:'Голые руки'},
+    {id:'knuckles',name:'Кастет',icon:'✊',img:'knuckle.png',cost:5000,power:1,raid:50,rarity:'common',shop:true,desc:'+1 сила · +50 урон в рейдах'},
+    {id:'shank',name:'Заточка',icon:'🗡️',img:'shiv.png',cost:18000,power:2,raid:110,rarity:'uncommon',shop:true,desc:'+2 сила · +110 урон в рейдах'},
+    {id:'bat',name:'Бита',icon:'🏏',img:'bat.png',cost:55000,power:4,raid:220,rarity:'rare',shop:true,desc:'+4 сила · +220 урон в рейдах'},
+    {id:'pipe',name:'Труба',icon:'🔩',img:'pipe.png',cost:140000,power:6,raid:350,rarity:'epic',shop:true,desc:'+6 сила · +350 урон в рейдах'},
     {id:'razor',name:'Бритва',icon:'🪒',cost:0,power:5,raid:280,rarity:'rare',shop:false,desc:'Только из рейдов · +5 сила · +280 урон'},
     {id:'chain',name:'Цепь',icon:'⛓️',cost:0,power:8,raid:420,rarity:'epic',shop:false,desc:'Только из рейдов · +8 сила · +420 урон'},
     {id:'authority',name:'Авторитетка',icon:'⚔️',cost:0,power:12,raid:600,rarity:'legendary',shop:false,desc:'Только с босса · +12 сила · +600 урон'}
   ];
   var ARMORS=[
-    {id:'tee',name:'Майка',icon:'👕',cost:0,energy:0,crit:0,rarity:'common',shop:true,desc:'Без защиты'},
-    {id:'vatnik',name:'Ватник',icon:'🧶',cost:7000,energy:30,crit:0.01,rarity:'common',shop:true,desc:'+30 макс. энергия'},
-    {id:'leather',name:'Кожанка',icon:'🧥',cost:28000,energy:60,crit:0.02,rarity:'uncommon',shop:true,desc:'+60 энергия · +2% крит'},
-    {id:'plate',name:'Броник',icon:'🛡️',cost:95000,energy:120,crit:0.04,rarity:'rare',shop:true,desc:'+120 энергия · +4% крит'},
+    {id:'tee',name:'Майка',icon:'👕',img:'tank_top.png',cost:0,energy:0,crit:0,rarity:'common',shop:true,desc:'Без защиты'},
+    {id:'vatnik',name:'Ватник',icon:'🧶',img:'padded_jacket.png',cost:7000,energy:30,crit:0.01,rarity:'common',shop:true,desc:'+30 макс. энергия'},
+    {id:'leather',name:'Кожанка',icon:'🧥',img:'leather_jacket.png',cost:28000,energy:60,crit:0.02,rarity:'uncommon',shop:true,desc:'+60 энергия · +2% крит'},
+    {id:'plate',name:'Броник',icon:'🛡️',img:'body_armor.png',cost:95000,energy:120,crit:0.04,rarity:'rare',shop:true,desc:'+120 энергия · +4% крит'},
     {id:'vest',name:'Разгрузка',icon:'🦺',cost:0,energy:100,crit:0.03,rarity:'epic',shop:false,desc:'Только из рейдов · +100 энергия · +3% крит'},
     {id:'crown',name:'Корона зоны',icon:'👑',cost:0,energy:180,crit:0.06,rarity:'legendary',shop:false,desc:'Только с босса · +180 энергия · +6% крит'}
   ];
@@ -48,6 +49,12 @@
     for(var i=0;i<arr.length;i++)if(arr[i].id===id)return arr[i];
     return null;
   }
+  function iconHtml(item){
+    if(item && item.img){
+      return '<img class="eq-icon-img" src="'+ICON_BASE+item.img+'" alt="" draggable="false">';
+    }
+    return item && item.icon ? item.icon : '';
+  }
   function rarityTag(r){
     var c=RC[r]||'#aaa';
     var n=RL[r]||r;
@@ -64,7 +71,7 @@
     else if(onlyDrop)btn='<span class="eq-badge eq-drop">Дроп</span>';
     else btn='<span class="eq-badge">—</span>';
     return '<div class="eq-card eq-r-'+item.rarity+(isOn?' eq-equipped':'')+'">'
-      +'<div class="eq-icon">'+item.icon+'</div>'
+      +'<div class="eq-icon">'+iconHtml(item)+'</div>'
       +'<div class="eq-body"><b>'+item.name+' '+rarityTag(item.rarity)+'</b><small>'+item.desc+'</small></div>'
       +btn+'</div>';
   }
@@ -97,7 +104,7 @@
         s.chifir-=item.cost;
         if(kind==='weapon'){if(s.ownedWeapons.indexOf(id)<0)s.ownedWeapons.push(id);s.equipment.weapon=id}
         else{if(s.ownedArmor.indexOf(id)<0)s.ownedArmor.push(id);s.equipment.armor=id}
-        msg(item.icon+' Купил и надел: '+item.name);save();ui();openEquipment();
+        msg((item.icon||'')+' Купил и надел: '+item.name);save();ui();openEquipment();
       };
     });
     document.querySelectorAll('[data-eq]').forEach(function(btn){
@@ -106,7 +113,7 @@
         var kind=btn.dataset.eq,id=btn.dataset.id;
         if(kind==='weapon'){if(s.ownedWeapons.indexOf(id)<0)return;s.equipment.weapon=id}
         else{if(s.ownedArmor.indexOf(id)<0)return;s.equipment.armor=id}
-        var item=find(id,kind);msg(item.icon+' Надел: '+item.name);save();ui();openEquipment();
+        var item=find(id,kind);msg((item.icon||'')+' Надел: '+item.name);save();ui();openEquipment();
       };
     });
   }
@@ -134,5 +141,5 @@
   window.getEquipRaidBonus=function(){var s=st();if(!s||!s.equipment)return 0;var w=WEAPONS.find(function(x){return x.id===s.equipment.weapon});return w?Number(w.raid)||0:0};
   window.getEffectivePower=function(){var s=st();if(!s)return 1;var w=WEAPONS.find(function(x){return x.id===(s.equipment&&s.equipment.weapon)});var bonus=w?Number(w.power)||0:0;return Math.max(1,(Number(s.power)||1)+bonus)};
   window.getEffectiveCrit=function(){var s=st();if(!s)return 0.05;var a=ARMORS.find(function(x){return x.id===(s.equipment&&s.equipment.armor)});var bonus=a?Number(a.crit)||0:0;return Math.min(0.55,(Number(s.critChance)||0.05)+bonus)};
-  console.log('[equipment-v2] icons v2.1');
+  console.log('[equipment-v2] png icons v2.2');
 })();
