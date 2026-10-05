@@ -1,4 +1,4 @@
-/* equipment-v2 — rebalanced rarities, new items, png icons */
+/* equipment-v2 — rebalanced rarities, new items, webp icons */
 'use strict';
 (function(){
   var ICON_BASE='./assets/equipment-icons/';
@@ -79,9 +79,9 @@
     ]
   };
 
-  function st(){return window.s||null}
+  function st(){try{if(typeof window.getGameState==='function'){var g=window.getGameState();if(g)return g}}catch(e){} return window.s||null}
   function fmt(n){n=Math.floor(Number(n)||0);return n.toString().replace(/\B(?=(\d{3})+(?!\d))/g,' ')}
-  function save(){try{if(typeof window.saveNow==='function')window.saveNow()}catch(e){}}
+  function save(){try{if(typeof window.saveGame==='function')window.saveGame();else if(typeof window.saveNow==='function')window.saveNow()}catch(e){}}
   function ui(){try{if(typeof window.ui==='function')window.ui()}catch(e){}}
   function msg(t){var e=document.getElementById('event-message');if(e){e.textContent=t;e.classList.add('show');setTimeout(function(){e.classList.remove('show')},2200)}}
   function ensure(){
@@ -125,7 +125,11 @@
   }
   function openEquipment(){
     ensure();
-    var s=st();if(!s)return;
+    var s=st();
+    if(!s){
+      msg('⚔️ Игра ещё загружается…');
+      return;
+    }
     var w=s.equipment.weapon||'fists';
     var a=s.equipment.armor||'tee';
     var html='<div class="eq-window"><div class="eq-kicker">СНАРЯЖЕНИЕ</div><h2>Оружие и броня</h2>';
@@ -218,5 +222,5 @@
   window.getEquipRaidBonus=function(){var s=st();if(!s||!s.equipment)return 0;var w=WEAPONS.find(function(x){return x.id===s.equipment.weapon});return w?Number(w.raid)||0:0};
   window.getEffectivePower=function(){var s=st();if(!s)return 1;var w=WEAPONS.find(function(x){return x.id===(s.equipment&&s.equipment.weapon)});var bonus=w?Number(w.power)||0:0;return Math.max(1,(Number(s.power)||1)+bonus)};
   window.getEffectiveCrit=function(){var s=st();if(!s)return 0.05;var a=ARMORS.find(function(x){return x.id===(s.equipment&&s.equipment.armor)});var bonus=a?Number(a.crit)||0:0;return Math.min(0.55,(Number(s.critChance)||0.05)+bonus)};
-  console.log('[equipment-v2] rebalance v2.5');
+  console.log('[equipment-v2] rebalance v2.6');
 })();
