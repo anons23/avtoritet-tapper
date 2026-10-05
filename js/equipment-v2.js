@@ -17,7 +17,7 @@
     {id:'knuckles',name:'Кастет',icon:'✊',img:'knuckle.webp',cost:0,power:4,raid:85,rarity:'extreme',shop:false,desc:'Только из рейдов · +4 сила · +85 урон'},
     {id:'pipe',name:'Труба',icon:'🔩',img:'pipe.webp',cost:90000,power:4,raid:90,rarity:'extreme',shop:true,desc:'+4 сила · +90 урон в рейдах'},
     {id:'chain',name:'Цепь',icon:'⛓️',img:'chain.png',cost:0,power:5,raid:110,rarity:'extreme',shop:false,desc:'Только из рейдов · +5 сила · +110 урон'},
-    {id:'authority',name:'Авторитетка',icon:'⚔️',cost:0,power:8,raid:200,rarity:'authority',shop:false,desc:'Только с босса · +8 сила · +200 урон'}
+    {id:'authority',name:'Секира',icon:'🪓',cost:0,power:8,raid:200,rarity:'authority',shop:false,desc:'Только с босса · +8 сила · +200 урон'}
   ];
   var ARMORS=[
     {id:'tee',name:'Майка',icon:'👕',img:'tank_top.webp',cost:0,energy:0,crit:0,rarity:'common',shop:true,desc:'Без защиты'},
@@ -223,5 +223,5 @@
   window.getEquipRaidBonus=function(){var s=st();if(!s||!s.equipment)return 0;var w=WEAPONS.find(function(x){return x.id===s.equipment.weapon});return w?Number(w.raid)||0:0};
   window.getEffectivePower=function(){var s=st();if(!s)return 1;var w=WEAPONS.find(function(x){return x.id===(s.equipment&&s.equipment.weapon)});var bonus=w?Number(w.power)||0:0;return Math.max(1,(Number(s.power)||1)+bonus)};
   window.getEffectiveCrit=function(){var s=st();if(!s)return 0.05;var a=ARMORS.find(function(x){return x.id===(s.equipment&&s.equipment.armor)});var bonus=a?Number(a.crit)||0:0;return Math.min(0.55,(Number(s.critChance)||0.05)+bonus)};
-  console.log('[equipment-v2] rebalance v2.8');
+  console.log('[equipment-v2] rebalance v2.9');
 })();
