@@ -1,0 +1,55 @@
+name: Rename equipment icons
+on:
+  workflow_dispatch:
+    inputs:
+      target_branch:
+        description: 'Branch to rename icons on'
+        required: true
+        default: 'fix/yandex-16plus-stability'
+jobs:
+  rename:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.inputs.target_branch }}
+      - name: Rename icons to clean English names
+        run: |
+          set -e
+          cd assets/equipment-icons
+
+          mv_if() { [ -f "$1" ] && git mv -f "$1" "$2" || true; }
+          rm_if() { [ -f "$1" ] && git rm -f "$1" || true; }
+
+          mv_if grok_1791220348303.webp sekira.webp
+          mv_if crown_of_the_zone.png zone_crown.png
+          mv_if knuckle.webp knuckles.webp
+          mv_if rusty_nail.png nail.png
+          mv_if glass_shard.png glass.png
+          mv_if butterfly_knife.png butterfly.png
+          mv_if gold_chain_cross.png cross_chain.png
+          mv_if tactical_vest.png vest.png
+          mv_if body_armor.webp plate.webp
+          mv_if tank_top.webp tee.webp
+          mv_if shiv.webp shank.webp
+          mv_if leather_jacket.webp leather.webp
+
+          rm_if padded_jacket.png
+          rm_if tank_top.png
+          rm_if leather_jacket_gold_chain.png
+
+          echo "=== result ==="
+          ls -la
+      - name: Commit
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add -A assets/equipment-icons
+          if git diff --cached --quiet; then
+            echo "No icon changes"
+          else
+            git commit -m "chore: normalize equipment icon filenames (English)"
+            git push origin HEAD:${{ github.event.inputs.target_branch }}
+          fi
