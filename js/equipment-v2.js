@@ -21,7 +21,6 @@
   ];
   var ARMORS=[
     {id:'tee',name:'Майка',icon:'👕',img:'tank_top.webp',cost:0,energy:0,crit:0,rarity:'common',shop:true,desc:'Без защиты'},
-    {id:'telnyashka',name:'Тельняшка',icon:'🎽',cost:900,energy:8,crit:0,rarity:'common',shop:true,desc:'+8 макс. энергия'},
     {id:'fufayka',name:'Фуфайка',icon:'🧥',cost:1800,energy:15,crit:0,rarity:'common',shop:true,desc:'+15 макс. энергия'},
     {id:'vatnik',name:'Ватник',icon:'🧶',img:'padded_jacket.webp',cost:3500,energy:25,crit:0.005,rarity:'common',shop:true,desc:'+25 энергия · +0.5% крит'},
     {id:'leather',name:'Кожанка',icon:'🧥',img:'leather_jacket.webp',cost:15000,energy:45,crit:0.015,rarity:'rare',shop:true,desc:'+45 энергия · +1.5% крит'},
@@ -39,7 +38,6 @@
       {id:'nail',kind:'weapon',chance:0.22},
       {id:'glass',kind:'weapon',chance:0.18},
       {id:'razor',kind:'weapon',chance:0.14},
-      {id:'telnyashka',kind:'armor',chance:0.16},
       {id:'fufayka',kind:'armor',chance:0.12}
     ],
     vtirach:[
@@ -92,6 +90,11 @@
     if(!s.ownedArmor)s.ownedArmor=['tee'];
     if(s.ownedWeapons.indexOf('fists')<0)s.ownedWeapons.unshift('fists');
     if(s.ownedArmor.indexOf('tee')<0)s.ownedArmor.unshift('tee');
+    if(s.equipment.armor==='telnyashka')s.equipment.armor='tee';
+    if(s.ownedArmor){
+      var i=s.ownedArmor.indexOf('telnyashka');
+      if(i>=0)s.ownedArmor.splice(i,1);
+    }
   }
   function find(id,kind){
     var arr=kind==='weapon'?WEAPONS:ARMORS;
@@ -223,5 +226,5 @@
   window.getEquipRaidBonus=function(){var s=st();if(!s||!s.equipment)return 0;var w=WEAPONS.find(function(x){return x.id===s.equipment.weapon});return w?Number(w.raid)||0:0};
   window.getEffectivePower=function(){var s=st();if(!s)return 1;var w=WEAPONS.find(function(x){return x.id===(s.equipment&&s.equipment.weapon)});var bonus=w?Number(w.power)||0:0;return Math.max(1,(Number(s.power)||1)+bonus)};
   window.getEffectiveCrit=function(){var s=st();if(!s)return 0.05;var a=ARMORS.find(function(x){return x.id===(s.equipment&&s.equipment.armor)});var bonus=a?Number(a.crit)||0:0;return Math.min(0.55,(Number(s.critChance)||0.05)+bonus)};
-  console.log('[equipment-v2] rebalance v2.9');
+  console.log('[equipment-v2] rebalance v3.0');
 })();
