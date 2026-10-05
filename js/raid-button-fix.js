@@ -56,12 +56,12 @@
         btn.title = 'Рейды';
         btn.setAttribute('aria-label', 'Рейды');
         btn.innerHTML =
-          '<span class="raid-btn-icon"><img src="./assets/raids/ui/raid-button.png" alt=""></span>' +
+          '<span class="raid-btn-icon"><img src="./assets/raids/ui/raid-button.webp" alt=""></span>' +
           '<span class="raid-btn-label">Рейды</span>';
         parent.appendChild(btn);
       } else if (!btn.querySelector('.raid-btn-label')) {
         var img = btn.querySelector('img');
-        var src = img ? img.getAttribute('src') : './assets/raids/ui/raid-button.png';
+        var src = img ? img.getAttribute('src') : './assets/raids/ui/raid-button.webp';
         btn.innerHTML =
           '<span class="raid-btn-icon"><img src="'+src+'" alt=""></span>' +
           '<span class="raid-btn-label">Рейды</span>';

@@ -2,10 +2,10 @@
 (function(){
   const $=id=>document.getElementById(id),SAVE_KEY='avtoritet_save_v2';
   const S={
-    шайба:{name:'Шайба',icon:'🧢',avatar:'./assets/backgrounds/shaiba_avatar.png',desc:'торгаш',rank:0,action:'Сходить на дело',baseChance:70},
-    бугор:{name:'Бугор',icon:'💪',avatar:'./assets/backgrounds/Bugor_avatar.png',desc:'тренер',rank:1,action:'Прокачаться',baseChance:80},
-    косой:{name:'Косой',icon:'😏',avatar:'./assets/backgrounds/Kosoy_avatar.png',desc:'решала',rank:2,action:'Рискнуть',baseChance:55},
-    смотрящий:{name:'Смотрящий',icon:'👑',avatar:'./assets/backgrounds/Smotraishia_avatar.png',desc:'старший',rank:3,action:'Получить совет',baseChance:90}
+    шайба:{name:'Шайба',icon:'🧢',avatar:'./assets/backgrounds/shaiba_avatar.webp',desc:'торгаш',rank:0,action:'Сходить на дело',baseChance:70},
+    бугор:{name:'Бугор',icon:'💪',avatar:'./assets/backgrounds/Bugor_avatar.webp',desc:'тренер',rank:1,action:'Прокачаться',baseChance:80},
+    косой:{name:'Косой',icon:'😏',avatar:'./assets/backgrounds/Kosoy_avatar.webp',desc:'решала',rank:2,action:'Рискнуть',baseChance:55},
+    смотрящий:{name:'Смотрящий',icon:'👑',avatar:'./assets/backgrounds/Smotraishia_avatar.webp',desc:'старший',rank:3,action:'Получить совет',baseChance:90}
   };
   const TASKS={
     шайба:[

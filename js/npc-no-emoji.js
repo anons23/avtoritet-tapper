@@ -4,11 +4,11 @@
   // explicitly. Portraits are real <img> elements, not emoji glyphs.
   const NPC_EMOJIS=/[🧢💪😏👑]/gu;
   const AVATARS={
-    'Шайба':'./assets/backgrounds/shaiba_avatar.png',
-    'Бугор':'./assets/backgrounds/Bugor_avatar.png',
-    'Косой':'./assets/backgrounds/Kosoy_avatar.png',
-    'Смотрящий':'./assets/backgrounds/Smotraishia_avatar.png',
-    'Авторитет':'./assets/backgrounds/avtoritet_avatar.png'
+    'Шайба':'./assets/backgrounds/shaiba_avatar.webp',
+    'Бугор':'./assets/backgrounds/Bugor_avatar.webp',
+    'Косой':'./assets/backgrounds/Kosoy_avatar.webp',
+    'Смотрящий':'./assets/backgrounds/Smotraishia_avatar.webp',
+    'Авторитет':'./assets/backgrounds/avtoritet_avatar.webp'
   };
 
   function clean(root){

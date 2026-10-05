@@ -96,10 +96,10 @@
 .raid-card-info small{color:#bbb;font-size:12px}
 .raid-window{position:relative;width:100%;height:100%;overflow:hidden;padding:0!important;background:transparent}
 .raid-scene{position:relative;width:100%;height:100%;overflow:hidden;display:flex;flex-direction:column;align-items:center;background:#111 center/cover no-repeat;box-sizing:border-box;padding:14px 12px 12px}
-.raid-scene.talk{background-image:url('./assets/raids/backgrounds/petrovich_vtirach_pc.png')}
-.raid-scene.fight{background-image:url('./assets/raids/backgrounds/mafioznik_mongol_pc.png')}
-.raid-scene.glaz{background-image:url('./assets/raids/backgrounds/glaz_pc.jpeg')}
-.raid-scene.krest{background-image:url('./assets/raids/backgrounds/krest_pc.jpeg')}
+.raid-scene.talk{background-image:url('./assets/raids/backgrounds/petrovich_vtirach_pc.webp')}
+.raid-scene.fight{background-image:url('./assets/raids/backgrounds/mafioznik_mongol_pc.webp')}
+.raid-scene.glaz{background-image:url('./assets/raids/backgrounds/glaz_pc.webp')}
+.raid-scene.krest{background-image:url('./assets/raids/backgrounds/krest_pc.webp')}
 .raid-scene.psikh{background-image:url('./assets/raids/backgrounds/%D1%84%D0%BE%D0%BD%D0%9F%D1%81%D0%B8%D1%85%D0%9C%D0%BE%D0%B1%D0%B8%D0%BB%20(2).jpg')}
 .raid-hud{position:relative;z-index:5;display:flex;justify-content:flex-end;width:100%;flex:0 0 auto;pointer-events:none;margin-bottom:4px}
 .raid-fighter{position:relative;z-index:3;flex:1 1 auto;min-height:0;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;width:min(88%,720px);text-align:center;user-select:none;margin:0 auto}
@@ -210,10 +210,10 @@
 .raid-select-actions{display:flex;align-items:center;gap:8px;flex:0 0 auto}
 @media (max-width:700px){
 #modal-overlay.raid-fullscreen .raid-scene{padding:calc(48px + env(safe-area-inset-top,0px)) 8px calc(10px + env(safe-area-inset-bottom,0px));background-color:#0a0a0a;background-size:cover;background-position:center}
-#modal-overlay.raid-fullscreen .raid-scene.talk{background-image:url('./assets/raids/backgrounds/petrovich_vtirach_mobile.png')}
-#modal-overlay.raid-fullscreen .raid-scene.fight{background-image:url('./assets/raids/backgrounds/mafioznik_mongol_mobile.png')}
-#modal-overlay.raid-fullscreen .raid-scene.glaz{background-image:url('./assets/raids/backgrounds/glaz_mobile.jpeg')}
-#modal-overlay.raid-fullscreen .raid-scene.krest{background-image:url('./assets/raids/backgrounds/krest_mobile.jpeg')}
+#modal-overlay.raid-fullscreen .raid-scene.talk{background-image:url('./assets/raids/backgrounds/petrovich_vtirach_mobile.webp')}
+#modal-overlay.raid-fullscreen .raid-scene.fight{background-image:url('./assets/raids/backgrounds/mafioznik_mongol_mobile.webp')}
+#modal-overlay.raid-fullscreen .raid-scene.glaz{background-image:url('./assets/raids/backgrounds/glaz_mobile.webp')}
+#modal-overlay.raid-fullscreen .raid-scene.krest{background-image:url('./assets/raids/backgrounds/krest_mobile.webp')}
 #modal-overlay.raid-fullscreen .raid-scene.psikh{background-image:url('./assets/raids/backgrounds/%D1%84%D0%BE%D0%BD%D0%9F%D1%81%D0%B8%D1%85%D0%9C%D0%BE%D0%B1%D0%B8%D0%BB%20(1).jpg')}
 #modal-overlay.raid-fullscreen .raid-fighter{width:min(98vw,560px)}
 #modal-overlay.raid-fullscreen .raid-fighter.psikh{width:min(96vw,540px)}

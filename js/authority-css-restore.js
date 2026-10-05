@@ -9,7 +9,7 @@
 
     '#game-container.authority-mode{',
     '  background:#0a0e10!important;',
-    '  background-image:linear-gradient(rgba(4,8,10,.12),rgba(4,8,10,.32)),url("./assets/backgrounds/desktop/avtoritet.png")!important;',
+    '  background-image:linear-gradient(rgba(4,8,10,.12),rgba(4,8,10,.32)),url("./assets/backgrounds/desktop/avtoritet.webp")!important;',
     '  background-size:cover!important;',
     '  background-position:center center!important;',
     '  background-repeat:no-repeat!important;',
@@ -22,7 +22,7 @@
     /* Portrait */
     '@media (max-width:700px) and (orientation:portrait){',
     '  #game-container.authority-mode{',
-    '    background-image:linear-gradient(rgba(4,8,10,.10),rgba(4,8,10,.28)),url("./assets/backgrounds/mobile/avtoritet.png")!important;',
+    '    background-image:linear-gradient(rgba(4,8,10,.10),rgba(4,8,10,.28)),url("./assets/backgrounds/mobile/avtoritet.webp")!important;',
     '    background-size:cover!important;background-position:center 32%!important;',
     '  }',
     '  #game-container.authority-mode .authority-context,#game-container.authority-mode .authority-influence{display:flex!important}',
@@ -33,7 +33,7 @@
     /* Landscape compact UI */
     '@media (max-width:900px) and (orientation:landscape){',
     '  #game-container.authority-mode{',
-    '    background-image:linear-gradient(rgba(4,8,10,.10),rgba(4,8,10,.30)),url("./assets/backgrounds/desktop/avtoritet.png")!important;',
+    '    background-image:linear-gradient(rgba(4,8,10,.10),rgba(4,8,10,.30)),url("./assets/backgrounds/desktop/avtoritet.webp")!important;',
     '    background-size:cover!important;background-position:center center!important;',
     '    width:100vw!important;max-width:none!important;padding-bottom:48px!important;',
     '  }',
@@ -83,7 +83,7 @@
 
     '@media (min-width:701px){',
     '  #game-container.authority-mode{',
-    '    background-image:linear-gradient(rgba(4,8,10,.10),rgba(4,8,10,.28)),url("./assets/backgrounds/desktop/avtoritet.png")!important;',
+    '    background-image:linear-gradient(rgba(4,8,10,.10),rgba(4,8,10,.28)),url("./assets/backgrounds/desktop/avtoritet.webp")!important;',
     '    background-size:cover!important;background-position:center center!important;',
     '  }',
     '}'

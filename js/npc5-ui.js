@@ -3,7 +3,7 @@
   const ID='avtoritet',SAVE_KEY='avtoritet_save_v2',USE_KEY='npc5_uses_v1';
   const RANK_POINTS=[0,500,2500,10000,40000,150000];
   const RANK_NAMES=['Салага','Пацан','Блатной','Смотрящий','Авторитет','Вор в законе'];
-  const NPC={name:'Авторитет',icon:'👑',avatar:'./assets/backgrounds/avtoritet_avatar.png',desc:'старший',rank:4,baseChance:78};
+  const NPC={name:'Авторитет',icon:'👑',avatar:'./assets/backgrounds/avtoritet_avatar.webp',desc:'старший',rank:4,baseChance:78};
   const TASKS=[
     ['Проверь решение','Нужно оценить спокойный вариант перед общим разговором.','Проверить последствия','Согласиться сразу'],
     ['Разбери спор','Две стороны по-разному помнят договорённость.','Собрать обе версии','Выбрать первую версию'],

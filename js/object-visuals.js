@@ -1,13 +1,13 @@
 'use strict';
 (function(){
-  const BAG_SRC='./assets/backgrounds/boxing-bag.png?v=7';
-  const CELL_SRC='./assets/backgrounds/cellmate.png?v=3';
-  const PUSHUPS_UP='./assets/backgrounds/pushups.png?v=3';
-  const PUSHUPS_DOWN='./assets/backgrounds/pushups_2.png?v=3';
-  const TRAINER_DOWN='./assets/backgrounds/trainer_down.png?v=4';
-  const TRAINER_UP='./assets/backgrounds/trainer_up.png?v=4';
-  const SQUAT_A='./assets/backgrounds/squat.png?v=1';
-  const SQUAT_B='./assets/backgrounds/squat_2.png?v=1';
+  const BAG_SRC='./assets/backgrounds/boxing-bag.webp?v=7';
+  const CELL_SRC='./assets/backgrounds/cellmate.webp?v=3';
+  const PUSHUPS_UP='./assets/backgrounds/pushups.webp?v=3';
+  const PUSHUPS_DOWN='./assets/backgrounds/pushups_2.webp?v=3';
+  const TRAINER_DOWN='./assets/backgrounds/trainer_down.webp?v=4';
+  const TRAINER_UP='./assets/backgrounds/trainer_up.webp?v=4';
+  const SQUAT_A='./assets/backgrounds/squat.webp?v=1';
+  const SQUAT_B='./assets/backgrounds/squat_2.webp?v=1';
   const BAG_NAME='Груша',CELL_NAME='Сокамерник',PUSHUPS_NAME='Отжимания',TRAINER_NAME='Тренажёр';
   const AUTHORITY_NAME='Разборка';
   let pushupQueue=0,pushupRunning=false,trainerQueue=0,trainerRunning=false;

@@ -13,11 +13,11 @@
     {id:'psikh',name:'ПСИХ АРКАША',rank:4,hp:8000,scene:'psikh',first:{chifir:12000,points:1000},repeat:{chifir:3000,points:250}}
   ];
   var PORTRAIT={
-    petrovich:'./assets/raids/fighters/petrovich1.png',
-    vtirach:'./assets/raids/fighters/Vtirach1.png',
-    mafioznik:'./assets/raids/fighters/mafioznik_hit_1.png',
-    mongol:'./assets/raids/fighters/Mongol1.png',
-    glaz:'./assets/raids/fighters/Glaz1.png',
+    petrovich:'./assets/raids/fighters/petrovich1.webp',
+    vtirach:'./assets/raids/fighters/Vtirach1.webp',
+    mafioznik:'./assets/raids/fighters/mafioznik_hit_1.webp',
+    mongol:'./assets/raids/fighters/Mongol1.webp',
+    glaz:'./assets/raids/fighters/Glaz1.webp',
     krest:'./assets/raids/fighters/Crest%20(1).jpg',
     psikh:'./assets/raids/fighters/Psish1%20(1).jpg'
   };
@@ -31,11 +31,11 @@
     psikh:'./assets/raids/fighters/Psish.webm'
   };
   var HITS={
-    petrovich:['./assets/raids/fighters/petrovich1.png','./assets/raids/fighters/petrovich2.png','./assets/raids/fighters/petrovich3.png','./assets/raids/fighters/petrovich4.png'],
-    vtirach:['./assets/raids/fighters/Vtirach1.png','./assets/raids/fighters/Vtirach2.png','./assets/raids/fighters/Vtirach3.png','./assets/raids/fighters/Vtirach4.png'],
-    mafioznik:['./assets/raids/fighters/mafioznik_hit_1.png','./assets/raids/fighters/mafioznik_hit_2.png','./assets/raids/fighters/mafioznik_hit_3.png','./assets/raids/fighters/mafioznik_hit_4.png'],
-    mongol:['./assets/raids/fighters/Mongol1.png','./assets/raids/fighters/Mongol2.png','./assets/raids/fighters/Mongol3.png','./assets/raids/fighters/Mongol4.png'],
-    glaz:['./assets/raids/fighters/Glaz1.png','./assets/raids/fighters/Glaz2.png','./assets/raids/fighters/Glaz3.png','./assets/raids/fighters/Glaz4.png'],
+    petrovich:['./assets/raids/fighters/petrovich1.webp','./assets/raids/fighters/petrovich2.webp','./assets/raids/fighters/petrovich3.webp','./assets/raids/fighters/petrovich4.webp'],
+    vtirach:['./assets/raids/fighters/Vtirach1.webp','./assets/raids/fighters/Vtirach2.webp','./assets/raids/fighters/Vtirach3.webp','./assets/raids/fighters/Vtirach4.webp'],
+    mafioznik:['./assets/raids/fighters/mafioznik_hit_1.webp','./assets/raids/fighters/mafioznik_hit_2.webp','./assets/raids/fighters/mafioznik_hit_3.webp','./assets/raids/fighters/mafioznik_hit_4.webp'],
+    mongol:['./assets/raids/fighters/Mongol1.webp','./assets/raids/fighters/Mongol2.webp','./assets/raids/fighters/Mongol3.webp','./assets/raids/fighters/Mongol4.webp'],
+    glaz:['./assets/raids/fighters/Glaz1.webp','./assets/raids/fighters/Glaz2.webp','./assets/raids/fighters/Glaz3.webp','./assets/raids/fighters/Glaz4.webp'],
     krest:['./assets/raids/fighters/Crest%20(1).jpg','./assets/raids/fighters/Crest%20(2).jpg','./assets/raids/fighters/Crest%20(3).jpg','./assets/raids/fighters/Crest%20(4).jpg','./assets/raids/fighters/Crest%20(5).jpg'],
     psikh:['./assets/raids/fighters/Psish1%20(1).jpg','./assets/raids/fighters/Psish1%20(2).jpg','./assets/raids/fighters/Psish1%20(3).jpg','./assets/raids/fighters/Psish1%20(4).jpg','./assets/raids/fighters/Psish1%20(5).jpg']
   };
@@ -266,12 +266,12 @@
       btn=document.createElement('button');
       btn.id='raid-open-button'; btn.type='button'; btn.title='Рейды';
       btn.setAttribute('aria-label','Рейды');
-      btn.innerHTML='<span class="raid-btn-icon"><img src="./assets/raids/ui/raid-button.png" alt="" onerror="this.parentElement.textContent=\'⚔️\'"></span><span class="raid-btn-label">Рейды</span>';
+      btn.innerHTML='<span class="raid-btn-icon"><img src="./assets/raids/ui/raid-button.webp" alt="" onerror="this.parentElement.textContent=\'⚔️\'"></span><span class="raid-btn-label">Рейды</span>';
       btn.addEventListener('click',function(e){e.preventDefault();e.stopPropagation();openRaidMenu();});
       parent.appendChild(btn);
     } else if(!btn.querySelector('.raid-btn-label')){
       var img=btn.querySelector('img');
-      var src=img?img.getAttribute('src'):'./assets/raids/ui/raid-button.png';
+      var src=img?img.getAttribute('src'):'./assets/raids/ui/raid-button.webp';
       btn.innerHTML='<span class="raid-btn-icon"><img src="'+src+'" alt=""></span><span class="raid-btn-label">Рейды</span>';
     }
   }

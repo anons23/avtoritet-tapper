@@ -5,28 +5,28 @@
   /* rarity: common | rare | extreme | authority
      common raid dmg: 2–6 */
   var WEAPONS=[
-    {id:'fists',name:'Кулаки',icon:'👊',img:'fists.png',cost:0,power:0,raid:0,rarity:'common',shop:true,desc:'Голые руки'},
+    {id:'fists',name:'Кулаки',icon:'👊',img:'fists.webp',cost:0,power:0,raid:0,rarity:'common',shop:true,desc:'Голые руки'},
     {id:'nail',name:'Ржавый гвоздь',icon:'📌',cost:800,power:0,raid:2,rarity:'common',shop:true,desc:'+2 урон в рейдах'},
     {id:'glass',name:'Осколок стекла',icon:'🔪',cost:1200,power:0,raid:3,rarity:'common',shop:true,desc:'+3 урон в рейдах'},
-    {id:'knuckles',name:'Кастет',icon:'✊',img:'knuckle.png',cost:2500,power:0,raid:5,rarity:'common',shop:true,desc:'+5 урон в рейдах'},
+    {id:'knuckles',name:'Кастет',icon:'✊',img:'knuckle.webp',cost:2500,power:0,raid:5,rarity:'common',shop:true,desc:'+5 урон в рейдах'},
     {id:'awl',name:'Шило',icon:'📍',cost:4000,power:0,raid:6,rarity:'common',shop:true,desc:'+6 урон в рейдах'},
     {id:'hammer',name:'Молоток',icon:'🔨',cost:12000,power:1,raid:18,rarity:'rare',shop:true,desc:'+1 сила · +18 урон в рейдах'},
-    {id:'shank',name:'Заточка',icon:'🗡️',img:'shiv.png',cost:18000,power:1,raid:24,rarity:'rare',shop:true,desc:'+1 сила · +24 урон в рейдах'},
-    {id:'bat',name:'Бита',icon:'🏏',img:'bat.png',cost:35000,power:2,raid:36,rarity:'rare',shop:true,desc:'+2 сила · +36 урон в рейдах'},
+    {id:'shank',name:'Заточка',icon:'🗡️',img:'shiv.webp',cost:18000,power:1,raid:24,rarity:'rare',shop:true,desc:'+1 сила · +24 урон в рейдах'},
+    {id:'bat',name:'Бита',icon:'🏏',img:'bat.webp',cost:35000,power:2,raid:36,rarity:'rare',shop:true,desc:'+2 сила · +36 урон в рейдах'},
     {id:'butterfly',name:'Нож-бабочка',icon:'🦋',cost:0,power:3,raid:55,rarity:'extreme',shop:false,desc:'Только из рейдов · +3 сила · +55 урон'},
     {id:'razor',name:'Бритва',icon:'🪒',cost:0,power:3,raid:70,rarity:'extreme',shop:false,desc:'Только из рейдов · +3 сила · +70 урон'},
-    {id:'pipe',name:'Труба',icon:'🔩',img:'pipe.png',cost:90000,power:4,raid:90,rarity:'extreme',shop:true,desc:'+4 сила · +90 урон в рейдах'},
+    {id:'pipe',name:'Труба',icon:'🔩',img:'pipe.webp',cost:90000,power:4,raid:90,rarity:'extreme',shop:true,desc:'+4 сила · +90 урон в рейдах'},
     {id:'chain',name:'Цепь',icon:'⛓️',cost:0,power:5,raid:110,rarity:'extreme',shop:false,desc:'Только из рейдов · +5 сила · +110 урон'},
     {id:'authority',name:'Авторитетка',icon:'⚔️',cost:0,power:8,raid:200,rarity:'authority',shop:false,desc:'Только с босса · +8 сила · +200 урон'}
   ];
   var ARMORS=[
-    {id:'tee',name:'Майка',icon:'👕',img:'tank_top.png',cost:0,energy:0,crit:0,rarity:'common',shop:true,desc:'Без защиты'},
+    {id:'tee',name:'Майка',icon:'👕',img:'tank_top.webp',cost:0,energy:0,crit:0,rarity:'common',shop:true,desc:'Без защиты'},
     {id:'telnyashka',name:'Тельняшка',icon:'🎽',cost:900,energy:8,crit:0,rarity:'common',shop:true,desc:'+8 макс. энергия'},
     {id:'fufayka',name:'Фуфайка',icon:'🧥',cost:1800,energy:15,crit:0,rarity:'common',shop:true,desc:'+15 макс. энергия'},
-    {id:'vatnik',name:'Ватник',icon:'🧶',img:'padded_jacket.png',cost:3500,energy:25,crit:0.005,rarity:'common',shop:true,desc:'+25 энергия · +0.5% крит'},
-    {id:'leather',name:'Кожанка',icon:'🧥',img:'leather_jacket.png',cost:15000,energy:45,crit:0.015,rarity:'rare',shop:true,desc:'+45 энергия · +1.5% крит'},
+    {id:'vatnik',name:'Ватник',icon:'🧶',img:'padded_jacket.webp',cost:3500,energy:25,crit:0.005,rarity:'common',shop:true,desc:'+25 энергия · +0.5% крит'},
+    {id:'leather',name:'Кожанка',icon:'🧥',img:'leather_jacket.webp',cost:15000,energy:45,crit:0.015,rarity:'rare',shop:true,desc:'+45 энергия · +1.5% крит'},
     {id:'robe',name:'Халат',icon:'🥼',cost:22000,energy:55,crit:0.02,rarity:'rare',shop:true,desc:'+55 энергия · +2% крит'},
-    {id:'plate',name:'Броник',icon:'🛡️',img:'body_armor.png',cost:55000,energy:90,crit:0.03,rarity:'extreme',shop:true,desc:'+90 энергия · +3% крит'},
+    {id:'plate',name:'Броник',icon:'🛡️',img:'body_armor.webp',cost:55000,energy:90,crit:0.03,rarity:'extreme',shop:true,desc:'+90 энергия · +3% крит'},
     {id:'vest',name:'Разгрузка',icon:'🦺',cost:0,energy:110,crit:0.04,rarity:'extreme',shop:false,desc:'Только из рейдов · +110 энергия · +4% крит'},
     {id:'crown',name:'Корона зоны',icon:'👑',cost:0,energy:160,crit:0.06,rarity:'authority',shop:false,desc:'Только с босса · +160 энергия · +6% крит'}
   ];

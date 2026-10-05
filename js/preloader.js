@@ -62,27 +62,27 @@
   }
 
   const RAID_IMAGES=[
-    './assets/raids/ui/raid-button.png',
-    './assets/raids/fighters/mafioznik_hit_1.png',
-    './assets/raids/fighters/mafioznik_hit_2.png',
-    './assets/raids/fighters/mafioznik_hit_3.png',
-    './assets/raids/fighters/mafioznik_hit_4.png',
-    './assets/raids/fighters/petrovich1.png',
-    './assets/raids/fighters/petrovich2.png',
-    './assets/raids/fighters/petrovich3.png',
-    './assets/raids/fighters/petrovich4.png',
-    './assets/raids/fighters/Vtirach1.png',
-    './assets/raids/fighters/Vtirach2.png',
-    './assets/raids/fighters/Vtirach3.png',
-    './assets/raids/fighters/Vtirach4.png',
-    './assets/raids/fighters/Mongol1.png',
-    './assets/raids/fighters/Mongol2.png',
-    './assets/raids/fighters/Mongol3.png',
-    './assets/raids/fighters/Mongol4.png',
-    './assets/raids/fighters/Glaz1.png',
-    './assets/raids/fighters/Glaz2.png',
-    './assets/raids/fighters/Glaz3.png',
-    './assets/raids/fighters/Glaz4.png',
+    './assets/raids/ui/raid-button.webp',
+    './assets/raids/fighters/mafioznik_hit_1.webp',
+    './assets/raids/fighters/mafioznik_hit_2.webp',
+    './assets/raids/fighters/mafioznik_hit_3.webp',
+    './assets/raids/fighters/mafioznik_hit_4.webp',
+    './assets/raids/fighters/petrovich1.webp',
+    './assets/raids/fighters/petrovich2.webp',
+    './assets/raids/fighters/petrovich3.webp',
+    './assets/raids/fighters/petrovich4.webp',
+    './assets/raids/fighters/Vtirach1.webp',
+    './assets/raids/fighters/Vtirach2.webp',
+    './assets/raids/fighters/Vtirach3.webp',
+    './assets/raids/fighters/Vtirach4.webp',
+    './assets/raids/fighters/Mongol1.webp',
+    './assets/raids/fighters/Mongol2.webp',
+    './assets/raids/fighters/Mongol3.webp',
+    './assets/raids/fighters/Mongol4.webp',
+    './assets/raids/fighters/Glaz1.webp',
+    './assets/raids/fighters/Glaz2.webp',
+    './assets/raids/fighters/Glaz3.webp',
+    './assets/raids/fighters/Glaz4.webp',
     './assets/raids/fighters/Crest%20(1).jpg',
     './assets/raids/fighters/Crest%20(2).jpg',
     './assets/raids/fighters/Crest%20(3).jpg',
@@ -107,18 +107,18 @@
   function raidBackgrounds(mobile){
     if(mobile){
       return [
-        './assets/raids/backgrounds/petrovich_vtirach_mobile.png',
-        './assets/raids/backgrounds/mafioznik_mongol_mobile.png',
-        './assets/raids/backgrounds/glaz_mobile.jpeg',
-        './assets/raids/backgrounds/krest_mobile.jpeg',
+        './assets/raids/backgrounds/petrovich_vtirach_mobile.webp',
+        './assets/raids/backgrounds/mafioznik_mongol_mobile.webp',
+        './assets/raids/backgrounds/glaz_mobile.webp',
+        './assets/raids/backgrounds/krest_mobile.webp',
         './assets/raids/backgrounds/%D1%84%D0%BE%D0%BD%D0%9F%D1%81%D0%B8%D1%85%D0%9C%D0%BE%D0%B1%D0%B8%D0%BB%20(1).jpg'
       ];
     }
     return [
-      './assets/raids/backgrounds/petrovich_vtirach_pc.png',
-      './assets/raids/backgrounds/mafioznik_mongol_pc.png',
-      './assets/raids/backgrounds/glaz_pc.jpeg',
-      './assets/raids/backgrounds/krest_pc.jpeg',
+      './assets/raids/backgrounds/petrovich_vtirach_pc.webp',
+      './assets/raids/backgrounds/mafioznik_mongol_pc.webp',
+      './assets/raids/backgrounds/glaz_pc.webp',
+      './assets/raids/backgrounds/krest_pc.webp',
       './assets/raids/backgrounds/%D1%84%D0%BE%D0%BD%D0%9F%D1%81%D0%B8%D1%85%D0%9C%D0%BE%D0%B1%D0%B8%D0%BB%20(2).jpg'
     ];
   }
@@ -129,26 +129,26 @@
   /* Первая локация (груша + фон Салага) + барак (аватары НПС) — критично до старта */
   function stage0Assets(mobile){
     return [
-      './assets/backgrounds/boxing-bag.png?v=7',
-      mobile ? './assets/backgrounds/mobile/salaga.png' : './assets/backgrounds/desktop/salaga.png',
-      './assets/backgrounds/shaiba_avatar.png',
-      './assets/backgrounds/Bugor_avatar.png',
-      './assets/backgrounds/Kosoy_avatar.png',
-      './assets/backgrounds/Smotraishia_avatar.png',
-      './assets/backgrounds/avtoritet_avatar.png'
+      './assets/backgrounds/boxing-bag.webp?v=7',
+      mobile ? './assets/backgrounds/mobile/salaga.webp' : './assets/backgrounds/desktop/salaga.webp',
+      './assets/backgrounds/shaiba_avatar.webp',
+      './assets/backgrounds/Bugor_avatar.webp',
+      './assets/backgrounds/Kosoy_avatar.webp',
+      './assets/backgrounds/Smotraishia_avatar.webp',
+      './assets/backgrounds/avtoritet_avatar.webp'
     ];
   }
   const STAGE_ASSETS = {
-    1: ['./assets/backgrounds/cellmate.png?v=3', './assets/backgrounds/desktop/pacan.png', './assets/backgrounds/mobile/pacan.png'],
-    2: ['./assets/backgrounds/pushups.png?v=3', './assets/backgrounds/pushups_2.png?v=3', './assets/backgrounds/desktop/blatnoi.png', './assets/backgrounds/mobile/blatnoi.png'],
-    3: ['./assets/backgrounds/trainer_down.png?v=4', './assets/backgrounds/trainer_up.png?v=4', './assets/backgrounds/desktop/smotryashiy.png', './assets/backgrounds/mobile/smotryashiy.png'],
-    4: ['./assets/backgrounds/desktop/avtoritet.png', './assets/backgrounds/mobile/avtoritet.png']
+    1: ['./assets/backgrounds/cellmate.webp?v=3', './assets/backgrounds/desktop/pacan.webp', './assets/backgrounds/mobile/pacan.webp'],
+    2: ['./assets/backgrounds/pushups.webp?v=3', './assets/backgrounds/pushups_2.webp?v=3', './assets/backgrounds/desktop/blatnoi.webp', './assets/backgrounds/mobile/blatnoi.webp'],
+    3: ['./assets/backgrounds/trainer_down.webp?v=4', './assets/backgrounds/trainer_up.webp?v=4', './assets/backgrounds/desktop/smotryashiy.webp', './assets/backgrounds/mobile/smotryashiy.webp'],
+    4: ['./assets/backgrounds/desktop/avtoritet.webp', './assets/backgrounds/mobile/avtoritet.webp']
   };
   const STAGE_THRESHOLDS = [0, 1500, 5000, 15000, 50000];
 
   async function preloadRaidAssets(){
     const mobile = window.matchMedia && window.matchMedia('(max-width:700px)').matches;
-    const essential = ['./assets/raids/ui/raid-button.png'];
+    const essential = ['./assets/raids/ui/raid-button.webp'];
     let done = 0;
     const tick = (msg)=>{
       done++;
@@ -203,8 +203,8 @@
     setProgress(3,messages[messageIndex]);
     messageTimer=window.setInterval(()=>{messageIndex=(messageIndex+1)%messages.length;setProgress(current,messages[messageIndex]);},2200);
     const mobile=window.matchMedia&&window.matchMedia('(max-width:700px)').matches;
-    const bg=mobile?'./assets/backgrounds/mobile/loading-mobile.jpg':'./assets/backgrounds/desktop/loading-desktop.jpg';
-    await Promise.all([preloadImage(bg),preloadImage('./assets/backgrounds/handcuffs.png')]);
+    const bg=mobile?'./assets/backgrounds/mobile/loading-mobile.webp':'./assets/backgrounds/desktop/loading-desktop.webp';
+    await Promise.all([preloadImage(bg),preloadImage('./assets/backgrounds/handcuffs.webp')]);
     setProgress(12,messages[messageIndex]);
     setProgress(16,'Грузим грушу…');
     await Promise.all(stage0Assets(mobile).map(src=>preloadImage(src)));
