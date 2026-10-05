@@ -1,0 +1,25 @@
+name: Fix jpg to webp in raids-ui
+on:
+  workflow_dispatch:
+jobs:
+  fix:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: fix/yandex-16plus-stability
+      - name: sed replace
+        run: |
+          sed -i 's/\.jpg/.webp/g' js/raids-ui.js
+          grep -n webp js/raids-ui.js | head -5
+          if grep -q '\.jpg' js/raids-ui.js; then echo STILL_JPG; exit 1; fi
+          wc -c js/raids-ui.js
+      - name: Commit and push
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add js/raids-ui.js
+          git commit -m "fix: replace remaining .jpg with .webp in raids-ui"
+          git push origin HEAD:fix/yandex-16plus-stability
