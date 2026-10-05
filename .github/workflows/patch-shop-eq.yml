@@ -1,0 +1,66 @@
+name: Patch shop equipment button
+on:
+  workflow_dispatch:
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: fix/yandex-16plus-stability
+      - name: Patch game.js shop()
+        run: |
+          python3 <<'PY'
+          from pathlib import Path
+          p = Path('js/game.js')
+          t = p.read_text(encoding='utf-8')
+          if 'shop-eq-btn' in t:
+              print('already patched')
+          else:
+              old = """    '<div class=\"shop-grid\">'+\n    '<button type=\"button\" data-b=\"p\">💪 <b>Сила</b><br><small>+1 сила · сейчас '+s.power+'</small><br>Цена '+costP+' 🍵</button>'+\n    '<button type=\"button\" data-b=\"c\">🎯 <b>Крит</b><br><small>+2% · сейчас '+Math.round(s.critChance*100)+'%</small><br>Цена '+costC+' 🍵</button>'+\n    '<button type=\"button\" data-b=\"e\">⚡ <b>Энергия</b><br><small>+25 макс · сейчас '+s.maxEnergy+'</small><br>Цена '+costE+' 🍵</button>'+\n    '<button type=\"button\" data-b=\"d\">🔥 <b>Ускоритель</b><br><small>×2 на 100 тапов · '+(s.boosters.double||0)+'</small><br>Цена 500 🍵</button>'+\n    '</div></div>'"""
+              new = """    '<div class=\"shop-grid\">'+\n    '<button type=\"button\" data-b=\"p\">💪 <b>Сила</b><br><small>+1 сила · сейчас '+s.power+'</small><br>Цена '+costP+' 🍵</button>'+\n    '<button type=\"button\" data-b=\"c\">🎯 <b>Крит</b><br><small>+2% · сейчас '+Math.round(s.critChance*100)+'%</small><br>Цена '+costC+' 🍵</button>'+\n    '<button type=\"button\" data-b=\"e\">⚡ <b>Энергия</b><br><small>+25 макс · сейчас '+s.maxEnergy+'</small><br>Цена '+costE+' 🍵</button>'+\n    '<button type=\"button\" data-b=\"d\">🔥 <b>Ускоритель</b><br><small>×2 на 100 тапов · '+(s.boosters.double||0)+'</small><br>Цена 500 🍵</button>'+\n    '</div>'+\n    '<button type=\"button\" id=\"shop-eq-btn\" class=\"eq-btn shop-eq-link\" style=\"width:100%;margin:12px 0 0;padding:12px;font-size:14px\">⚔️ Оружие и броня</button>'+\n    '</div>'"""
+              if old not in t:
+                  raise SystemExit('shop block not found')
+              t = t.replace(old, new)
+              old2 = """  document.querySelectorAll('[data-b]').forEach(b=>{\n    b.style.pointerEvents = 'auto';\n    b.addEventListener('click', (e)=>{ e.preventDefault(); e.stopPropagation(); buy(b); });\n  });\n"""
+              new2 = """  document.querySelectorAll('[data-b]').forEach(b=>{\n    b.style.pointerEvents = 'auto';\n    b.addEventListener('click', (e)=>{ e.preventDefault(); e.stopPropagation(); buy(b); });\n  });\n  var eqBtn=document.getElementById('shop-eq-btn');\n  if(eqBtn){\n    eqBtn.addEventListener('click', function(e){\n      e.preventDefault(); e.stopPropagation();\n      if(typeof window.openEquipment==='function') window.openEquipment();\n      else if(typeof window.msg==='function') window.msg('⚔️ Снаряжение ещё загружается…');\n    });\n  }\n"""
+              if old2 not in t:
+                  raise SystemExit('bind block not found')
+              t = t.replace(old2, new2)
+              p.write_text(t, encoding='utf-8')
+              print('game.js patched')
+          PY
+      - name: Patch equipment-v2 inject
+        run: |
+          python3 <<'PY'
+          from pathlib import Path
+          p = Path('js/equipment-v2.js')
+          t = p.read_text(encoding='utf-8')
+          if 'function injectShopTab' in t:
+              print('inject already present')
+          else:
+              needle = "  window.__raidTryDrop=tryDrop;"
+              inject = '''  function $(id){return document.getElementById(id);}\n  function injectShopTab(){\n    var content=$('modal-content');\n    if(!content) return;\n    if(content.querySelector('.shop-eq-link')) return;\n    var h2=content.querySelector('h2');\n    if(!h2 || h2.textContent.indexOf('Качалка')<0) return;\n    var link=document.createElement('button');\n    link.type='button';\n    link.className='eq-btn shop-eq-link';\n    link.id='shop-eq-btn';\n    link.style.cssText='width:100%;margin:12px 0 0;padding:12px;font-size:14px';\n    link.textContent='⚔️ Оружие и броня';\n    link.addEventListener('click', function(e){ e.preventDefault(); e.stopPropagation(); openEquipment(); });\n    var grid=content.querySelector('.shop-grid');\n    if(grid && grid.parentNode) grid.parentNode.appendChild(link);\n    else if(h2.parentNode) h2.parentNode.appendChild(link);\n  }\n  function bootEq(){\n    var overlay=$('modal-overlay');\n    if(overlay){\n      new MutationObserver(function(){ setTimeout(injectShopTab, 20); })\n        .observe(overlay, {childList:true, subtree:true, attributes:true});\n    }\n    var shop=$('btn-shop');\n    if(shop) shop.addEventListener('click', function(){ setTimeout(injectShopTab, 30); setTimeout(injectShopTab, 120); });\n  }\n  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded', bootEq);\n  else bootEq();\n'''
+              if needle not in t:
+                  raise SystemExit('needle not found')
+              t = t.replace(needle, inject + needle)
+              t = t.replace("[equipment-v2] rebalance v2.3", "[equipment-v2] rebalance v2.5")
+              t = t.replace("[equipment-v2] rebalance v2.4", "[equipment-v2] rebalance v2.5")
+              p.write_text(t, encoding='utf-8')
+              print('equipment-v2 patched')
+          PY
+      - name: Bump cache in index + bootstrap
+        run: |
+          sed -i 's/game\.js?v=4\.84/game.js?v=4.85/g' js/bootstrap.js index.html || true
+          sed -i 's/equipment-v2\.js?v=2\.[0-9]/equipment-v2.js?v=2.5/g' index.html
+          sed -i 's/bootstrap\.js?v=2\.[0-9]*/bootstrap.js?v=2.81/g' index.html
+          grep -n 'shop-eq\|game.js\|equipment-v2\|bootstrap' index.html js/bootstrap.js | head -20
+      - name: Commit and push
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add js/game.js js/equipment-v2.js js/bootstrap.js index.html
+          git commit -m "fix: equipment button always in gym shop (no delay)" || echo nochange
+          git push origin HEAD:fix/yandex-16plus-stability
