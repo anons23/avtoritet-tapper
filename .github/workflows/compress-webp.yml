@@ -1,0 +1,53 @@
+name: Compress images to WebP
+on:
+  workflow_dispatch:
+jobs:
+  compress:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: fix/yandex-16plus-stability
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install Pillow
+        run: pip install pillow
+      - name: Convert PNG/JPG to WebP q80
+        run: python tools/compress_to_webp.py
+      - name: Rewrite references to .webp
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import re
+          TEXT = {'.js', '.css', '.html', '.md', '.json', '.txt', '.yml', '.yaml'}
+          for p in Path('.').rglob('*'):
+              if not p.is_file() or '.git' in p.parts:
+                  continue
+              if p.suffix.lower() not in TEXT:
+                  continue
+              try:
+                  t = p.read_text(encoding='utf-8')
+              except Exception:
+                  continue
+              orig = t
+              t = re.sub(r"(assets/[^'\"\s\)]+?)\.(png|jpg|jpeg|jfif)\b", r"\1.webp", t, flags=re.I)
+              t = re.sub(r"(img:')([^']+)\.(png|jpg|jpeg|jfif)'", r"\1\2.webp'", t)
+              t = re.sub(r"(\+')([^']+)\.(png|jpg|jpeg|jfif)'", r"\1\2.webp'", t)
+              if t != orig:
+                  p.write_text(t, encoding='utf-8')
+                  print('updated', p)
+          PY
+      - name: Commit and push
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          if git diff --staged --quiet; then
+            echo "No changes"
+            exit 0
+          fi
+          git commit -m "perf: convert assets to WebP q80 and update refs"
+          git push origin HEAD:fix/yandex-16plus-stability
