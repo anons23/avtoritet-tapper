@@ -8,13 +8,13 @@
     {id:'fists',name:'Кулаки',icon:'👊',img:'fists.webp',cost:0,power:0,raid:0,rarity:'common',shop:true,desc:'Голые руки'},
     {id:'nail',name:'Ржавый гвоздь',icon:'📌',cost:800,power:0,raid:2,rarity:'common',shop:true,desc:'+2 урон в рейдах'},
     {id:'glass',name:'Осколок стекла',icon:'🔪',cost:1200,power:0,raid:3,rarity:'common',shop:true,desc:'+3 урон в рейдах'},
-    {id:'knuckles',name:'Кастет',icon:'✊',img:'knuckle.webp',cost:2500,power:0,raid:5,rarity:'common',shop:true,desc:'+5 урон в рейдах'},
+    {id:'razor',name:'Бритва',icon:'🪒',cost:1500,power:0,raid:4,rarity:'common',shop:true,desc:'+4 урон в рейдах'},
     {id:'awl',name:'Шило',icon:'📍',cost:4000,power:0,raid:6,rarity:'common',shop:true,desc:'+6 урон в рейдах'},
     {id:'hammer',name:'Молоток',icon:'🔨',cost:12000,power:1,raid:18,rarity:'rare',shop:true,desc:'+1 сила · +18 урон в рейдах'},
     {id:'shank',name:'Заточка',icon:'🗡️',img:'shiv.webp',cost:18000,power:1,raid:24,rarity:'rare',shop:true,desc:'+1 сила · +24 урон в рейдах'},
     {id:'bat',name:'Бита',icon:'🏏',img:'bat.webp',cost:35000,power:2,raid:36,rarity:'rare',shop:true,desc:'+2 сила · +36 урон в рейдах'},
     {id:'butterfly',name:'Нож-бабочка',icon:'🦋',cost:0,power:3,raid:55,rarity:'extreme',shop:false,desc:'Только из рейдов · +3 сила · +55 урон'},
-    {id:'razor',name:'Бритва',icon:'🪒',cost:0,power:3,raid:70,rarity:'extreme',shop:false,desc:'Только из рейдов · +3 сила · +70 урон'},
+    {id:'knuckles',name:'Кастет',icon:'✊',img:'knuckle.webp',cost:0,power:4,raid:85,rarity:'extreme',shop:false,desc:'Только из рейдов · +4 сила · +85 урон'},
     {id:'pipe',name:'Труба',icon:'🔩',img:'pipe.webp',cost:90000,power:4,raid:90,rarity:'extreme',shop:true,desc:'+4 сила · +90 урон в рейдах'},
     {id:'chain',name:'Цепь',icon:'⛓️',cost:0,power:5,raid:110,rarity:'extreme',shop:false,desc:'Только из рейдов · +5 сила · +110 урон'},
     {id:'authority',name:'Авторитетка',icon:'⚔️',cost:0,power:8,raid:200,rarity:'authority',shop:false,desc:'Только с босса · +8 сила · +200 урон'}
@@ -25,7 +25,7 @@
     {id:'fufayka',name:'Фуфайка',icon:'🧥',cost:1800,energy:15,crit:0,rarity:'common',shop:true,desc:'+15 макс. энергия'},
     {id:'vatnik',name:'Ватник',icon:'🧶',img:'padded_jacket.webp',cost:3500,energy:25,crit:0.005,rarity:'common',shop:true,desc:'+25 энергия · +0.5% крит'},
     {id:'leather',name:'Кожанка',icon:'🧥',img:'leather_jacket.webp',cost:15000,energy:45,crit:0.015,rarity:'rare',shop:true,desc:'+45 энергия · +1.5% крит'},
-    {id:'robe',name:'Халат',icon:'🥼',cost:22000,energy:55,crit:0.02,rarity:'rare',shop:true,desc:'+55 энергия · +2% крит'},
+    {id:'crosschain',name:'Цепь с крестом',icon:'✝️',cost:28000,energy:60,crit:0.025,rarity:'rare',shop:true,desc:'+60 энергия · +2.5% крит'},
     {id:'plate',name:'Броник',icon:'🛡️',img:'body_armor.webp',cost:55000,energy:90,crit:0.03,rarity:'extreme',shop:true,desc:'+90 энергия · +3% крит'},
     {id:'vest',name:'Разгрузка',icon:'🦺',cost:0,energy:110,crit:0.04,rarity:'extreme',shop:false,desc:'Только из рейдов · +110 энергия · +4% крит'},
     {id:'crown',name:'Корона зоны',icon:'👑',cost:0,energy:160,crit:0.06,rarity:'authority',shop:false,desc:'Только с босса · +160 энергия · +6% крит'}
@@ -38,14 +38,14 @@
     petrovich:[
       {id:'nail',kind:'weapon',chance:0.22},
       {id:'glass',kind:'weapon',chance:0.18},
-      {id:'knuckles',kind:'weapon',chance:0.1},
+      {id:'razor',kind:'weapon',chance:0.14},
       {id:'telnyashka',kind:'armor',chance:0.16},
       {id:'fufayka',kind:'armor',chance:0.12}
     ],
     vtirach:[
       {id:'glass',kind:'weapon',chance:0.14},
       {id:'awl',kind:'weapon',chance:0.12},
-      {id:'knuckles',kind:'weapon',chance:0.1},
+      {id:'razor',kind:'weapon',chance:0.12},
       {id:'vatnik',kind:'armor',chance:0.14},
       {id:'fufayka',kind:'armor',chance:0.1}
     ],
@@ -57,16 +57,17 @@
     mongol:[
       {id:'bat',kind:'weapon',chance:0.1},
       {id:'hammer',kind:'weapon',chance:0.1},
-      {id:'robe',kind:'armor',chance:0.08},
+      {id:'crosschain',kind:'armor',chance:0.08},
       {id:'leather',kind:'armor',chance:0.1}
     ],
     glaz:[
       {id:'butterfly',kind:'weapon',chance:0.08},
-      {id:'razor',kind:'weapon',chance:0.07},
+      {id:'knuckles',kind:'weapon',chance:0.08},
       {id:'plate',kind:'armor',chance:0.07}
     ],
     krest:[
       {id:'pipe',kind:'weapon',chance:0.07},
+      {id:'knuckles',kind:'weapon',chance:0.07},
       {id:'chain',kind:'weapon',chance:0.06},
       {id:'vest',kind:'armor',chance:0.07},
       {id:'butterfly',kind:'weapon',chance:0.06}
@@ -222,5 +223,5 @@
   window.getEquipRaidBonus=function(){var s=st();if(!s||!s.equipment)return 0;var w=WEAPONS.find(function(x){return x.id===s.equipment.weapon});return w?Number(w.raid)||0:0};
   window.getEffectivePower=function(){var s=st();if(!s)return 1;var w=WEAPONS.find(function(x){return x.id===(s.equipment&&s.equipment.weapon)});var bonus=w?Number(w.power)||0:0;return Math.max(1,(Number(s.power)||1)+bonus)};
   window.getEffectiveCrit=function(){var s=st();if(!s)return 0.05;var a=ARMORS.find(function(x){return x.id===(s.equipment&&s.equipment.armor)});var bonus=a?Number(a.crit)||0:0;return Math.min(0.55,(Number(s.critChance)||0.05)+bonus)};
-  console.log('[equipment-v2] rebalance v2.6');
+  console.log('[equipment-v2] rebalance v2.7');
 })();
