@@ -3,7 +3,7 @@
 (function(){
   var AV='./assets/backgrounds/';
   var NPCS=[
-    {id:'shaiba',name:'Шайба',role:'Сокамерник',icon:'🪙',avatar:AV+'shaiba_avatar.webp',
+    {id:'shaiba',unlockPoints:0,name:'Шайба',role:'Сокамерник',icon:'🪙',avatar:AV+'shaiba_avatar.webp',
       greet:'Шайба кивает: «Ну что, по делу или просто так зашёл?»',
       dialogs:[
         {q:'Шайба понижает голос: «В бараке сегодня неспокойно. Что хочешь узнать?»',choices:[
@@ -27,7 +27,7 @@
           {t:'Отказаться',ok:1,msg:'Шайба пожимает плечами: «Тоже вариант.»'}
         ]}
       ]},
-    {id:'bugor',name:'Бугор',role:'Тренер',icon:'💪',avatar:AV+'Bugor_avatar.webp',
+    {id:'bugor',unlockPoints:1500,name:'Бугор',role:'Тренер',icon:'💪',avatar:AV+'Bugor_avatar.webp',
       greet:'Бугор хрустит костяшками: «Готов поработать?»',
       dialogs:[
         {q:'Бугор: «Как думаешь, что важнее — сила или терпение?»',choices:[
@@ -51,7 +51,7 @@
           {t:'Нет, сначала подготовлюсь',ok:.95,pts:25,msg:'Бугор одобряет осторожность. «Подготовка тоже сила.»'}
         ]}
       ]},
-    {id:'kosoy',name:'Косой',role:'Торговец слухами',icon:'👁',avatar:AV+'Kosoy_avatar.webp',
+    {id:'kosoy',unlockPoints:5000,name:'Косой',role:'Торговец слухами',icon:'👁',avatar:AV+'Kosoy_avatar.webp',
       greet:'Косой щурится: «Информация — товар. Что нужно?»',
       dialogs:[
         {q:'Косой: «Есть слух, который стоит тридцать чефира. Берёшь?»',choices:[
@@ -75,7 +75,7 @@
           {t:'Уйти',ok:1,msg:'Косой: «Возвращайся, когда любопытство победит осторожность.»'}
         ]}
       ]},
-    {id:'smotryashiy',name:'Смотрящий',role:'Порядок в бараке',icon:'👁‍🗨',avatar:AV+'Smotraishia_avatar.webp',
+    {id:'smotryashiy',unlockPoints:15000,name:'Смотрящий',role:'Порядок в бараке',icon:'👁‍🗨',avatar:AV+'Smotraishia_avatar.webp',
       greet:'Смотрящий смотрит холодно: «Говори по делу.»',
       dialogs:[
         {q:'Смотрящий: «В бараке есть напряжение. Что будешь делать?»',choices:[
@@ -99,7 +99,7 @@
           {t:'Промолчать',ok:.9,pts:20,msg:'Смотрящий принимает молчание за разумность.'}
         ]}
       ]},
-    {id:'avtoritet',name:'Авторитет',role:'Старый волк',icon:'👑',avatar:AV+'avtoritet_avatar.webp',
+    {id:'avtoritet',unlockPoints:50000,name:'Авторитет',role:'Старый волк',icon:'👑',avatar:AV+'avtoritet_avatar.webp',
       greet:'Авторитет не торопится: «Слова должны весить.»',
       dialogs:[
         {q:'Авторитет: «Скажи, что для тебя важнее — деньги или имя?»',choices:[
@@ -405,8 +405,14 @@
       '<p class="section-subtitle">Люди, с которыми стоит говорить</p>'+
       '<div class="npc-list">';
     var s=st();
+    var points=Number(s&&s.points)||0;
     NPCS.forEach(function(n){
-      html+='<button type="button" class="npc-link" data-npc="'+n.id+'"><span aria-hidden="true">'+n.icon+'</span><b>'+n.name+'</b><small>'+n.role+'</small></button>';
+      var unlocked=points>=Number(n.unlockPoints||0);
+      if(unlocked){
+        html+='<button type="button" class="npc-link" data-npc="'+n.id+'"><span aria-hidden="true">'+n.icon+'</span><b>'+n.name+'</b><small>'+n.role+'</small></button>';
+      }else{
+        html+='<button type="button" class="npc-link npc-link-locked" disabled aria-disabled="true"><span aria-hidden="true">🔒</span><b>'+n.name+'</b><small>Откроется с мастью «'+(function(){var rr={0:'Салага',1500:'Пацан',5000:'Блатной',15000:'Смотрящий',50000:'Авторитет'};return rr[Number(n.unlockPoints)]||'следующей мастью';})()+'»</small></button>';
+      }
     });
     html+='</div></div>';
     openModal(html);
@@ -528,16 +534,14 @@
     if(cost<0) s.chifir=(Number(s.chifir)||0)+cost;
 
     var ok=Math.random() < Math.max(0,Math.min(1,Number(choice.ok)||0));
-    // Репутация меняется за сам выбор: попытка помочь тоже считается.
+    // Уважение зависит от результата, а не начисляется автоматически за сам выбор.
+    // Удача: применяем обычную репутацию ответа. Провал: только 0, мягкий +1 за
+    // достойную попытку или редкий -1 за явно плохой поступок.
     var baseRep=Number(choice.rep);
-    if(!isFinite(baseRep)){
-      var ct=String(choice.t||'').toLowerCase();
-      if(/не лез|не вмеш|отказ|уйти|не сейчас|не хочу|пас|нет,|сказать, что тебе всё равно|промолч/.test(ct))baseRep=0;
-      else baseRep=1;
-    }
-    changeRel(npc,baseRep,s,baseRep>0?'help':baseRep<0?'fail':'');
+    if(!isFinite(baseRep))baseRep=0;
     var text;
     if(ok){
+      if(baseRep) changeRel(npc,baseRep,s,baseRep>0?'help':baseRep<0?'fail':'');
       var rewardChifir=Math.max(0,Number(choice.rewardChifir)||0);
       var rewardPts=Number(choice.pts)||0;
       if(rewardChifir) s.chifir=(Number(s.chifir)||0)+rewardChifir;
@@ -569,9 +573,20 @@
       text=(npc.icon||'')+' '+(choice.msg||'Получилось.')+riskText+dropText;
     }else{
       var outcome=failureOutcome(npc,choice,cost);
+      var failRep=Number(choice.failRep);
+      if(!isFinite(failRep)){
+        var ct=String(choice.t||'').toLowerCase();
+        if(baseRep<0){
+          failRep=-1;
+        }else if(baseRep>0 && /помог|провед|принес|принести|узнаю|провер|подготов|впис|вызов|держ|сделаю|попроб|договор|предупред|выясн|займ|пойти|дать|найти|помощ|вмеш|разоб|защит|поговор|передам/.test(ct)){
+          failRep=1;
+        }else{
+          failRep=0;
+        }
+      }
+      if(failRep)changeRel(npc,Math.max(-1,Math.min(1,failRep)),s,failRep>0?'help':'fail');
       if(outcome.pts) s.points=Math.max(0,(Number(s.points)||0)+outcome.pts);
       if(choice.failChifir) s.chifir=Math.max(0,(Number(s.chifir)||0)+Number(choice.failChifir));
-      if(choice.failRep)changeRel(npc,Number(choice.failRep),s,Number(choice.failRep)<0?'fail':'');
       text=(npc.icon||'')+' '+outcome.msg;
     }
     var nextRound=roundIndex+1;
