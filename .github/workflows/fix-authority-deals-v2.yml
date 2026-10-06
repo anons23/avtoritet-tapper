@@ -1,0 +1,81 @@
+name: Fix authority auto deals v2
+on:
+  workflow_dispatch:
+jobs:
+  fix:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: fix/yandex-16plus-stability
+      - name: Apply patches
+        run: |
+          python3 <<'PY'
+          from pathlib import Path
+          import re
+
+          t = Path('js/authority-ui.js').read_text()
+          if 'AUTO_DEAL_EVERY' not in t:
+              t = t.replace(
+                  'clashState=null,clashTimer=null,oppTimer=null;',
+                  'clashState=null,clashTimer=null,oppTimer=null;\n  let tapsSinceDeal=0;\n  const AUTO_DEAL_EVERY=50;'
+              )
+          t = re.sub(
+              r'function startDeal\(free\)\{if\(modalOpen\)return;',
+              'function startDeal(free){if(modalOpen)return;tapsSinceDeal=0;',
+              t, count=1
+          )
+          old = """    const target=e.target.closest('.authority-deal-btn,.authority-pressure-btn,.authority-great-btn');
+    if(target){
+      e.preventDefault();
+      e.stopImmediatePropagation();
+      if(target.classList.contains('authority-deal-btn'))startDeal();
+      else if(target.classList.contains('authority-pressure-btn'))clashTap(e);
+      else{closeAuthorityModal();setMessage('📋 Дело закрыто. Авторитет растёт.');}
+    }"""
+          new = """    const target=e.target.closest('.authority-deal-btn,.authority-pressure-btn,.authority-great-btn');
+    if(target){
+      e.preventDefault();
+      e.stopImmediatePropagation();
+      if(target.classList.contains('authority-deal-btn'))startDeal();
+      else if(target.classList.contains('authority-pressure-btn'))clashTap(e);
+      else{closeAuthorityModal();setMessage('📋 Дело закрыто. Авторитет растёт.');}
+      return;
+    }
+    if(modalOpen||clashState)return;
+    tapsSinceDeal++;
+    if(tapsSinceDeal>=AUTO_DEAL_EVERY){
+      tapsSinceDeal=0;
+      setTimeout(function(){ try{ startDeal(true); }catch(err){} }, 30);
+    }"""
+          if old not in t:
+              raise SystemExit('capture block missing')
+          t = t.replace(old, new)
+          if 'window.__authorityNoteTap' not in t:
+              t = t.replace(
+                  'window.startAuthorityDeal=function(){startDeal(true)};',
+                  "window.startAuthorityDeal=function(){startDeal(true)};\n  window.__authorityNoteTap=function(){\n    if(!authorityActive||modalOpen||clashState)return;\n    var s=state();\n    if(!s||Number(s.points)<40000||s.currentObject!==4||s.jailed)return;\n    tapsSinceDeal++;\n    if(tapsSinceDeal>=AUTO_DEAL_EVERY){\n      tapsSinceDeal=0;\n      setTimeout(function(){ try{ startDeal(true); }catch(err){} }, 30);\n    }\n  };"
+              )
+          Path('js/authority-ui.js').write_text(t)
+
+          g = Path('js/authority-gate.js')
+          g.write_text(g.read_text().replace('DEAL_COOLDOWN_TAPS=100','DEAL_COOLDOWN_TAPS=50'))
+
+          b = Path('js/bootstrap.js').read_text()
+          b = b.replace('authority-ui.js?v=1.8','authority-ui.js?v=1.9')
+          b = b.replace('authority-ui.js?v=1.9','authority-ui.js?v=1.10')
+          b = b.replace('authority-gate.js?v=1.1','authority-gate.js?v=1.2')
+          b = b.replace('authority-gate.js?v=1.2','authority-gate.js?v=1.3')
+          Path('js/bootstrap.js').write_text(b)
+          print('done')
+          PY
+          node --check js/authority-ui.js
+      - name: Commit
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add js/authority-ui.js js/authority-gate.js js/bootstrap.js
+          git commit -m "fix: auto deals every 50 taps on Авторитет (+ clashes)" || echo nothing
+          git push origin HEAD:fix/yandex-16plus-stability
