@@ -1,0 +1,61 @@
+name: Rename psikh raid assets
+on:
+  workflow_dispatch:
+    inputs:
+      target_branch:
+        description: 'Branch'
+        required: true
+        default: 'fix/yandex-16plus-stability'
+jobs:
+  rename:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.inputs.target_branch }}
+      - name: Rename Russian / messy raid filenames
+        run: |
+          set -e
+          cd assets/raids
+
+          mv_if() { [ -f "$1" ] && git mv -f "$1" "$2" || true; }
+
+          # backgrounds (Cyrillic)
+          mv_if "backgrounds/фонПсихМобил (1).webp" backgrounds/psikh_mobile.webp
+          mv_if "backgrounds/фонПсихМобил (2).webp" backgrounds/psikh_pc.webp
+          # legacy jpg if any
+          mv_if "backgrounds/фонПсихМобил (1).jpg" backgrounds/psikh_mobile.jpg
+          mv_if "backgrounds/фонПсихМобил (2).jpg" backgrounds/psikh_pc.jpg
+
+          # psikh fighters
+          mv_if "fighters/Psish1 (1).webp" fighters/psikh1.webp
+          mv_if "fighters/Psish1 (2).webp" fighters/psikh2.webp
+          mv_if "fighters/Psish1 (3).webp" fighters/psikh3.webp
+          mv_if "fighters/Psish1 (4).webp" fighters/psikh4.webp
+          mv_if "fighters/Psish1 (5).webp" fighters/psikh5.webp
+          mv_if "fighters/Psish.webm" fighters/psikh.webm
+
+          # krest (Crest)
+          mv_if "fighters/Crest (1).webp" fighters/krest1.webp
+          mv_if "fighters/Crest (2).webp" fighters/krest2.webp
+          mv_if "fighters/Crest (3).webp" fighters/krest3.webp
+          mv_if "fighters/Crest (4).webp" fighters/krest4.webp
+          mv_if "fighters/Crest (5).webp" fighters/krest5.webp
+
+          echo "=== backgrounds ==="
+          ls -la backgrounds/
+          echo "=== fighters (psikh/krest) ==="
+          ls -la fighters/ | grep -iE 'psikh|krest|psish|crest|фон' || true
+      - name: Commit
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add -A assets/raids
+          if git diff --cached --quiet; then
+            echo "No changes"
+          else
+            git commit -m "chore: rename psikh/krest raid assets to English"
+            git push origin HEAD:${{ github.event.inputs.target_branch }}
+          fi
