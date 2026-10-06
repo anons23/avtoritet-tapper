@@ -1,0 +1,72 @@
+name: Wire daily quests
+on:
+  workflow_dispatch:
+jobs:
+  fix:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: fix/yandex-16plus-stability
+      - name: Hook raid win + index + bootstrap
+        run: |
+          python3 <<'PY'
+          from pathlib import Path
+
+          # raids-ui: call daily on win
+          p=Path('js/raids-ui.js')
+          t=p.read_text()
+          needle="if(typeof window.saveGame==='function') window.saveGame();\n        if(typeof window.ui==='function') window.ui();"
+          insert=needle+"\n        try{ if(typeof window.__dailyNoteRaidWin==='function') window.__dailyNoteRaidWin(); }catch(e){}"
+          if '__dailyNoteRaidWin' not in t:
+              if needle not in t:
+                  # try compact
+                  n2="if(typeof window.saveGame==='function') window.saveGame();"
+                  if n2 in t and '__dailyNoteRaidWin' not in t:
+                      t=t.replace(n2, n2+"\n        try{ if(typeof window.__dailyNoteRaidWin==='function') window.__dailyNoteRaidWin(); }catch(e){}", 1)
+                      print('raid hooked compact')
+                  else:
+                      raise SystemExit('raid needle missing')
+              else:
+                  t=t.replace(needle, insert, 1)
+                  print('raid hooked')
+              p.write_text(t)
+          else:
+              print('raid already hooked')
+
+          # bootstrap version
+          b=Path('js/bootstrap.js')
+          bt=b.read_text()
+          bt=bt.replace("daily.js?v=1.0","daily.js?v=1.1")
+          bt=bt.replace("[bootstrap] v2.87","[bootstrap] v2.88")
+          # ensure log line exists update
+          if 'v2.88' not in bt:
+              bt=bt.replace("ready (npc-barrack restored)","ready (daily quests)")
+          b.write_text(bt)
+
+          # index: css + cache
+          idx=Path('index.html')
+          it=idx.read_text()
+          if 'daily-quests.css' not in it:
+              it=it.replace(
+                  '<link rel="stylesheet" href="./polish-buttons.css?v=1.0">',
+                  '<link rel="stylesheet" href="./polish-buttons.css?v=1.0">\n<link rel="stylesheet" href="./daily-quests.css?v=1.0">'
+              )
+          it=it.replace('bootstrap.js?v=2.87','bootstrap.js?v=2.88')
+          it=it.replace('bootstrap.js?v=2.86','bootstrap.js?v=2.88')
+          it=it.replace('bootstrap.js?v=2.85','bootstrap.js?v=2.88')
+          it=it.replace('raids-ui.js?v=4.81','raids-ui.js?v=4.82')
+          idx.write_text(it)
+          print('index ok')
+          PY
+      - name: Commit
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add js/raids-ui.js js/bootstrap.js index.html daily-quests.css js/daily.js
+          if git diff --cached --quiet; then echo no changes; else
+            git commit -m "feat: wire daily quests UI + raid win counter"
+            git push origin HEAD:fix/yandex-16plus-stability
+          fi
