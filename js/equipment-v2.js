@@ -1,33 +1,34 @@
-/* equipment-v2 — rebalanced rarities, new items, icons */
+/* equipment-v2 — rebalanced rarities, icons webp, raid-only stats */
 'use strict';
 (function(){
   var ICON_BASE='./assets/equipment-icons/';
   /* rarity: common | rare | extreme | authority
-     common raid dmg: 2–6 */
+     common raid dmg: 2–6
+     Оружие/броня работают ТОЛЬКО в рейдах */
   var WEAPONS=[
     {id:'fists',name:'Кулаки',icon:'👊',img:'fists.webp',cost:0,power:0,raid:0,rarity:'common',shop:true,desc:'Голые руки'},
     {id:'nail',name:'Ржавый гвоздь',icon:'📌',img:'nail.webp',cost:800,power:0,raid:2,rarity:'common',shop:true,desc:'+2 урон в рейдах'},
     {id:'glass',name:'Осколок стекла',icon:'🔪',img:'glass.webp',cost:1200,power:0,raid:3,rarity:'common',shop:true,desc:'+3 урон в рейдах'},
     {id:'razor',name:'Бритва',icon:'🪒',img:'razor.webp',cost:1500,power:0,raid:4,rarity:'common',shop:true,desc:'+4 урон в рейдах'},
     {id:'awl',name:'Шило',icon:'📍',img:'awl.webp',cost:4000,power:0,raid:6,rarity:'common',shop:true,desc:'+6 урон в рейдах'},
-    {id:'hammer',name:'Молоток',icon:'🔨',img:'hammer.webp',cost:12000,power:1,raid:18,rarity:'rare',shop:true,desc:'+1 сила · +18 урон в рейдах'},
-    {id:'shank',name:'Заточка',icon:'🗡️',img:'shank.webp',cost:18000,power:1,raid:24,rarity:'rare',shop:true,desc:'+1 сила · +24 урон в рейдах'},
-    {id:'bat',name:'Бита',icon:'🏏',img:'bat.webp',cost:35000,power:2,raid:36,rarity:'rare',shop:true,desc:'+2 сила · +36 урон в рейдах'},
-    {id:'butterfly',name:'Нож-бабочка',icon:'🦋',img:'butterfly.webp',cost:0,power:3,raid:55,rarity:'extreme',shop:false,desc:'Только из рейдов · +3 сила · +55 урон'},
-    {id:'knuckles',name:'Кастет',icon:'✊',img:'knuckles.webp',cost:0,power:4,raid:85,rarity:'extreme',shop:false,desc:'Только из рейдов · +4 сила · +85 урон'},
-    {id:'pipe',name:'Труба',icon:'🔩',img:'pipe.webp',cost:90000,power:4,raid:90,rarity:'extreme',shop:true,desc:'+4 сила · +90 урон в рейдах'},
-    {id:'chain',name:'Цепь',icon:'⛓️',img:'chain.webp',cost:0,power:5,raid:110,rarity:'extreme',shop:false,desc:'Только из рейдов · +5 сила · +110 урон'},
-    {id:'authority',name:'Секира',icon:'🪓',img:'sekira.webp',cost:0,power:8,raid:200,rarity:'authority',shop:false,desc:'Только с босса · +8 сила · +200 урон'}
+    {id:'hammer',name:'Молоток',icon:'🔨',img:'hammer.webp',cost:12000,power:1,raid:18,rarity:'rare',shop:true,desc:'+18 урон в рейдах'},
+    {id:'shank',name:'Заточка',icon:'🗡️',img:'shank.webp',cost:18000,power:1,raid:24,rarity:'rare',shop:true,desc:'+24 урон в рейдах'},
+    {id:'bat',name:'Бита',icon:'🏏',img:'bat.webp',cost:35000,power:2,raid:36,rarity:'rare',shop:true,desc:'+36 урон в рейдах'},
+    {id:'butterfly',name:'Нож-бабочка',icon:'🦋',img:'butterfly.webp',cost:0,power:3,raid:55,rarity:'extreme',shop:false,desc:'Только из рейдов · +55 урон'},
+    {id:'knuckles',name:'Кастет',icon:'✊',img:'knuckles.webp',cost:0,power:4,raid:85,rarity:'extreme',shop:false,desc:'Только из рейдов · +85 урон'},
+    {id:'pipe',name:'Труба',icon:'🔩',img:'pipe.webp',cost:90000,power:4,raid:90,rarity:'extreme',shop:true,desc:'+90 урон в рейдах'},
+    {id:'chain',name:'Цепь',icon:'⛓️',img:'chain.webp',cost:0,power:5,raid:110,rarity:'extreme',shop:false,desc:'Только из рейдов · +110 урон'},
+    {id:'authority',name:'Секира',icon:'🪓',img:'sekira.webp',cost:0,power:8,raid:200,rarity:'authority',shop:false,desc:'Только с босса · +200 урон'}
   ];
   var ARMORS=[
-    {id:'tee',name:'Майка',icon:'👕',img:'tee.webp',cost:0,energy:0,crit:0,rarity:'common',shop:true,desc:'Без защиты'},
-    {id:'fufayka',name:'Фуфайка',icon:'🧥',cost:1800,energy:15,crit:0,rarity:'common',shop:true,desc:'+15 макс. энергия'},
-    {id:'vatnik',name:'Ватник',icon:'🧶',img:'padded_jacket.webp',cost:3500,energy:25,crit:0.005,rarity:'common',shop:true,desc:'+25 энергия · +0.5% крит'},
-    {id:'leather',name:'Кожанка',icon:'🧥',img:'leather.webp',cost:15000,energy:45,crit:0.015,rarity:'rare',shop:true,desc:'+45 энергия · +1.5% крит'},
-    {id:'crosschain',name:'Цепь с крестом',icon:'✝️',img:'cross_chain.webp',cost:28000,energy:60,crit:0.025,rarity:'rare',shop:true,desc:'+60 энергия · +2.5% крит'},
-    {id:'plate',name:'Броник',icon:'🛡️',img:'plate.webp',cost:55000,energy:90,crit:0.03,rarity:'extreme',shop:true,desc:'+90 энергия · +3% крит'},
-    {id:'vest',name:'Разгрузка',icon:'🦺',img:'vest.webp',cost:0,energy:110,crit:0.04,rarity:'extreme',shop:false,desc:'Только из рейдов · +110 энергия · +4% крит'},
-    {id:'crown',name:'Корона зоны',icon:'👑',img:'zone_crown.webp',cost:0,energy:160,crit:0.06,rarity:'authority',shop:false,desc:'Только с босса · +160 энергия · +6% крит'}
+    {id:'tee',name:'Майка',icon:'👕',img:'tee.webp',cost:0,energy:0,crit:0,rarity:'common',shop:true,desc:'Без бонусов'},
+    {id:'fufayka',name:'Фуфайка',icon:'🧥',img:'padded_jacket.webp',cost:1800,energy:0,crit:0.01,rarity:'common',shop:true,desc:'+1% крит в рейдах'},
+    {id:'vatnik',name:'Ватник',icon:'🧶',img:'padded_jacket.webp',cost:3500,energy:0,crit:0.015,rarity:'common',shop:true,desc:'+1.5% крит в рейдах'},
+    {id:'leather',name:'Кожанка',icon:'🧥',img:'leather.webp',cost:15000,energy:0,crit:0.025,rarity:'rare',shop:true,desc:'+2.5% крит в рейдах'},
+    {id:'crosschain',name:'Цепь с крестом',icon:'✝️',img:'cross_chain.webp',cost:28000,energy:0,crit:0.035,rarity:'rare',shop:true,desc:'+3.5% крит в рейдах'},
+    {id:'plate',name:'Броник',icon:'🛡️',img:'plate.webp',cost:55000,energy:0,crit:0.045,rarity:'extreme',shop:true,desc:'+4.5% крит в рейдах'},
+    {id:'vest',name:'Разгрузка',icon:'🦺',img:'vest.webp',cost:0,energy:0,crit:0.055,rarity:'extreme',shop:false,desc:'Только из рейдов · +5.5% крит'},
+    {id:'crown',name:'Корона зоны',icon:'👑',img:'zone_crown.webp',cost:0,energy:0,crit:0.08,rarity:'authority',shop:false,desc:'Только с босса · +8% крит в рейдах'}
   ];
 
   var RL={common:'Обычное',rare:'Редкое',extreme:'Крайне редкое',authority:'Авторитетное'};
@@ -139,7 +140,7 @@
     var w=s.equipment.weapon||'fists';
     var a=s.equipment.armor||'tee';
     var html='<div class="eq-window"><div class="eq-kicker">СНАРЯЖЕНИЕ</div><h2>Оружие и броня</h2>';
-    html+='<p class="eq-sub">Обычное — серое · Редкое — зелёное · Крайне редкое — красное · Авторитетное — золото</p>';
+    html+='<p class="eq-sub">Работают только в рейдах · Обычное — серое · Редкое — зелёное · Крайне редкое — красное · Авторитетное — золото</p>';
     html+='<div class="eq-section"><b>🗡 Оружие</b>';
     WEAPONS.forEach(function(it){html+=card(it,'weapon',s.ownedWeapons.indexOf(it.id)>=0,w)});
     html+='</div><div class="eq-section"><b>🛡 Броня</b>';
@@ -237,7 +238,7 @@
   window.rollRaidDrops=rollRaidDrops;
   window.openEquipment=openEquipment;
   window.getEquipRaidBonus=function(){var s=st();if(!s||!s.equipment)return 0;var w=WEAPONS.find(function(x){return x.id===s.equipment.weapon});return w?Number(w.raid)||0:0};
-  window.getEffectivePower=function(){var s=st();if(!s)return 1;var w=WEAPONS.find(function(x){return x.id===(s.equipment&&s.equipment.weapon)});var bonus=w?Number(w.power)||0:0;return Math.max(1,(Number(s.power)||1)+bonus)};
+  window.getEffectivePower=function(){var s=st();if(!s)return 1;return Math.max(1,Number(s.power)||1)};
   window.getEffectiveCrit=function(){var s=st();if(!s)return 0.05;var a=ARMORS.find(function(x){return x.id===(s.equipment&&s.equipment.armor)});var bonus=a?Number(a.crit)||0:0;return Math.min(0.55,(Number(s.critChance)||0.05)+bonus)};
-  console.log('[equipment-v2] rebalance v3.4');
+  console.log('[equipment-v2] rebalance v3.5 raid-only');
 })();
