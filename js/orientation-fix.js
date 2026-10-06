@@ -1,36 +1,76 @@
+/* orientation-fix v2.0 — только портрет на мобильных */
 'use strict';
-(function () {
-  /* Force layout refresh after phone rotation (svh/dvh lag on some mobile browsers). */
-  function refreshViewport() {
-    try {
-      var gc = document.getElementById('game-container');
-      if (!gc) return;
-      /* Nudge height so the browser recomputes 100dvh/100svh. */
-      gc.style.height = '100dvh';
-      gc.style.maxHeight = '100dvh';
-      gc.style.minHeight = '0';
-      /* Optional: notify other modules that layout changed. */
-      try {
-        window.dispatchEvent(new Event('avt-orientation'));
-      } catch (e) {}
-    } catch (e) {}
+(function(){
+  var OVERLAY_ID='portrait-lock-overlay';
+
+  function ensureOverlay(){
+    var el=document.getElementById(OVERLAY_ID);
+    if(el)return el;
+    el=document.createElement('div');
+    el.id=OVERLAY_ID;
+    el.setAttribute('aria-live','polite');
+    el.innerHTML=
+      '<div class="portrait-lock-card">'+
+        '<div class="portrait-lock-icon">📱</div>'+
+        '<b>Переверните телефон</b>'+
+        '<p>Игра работает только в вертикальном положении</p>'+
+      '</div>';
+    document.body.appendChild(el);
+    return el;
   }
 
-  var timer = 0;
-  function onOrient() {
-    clearTimeout(timer);
-    timer = setTimeout(refreshViewport, 120);
+  function isMobile(){
+    try{
+      if(window.matchMedia&&window.matchMedia('(pointer:coarse)').matches)return true;
+    }catch(e){}
+    return /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent||'');
   }
 
-  window.addEventListener('orientationchange', onOrient);
-  window.addEventListener('resize', onOrient);
-  if (window.visualViewport) {
-    window.visualViewport.addEventListener('resize', onOrient);
+  function isLandscape(){
+    try{
+      if(window.matchMedia&&window.matchMedia('(orientation: landscape)').matches)return true;
+    }catch(e){}
+    return window.innerWidth>window.innerHeight;
   }
 
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', refreshViewport);
-  } else {
-    refreshViewport();
+  function update(){
+    var el=ensureOverlay();
+    var lock=isMobile()&&isLandscape();
+    el.classList.toggle('show',!!lock);
+    document.documentElement.classList.toggle('force-portrait',!!lock);
+    document.body.classList.toggle('force-portrait',!!lock);
+
+    // попытка системной блокировки (работает не везде, только fullscreen/жест)
+    try{
+      if(screen.orientation&&typeof screen.orientation.lock==='function'){
+        if(!isLandscape()){
+          screen.orientation.lock('portrait').catch(function(){});
+        }
+      }
+    }catch(e){}
+
+    // подправить высоту контейнера
+    try{
+      var gc=document.getElementById('game-container');
+      if(gc){
+        gc.style.height='100dvh';
+        gc.style.maxHeight='100dvh';
+      }
+    }catch(e){}
   }
+
+  var t=0;
+  function onChange(){
+    clearTimeout(t);
+    t=setTimeout(update,80);
+  }
+
+  window.addEventListener('orientationchange',onChange);
+  window.addEventListener('resize',onChange);
+  if(window.visualViewport)window.visualViewport.addEventListener('resize',onChange);
+
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',update);
+  else update();
+
+  console.log('[orientation-fix] v2.0 portrait-only');
 })();

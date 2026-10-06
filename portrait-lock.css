@@ -1,0 +1,48 @@
+/* Portrait-only lock overlay (mobile landscape) */
+#portrait-lock-overlay{
+  display:none;
+  position:fixed;
+  inset:0;
+  z-index:99999;
+  background:rgba(8,10,12,.94);
+  color:#f2f2f2;
+  align-items:center;
+  justify-content:center;
+  padding:24px;
+  text-align:center;
+  font-family:system-ui,sans-serif;
+}
+#portrait-lock-overlay.show{
+  display:flex!important;
+}
+.portrait-lock-card{
+  max-width:320px;
+}
+.portrait-lock-icon{
+  font-size:48px;
+  line-height:1;
+  margin-bottom:12px;
+  animation:portrait-tilt 1.6s ease-in-out infinite;
+}
+.portrait-lock-card b{
+  display:block;
+  font-size:20px;
+  font-weight:1000;
+  margin-bottom:8px;
+  color:#f1c04c;
+}
+.portrait-lock-card p{
+  margin:0;
+  font-size:14px;
+  line-height:1.4;
+  color:#c8cdd1;
+}
+@keyframes portrait-tilt{
+  0%,100%{transform:rotate(-12deg)}
+  50%{transform:rotate(12deg)}
+}
+
+/* На всякий случай прячем геймплей под заглушкой */
+html.force-portrait #game-container{
+  visibility:hidden;
+}
