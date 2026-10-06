@@ -12,6 +12,8 @@
   ];
   const SUPPORTS=[['Союзник','Старший заключённый предлагает поддержать твоё решение.',10,8],['Староста','Староста барака подтверждает твою версию событий.',14,6],['Свидетель','Свидетель рассказывает, как всё началось.',12,7]];
   let root=null,tapArea=null,originalTapHTML='',authorityActive=false,modalOpen=false,dealResolving=false,clashState=null,clashTimer=null,oppTimer=null;
+  let tapsSinceDeal=0;
+  const AUTO_DEAL_EVERY=50;
   const $=id=>document.getElementById(id);
   const esc=s=>String(s).replace(/[&<>"']/g,m=>({'&':'&','<':'<','>':'>','"':'"',"'":'&#39;'}[m]));
   const fmt=n=>{n=Math.floor(Number(n)||0);return n>=1e6?(n/1e6).toFixed(1)+'M':n>=1e3?(n/1e3).toFixed(1)+'K':String(n)};
@@ -75,11 +77,30 @@
       if(target.classList.contains('authority-deal-btn'))startDeal();
       else if(target.classList.contains('authority-pressure-btn'))clashTap(e);
       else{closeAuthorityModal();setMessage('📋 Дело закрыто. Авторитет растёт.');}
+      return;
+    }
+    // обычный тап по экрану Авторитета — раз в ~50 тапов дело барака (может перейти в стычку)
+    if(modalOpen||clashState)return;
+    tapsSinceDeal++;
+    if(tapsSinceDeal>=AUTO_DEAL_EVERY){
+      tapsSinceDeal=0;
+      // free: не списываем 3⚡ за авто-событие
+      setTimeout(function(){ try{ startDeal(true); }catch(err){} }, 30);
     }
     // non-control taps: do not stopImmediatePropagation
   }
   function sync(){const s=state();if(!s||Number(s.points)<40000||s.currentObject!==4||s.jailed){deactivate();return}if(!authorityActive)renderAuthority()}
   window.startAuthorityDeal=function(){startDeal(true)};
+  window.__authorityNoteTap=function(){
+    if(!authorityActive||modalOpen||clashState)return;
+    const s=state();
+    if(!s||Number(s.points)<40000||s.currentObject!==4||s.jailed)return;
+    tapsSinceDeal++;
+    if(tapsSinceDeal>=AUTO_DEAL_EVERY){
+      tapsSinceDeal=0;
+      setTimeout(function(){ try{ startDeal(true); }catch(err){} }, 30);
+    }
+  };
   function init(){root=$('game-container');tapArea=$('tap-area');if(!root||!tapArea)return;originalTapHTML=tapArea.innerHTML;tapArea.addEventListener('pointerdown',capture,true);document.addEventListener('pointerdown',handleAuthorityButton,true);setInterval(sync,350);sync();const close=$('modal-close');if(close)close.addEventListener('click',()=>{if(modalOpen&&$('modal-overlay')?.dataset.locked!=='1')closeAuthorityModal()})}
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});else init();
 })();

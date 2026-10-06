@@ -18,9 +18,9 @@
     {src:'./js/stories-ui-v2.js?v=2.1',critical:false},
     {src:'./js/stability-fixes.js?v=1.4',critical:false},
     {src:'./js/authority-css-restore.js?v=1.6',critical:false},
-    {src:'./js/authority-ui.js?v=1.8',critical:false},
+    {src:'./js/authority-ui.js?v=1.9',critical:false},
     {src:'./js/authority-folder-fix.js?v=1.0',critical:false},
-    {src:'./js/authority-gate.js?v=1.1',critical:false}
+    {src:'./js/authority-gate.js?v=1.2',critical:false}
   ];
   function preloadProgress(step,message){try{if(typeof window.__setPreloaderProgress==='function')window.__setPreloaderProgress(step,message)}catch(e){}}
   function finishPreloader(){try{if(typeof window.__finishPreloader==='function')window.__finishPreloader()}catch(e){}}

@@ -2,7 +2,7 @@
 (function(){
   const MIN_POINTS=40000;
   const MIN_OBJECT=4;
-  const DEAL_COOLDOWN_TAPS=100;
+  const DEAL_COOLDOWN_TAPS=50;
   const DEAL_RE=/^(📋\s*)?(Дело барака|Распределение|Разговор|Решение|Договорённость)/;
   let lastDealTap=-Infinity;
   let originalTapHTML='<div id="tap-object" class="tap-target preload-hidden"><div id="object-emoji"></div><div id="object-name">Груша</div><small id="object-action">ТАПАЙ!</small></div><div id="tap-feedback"></div>';
