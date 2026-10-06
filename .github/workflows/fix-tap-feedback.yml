@@ -1,0 +1,35 @@
+name: Fix tap feedback
+on:
+  workflow_dispatch:
+jobs:
+  fix:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: fix/yandex-16plus-stability
+      - name: Patch game.js feedback + bootstrap version
+        run: |
+          python3 <<'PY'
+          from pathlib import Path
+          g=Path('js/game.js').read_text()
+          old='''function feedback(e, g, c){\n  const f = $('tap-feedback');\n  if(!f) return;\n  f.textContent = (c ? '⚡ ' : '') + '+' + Math.floor(g);\n  f.classList.add('show');\n  setTimeout(()=>f.classList.remove('show'), 600);\n}'''
+          new='''function feedback(e, g, c){\n  let f = $('tap-feedback');\n  if(!f){\n    f = document.createElement('div');\n    f.id = 'tap-feedback';\n    f.setAttribute('aria-hidden','true');\n    document.body.appendChild(f);\n  }\n  const x = (e && (e.clientX||(e.touches&&e.touches[0]&&e.touches[0].clientX))) || (window.innerWidth/2);\n  const y = (e && (e.clientY||(e.touches&&e.touches[0]&&e.touches[0].clientY))) || (window.innerHeight/2);\n  f.style.left = x + 'px';\n  f.style.top = y + 'px';\n  f.textContent = (c ? '⚡ ' : '') + '+' + Math.floor(g);\n  f.classList.remove('show');\n  void f.offsetWidth;\n  f.classList.add('show');\n  clearTimeout(f._hideT);\n  f._hideT = setTimeout(()=>f.classList.remove('show'), 700);\n}'''
+          if old not in g:
+              raise SystemExit('feedback block not found')
+          g=g.replace(old,new)
+          g=g.replace("[game] v4.82", "[game] v4.86").replace("[game] v4.85", "[game] v4.86")
+          Path('js/game.js').write_text(g)
+          b=Path('js/bootstrap.js').read_text()
+          b=b.replace('game.js?v=4.85','game.js?v=4.86').replace('game.js?v=4.82','game.js?v=4.86')
+          Path('js/bootstrap.js').write_text(b)
+          print('patched')
+          PY
+      - name: Commit
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add js/game.js js/bootstrap.js
+          if git diff --cached --quiet; then echo no changes; else git commit -m "fix: recreate + position tap feedback (Авторитет)"; git push origin HEAD:fix/yandex-16plus-stability; fi
