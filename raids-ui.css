@@ -221,3 +221,41 @@
 #modal-overlay.raid-fullscreen .raid-fighter.petrovich,
 #modal-overlay.raid-fullscreen .raid-fighter.glaz{width:min(100vw,620px)}
 }
+
+
+/* PHASE 1 — raid progression / clear drop presentation */
+.raid-progression{
+  margin-top:6px;
+  padding:6px 9px;
+  border:1px solid rgba(213,168,74,.28);
+  border-radius:9px;
+  background:rgba(0,0,0,.28);
+  color:#aaa;
+  font-size:11px;
+}
+.raid-progression b{color:#f3d27a}
+.raid-phase{
+  margin-top:5px;
+  text-align:center;
+  color:#f3d27a;
+  font-size:10px;
+  font-weight:950;
+  letter-spacing:.08em;
+  text-shadow:0 2px 4px #000;
+}
+.raid-result-card{
+  width:min(390px,90vw);
+  padding:24px 20px;
+}
+.raid-result-drop{
+  margin:12px 0 16px;
+  padding:10px 12px;
+  border:1px solid rgba(213,168,74,.35);
+  border-radius:12px;
+  background:rgba(0,0,0,.32);
+  color:#f3d27a;
+  font-size:13px;
+  line-height:1.55;
+}
+.raid-drop-item{display:block;color:#fff}
+.raid-drop-empty{color:#999}
