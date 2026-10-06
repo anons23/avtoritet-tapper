@@ -1,4 +1,4 @@
-/* raids-ui v4.80 — weapon bonus dmg */
+/* raids-ui v4.81 — English asset paths for psikh/krest */
 'use strict';
 (function(){
   var REQS=[0,1500,5000,15000,50000];
@@ -18,8 +18,8 @@
     mafioznik:'./assets/raids/fighters/mafioznik_hit_1.webp',
     mongol:'./assets/raids/fighters/Mongol1.webp',
     glaz:'./assets/raids/fighters/Glaz1.webp',
-    krest:'./assets/raids/fighters/Crest%20(1).webp',
-    psikh:'./assets/raids/fighters/Psish1%20(1).webp'
+    krest:'./assets/raids/fighters/krest1.webp',
+    psikh:'./assets/raids/fighters/psikh1.webp'
   };
   var IDLE={
     petrovich:'./assets/raids/fighters/petrovich.webm',
@@ -28,7 +28,7 @@
     mongol:'./assets/raids/fighters/Mongol.webm',
     glaz:'./assets/raids/fighters/Glaz.webm',
     krest:'./assets/raids/fighters/krest.webm',
-    psikh:'./assets/raids/fighters/Psish.webm'
+    psikh:'./assets/raids/fighters/psikh.webm'
   };
   var HITS={
     petrovich:['./assets/raids/fighters/petrovich1.webp','./assets/raids/fighters/petrovich2.webp','./assets/raids/fighters/petrovich3.webp','./assets/raids/fighters/petrovich4.webp'],
@@ -36,8 +36,8 @@
     mafioznik:['./assets/raids/fighters/mafioznik_hit_1.webp','./assets/raids/fighters/mafioznik_hit_2.webp','./assets/raids/fighters/mafioznik_hit_3.webp','./assets/raids/fighters/mafioznik_hit_4.webp'],
     mongol:['./assets/raids/fighters/Mongol1.webp','./assets/raids/fighters/Mongol2.webp','./assets/raids/fighters/Mongol3.webp','./assets/raids/fighters/Mongol4.webp'],
     glaz:['./assets/raids/fighters/Glaz1.webp','./assets/raids/fighters/Glaz2.webp','./assets/raids/fighters/Glaz3.webp','./assets/raids/fighters/Glaz4.webp'],
-    krest:['./assets/raids/fighters/Crest%20(1).webp','./assets/raids/fighters/Crest%20(2).webp','./assets/raids/fighters/Crest%20(3).webp','./assets/raids/fighters/Crest%20(4).webp','./assets/raids/fighters/Crest%20(5).webp'],
-    psikh:['./assets/raids/fighters/Psish1%20(1).webp','./assets/raids/fighters/Psish1%20(2).webp','./assets/raids/fighters/Psish1%20(3).webp','./assets/raids/fighters/Psish1%20(4).webp','./assets/raids/fighters/Psish1%20(5).webp']
+    krest:['./assets/raids/fighters/krest1.webp','./assets/raids/fighters/krest2.webp','./assets/raids/fighters/krest3.webp','./assets/raids/fighters/krest4.webp','./assets/raids/fighters/krest5.webp'],
+    psikh:['./assets/raids/fighters/psikh1.webp','./assets/raids/fighters/psikh2.webp','./assets/raids/fighters/psikh3.webp','./assets/raids/fighters/psikh4.webp','./assets/raids/fighters/psikh5.webp']
   };
   var progress={}, idleTimer=0, lastHit=-1, raidActive=false, menuOpenedAt=0;
 
