@@ -9,14 +9,14 @@
     return '\u26a1 '+Math.max(0,Number(s.energy)||0)+' / '+Math.max(0,Number(s.maxEnergy)||250);
   }
   function ensureEnergyHud(){
-    var left=document.querySelector('.raid-hud-left') || document.querySelector('.raid-top') || $('raid-scene');
-    if(!left) return;
+    var scene=$('raid-scene');
+    if(!scene) return;
     var el=$('raid-energy-hud');
     if(!el){
       el=document.createElement('div');
       el.id='raid-energy-hud';
       el.className='raid-energy';
-      left.appendChild(el);
+      scene.appendChild(el);
     }
     el.textContent=energyLabel();
   }
