@@ -33,7 +33,7 @@ let s = {
   completed:{}, achievements:{}, lastEnergyTime:Date.now(),
   saveUpdatedAt:Date.now(), lastChoiceEvent:0, totalTaps:0,
   jailed:false, jailTaps:0, jailRequired:500, confiscatedChifir:0, jailProtection:0,
-  authorityTaps:0, sentenceDays:100, servedSentenceMinutes:0, lastSentenceTick:Date.now()
+  authorityTaps:0, sentenceDays:100, servedSentenceMinutes:0, sentenceTapCounter:0, lastSentenceTick:Date.now()
 };
 
 const $ = id => document.getElementById(id);
@@ -156,6 +156,7 @@ function load(){
   s.currentObject = highestUnlocked();
   if(!Number.isFinite(s.energy)) s.energy = 250;
   if(!Number.isFinite(s.maxEnergy)) s.maxEnergy = 250;
+  if(!Number.isFinite(s.sentenceTapCounter)) s.sentenceTapCounter = 0;
 }
 
 function openModal(h,locked){
@@ -213,6 +214,19 @@ function finishEvent(){
   tasksCheck();
   ui();
   saveNow();
+}
+function reduceSentenceForTap(){
+  // Считаются только обычные тапы по объектам. Карцер имеет отдельный tap-режим,
+  // а рейды не вызывают эту функцию.
+  s.sentenceTapCounter=Math.max(0,Number(s.sentenceTapCounter)||0)+1;
+  if(s.sentenceTapCounter<50)return;
+  const daysToRemove=Math.floor(s.sentenceTapCounter/50);
+  s.sentenceTapCounter=s.sentenceTapCounter%50;
+  if(Number(s.sentenceDays||0)<=0)return;
+  const before=Math.max(0,Number(s.sentenceDays)||0);
+  s.sentenceDays=Math.max(0,before-daysToRemove);
+  const removed=before-s.sentenceDays;
+  if(removed>0)msg('⛓️ 50 тапов — срок сокращён на '+removed+' дн.');
 }
 function addSentence(days,reason){
   days=Math.max(0,Math.floor(Number(days)||0));
@@ -380,6 +394,7 @@ function tap(e){
   s.energy--;
   s.totalTaps++;
   s.tasks.taps++;
+  reduceSentenceForTap();
   let g = TEST_MODE ? TEST_POINTS_PER_TAP : s.power * O[s.currentObject][2];
   const c = Math.random() < s.critChance;
   if(c){ s.tasks.crit++; if(!TEST_MODE) g *= 2; }
