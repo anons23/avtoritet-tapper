@@ -22,7 +22,7 @@
     {src:'./js/authority-folder-fix.js?v=1.0',critical:false},
     {src:'./js/authority-gate.js?v=1.3',critical:false},
     {src:'./js/authority-auto-deal.js?v=1.0',critical:false},
-    {src:'./js/authority-choice-guard.js?v=1.0',critical:false},
+    {src:'./js/authority-choice-guard.js?v=1.1',critical:false},
     {src:'./js/authority-clash-anim.js?v=1.0',critical:false},
     {src:'./js/authority-anim-fix.js?v=1.0',critical:false}
   ];
@@ -51,7 +51,7 @@
         if(item.critical)return;
       }
     }
-    console.log('[bootstrap] v2.85 ready (choice guard)');
+    console.log('[bootstrap] v2.86 ready (portrait + choice-guard once)');
   }
 
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot);
