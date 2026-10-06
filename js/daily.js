@@ -9,7 +9,7 @@
 
   var QUESTS=[];
   function buildQuestSet(s){
-    var d=ensure(s);
+    var d=s.daily;
     if(!d)return;
     var ids=Array.isArray(d.questIds)?d.questIds:[];
     if(ids.length!==3){
