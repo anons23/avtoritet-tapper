@@ -16,7 +16,7 @@
     {src:'./js/offline.js?v=1.0',critical:false},
     {src:'./js/share.js?v=1.0',critical:false},
     {src:'./js/leaderboard.js?v=1.0',critical:false},
-    {src:'./js/daily.js?v=1.1',critical:false},
+    {src:'./js/daily.js?v=2.0',critical:false},
     {src:'./js/authority-css-restore.js?v=1.6',critical:false},
     {src:'./js/authority-ui.js?v=1.9',critical:false},
     {src:'./js/authority-folder-fix.js?v=1.0',critical:false},
