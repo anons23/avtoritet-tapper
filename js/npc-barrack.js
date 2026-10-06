@@ -231,6 +231,12 @@
   }
 
   function showNpcResponse(npc, text, nextRound){
+    // Храним следующий раунд отдельно и всегда читаем его из сохранения при продолжении.
+    var s=st();
+    if(s){
+      talkStore(s)[npc.id+'_round']=nextRound;
+      save();
+    }
     var html='<div class="npc-hero">'+
       '<img class="npc-hero-img" src="'+npc.avatar+'" alt="" draggable="false">'+
       '<div class="npc-hero-title"><b>'+npc.name+'</b><small>'+npc.role+'</small></div>'+
@@ -246,10 +252,29 @@
     var next=$('npc-continue');
     if(next) next.addEventListener('click',function(e){
       e.preventDefault(); e.stopPropagation();
-      if(availableTalks(npc,st())>0)openDialogue(npc,nextRound);else showUrgentNpc(npc,st());
+      if(availableTalks(npc,st())>0)openDialogue(npc,nextRoundFor(npc,st()));else showUrgentNpc(npc,st());
     });
     var back=$('npc-back-list');
     if(back) back.addEventListener('click',function(e){ e.preventDefault(); renderList(); });
+  }
+
+  function failureOutcome(npc, choice, cost){
+    var t=String(choice.t||'').toLowerCase();
+    var pts=Number(choice.failPts);
+    if(!isFinite(pts)){
+      // По смыслу ответа: осторожность/отказ чаще воспринимаются как рассудительность,
+      // а уклонение от серьёзного дела может вызвать наезд.
+      if(/не лезть|не вмеш|отказ|уйти|не сейчас|сначала подготов|без геройства|не боюсь|неинтерес|промолч|сменить тему|всё равно/.test(t)){
+        return {pts:0,msg:'Ты не ввязался в сомнительную историю. В этот раз это выглядит как осторожность и рассудительность.'};
+      }
+      if(/риск|вызваться|прям|назвать|спросить|выслушать|доложить|имя|попросить|заплатить|дать|сказать/.test(t)){
+        return {pts:-15,msg:'Ответ оказался неудачным. Тебя задели за излишнюю прямоту — уважение просело на 15 ⭐.'};
+      }
+      return {pts:cost<0?-30:-10,msg:'Неудачный разговор. Ты потерял '+Math.abs(cost<0?-30:-10)+' ⭐ опыта.'};
+    }
+    var msg=choice.failMsg||('Неудачный ответ: опыт потерян на '+Math.abs(pts)+' ⭐.');
+    if(pts<0 && !/\d/.test(msg)) msg+=' Опыт потерян на '+Math.abs(pts)+' ⭐.';
+    return {pts:pts,msg:msg.replace(/\{lost\}/g,String(Math.abs(pts)))};
   }
 
   function resolveLine(npc, round, choice, roundIndex){
@@ -279,11 +304,10 @@
       if(choice.bugor) s.tasks.bugorSuccess=(Number(s.tasks.bugorSuccess)||0)+1;
       text=(npc.icon||'')+' '+(choice.msg||'Получилось.');
     }else{
-      var failPts=Number(choice.failPts);
-      if(!isFinite(failPts)) failPts=cost<0?-30:0;
-      if(failPts) s.points=Math.max(0,(Number(s.points)||0)+failPts);
+      var outcome=failureOutcome(npc,choice,cost);
+      if(outcome.pts) s.points=Math.max(0,(Number(s.points)||0)+outcome.pts);
       if(choice.failChifir) s.chifir=Math.max(0,(Number(s.chifir)||0)+Number(choice.failChifir));
-      text=(npc.icon||'')+' '+(choice.failMsg||'Не вышло. '+(cost<0?'Любопытной Варваре на базаре нос оторвали. Опыт потерян.':'Похоже, сегодня не твой день.'));
+      text=(npc.icon||'')+' '+outcome.msg;
     }
     var nextRound=roundIndex+1;
     if(nextRound>=npc.dialogs.length)nextRound=0;
