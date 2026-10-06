@@ -321,6 +321,24 @@
     var r=relState(npc,s).rep;
     return 1 + Math.min(.15,r/100);
   }
+
+  function rareWeaponLossOnFailure(s){
+    // Крайне редкий провал: около 5% шанс, что при вмешательстве ментов
+    // игрок лишится надетого оружия. Кулаки потерять нельзя.
+    if(!s || Math.random()>=0.05 || !s.equipment || !s.ownedWeapons)return '';
+    var wid=s.equipment.weapon||'fists';
+    if(!wid || wid==='fists')return '';
+    var itemId=wid, idx=s.ownedWeapons.indexOf(itemId);
+    if(idx>=0)s.ownedWeapons.splice(idx,1);
+    s.equipment.weapon='fists';
+    var names={
+      nail:'Ржавый гвоздь',glass:'Осколок стекла',razor:'Бритва',awl:'Шило',
+      hammer:'Молоток',shank:'Заточка',bat:'Бита',butterfly:'Нож-бабочка',
+      knuckles:'Кастет',pipe:'Труба',chain:'Цепь',authority:'Секира'
+    };
+    return ' Менты забрали твоё оружие: '+(names[itemId]||'оружие')+'.';
+  }
+
   function dropRoll(npc,choice,s){
     if(!choice.drop)return '';
     var r=relState(npc,s).rep;
@@ -540,6 +558,12 @@
         }
         changeRel(npc,Number(rr.rep)||0,s,(Number(rr.rep)||0)<0?'fail':(Number(rr.rep)||0)>0?'save':'');
         riskText=' '+(rr.msg||'Ситуация обернулась неприятно.');
+        // Только при уже случившемся провале рискованной ситуации возможна редкая потеря оружия.
+        // Базовый шанс строго 5%, независимо от уровня отношений.
+        if(rr.weaponLoss!==false){
+          var weaponLossText=rareWeaponLossOnFailure(s);
+          if(weaponLossText)riskText+=weaponLossText;
+        }
       }
       var dropText=dropRoll(npc,choice,s);
       text=(npc.icon||'')+' '+(choice.msg||'Получилось.')+riskText+dropText;
