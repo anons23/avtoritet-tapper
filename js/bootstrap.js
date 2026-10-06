@@ -5,7 +5,7 @@
     {src:'./js/game.js?v=4.86',critical:true},
     {src:'./js/music-stage.js?v=1.0',critical:false},
     {src:'./js/tasks-ui.js?v=1.2',critical:false},
-    {src:'./js/npc-barrack.js?v=2.4',critical:false},
+    {src:'./js/npc-barrack.js?v=2.5',critical:true},
     {src:'./js/object-visuals.js?v=3.3',critical:true},
     {src:'./js/choice-events.js?v=1.1',critical:false},
     {src:'./js/sentence.js?v=1.0',critical:false},
@@ -51,7 +51,7 @@
         if(item.critical)return;
       }
     }
-    console.log('[bootstrap] v2.86 ready (portrait + choice-guard once)');
+    console.log('[bootstrap] v2.87 ready (npc-barrack restored)');
   }
 
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot);
