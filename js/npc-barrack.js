@@ -152,18 +152,29 @@
     if(m) m.classList.add('npc-modal');
   }
 
+  var TALK_KEY='npcTalks';
+  var TALK_LIMIT=2, TALK_COOLDOWN=15*60*1000, AD_BONUS=2;
+  var adBusyNpc=null;
+  function talkStore(s){if(!s)return {};if(!s[TALK_KEY]||typeof s[TALK_KEY]!=='object')s[TALK_KEY]={};return s[TALK_KEY];}
+  function talkState(npc,s){var all=talkStore(s),x=all[npc.id]||{};return {used:Math.max(0,Number(x.used)||0),extra:Math.max(0,Number(x.extra)||0),until:Math.max(0,Number(x.until)||0)};}
+  function saveTalkState(npc,d,s){talkStore(s)[npc.id]=d;save();}
+  function cooldownText(until){var sec=Math.ceil(Math.max(0,Number(until)-Date.now())/1000),min=Math.floor(sec/60);sec%=60;return min?min+' мин '+String(sec).padStart(2,'0')+' сек':sec+' сек';}
+  function normalizeTalkState(npc,s){var d=talkState(npc,s);if(d.until&&d.until<=Date.now()){d.until=0;d.used=0;saveTalkState(npc,d,s);}return d;}
+  function availableTalks(npc,s){var d=normalizeTalkState(npc,s);return d.extra+(!d.until?Math.max(0,TALK_LIMIT-d.used):0);}
+  function consumeTalk(npc,s){var d=normalizeTalkState(npc,s);if(d.extra>0){d.extra--;saveTalkState(npc,d,s);return true;}if(d.until)return false;if(d.used<TALK_LIMIT){d.used++;if(d.used>=TALK_LIMIT){d.until=Date.now()+TALK_COOLDOWN;d.used=0;}saveTalkState(npc,d,s);return true;}return false;}
+  function nextRoundFor(npc,s){var all=talkStore(s),idx=Number(all[npc.id+'_round']);return Number.isFinite(idx)&&idx>=0&&idx<npc.dialogs.length?idx:0;}
+  function showUrgentNpc(npc,s){var d=normalizeTalkState(npc,s);if(availableTalks(npc,s)>0)return false;var phrases={bugor:'Бугор отдыхает, не беспокой его.',kosoy:'Косой ушёл на стрелку. Вернётся через ',shaiba:'Шайба ушёл по делам. Вернётся через ',smotryashiy:'Смотрящий занят. Освободится через ',avtoritet:'Авторитет отдыхает. Вернётся через '};var text=phrases[npc.id]||(npc.name+' сейчас занят. Вернётся через ');if(d.until)text+=cooldownText(d.until)+'.';else text=npc.name+' уже всё рассказал на сегодня.';var html='<div class="npc-hero"><img class="npc-hero-img" src="'+npc.avatar+'" alt="" draggable="false"><div class="npc-hero-title"><b>'+npc.name+'</b><small>'+npc.role+'</small></div></div><div class="npc-action-panel npc-rest-panel"><div class="npc-dialogue"><p>'+text+'</p></div><div class="npc-choice-title">СРОЧНЫЙ ВЫЗОВ</div><button type="button" class="npc-primary" id="npc-call-ad">📺 Позвать '+npc.name+' срочно!</button><small class="npc-cooldown-note">За просмотр рекламы откроются ещё 2 диалога с '+npc.name+'.</small><button type="button" class="npc-primary npc-secondary" id="npc-back-list">← К списку</button></div>';openNpcModal(html);var ad=$('npc-call-ad');if(ad)ad.addEventListener('click',function(e){e.preventDefault();e.stopPropagation();requestNpcAd(npc);});var back=$('npc-back-list');if(back)back.addEventListener('click',function(e){e.preventDefault();renderList();});return true;}
+  function requestNpcAd(npc){if(adBusyNpc){msg('📺 Реклама уже запускается.');return;}if(typeof window.showRewardedAd!=='function'){msg('📺 Реклама пока недоступна.');return;}adBusyNpc=npc.id;window.showRewardedAd(function(ok){var s=st();if(adBusyNpc!==npc.id)return;adBusyNpc=null;if(!ok){msg('📺 Реклама не просмотрена полностью. Диалоги не разблокированы.');showUrgentNpc(npc,s);return;}var d=talkState(npc,s);d.extra=(d.extra||0)+AD_BONUS;saveTalkState(npc,d,s);ui();msg('🎁 '+npc.name+': +2 диалога получены за рекламу.');openDialogue(npc,nextRoundFor(npc,s));});}
   function renderList(){
     var html='<div class="barrack-window section-window">'+
       '<div class="section-kicker">ТВОЁ МЕСТО</div>'+
       '<h2>☰ Барак</h2>'+
       '<p class="section-subtitle">Люди, с которыми стоит говорить</p>'+
       '<div class="npc-list">';
+    var s=st();
     NPCS.forEach(function(n){
-      html+='<button type="button" class="npc-link" data-npc="'+n.id+'">'+
-        '<span aria-hidden="true">'+n.icon+'</span>'+
-        '<b>'+n.name+'</b>'+
-        '<small>'+n.role+'</small>'+
-      '</button>';
+      var d=normalizeTalkState(n,s), available=availableTalks(n,s), note=available>0?'Осталось диалогов: '+available:(d.until?'⏳ Вернётся через '+cooldownText(d.until)+' · 📺 можно позвать срочно':'Осталось диалогов: 0 · 📺 можно позвать срочно');
+      html+='<button type="button" class="npc-link" data-npc="'+n.id+'"><span aria-hidden="true">'+n.icon+'</span><b>'+n.name+'</b><small>'+n.role+'</small><small class="npc-talk-limit">'+note+'</small></button>';
     });
     html+='</div></div>';
     openModal(html);
@@ -180,7 +191,11 @@
   }
 
   function openDialogue(npc, roundIndex){
-    roundIndex=Number(roundIndex)||0;
+    var s=st();
+    if(!s){msg('Игра ещё загружается…');return;}
+    if(showUrgentNpc(npc,s))return;
+    roundIndex=Number(roundIndex);
+    if(!Number.isFinite(roundIndex)||roundIndex<0||roundIndex>=npc.dialogs.length)roundIndex=nextRoundFor(npc,s);
     var round=npc.dialogs[roundIndex];
     var html='<div class="npc-hero">'+
       '<img class="npc-hero-img" src="'+npc.avatar+'" alt="" draggable="false">'+
@@ -227,7 +242,7 @@
     var next=$('npc-continue');
     if(next) next.addEventListener('click',function(e){
       e.preventDefault(); e.stopPropagation();
-      openDialogue(npc,nextRound);
+      if(availableTalks(npc,st())>0)openDialogue(npc,nextRound);else showUrgentNpc(npc,st());
     });
     var back=$('npc-back-list');
     if(back) back.addEventListener('click',function(e){ e.preventDefault(); renderList(); });
@@ -237,6 +252,7 @@
     if(!choice)return;
     var s=st();
     if(!s){ showNpcResponse(npc,'Игра ещё загружается…',roundIndex+1); return; }
+    if(!consumeTalk(npc,s)){showUrgentNpc(npc,s);return;}
     var cost=Math.min(0,Number(choice.chifir)||0);
     if(cost<0 && (Number(s.chifir)||0)<Math.abs(cost)){
       showNpcResponse(npc,'🍵 Не хватает чефира. Для этого ответа нужно '+fmt(Math.abs(cost))+' чефира.',roundIndex);
@@ -265,8 +281,11 @@
       if(choice.failChifir) s.chifir=Math.max(0,(Number(s.chifir)||0)+Number(choice.failChifir));
       text=(npc.icon||'')+' '+(choice.failMsg||'Не вышло. '+(cost<0?'Любопытной Варваре на базаре нос оторвали. Опыт потерян.':'Похоже, сегодня не твой день.'));
     }
+    var nextRound=roundIndex+1;
+    if(nextRound>=npc.dialogs.length)nextRound=0;
+    talkStore(s)[npc.id+'_round']=nextRound;
     save(); ui();
-    showNpcResponse(npc,text,roundIndex+1);
+    showNpcResponse(npc,text,nextRound);
   }
 
   function bind(){
@@ -297,5 +316,5 @@
   window.openBarrack=renderList;
   if(document.readyState==='loading') document.addEventListener('DOMContentLoaded', bind);
   else bind();
-  console.log('[npc-barrack] v2.5 ready');
+  console.log('[npc-barrack] v3.0 ready');
 })();
