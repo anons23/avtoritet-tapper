@@ -1,0 +1,67 @@
+name: Fufayka icon to webp
+on:
+  workflow_dispatch:
+jobs:
+  convert:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: fix/yandex-16plus-stability
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install pillow
+      - name: Convert padded_jacket.png -> fufayka.webp
+        run: |
+          python3 <<'PY'
+          from pathlib import Path
+          from PIL import Image
+          src = Path('assets/equipment-icons/padded_jacket.png')
+          if not src.exists():
+              raise SystemExit('padded_jacket.png not found')
+          out = Path('assets/equipment-icons/fufayka.webp')
+          with Image.open(src) as im:
+              if im.mode in ('P', 'LA'):
+                  im = im.convert('RGBA')
+              elif im.mode not in ('RGB', 'RGBA'):
+                  im = im.convert('RGBA' if 'A' in im.getbands() else 'RGB')
+              im.save(out, format='WEBP', quality=80, method=6)
+          print(src, '->', out, src.stat().st_size, '->', out.stat().st_size)
+          src.unlink()
+          print('removed', src)
+          PY
+      - name: Point fufayka item to fufayka.webp
+        run: |
+          python3 <<'PY'
+          from pathlib import Path
+          p = Path('js/equipment-v2.js')
+          t = p.read_text()
+          t2 = t.replace("id:'fufayka',name:'Фуфайка',icon:'🧥',img:'padded_jacket.webp'",
+                         "id:'fufayka',name:'Фуфайка',icon:'🧥',img:'fufayka.webp'")
+          if t2 == t:
+              t2 = t.replace("img:'padded_jacket.webp',cost:1800",
+                             "img:'fufayka.webp',cost:1800")
+          if "fufayka.webp" not in t2:
+              raise SystemExit('failed to update equipment-v2.js')
+          t2 = t2.replace('rebalance v3.5', 'rebalance v3.6').replace('v3.5 raid-only', 'v3.6 raid-only')
+          p.write_text(t2)
+          print('equipment-v2 updated')
+          PY
+      - name: Cache-bust equipment-v2 in index
+        run: |
+          sed -i 's/equipment-v2.js?v=3.5/equipment-v2.js?v=3.6/g' index.html || true
+          sed -i 's/equipment-v2.js?v=3.4/equipment-v2.js?v=3.6/g' index.html || true
+      - name: Commit
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add assets/equipment-icons js/equipment-v2.js index.html
+          if git diff --cached --quiet; then
+            echo No changes
+          else
+            git commit -m "assets: fufayka.webp icon (from padded_jacket.png)"
+            git push origin HEAD:fix/yandex-16plus-stability
+          fi
