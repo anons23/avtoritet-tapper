@@ -16,7 +16,7 @@
     {src:'./js/offline.js?v=1.0',critical:false},
     {src:'./js/share.js?v=1.0',critical:false},
     {src:'./js/leaderboard.js?v=1.0',critical:false},
-    {src:'./js/daily.js?v=1.0',critical:false},
+    {src:'./js/daily.js?v=1.1',critical:false},
     {src:'./js/authority-css-restore.js?v=1.6',critical:false},
     {src:'./js/authority-ui.js?v=1.9',critical:false},
     {src:'./js/authority-folder-fix.js?v=1.0',critical:false},
@@ -51,7 +51,7 @@
         if(item.critical)return;
       }
     }
-    console.log('[bootstrap] v2.87 ready (npc-barrack restored)');
+    console.log('[bootstrap] v2.88 ready (npc-barrack restored)');
   }
 
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot);

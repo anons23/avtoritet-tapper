@@ -245,6 +245,7 @@
         }
         if(typeof window.saveGame==='function') window.saveGame();
         if(typeof window.ui==='function') window.ui();
+        try{ if(typeof window.__dailyNoteRaidWin==='function') window.__dailyNoteRaidWin(); }catch(e){}
         stopIdle();
         var card=$('raid-result');
         if(card){
