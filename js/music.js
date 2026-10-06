@@ -311,6 +311,38 @@
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot);
   else boot();
 
+
+  /* Pause music when tab/app is hidden (Yandex Games requirement) */
+  var wasPlayingBeforeHide = null;
+  function onVisibility(){
+    try{
+      if(document.hidden || document.visibilityState==='hidden'){
+        wasPlayingBeforeHide = current;
+        Object.keys(players).forEach(function(id){
+          var a=players[id];
+          if(!a)return;
+          try{ if(!a.paused) a.pause(); }catch(e){}
+        });
+      }else{
+        if(muted) return;
+        if(wasPlayingBeforeHide && TRACKS[wasPlayingBeforeHide]){
+          playTrack(wasPlayingBeforeHide);
+        }else if(unlocked && !muted){
+          playMain();
+        }
+        wasPlayingBeforeHide = null;
+      }
+    }catch(e){}
+  }
+  document.addEventListener('visibilitychange', onVisibility);
+  window.addEventListener('pagehide', function(){
+    Object.keys(players).forEach(function(id){
+      var a=players[id];
+      if(!a)return;
+      try{ if(!a.paused) a.pause(); }catch(e){}
+    });
+  });
+
   window.GameMusic = {
     playMain: playMain,
     playRaid: playRaid,
