@@ -34,47 +34,49 @@
   var RC={common:'#9a9a9a',rare:'#3dcf5a',extreme:'#e74c3c',authority:'#ffd24a'};
 
   var DROPS={
+    /* common ~40%, rare ~18–22%, extreme ~8–12%, authority ~10% */
     petrovich:[
-      {id:'nail',kind:'weapon',chance:0.22},
-      {id:'glass',kind:'weapon',chance:0.18},
-      {id:'razor',kind:'weapon',chance:0.14},
-      {id:'fufayka',kind:'armor',chance:0.12}
+      {id:'nail',kind:'weapon',chance:0.42},
+      {id:'glass',kind:'weapon',chance:0.40},
+      {id:'razor',kind:'weapon',chance:0.38},
+      {id:'fufayka',kind:'armor',chance:0.40}
     ],
     vtirach:[
-      {id:'glass',kind:'weapon',chance:0.14},
-      {id:'awl',kind:'weapon',chance:0.12},
-      {id:'razor',kind:'weapon',chance:0.12},
-      {id:'vatnik',kind:'armor',chance:0.14},
-      {id:'fufayka',kind:'armor',chance:0.1}
+      {id:'glass',kind:'weapon',chance:0.40},
+      {id:'awl',kind:'weapon',chance:0.38},
+      {id:'razor',kind:'weapon',chance:0.38},
+      {id:'vatnik',kind:'armor',chance:0.40},
+      {id:'fufayka',kind:'armor',chance:0.36}
     ],
     mafioznik:[
-      {id:'hammer',kind:'weapon',chance:0.12},
-      {id:'shank',kind:'weapon',chance:0.1},
-      {id:'leather',kind:'armor',chance:0.1}
+      {id:'hammer',kind:'weapon',chance:0.20},
+      {id:'shank',kind:'weapon',chance:0.18},
+      {id:'leather',kind:'armor',chance:0.18},
+      {id:'awl',kind:'weapon',chance:0.22}
     ],
     mongol:[
-      {id:'bat',kind:'weapon',chance:0.1},
-      {id:'hammer',kind:'weapon',chance:0.1},
-      {id:'crosschain',kind:'armor',chance:0.08},
-      {id:'leather',kind:'armor',chance:0.1}
+      {id:'bat',kind:'weapon',chance:0.18},
+      {id:'hammer',kind:'weapon',chance:0.18},
+      {id:'crosschain',kind:'armor',chance:0.16},
+      {id:'leather',kind:'armor',chance:0.18}
     ],
     glaz:[
-      {id:'butterfly',kind:'weapon',chance:0.08},
-      {id:'knuckles',kind:'weapon',chance:0.08},
-      {id:'plate',kind:'armor',chance:0.07}
+      {id:'butterfly',kind:'weapon',chance:0.10},
+      {id:'knuckles',kind:'weapon',chance:0.10},
+      {id:'plate',kind:'armor',chance:0.09}
     ],
     krest:[
-      {id:'pipe',kind:'weapon',chance:0.07},
-      {id:'knuckles',kind:'weapon',chance:0.07},
-      {id:'chain',kind:'weapon',chance:0.06},
-      {id:'vest',kind:'armor',chance:0.07},
-      {id:'butterfly',kind:'weapon',chance:0.06}
+      {id:'pipe',kind:'weapon',chance:0.10},
+      {id:'knuckles',kind:'weapon',chance:0.10},
+      {id:'chain',kind:'weapon',chance:0.09},
+      {id:'vest',kind:'armor',chance:0.10},
+      {id:'butterfly',kind:'weapon',chance:0.09}
     ],
     psikh:[
-      {id:'authority',kind:'weapon',chance:0.1},
-      {id:'crown',kind:'armor',chance:0.1},
-      {id:'chain',kind:'weapon',chance:0.12},
-      {id:'vest',kind:'armor',chance:0.12}
+      {id:'authority',kind:'weapon',chance:0.12},
+      {id:'crown',kind:'armor',chance:0.12},
+      {id:'chain',kind:'weapon',chance:0.14},
+      {id:'vest',kind:'armor',chance:0.14}
     ]
   };
 
@@ -237,5 +239,5 @@
   window.getEquipRaidBonus=function(){var s=st();if(!s||!s.equipment)return 0;var w=WEAPONS.find(function(x){return x.id===s.equipment.weapon});return w?Number(w.raid)||0:0};
   window.getEffectivePower=function(){var s=st();if(!s)return 1;var w=WEAPONS.find(function(x){return x.id===(s.equipment&&s.equipment.weapon)});var bonus=w?Number(w.power)||0:0;return Math.max(1,(Number(s.power)||1)+bonus)};
   window.getEffectiveCrit=function(){var s=st();if(!s)return 0.05;var a=ARMORS.find(function(x){return x.id===(s.equipment&&s.equipment.armor)});var bonus=a?Number(a.crit)||0:0;return Math.min(0.55,(Number(s.critChance)||0.05)+bonus)};
-  console.log('[equipment-v2] rebalance v3.3');
+  console.log('[equipment-v2] rebalance v3.4');
 })();
