@@ -1,0 +1,82 @@
+name: Fix authority auto deals
+on:
+  workflow_dispatch:
+jobs:
+  fix:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: fix/yandex-16plus-stability
+      - name: Patch authority-ui auto deal + gate cooldown
+        run: |
+          python3 <<'PY'
+          from pathlib import Path
+
+          # --- authority-ui.js ---
+          p = Path('js/authority-ui.js')
+          t = p.read_text()
+
+          # inject counter near state vars
+          if 'tapsSinceDeal' not in t:
+              needle = "let root=null,tapArea=null,originalTapHTML='',authorityActive=false,modalOpen=false,dealResolving=false,clashState=null,clashTimer=null,oppTimer=null;"
+              rep = "let root=null,tapArea=null,originalTapHTML='',authorityActive=false,modalOpen=false,dealResolving=false,clashState=null,clashTimer=null,oppTimer=null;\n  let tapsSinceDeal=0;\n  const AUTO_DEAL_EVERY=50;"
+              if needle not in t:
+                  raise SystemExit('state vars not found')
+              t = t.replace(needle, rep)
+
+          # reset counter when deal starts
+          if 'tapsSinceDeal=0' not in t or t.count('tapsSinceDeal=0') < 1:
+              t = t.replace(
+                  'function startDeal(free){if(modalOpen)return;',
+                  'function startDeal(free){if(modalOpen)return;tapsSinceDeal=0;'
+              )
+
+          # on non-hotspot taps while authority active — count and auto-open deal
+          old_cap = '''function capture(e){\n    if(!authorityActive)return;\n    const s=state();\n    if(!s||Number(s.points)<40000||s.currentObject!==4||s.jailed)return;\n    const hotspot=e.target.closest('.authority-desk-hotspot');\n    if(hotspot){\n      e.preventDefault();\n      e.stopImmediatePropagation();\n      startDeal();\n      return;\n    }\n    const target=e.target.closest('.authority-deal-btn,.authority-pressure-btn,.authority-great-btn');\n    if(target){\n      e.preventDefault();\n      e.stopImmediatePropagation();\n      if(target.classList.contains('authority-deal-btn'))startDeal();\n      else if(target.classList.contains('authority-pressure-btn'))clashTap(e);\n      else{closeAuthorityModal();setMessage('📋 Дело закрыто. Авторитет растёт.');}\n    }\n    // non-control taps: do not stopImmediatePropagation'''
+
+          new_cap = '''function capture(e){\n    if(!authorityActive)return;\n    const s=state();\n    if(!s||Number(s.points)<40000||s.currentObject!==4||s.jailed)return;\n    const hotspot=e.target.closest('.authority-desk-hotspot');\n    if(hotspot){\n      e.preventDefault();\n      e.stopImmediatePropagation();\n      startDeal();\n      return;\n    }\n    const target=e.target.closest('.authority-deal-btn,.authority-pressure-btn,.authority-great-btn');\n    if(target){\n      e.preventDefault();\n      e.stopImmediatePropagation();\n      if(target.classList.contains('authority-deal-btn'))startDeal();\n      else if(target.classList.contains('authority-pressure-btn'))clashTap(e);\n      else{closeAuthorityModal();setMessage('📋 Дело закрыто. Авторитет растёт.');}\n      return;\n    }\n    // обычный тап по экрану Авторитета — раз в ~50 тапов дело барака (может перейти в стычку)\n    if(modalOpen||clashState)return;\n    tapsSinceDeal++;\n    if(tapsSinceDeal>=AUTO_DEAL_EVERY){\n      tapsSinceDeal=0;\n      // free: не списываем 3⚡ за авто-событие\n      setTimeout(function(){ try{ startDeal(true); }catch(err){} }, 30);\n    }\n    // non-control taps: do not stopImmediatePropagation'''
+
+          if old_cap not in t:
+              # try looser match
+              if 'tapsSinceDeal++' not in t:
+                  raise SystemExit('capture block not found for patch')
+          else:
+              t = t.replace(old_cap, new_cap)
+
+          # also expose for game.js if needed
+          if 'window.__authorityNoteTap' not in t:
+              t = t.replace(
+                  'window.startAuthorityDeal=function(){startDeal(true)};',
+                  "window.startAuthorityDeal=function(){startDeal(true)};\n  window.__authorityNoteTap=function(){\n    if(!authorityActive||modalOpen||clashState)return;\n    const s=state();\n    if(!s||Number(s.points)<40000||s.currentObject!==4||s.jailed)return;\n    tapsSinceDeal++;\n    if(tapsSinceDeal>=AUTO_DEAL_EVERY){\n      tapsSinceDeal=0;\n      setTimeout(function(){ try{ startDeal(true); }catch(err){} }, 30);\n    }\n  };"
+              )
+
+          p.write_text(t)
+          print('authority-ui.js patched')
+
+          # --- authority-gate.js cooldown 100 -> 50 ---
+          g = Path('js/authority-gate.js')
+          gt = g.read_text()
+          gt2 = gt.replace('DEAL_COOLDOWN_TAPS=100', 'DEAL_COOLDOWN_TAPS=50')
+          g.write_text(gt2)
+          print('authority-gate cooldown', '50' if 'DEAL_COOLDOWN_TAPS=50' in gt2 else 'unchanged')
+
+          # bump bootstrap cache for these scripts if present
+          b = Path('js/bootstrap.js').read_text()
+          b2 = b
+          for a,n in [('authority-ui.js?v=1.8','authority-ui.js?v=1.9'),('authority-gate.js?v=1.1','authority-gate.js?v=1.2')]:
+              b2 = b2.replace(a,n)
+          Path('js/bootstrap.js').write_text(b2)
+          print('bootstrap bumped')
+          PY
+      - name: Commit
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add js/authority-ui.js js/authority-gate.js js/bootstrap.js
+          if git diff --cached --quiet; then echo No changes; else
+            git commit -m "fix: auto barack deals/clashes every ~50 taps on Авторитет"
+            git push origin HEAD:fix/yandex-16plus-stability
+          fi
