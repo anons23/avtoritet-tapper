@@ -66,11 +66,8 @@ if(name)name.style.cssText='font-size:20px;font-weight:1000;color:#f3d27a;text-s
 if(hp){hp.style.cssText='width:min(220px,70vw)';
 var tr=hp.querySelector('.raid-hp-track');if(tr)tr.style.cssText='height:12px;border-radius:8px;background:rgba(0,0,0,.45);border:1px solid rgba(255,255,255,.15);overflow:hidden';
 var tx=$('raid-hp-text');if(tx)tx.style.cssText='margin-top:3px;font-size:12px;font-weight:800;color:#eee;text-shadow:0 1px 3px #000'}
-var en=$('raid-energy');
-if(!en){en=document.createElement('div');en.id='raid-energy';hud.appendChild(en)}
-en.style.cssText='padding:6px 12px;border-radius:12px;background:rgba(0,0,0,.35);border:1px solid rgba(255,255,255,.12);color:#7ee0ff;font-weight:800;font-size:14px;backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);white-space:nowrap';
-var s=typeof window.getGameState==='function'?window.getGameState():null;
-en.textContent=s?('⚡ '+Math.max(0,s.energy|0)+' / '+Math.max(0,s.maxEnergy|250)):'⚡ —';
+var oldEnergy=$('raid-energy');
+if(oldEnergy){ try{oldEnergy.remove();}catch(e){} }
 }
 function cards(){
 var list=document.querySelector('.raid-fighter-list');if(!list)return;var p=load();
