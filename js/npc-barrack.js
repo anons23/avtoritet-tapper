@@ -173,8 +173,7 @@
       '<div class="npc-list">';
     var s=st();
     NPCS.forEach(function(n){
-      var d=normalizeTalkState(n,s), available=availableTalks(n,s), note=available>0?'Осталось диалогов: '+available:(d.until?'⏳ Вернётся через '+cooldownText(d.until)+' · 📺 можно позвать срочно':'Осталось диалогов: 0 · 📺 можно позвать срочно');
-      html+='<button type="button" class="npc-link" data-npc="'+n.id+'"><span aria-hidden="true">'+n.icon+'</span><b>'+n.name+'</b><small>'+n.role+'</small><small class="npc-talk-limit">'+note+'</small></button>';
+      html+='<button type="button" class="npc-link" data-npc="'+n.id+'"><span aria-hidden="true">'+n.icon+'</span><b>'+n.name+'</b><small>'+n.role+'</small></button>';
     });
     html+='</div></div>';
     openModal(html);
@@ -197,12 +196,17 @@
     roundIndex=Number(roundIndex);
     if(!Number.isFinite(roundIndex)||roundIndex<0||roundIndex>=npc.dialogs.length)roundIndex=nextRoundFor(npc,s);
     var round=npc.dialogs[roundIndex];
+    var talkLeft=availableTalks(npc,s);
+    var statusHtml=talkLeft>0
+      ? '<div class="npc-talk-status">Осталось диалогов: <b>'+talkLeft+'</b></div>'
+      : '';
     var html='<div class="npc-hero">'+
       '<img class="npc-hero-img" src="'+npc.avatar+'" alt="" draggable="false">'+
       '<div class="npc-hero-title"><b>'+npc.name+'</b><small>'+npc.role+'</small></div>'+
       '</div>'+
       '<div class="npc-action-panel">'+
       '<div class="npc-dialogue"><p>'+(round?round.q:npc.greet)+'</p></div>'+
+      statusHtml+
       '<div class="npc-choice-title">ТВОЙ ОТВЕТ</div>';
     if(!round){
       html+='<div class="npc-dialogue npc-dialogue-finished"><p>На сегодня разговор закончен.</p></div>'+
