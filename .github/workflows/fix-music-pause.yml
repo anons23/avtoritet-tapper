@@ -1,0 +1,43 @@
+name: Fix music pause on hide
+on:
+  workflow_dispatch:
+jobs:
+  fix:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: fix/yandex-16plus-stability
+      - name: Patch music.js visibility
+        run: |
+          python3 <<'PY'
+          from pathlib import Path
+          p=Path('js/music.js')
+          t=p.read_text()
+          if 'visibilitychange' in t:
+              print('already patched')
+          else:
+              patch='''\n  /* Pause music when tab/app is hidden (Yandex Games requirement) */\n  var wasPlayingBeforeHide = null;\n  function onVisibility(){\n    try{\n      if(document.hidden || document.visibilityState===\'hidden\'){\n        wasPlayingBeforeHide = current;\n        Object.keys(players).forEach(function(id){\n          var a=players[id];\n          if(!a)return;\n          try{ if(!a.paused) a.pause(); }catch(e){}\n        });\n      }else{\n        if(muted) return;\n        if(wasPlayingBeforeHide && TRACKS[wasPlayingBeforeHide]){\n          playTrack(wasPlayingBeforeHide);\n        }else if(unlocked && !muted){\n          playMain();\n        }\n        wasPlayingBeforeHide = null;\n      }\n    }catch(e){}\n  }\n  document.addEventListener(\'visibilitychange\', onVisibility);\n  window.addEventListener(\'pagehide\', function(){\n    Object.keys(players).forEach(function(id){\n      var a=players[id];\n      if(!a)return;\n      try{ if(!a.paused) a.pause(); }catch(e){}\n    });\n  });\n\n'''
+              if 'window.GameMusic = {' not in t:
+                  raise SystemExit('anchor missing')
+              t=t.replace('  window.GameMusic = {', patch+'  window.GameMusic = {')
+              p.write_text(t)
+              print('patched')
+          PY
+          node --check js/music.js
+      - name: Bump index music cache
+        run: |
+          sed -i 's/music.js?v=1.5/music.js?v=1.6/g' index.html || true
+          sed -i 's/bootstrap.js?v=2.86/bootstrap.js?v=2.87/g' index.html || true
+          sed -i 's/bootstrap.js?v=2.85/bootstrap.js?v=2.87/g' index.html || true
+      - name: Commit
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add js/music.js index.html
+          if git diff --cached --quiet; then echo no changes; else
+            git commit -m "fix: pause music when browser tab is hidden"
+            git push origin HEAD:fix/yandex-16plus-stability
+          fi
