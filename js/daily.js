@@ -265,12 +265,27 @@
 
     var h2=content.querySelector('h2');
     var list=content.querySelector('.tasks-list');
-    var rb=content.querySelector('#daily-refresh-btn');
-    if(rb&&!rb.dataset.bound){rb.dataset.bound='1';rb.addEventListener('click',function(e){e.preventDefault();e.stopPropagation();if(s.daily.refreshFreeUsed)requestRefreshAd();else refreshDaily(s,false);});}
     if(list&&list.parentNode){
       list.parentNode.insertBefore(block, list);
     }else if(h2&&h2.parentNode){
       h2.parentNode.insertBefore(block, h2.nextSibling);
+    }
+    // Ищем кнопку после вставки блока: раньше обработчик навешивался
+    // до вставки и бесплатная кнопка оставалась полностью неактивной.
+    var rb=block.querySelector('#daily-refresh-btn');
+    if(rb&&!rb.dataset.bound){
+      rb.dataset.bound='1';
+      rb.disabled=false;
+      rb.setAttribute('aria-disabled','false');
+      rb.addEventListener('click',function(e){
+        e.preventDefault();
+        e.stopPropagation();
+        var current=st();
+        if(!current)return;
+        ensure(current);
+        if(current.daily.refreshFreeUsed)requestRefreshAd();
+        else refreshDaily(current,false);
+      });
     }
   }
 
