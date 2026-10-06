@@ -1,0 +1,6 @@
+/* Daily quests block inside tasks menu */
+.daily-block{margin:0 0 14px}
+.daily-head .section-kicker{color:#f1c04c;letter-spacing:1.5px;font-size:10px;font-weight:950}
+.daily-list{margin:0 0 8px}
+.daily-card .task-icon{background:linear-gradient(145deg,#3a3420,#252218);border-color:rgba(213,168,74,.45)}
+.daily-sep{border:0;border-top:1px solid rgba(255,255,255,.1);margin:12px 0 14px}
