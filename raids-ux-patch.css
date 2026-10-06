@@ -59,3 +59,8 @@
   .raid-hp.low-hp .raid-hp-fill{ animation: none !important; }
   .raid-hp-ghost{ transition: none !important; }
 }
+
+/* Hide raid energy readout only; energy mechanics remain unchanged. */
+#raid-energy,
+#raid-energy-hud,
+.raid-energy{display:none!important}
