@@ -1,4 +1,4 @@
-/* raid-patch v1.7 — cooldown + raid drops */
+/* raid-patch v1.8 — cooldown + raid drops */
 'use strict';
 (function(){
 var MS=90*60*1000,EX=15*60*1000,CD=30*60*1000,K='avt_rt_v2';
@@ -37,6 +37,7 @@ try{ if(typeof window.rollRaidDrops==='function') window.rollRaidDrops(id); }cat
 function watchWin(){
 var res=$('raid-result');
 if(!res)return;
+if(!res.classList.contains('show'))return;
 var id=fightId();
 if(!id)return;
 var style=window.getComputedStyle?getComputedStyle(res):null;
@@ -122,5 +123,5 @@ setInterval(function(){
 if(document.querySelector('#raid-fighter')&&document.querySelector('.raid-scene'))onFight();
 if(document.querySelector('.raid-fighter-list'))cards();
 },400);
-console.log('[raid-patch] v1.7 drops');
+console.log('[raid-patch] v1.8 drops');
 })();
