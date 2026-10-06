@@ -22,6 +22,7 @@
     {src:'./js/authority-folder-fix.js?v=1.0',critical:false},
     {src:'./js/authority-gate.js?v=1.3',critical:false},
     {src:'./js/authority-auto-deal.js?v=1.0',critical:false},
+    {src:'./js/authority-choice-guard.js?v=1.0',critical:false},
     {src:'./js/authority-clash-anim.js?v=1.0',critical:false},
     {src:'./js/authority-anim-fix.js?v=1.0',critical:false}
   ];
@@ -45,15 +46,12 @@
       var item=scripts[i];
       try{
         await loadScript(item);
-        if(item.src.indexOf('./js/game.js')===0){
-          /* game ready */
-        }
       }catch(e){
         console.error(e);
         if(item.critical)return;
       }
     }
-    console.log('[bootstrap] v2.84 ready (clash anim)');
+    console.log('[bootstrap] v2.85 ready (choice guard)');
   }
 
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot);
