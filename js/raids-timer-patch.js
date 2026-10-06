@@ -1,4 +1,4 @@
-/* raid-patch v1.8 — cooldown + raid drops */
+/* raid-patch v1.9 — cooldown + raid drops + daily quest hook */
 'use strict';
 (function(){
 var MS=90*60*1000,EX=15*60*1000,CD=30*60*1000,K='avt_rt_v2';
@@ -33,6 +33,7 @@ var p=load(),pr=p[id]||{d:0,cd:0};
 pr.cd=now()+CD;
 p[id]=pr;save(p);
 try{ if(typeof window.rollRaidDrops==='function') window.rollRaidDrops(id); }catch(e){}
+try{ if(typeof window.__dailyNoteRaidWin==='function') window.__dailyNoteRaidWin(); }catch(e){}
 }
 function watchWin(){
 var res=$('raid-result');
@@ -123,5 +124,5 @@ setInterval(function(){
 if(document.querySelector('#raid-fighter')&&document.querySelector('.raid-scene'))onFight();
 if(document.querySelector('.raid-fighter-list'))cards();
 },400);
-console.log('[raid-patch] v1.8 drops');
+console.log('[raid-patch] v1.9 daily');
 })();
