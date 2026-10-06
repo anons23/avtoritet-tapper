@@ -4,7 +4,14 @@
   var QUEST_POOL=[
     {id:'d_taps',title:'Размяться',desc:'Сделай 200 тапов за сегодня.',target:200,key:'taps',rewardType:'chifir',rewardAmount:100,reward:'100 🍵'},
     {id:'d_raid',title:'Зашёл на район',desc:'Выиграй 1 рейд сегодня.',target:1,key:'raids',rewardType:'chifir',rewardAmount:150,reward:'150 🍵'},
-    {id:'d_deal',title:'Дело барака',desc:'Разбери 1 дело на масти Авторитет (или поговори в бараке ×2).',target:1,key:'deals',targetAlt:2,keyAlt:'npc',rewardType:'chifir',rewardAmount:120,reward:'120 🍵'}
+    {id:'d_deal',title:'Дело барака',desc:'Разбери 1 дело на масти Авторитет (или поговори в бараке ×2).',target:1,key:'deals',targetAlt:2,keyAlt:'npc',rewardType:'chifir',rewardAmount:120,reward:'120 🍵'},
+    {id:'d_taps_500',title:'Набить руку',desc:'Сделай 500 тапов за сегодня.',target:500,key:'taps',rewardType:'chifir',rewardAmount:180,reward:'180 🍵'},
+    {id:'d_raid_2',title:'Два захода',desc:'Выиграй 2 рейда сегодня.',target:2,key:'raids',rewardType:'chifir',rewardAmount:240,reward:'240 🍵'},
+    {id:'d_npc_3',title:'Разговоры по делу',desc:'Успешно закончи 3 разговора в бараке.',target:3,key:'npc',rewardType:'chifir',rewardAmount:160,reward:'160 🍵'},
+    {id:'d_taps_800',title:'Не сбавлять темп',desc:'Сделай 800 тапов за сегодня.',target:800,key:'taps',rewardType:'chifir',rewardAmount:280,reward:'280 🍵'},
+    {id:'d_raid_3',title:'Район не спит',desc:'Выиграй 3 рейда сегодня.',target:3,key:'raids',rewardType:'chifir',rewardAmount:330,reward:'330 🍵'},
+    {id:'d_deal_2',title:'Два серьёзных дела',desc:'Разбери 2 дела на масти Авторитет (или поговори в бараке ×4).',target:2,key:'deals',targetAlt:4,keyAlt:'npc',rewardType:'chifir',rewardAmount:260,reward:'260 🍵'},
+    {id:'d_npc_5',title:'Свой среди своих',desc:'Успешно закончи 5 разговоров в бараке.',target:5,key:'npc',rewardType:'chifir',rewardAmount:300,reward:'300 🍵'}
   ];
 
   var QUESTS=[];
