@@ -41,6 +41,21 @@
   };
   var progress={}, idleTimer=0, lastHit=-1, raidActive=false, menuOpenedAt=0;
 
+  function raidMeta(){
+    var s=st();
+    if(!s) return {wins:0,bugorLevel:1};
+    if(!s.raidStats) s.raidStats={wins:0,bugorLevel:1};
+    s.raidStats.wins=Math.max(0,Number(s.raidStats.wins)||0);
+    s.raidStats.bugorLevel=Math.max(1,Number(s.raidStats.bugorLevel)||1);
+    var w=s.raidStats.wins;
+    var lvl=w>=25?5:w>=15?4:w>=8?3:w>=3?2:1;
+    if(lvl>s.raidStats.bugorLevel) s.raidStats.bugorLevel=lvl;
+    return s.raidStats;
+  }
+  function phaseFor(hp,maxHp){var ratio=maxHp>0?hp/maxHp:1;return ratio<=.3333?3:(ratio<=.6666?2:1);}
+  function phaseLabel(phase){return phase===3?'ФАЗА 3 · ЯРОСТЬ':(phase===2?'ФАЗА 2 · НАПОР':'ФАЗА 1 · РАЗВЕДКА');}
+  function bugorLabel(level){return 'Бугор '+['I','II','III','IV','V'][Math.max(0,Math.min(4,level-1))];}
+
   function $(id){return document.getElementById(id);}
   function st(){return typeof window.getGameState==='function'?window.getGameState():null;}
   function pts(){var s=st();return Number(s&&s.points)||0;}
@@ -153,7 +168,8 @@
         '<div class="raid-card-info"><div class="raid-card-name '+f.id+'">'+f.name+'</div>'+
         '<small>'+(ok?('HP '+hpShow+'/'+f.hp+(pr.wins?' · побед: '+pr.wins:'')):('🔒 '+RANK_NAMES[f.rank]+' ('+need+' ⭐)'))+'</small></div></button>';
     });
-    content.innerHTML='<div class="raid-select"><div class="raid-select-head"><div><h2>⚔️ РЕЙДЫ</h2><p>Выбери бойца. Тапай, пока не свалится.</p></div>'+
+    var meta=raidMeta();
+    content.innerHTML='<div class="raid-select"><div class="raid-select-head"><div><h2>⚔️ РЕЙДЫ</h2><p>Выбери бойца. Тапай, пока не свалится.</p><div class="raid-progression"><b>'+bugorLabel(meta.bugorLevel)+'</b> · побед: '+meta.wins+' · следующий уровень: '+(meta.bugorLevel<5?([3,8,15,25][meta.bugorLevel-1]||25):'МАКС')+'</div></div>'+
       '<div class="raid-select-actions"><button type="button" class="raid-music-mute" aria-label="Музыка">🔊</button>'+
       '<button type="button" class="raid-menu-close" id="raid-menu-close">✕</button></div></div>'+
       '<div class="raid-fighter-list">'+list+'</div></div>';
@@ -187,19 +203,21 @@
     overlay.classList.add('show','raid-fullscreen');
     raidMusicOn();
     var pct=hp/f.hp*100;
+    var phase=phaseFor(hp,f.hp);
+    var meta=raidMeta();
     var still=PORTRAIT[f.id];
     var hasIdle=!!IDLE[f.id] && canPlayWebm();
     content.innerHTML='<div class="raid-window"><div class="raid-scene '+f.scene+'" id="raid-scene">'+
       '<div class="raid-hud"><div class="raid-name '+f.id+'">'+f.name+'</div>'+
       '<div class="raid-hp'+(pct<=25?' low-hp':'')+'" id="raid-hp"><div class="raid-hp-track"><div id="raid-hp-fill" class="raid-hp-fill" style="width:'+pct+'%"></div></div>'+
-      '<div id="raid-hp-text" class="raid-hp-text">'+hp+' / '+f.hp+'</div></div></div>'+
+      '<div id="raid-hp-text" class="raid-hp-text">'+hp+' / '+f.hp+'</div><div id="raid-phase" class="raid-phase">'+phaseLabel(phase)+'</div></div></div>'+
       '<div class="raid-fighter '+f.id+'" id="raid-fighter">'+
       '<div class="raid-fighter-media" id="raid-fighter-media">'+
       '<img id="raid-fighter-img" src="'+still+'" alt="'+f.name+'" style="'+(hasIdle?'opacity:0':'')+'">'+
       '</div></div>'+
       '<div class="raid-controls"><button type="button" class="raid-next" id="raid-back">← К бойцам</button></div>'+
       '<div class="raid-note" id="raid-note"></div>'+
-      '<div class="raid-result" id="raid-result"><div class="raid-result-card"><div id="raid-result-title"></div><div id="raid-result-text"></div><button type="button" id="raid-result-ok">Ок</button></div></div>'+
+      '<div class="raid-result" id="raid-result"><div class="raid-result-card"><div id="raid-result-title"></div><div id="raid-result-text"></div><div id="raid-result-drop" class="raid-result-drop"></div><button type="button" id="raid-result-ok">Ок</button></div></div>'+
       '</div></div>';
     if(hasIdle) playIdle(f);
     (HITS[f.id]||[]).forEach(function(src){ var im=new Image(); im.src=src; });
@@ -217,7 +235,11 @@
       var s=st();
       var bonus=0;
       try{ if(typeof window.getEquipRaidBonus==='function') bonus=Number(window.getEquipRaidBonus())||0; }catch(err){}
-      var dmg=300+bonus;
+      var metaNow=raidMeta();
+      var currentPhase=phaseFor(hp,f.hp);
+      var phaseMultiplier=currentPhase===3?0.72:(currentPhase===2?0.86:1);
+      var bugorMultiplier=1+Math.max(0,metaNow.bugorLevel-1)*0.04;
+      var dmg=Math.max(1,Math.round((300+bonus)*phaseMultiplier/bugorMultiplier));
       var critChance=0.05;
       try{ if(typeof window.getEffectiveCrit==='function') critChance=Number(window.getEffectiveCrit())||0.05; }
       catch(err){ critChance=Number(s&&s.critChance)||0.05; }
@@ -226,7 +248,9 @@
       hp=Math.max(0,hp-dmg); pr.hp=hp;
       var fill=$('raid-hp-fill'), txt=$('raid-hp-text'), bar=$('raid-hp');
       var p2=hp/f.hp*100;
+      var newPhase=phaseFor(hp,f.hp);
       if(fill) fill.style.width=p2+'%';
+      var phaseEl=$('raid-phase'); if(phaseEl) phaseEl.textContent=phaseLabel(newPhase);
       if(txt) txt.textContent=hp+' / '+f.hp;
       if(bar) bar.classList.toggle('low-hp', p2<=25&&p2>0);
       showHit(f);
@@ -237,6 +261,16 @@
         pr.wins=(pr.wins||0)+1; pr.hp=0;
         var first=pr.wins===1;
         var rew=first?f.first:f.repeat;
+        var winMeta=raidMeta();
+        var drop=null;
+        try{ if(typeof window.rollRaidDrops==='function') drop=window.rollRaidDrops(f.id); }catch(dropErr){ console.warn('[raids] drop error',dropErr); }
+        var rewardMultiplier=1+Math.max(0,winMeta.bugorLevel-1)*0.05;
+        rew={chifir:Math.round(rew.chifir*rewardMultiplier),points:Math.round(rew.points*rewardMultiplier)};
+        winMeta.wins=(winMeta.wins||0)+1;
+        if(winMeta.wins>=25) winMeta.bugorLevel=5;
+        else if(winMeta.wins>=15) winMeta.bugorLevel=Math.max(winMeta.bugorLevel,4);
+        else if(winMeta.wins>=8) winMeta.bugorLevel=Math.max(winMeta.bugorLevel,3);
+        else if(winMeta.wins>=3) winMeta.bugorLevel=Math.max(winMeta.bugorLevel,2);
         var gs=st();
         if(gs){
           gs.chifir=(Number(gs.chifir)||0)+rew.chifir;
@@ -251,7 +285,15 @@
         if(card){
           var rt=$('raid-result-title'), rx=$('raid-result-text');
           if(rt) rt.textContent='ПОБЕДА!';
-          if(rx) rx.textContent='+'+rew.chifir+' 🍵 · +'+rew.points+' ⭐'+(first?' (первый раз)':'');
+          if(rx) rx.textContent='+'+rew.chifir+' 🍵 · +'+rew.points+' ⭐'+(first?' (первый раз)':'')+' · '+bugorLabel(winMeta.bugorLevel);
+          var dropEl=$('raid-result-drop');
+          if(dropEl){
+            if(drop&&drop.length){
+              dropEl.innerHTML='<b>🎁 ДРОП</b><br>'+drop.map(function(it){return '<span class="raid-drop-item">'+(it.icon||'')+' '+it.name+' · '+(it.rarity==='authority'?'Авторитетное':it.rarity==='extreme'?'Крайне редкое':it.rarity==='rare'?'Редкое':'Обычное')+'</span>';}).join('<br>');
+            }else{
+              dropEl.innerHTML='<b>🎁 ДРОП</b><br><span class="raid-drop-empty">В этот раз ничего нового не выпало.</span>';
+            }
+          }
           card.classList.add('show');
         }
         var ok=$('raid-result-ok');
