@@ -22,7 +22,7 @@
   ];
   var ARMORS=[
     {id:'tee',name:'Майка',icon:'👕',img:'tee.webp',cost:0,energy:0,crit:0,rarity:'common',shop:true,desc:'Без бонусов'},
-    {id:'fufayka',name:'Фуфайка',icon:'🧥',img:'padded_jacket.webp',cost:1800,energy:0,crit:0.01,rarity:'common',shop:true,desc:'+1% крит в рейдах'},
+    {id:'fufayka',name:'Фуфайка',icon:'🧥',img:'fufayka.webp',cost:1800,energy:0,crit:0.01,rarity:'common',shop:true,desc:'+1% крит в рейдах'},
     {id:'vatnik',name:'Ватник',icon:'🧶',img:'padded_jacket.webp',cost:3500,energy:0,crit:0.015,rarity:'common',shop:true,desc:'+1.5% крит в рейдах'},
     {id:'leather',name:'Кожанка',icon:'🧥',img:'leather.webp',cost:15000,energy:0,crit:0.025,rarity:'rare',shop:true,desc:'+2.5% крит в рейдах'},
     {id:'crosschain',name:'Цепь с крестом',icon:'✝️',img:'cross_chain.webp',cost:28000,energy:0,crit:0.035,rarity:'rare',shop:true,desc:'+3.5% крит в рейдах'},
@@ -240,5 +240,5 @@
   window.getEquipRaidBonus=function(){var s=st();if(!s||!s.equipment)return 0;var w=WEAPONS.find(function(x){return x.id===s.equipment.weapon});return w?Number(w.raid)||0:0};
   window.getEffectivePower=function(){var s=st();if(!s)return 1;return Math.max(1,Number(s.power)||1)};
   window.getEffectiveCrit=function(){var s=st();if(!s)return 0.05;var a=ARMORS.find(function(x){return x.id===(s.equipment&&s.equipment.armor)});var bonus=a?Number(a.crit)||0:0;return Math.min(0.55,(Number(s.critChance)||0.05)+bonus)};
-  console.log('[equipment-v2] rebalance v3.5 raid-only');
+  console.log('[equipment-v2] rebalance v3.6 raid-only');
 })();
