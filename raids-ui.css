@@ -259,3 +259,119 @@
 }
 .raid-drop-item{display:block;color:#fff}
 .raid-drop-empty{color:#999}
+
+
+/* RAID STABILITY PATCH — fixed fighter layout, single energy HUD, tap feedback */
+#modal-overlay.raid-fullscreen .raid-scene{
+  display:grid!important;
+  grid-template-rows:auto minmax(0,1fr) auto!important;
+  align-items:stretch!important;
+  overflow:hidden!important;
+}
+#modal-overlay.raid-fullscreen .raid-hud{
+  grid-row:1!important;
+  flex:0 0 auto!important;
+  min-height:0!important;
+}
+#modal-overlay.raid-fullscreen .raid-fighter{
+  grid-row:2!important;
+  flex:0 0 auto!important;
+  min-height:0!important;
+  height:100%!important;
+  overflow:hidden!important;
+  margin:0 auto!important;
+}
+#modal-overlay.raid-fullscreen .raid-fighter-media{
+  flex:0 0 auto!important;
+  height:100%!important;
+  min-height:0!important;
+  overflow:visible!important;
+}
+#modal-overlay.raid-fullscreen .raid-fighter-media img,
+#modal-overlay.raid-fullscreen .raid-fighter-media #raid-idle-video{
+  height:100%!important;
+  max-height:100%!important;
+}
+#modal-overlay.raid-fullscreen .raid-controls{
+  grid-row:3!important;
+  flex:0 0 auto!important;
+  min-height:0!important;
+  margin-top:6px!important;
+  position:relative!important;
+}
+#raid-energy-hud{
+  position:absolute!important;
+  top:10px!important;
+  right:10px!important;
+  left:auto!important;
+  z-index:30!important;
+  margin:0!important;
+  pointer-events:none!important;
+  padding:6px 10px!important;
+  border-radius:10px!important;
+  background:rgba(0,0,0,.72)!important;
+  border:1px solid rgba(126,224,255,.22)!important;
+  color:#7ee0ff!important;
+  font-size:14px!important;
+  font-weight:900!important;
+  white-space:nowrap!important;
+  text-shadow:0 1px 2px #000!important;
+}
+.raid-float-dmg{
+  position:absolute!important;
+  z-index:80!important;
+  transform:translate(-50%,-50%)!important;
+  pointer-events:none!important;
+  color:#fff!important;
+  font-size:clamp(20px,4vw,32px)!important;
+  font-weight:1000!important;
+  line-height:1!important;
+  text-shadow:0 2px 4px #000,0 0 8px rgba(255,70,70,.75)!important;
+  animation:raidFloatDamage .7s ease-out forwards!important;
+}
+.raid-float-dmg.is-crit{
+  color:#ffd36a!important;
+  font-size:clamp(24px,5vw,38px)!important;
+}
+@keyframes raidFloatDamage{
+  0%{opacity:0;transform:translate(-50%,-50%) scale(.65)}
+  15%{opacity:1;transform:translate(-50%,-50%) scale(1.08)}
+  100%{opacity:0;transform:translate(-50%,calc(-50% - 48px)) scale(1)}
+}
+.raid-blood-splat{
+  position:absolute!important;
+  z-index:70!important;
+  width:34px!important;
+  height:28px!important;
+  margin:-14px 0 0 -17px!important;
+  pointer-events:none!important;
+  border-radius:52% 48% 58% 42%!important;
+  background:
+    radial-gradient(circle at 35% 40%,rgba(255,110,110,.95) 0 7%,transparent 8%),
+    radial-gradient(circle at 65% 45%,rgba(120,0,0,.95) 0 24%,transparent 25%),
+    radial-gradient(circle at 48% 58%,#9e1515 0 48%,transparent 50%)!important;
+  filter:drop-shadow(0 2px 3px rgba(0,0,0,.7))!important;
+  animation:raidBloodSplat .52s ease-out forwards!important;
+}
+.raid-blood{
+  position:absolute!important;
+  z-index:71!important;
+  margin:-4px!important;
+  pointer-events:none!important;
+  border-radius:50%!important;
+  background:#b31313!important;
+  box-shadow:0 0 4px rgba(90,0,0,.9)!important;
+  animation:raidBloodDrop .56s ease-out forwards!important;
+}
+@keyframes raidBloodSplat{
+  0%{opacity:0;transform:scale(.35) rotate(-10deg)}
+  18%{opacity:1;transform:scale(1.15) rotate(8deg)}
+  100%{opacity:0;transform:scale(.85) rotate(0)}
+}
+@keyframes raidBloodDrop{
+  0%{opacity:1;transform:translate(0,0) scale(1)}
+  100%{opacity:0;transform:translate(var(--dx),var(--dy)) scale(.35)}
+}
+@media(max-width:700px){
+  #raid-energy-hud{top:8px!important;right:8px!important;font-size:13px!important;padding:5px 8px!important}
+}
