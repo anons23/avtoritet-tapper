@@ -180,19 +180,26 @@
     var s=st();if(!s)return null;
     ensure();
     var table=DROPS[fighterId];if(!table||!table.length)return null;
-    var got=[];
+    /* One raid victory can award at most ONE item.
+       Roll all eligible candidates first, then choose one successful candidate. */
+    var candidates=[];
     table.forEach(function(d){
       if(Math.random()>d.chance)return;
       var item=find(d.id,d.kind);if(!item)return;
       if(d.kind==='weapon'){
         if(s.ownedWeapons.indexOf(d.id)>=0)return;
-        s.ownedWeapons.push(d.id);got.push(item);
       }else{
         if(s.ownedArmor.indexOf(d.id)>=0)return;
-        s.ownedArmor.push(d.id);got.push(item);
       }
+      candidates.push({def:d,item:item});
     });
-    if(got.length){save();return got}
+    if(candidates.length){
+      var chosen=candidates[Math.floor(Math.random()*candidates.length)];
+      if(chosen.def.kind==='weapon') s.ownedWeapons.push(chosen.def.id);
+      else s.ownedArmor.push(chosen.def.id);
+      save();
+      return [chosen.item];
+    }
     return null;
   }
   function rollRaidDrops(fighterId){
