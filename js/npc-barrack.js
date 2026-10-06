@@ -179,82 +179,94 @@
     });
   }
 
-  function openDialogue(npc, used){
-    used=used||{};
-    var remaining=npc.lines.map(function(line,i){return {line:line,index:i};}).filter(function(x){return !used[x.index];});
+  function openDialogue(npc, roundIndex){
+    roundIndex=Number(roundIndex)||0;
+    var round=npc.dialogs[roundIndex];
     var html='<div class="npc-hero">'+
       '<img class="npc-hero-img" src="'+npc.avatar+'" alt="" draggable="false">'+
       '<div class="npc-hero-title"><b>'+npc.name+'</b><small>'+npc.role+'</small></div>'+
       '</div>'+
       '<div class="npc-action-panel">'+
-      '<div class="npc-dialogue"><p>'+npc.greet+'</p></div>'+
-      '<div class="npc-choice-title">ЧТО СКАЖЕШЬ?</div>';
-    if(!remaining.length){
+      '<div class="npc-dialogue"><p>'+(round?round.q:npc.greet)+'</p></div>'+
+      '<div class="npc-choice-title">ТВОЙ ОТВЕТ</div>';
+    if(!round){
       html+='<div class="npc-dialogue npc-dialogue-finished"><p>На сегодня разговор закончен.</p></div>'+
         '<button type="button" class="npc-primary" id="npc-back-list">← К списку</button>';
     }else{
-      remaining.forEach(function(item){
-        html+='<button type="button" class="npc-choice" data-line="'+item.index+'">'+item.line.t+'</button>';
+      round.choices.forEach(function(choice,i){
+        html+='<button type="button" class="npc-choice" data-choice="'+i+'">'+choice.t+'</button>';
       });
       html+='<button type="button" class="npc-primary" id="npc-back-list">← К списку</button>';
     }
     html+='</div>';
     openNpcModal(html);
-    document.querySelectorAll('.npc-choice[data-line]').forEach(function(btn){
+    document.querySelectorAll('.npc-choice[data-choice]').forEach(function(btn){
       btn.addEventListener('click',function(e){
         e.preventDefault(); e.stopPropagation();
-        var i=Number(btn.getAttribute('data-line'));
-        resolveLine(npc, npc.lines[i], used, i);
+        var i=Number(btn.getAttribute('data-choice'));
+        resolveLine(npc, round, round.choices[i], roundIndex);
       });
     });
     var back=$('npc-back-list');
     if(back) back.addEventListener('click',function(e){ e.preventDefault(); renderList(); });
   }
 
-  function showNpcResponse(npc, text, used){
+  function showNpcResponse(npc, text, nextRound){
     var html='<div class="npc-hero">'+
       '<img class="npc-hero-img" src="'+npc.avatar+'" alt="" draggable="false">'+
       '<div class="npc-hero-title"><b>'+npc.name+'</b><small>'+npc.role+'</small></div>'+
       '</div>'+
       '<div class="npc-action-panel npc-response-panel">'+
       '<div class="npc-dialogue npc-dialogue-response"><p>'+text+'</p></div>'+
-      '<button type="button" class="npc-primary" id="npc-continue">Продолжить</button>'+
+      '<button type="button" class="npc-primary" id="npc-continue">'+
+      (nextRound<npc.dialogs.length?'Продолжить разговор':'Закончить разговор')+
+      '</button>'+
       '<button type="button" class="npc-primary npc-secondary" id="npc-back-list">← К списку</button>'+
       '</div>';
     openNpcModal(html);
     var next=$('npc-continue');
     if(next) next.addEventListener('click',function(e){
       e.preventDefault(); e.stopPropagation();
-      openDialogue(npc, used);
+      openDialogue(npc,nextRound);
     });
     var back=$('npc-back-list');
     if(back) back.addEventListener('click',function(e){ e.preventDefault(); renderList(); });
   }
 
-  function resolveLine(npc, line, used, index){
-    if(!line)return;
+  function resolveLine(npc, round, choice, roundIndex){
+    if(!choice)return;
     var s=st();
-    if(!s){ showNpcResponse(npc,'Игра ещё загружается…',used); return; }
-    used=used||{};
-    var ok=Math.random()< (Number(line.ok)||0);
-    if(line.chifir<0 && (Number(s.chifir)||0) < Math.abs(line.chifir)){
-      showNpcResponse(npc,'🍵 Не хватает чефира. Выбери другой вариант.',used);
+    if(!s){ showNpcResponse(npc,'Игра ещё загружается…',roundIndex+1); return; }
+    var cost=Math.min(0,Number(choice.chifir)||0);
+    if(cost<0 && (Number(s.chifir)||0)<Math.abs(cost)){
+      showNpcResponse(npc,'🍵 Не хватает чефира. Для этого ответа нужно '+fmt(Math.abs(cost))+' чефира.',roundIndex);
       return;
     }
+
+    // Оплата за риск происходит сразу, а результат определяется отдельно.
+    if(cost<0) s.chifir=(Number(s.chifir)||0)+cost;
+
+    var ok=Math.random() < Math.max(0,Math.min(1,Number(choice.ok)||0));
+    var text;
     if(ok){
-      if(line.chifir) s.chifir=(Number(s.chifir)||0)+line.chifir;
-      if(line.pts) s.points=(Number(s.points)||0)+line.pts;
-      if(line.power) s.power=(Number(s.power)||1)+line.power;
-      if(line.bugor){
-        s.tasks=s.tasks||{};
-        s.tasks.bugorSuccess=(Number(s.tasks.bugorSuccess)||0)+1;
-      }
+      var rewardChifir=Math.max(0,Number(choice.rewardChifir)||0);
+      var rewardPts=Number(choice.pts)||0;
+      if(rewardChifir) s.chifir=(Number(s.chifir)||0)+rewardChifir;
+      if(rewardPts) s.points=(Number(s.points)||0)+rewardPts;
+      if(choice.power) s.power=(Number(s.power)||1)+Number(choice.power);
       s.tasks=s.tasks||{};
       s.tasks.npcSuccess=(Number(s.tasks.npcSuccess)||0)+1;
+      if(choice.bugor) s.tasks.bugorSuccess=(Number(s.tasks.bugorSuccess)||0)+1;
+      text=(npc.icon||'')+' '+(choice.msg||'Получилось.');
+    }else{
+      var failPts=Number(choice.failPts);
+      if(!isFinite(failPts)) failPts=cost<0?-30:0;
+      if(failPts) s.points=Math.max(0,(Number(s.points)||0)+failPts);
+      if(choice.failChifir) s.chifir=Math.max(0,(Number(s.chifir)||0)+Number(choice.failChifir));
+      text=(npc.icon||'')+' '+(choice.failMsg||'Не вышло. '+(cost<0?'Любопытной Варваре на базаре нос оторвали. Опыт потерян.':'Похоже, сегодня не твой день.'));
     }
     save(); ui();
-    used[index]=true;
-    showNpcResponse(npc, ok ? ((npc.icon||'')+' '+(line.msg||'Готово.')) : ((npc.icon||'')+' Не вышло. Попробуй иначе.'), used);
+    showNpcResponse(npc,text,roundIndex+1);
   }
 
   function bind(){
