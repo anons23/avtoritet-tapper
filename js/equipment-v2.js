@@ -192,6 +192,16 @@
     if(got.length){save();return got}
     return null;
   }
+  function rollRaidDrops(fighterId){
+    var got=null;
+    try{ got=tryDrop(fighterId); }catch(e){ console.warn('[equipment] drop error',e); return null; }
+    if(got && got.length){
+      var names=got.map(function(it){ return (it.icon||'')+' '+it.name; }).join(', ');
+      msg('🎁 Дроп: '+names);
+      try{ if(typeof window.ui==='function') window.ui(); }catch(e){}
+    }
+    return got;
+  }
   function $(id){return document.getElementById(id);}
   function injectShopTab(){
     var content=$('modal-content');
@@ -222,9 +232,10 @@
   if(document.readyState==='loading') document.addEventListener('DOMContentLoaded', bootEq);
   else bootEq();
   window.__raidTryDrop=tryDrop;
+  window.rollRaidDrops=rollRaidDrops;
   window.openEquipment=openEquipment;
   window.getEquipRaidBonus=function(){var s=st();if(!s||!s.equipment)return 0;var w=WEAPONS.find(function(x){return x.id===s.equipment.weapon});return w?Number(w.raid)||0:0};
   window.getEffectivePower=function(){var s=st();if(!s)return 1;var w=WEAPONS.find(function(x){return x.id===(s.equipment&&s.equipment.weapon)});var bonus=w?Number(w.power)||0:0;return Math.max(1,(Number(s.power)||1)+bonus)};
   window.getEffectiveCrit=function(){var s=st();if(!s)return 0.05;var a=ARMORS.find(function(x){return x.id===(s.equipment&&s.equipment.armor)});var bonus=a?Number(a.crit)||0:0;return Math.min(0.55,(Number(s.critChance)||0.05)+bonus)};
-  console.log('[equipment-v2] rebalance v3.2');
+  console.log('[equipment-v2] rebalance v3.3');
 })();
