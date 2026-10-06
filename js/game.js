@@ -112,11 +112,23 @@ function ui(){
 }
 
 function feedback(e, g, c){
-  const f = $('tap-feedback');
-  if(!f) return;
+  let f = $('tap-feedback');
+  if(!f){
+    f = document.createElement('div');
+    f.id = 'tap-feedback';
+    f.setAttribute('aria-hidden','true');
+    document.body.appendChild(f);
+  }
+  const x = (e && (e.clientX||(e.touches&&e.touches[0]&&e.touches[0].clientX))) || (window.innerWidth/2);
+  const y = (e && (e.clientY||(e.touches&&e.touches[0]&&e.touches[0].clientY))) || (window.innerHeight/2);
+  f.style.left = x + 'px';
+  f.style.top = y + 'px';
   f.textContent = (c ? '⚡ ' : '') + '+' + Math.floor(g);
+  f.classList.remove('show');
+  void f.offsetWidth;
   f.classList.add('show');
-  setTimeout(()=>f.classList.remove('show'), 600);
+  clearTimeout(f._hideT);
+  f._hideT = setTimeout(()=>f.classList.remove('show'), 700);
 }
 
 function saveNow(){
@@ -439,7 +451,7 @@ function bind(){
     return true;
   };
 
-  console.log('[game] v4.82 OK TEST_MODE=', TEST_MODE, 'pts/tap=', TEST_POINTS_PER_TAP);
+  console.log('[game] v4.86 OK TEST_MODE=', TEST_MODE, 'pts/tap=', TEST_POINTS_PER_TAP);
 }
 
 if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', bind, {once:true});

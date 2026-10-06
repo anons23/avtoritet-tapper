@@ -2,7 +2,7 @@
 (function(){
   const scripts=[
     {src:'./js/save-migration.js?v=1.0',critical:true},
-    {src:'./js/game.js?v=4.85',critical:true},
+    {src:'./js/game.js?v=4.86',critical:true},
     /* Визуалы груши сразу после ядра — локация без серой задержки */
     {src:'./js/object-visuals.js?v=3.3',critical:true},
     /* Барак и нижнее меню — critical, чтобы не было «дождитесь загрузки» */
