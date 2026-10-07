@@ -1,4 +1,4 @@
-/* nickname-rename v1.0 — тап по кличке → смена имени за рекламу */
+/* nickname-rename v1.1 — тап по кличке → смена имени за рекламу */
 'use strict';
 (function(){
   function st(){
@@ -39,8 +39,10 @@
         '<input id="rename-input" type="text" maxlength="16" value="" placeholder="Например: Кеша" '+
           'style="width:100%;box-sizing:border-box;padding:12px 14px;border-radius:12px;border:1px solid #665329;background:#1a1a1c;color:#fff;font-size:16px">'+
         '<p style="margin:10px 0 0;font-size:12px;color:#888">1–16 символов · буквы, цифры, дефис</p>'+
-        '<button type="button" id="rename-ad-btn" class="npc-primary" style="margin-top:14px;width:100%">📺 Сменить за рекламу</button>'+
-        '<button type="button" id="rename-cancel" class="npc-choice" style="margin-top:8px;width:100%">Отмена</button>'+
+        '<div class="npc-action-panel" style="margin-top:14px">'+
+          '<button type="button" id="rename-ad-btn" class="npc-primary">📺 Сменить за рекламу</button>'+
+          '<button type="button" id="rename-cancel" class="npc-choice">Отмена</button>'+
+        '</div>'+
       '</div>';
 
     overlay.classList.remove('hidden');
@@ -82,7 +84,6 @@
           apply();
         });
       }else{
-        // локально без SDK
         apply();
       }
     };
@@ -99,7 +100,6 @@
       e.stopPropagation();
       openRename();
     });
-    // вся строка тоже
     var row=document.getElementById('nickname-row');
     if(row&&row!==el&&!row.dataset.renameBound){
       row.dataset.renameBound='1';
@@ -116,7 +116,7 @@
     bind();
     setTimeout(bind,500);
     setTimeout(bind,2000);
-    console.log('[nickname-rename] v1.0 ready');
+    console.log('[nickname-rename] v1.1 ready');
   }
   if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',boot);
   else boot();
