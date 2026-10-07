@@ -1,4 +1,4 @@
-/* RAID UI — per-fighter scale tweaks v4.5 */
+/* RAID UI — per-fighter scale tweaks v4.6 */
 #raid-open-button{
   position:absolute!important;
   right:8px!important;
@@ -465,8 +465,8 @@
 .raid-screen-blood{
   position:absolute!important;
   z-index:95!important;
-  width:var(--blood-w,30px);
-  height:var(--blood-h,24px);
+  width:var(--blood-w,38px);
+  height:var(--blood-h,30px);
   pointer-events:none!important;
   border-radius:62% 38% 58% 42%!important;
   background:
@@ -483,7 +483,7 @@
   position:absolute;
   left:48%;
   top:72%;
-  width:5px;
+  width:6px;
   height:var(--drip-len);
   border-radius:70% 70% 55% 55%;
   background:linear-gradient(to bottom,rgba(137,8,12,.72),rgba(104,0,0,.48) 72%,transparent);
