@@ -1,20 +1,20 @@
-/* daily.js v1.1 — ежедневные задания: тапы / рейд / дело */
+/* daily.js v1.2 — ежедневные задания: тапы / рейд / дело */
 'use strict';
 (function(){
   var QUEST_POOL=[
     {id:'d_taps',title:'Размяться',desc:'Сделай 200 тапов за сегодня.',target:200,key:'taps',rewardType:'chifir',rewardAmount:100,reward:'100 🍵'},
     {id:'d_raid',title:'Зашёл на район',desc:'Выиграй 1 рейд сегодня.',target:1,key:'raids',rewardType:'chifir',rewardAmount:150,reward:'150 🍵'},
-    {id:'d_deal',title:'Дело барака',desc:'Разбери 1 дело на масти Авторитет (или поговори в бараке ×2).',target:1,key:'deals',targetAlt:2,keyAlt:'npc',rewardType:'chifir',rewardAmount:120,reward:'120 🍵'},
-    {id:'d_taps_500',title:'Набить руку',desc:'Сделай 500 тапов за сегодня.',target:500,key:'taps',rewardType:'chifir',rewardAmount:180,reward:'180 🍵'},
-    {id:'d_raid_2',title:'Два захода',desc:'Выиграй 2 рейда сегодня.',target:2,key:'raids',rewardType:'chifir',rewardAmount:240,reward:'240 🍵'},
-    {id:'d_npc_3',title:'Разговоры по делу',desc:'Успешно закончи 3 разговора в бараке.',target:3,key:'npc',rewardType:'chifir',rewardAmount:160,reward:'160 🍵'},
-    {id:'d_taps_800',title:'Не сбавлять темп',desc:'Сделай 800 тапов за сегодня.',target:800,key:'taps',rewardType:'chifir',rewardAmount:280,reward:'280 🍵'},
-    {id:'d_raid_3',title:'Район не спит',desc:'Выиграй 3 рейда сегодня.',target:3,key:'raids',rewardType:'chifir',rewardAmount:330,reward:'330 🍵'},
-    {id:'d_deal_2',title:'Два серьёзных дела',desc:'Разбери 2 дела на масти Авторитет (или поговори в бараке ×4).',target:2,key:'deals',targetAlt:4,keyAlt:'npc',rewardType:'chifir',rewardAmount:260,reward:'260 🍵'},
-    {id:'d_npc_5',title:'Свой среди своих',desc:'Успешно закончи 5 разговоров в бараке.',target:5,key:'npc',rewardType:'chifir',rewardAmount:300,reward:'300 🍵'}
+    {id:'d_deal',title:'Дело барака',desc:'Разбери 1 дело на масти Авторитет (или поговори в бараке).',target:1,key:'deals',rewardType:'chifir',rewardAmount:120,reward:'120 🍵'},
+    {id:'d_taps_500',title:'Разогрев',desc:'Сделай 500 тапов за сегодня.',target:500,key:'taps',rewardType:'chifir',rewardAmount:180,reward:'180 🍵'},
+    {id:'d_raid_2',title:'Двойной заход',desc:'Выиграй 2 рейда сегодня.',target:2,key:'raids',rewardType:'chifir',rewardAmount:220,reward:'220 🍵'},
+    {id:'d_npc_3',title:'Разговор в бараке',desc:'Успешно закрой 3 диалога с NPC.',target:3,key:'npc',rewardType:'chifir',rewardAmount:160,reward:'160 🍵'},
+    {id:'d_taps_800',title:'Смена на груше',desc:'Сделай 800 тапов за сегодня.',target:800,key:'taps',rewardType:'chifir',rewardAmount:250,reward:'250 🍵'},
+    {id:'d_raid_3',title:'Три района',desc:'Выиграй 3 рейда сегодня.',target:3,key:'raids',rewardType:'chifir',rewardAmount:300,reward:'300 🍵'},
+    {id:'d_deal_2',title:'Два дела',desc:'Разбери 2 дела / диалога.',target:2,key:'deals',rewardType:'chifir',rewardAmount:200,reward:'200 🍵'},
+    {id:'d_npc_5',title:'Свой в бараке',desc:'Успешно закрой 5 диалогов с NPC.',target:5,key:'npc',rewardType:'chifir',rewardAmount:280,reward:'280 🍵'}
   ];
-
   var QUESTS=[];
+
   function buildQuestSet(s){
     var d=s.daily;
     if(!d)return;
@@ -51,84 +51,91 @@
 
   function ensure(s){
     if(!s)return null;
-    var day=todayKey();
-    if(!s.daily || s.daily.day!==day){
+    if(!s.daily||typeof s.daily!=='object') s.daily={};
+    var d=s.daily;
+    var key=todayKey();
+    if(d.day!==key){
       s.daily={
-        day:day,
-        taps:0,
-        raids:0,
-        deals:0,
-        npc:0,
+        day:key,
+        taps:0,raids:0,deals:0,npc:0,
         claimed:{},
+        questIds:[],
+        refreshFreeUsed:false,
+        refreshCount:0,
+        rewardClaims:0,
         lastTotalTaps:Number(s.totalTaps)||0,
         lastAuthorityDeals:Number(s.tasks&&s.tasks.authorityDeals)||0,
         lastNpcSuccess:Number(s.tasks&&s.tasks.npcSuccess)||0
       };
-      save();
+      d=s.daily;
     }
-    if(!s.daily.claimed)s.daily.claimed={};
-    if(typeof s.daily.refreshFreeUsed!=='boolean')s.daily.refreshFreeUsed=false;
-    if(!Number.isFinite(Number(s.daily.refreshCount)))s.daily.refreshCount=0;
-    if(!Number.isFinite(Number(s.daily.rewardClaims)))s.daily.rewardClaims=0;
+    if(!d.claimed)d.claimed={};
+    if(typeof d.refreshFreeUsed!=='boolean')d.refreshFreeUsed=false;
+    if(!Number.isFinite(Number(d.refreshCount)))d.refreshCount=0;
+    if(!Number.isFinite(Number(d.rewardClaims)))d.rewardClaims=0;
     buildQuestSet(s);
-    return s.daily;
+    return d;
   }
 
   function progress(s,q){
-    var d=ensure(s);
-    if(!d)return 0;
-    var main=Number(d[q.key])||0;
-    if(q.keyAlt){
-      var alt=Number(d[q.keyAlt])||0;
-      // дело: 1 deal ИЛИ targetAlt npc
-      if(q.key==='deals'){
-        if(main>=q.target)return q.target;
-        if(alt>=(q.targetAlt||2))return q.target;
-        // show better progress toward completion as 0 or partial via deals only for bar
-        return main;
-      }
-    }
-    return main;
+    var d=ensure(s);if(!d||!q)return 0;
+    if(q.key==='taps')return Number(d.taps)||0;
+    if(q.key==='raids')return Number(d.raids)||0;
+    if(q.key==='deals')return Number(d.deals)||0;
+    if(q.key==='npc')return Number(d.npc)||0;
+    return 0;
   }
-
   function isDone(s,q){
-    var d=ensure(s);
-    if(!d)return false;
+    var d=ensure(s);if(!d||!q)return false;
     if(d.claimed[q.id])return true;
-    var main=Number(d[q.key])||0;
-    if(main>=q.target)return true;
-    if(q.keyAlt&&(Number(d[q.keyAlt])||0)>=(q.targetAlt||2))return true;
-    return false;
+    return progress(s,q)>=Number(q.target||1);
   }
 
-  function canClaim(s,q){
-    var d=ensure(s);
-    if(!d||d.claimed[q.id])return false;
-    return isDone(s,q);
+  function rebuildDailyBlock(){
+    var content=document.getElementById('modal-content');
+    if(!content)return;
+    var old=content.querySelector('.daily-block');
+    if(old) old.remove();
+    content.dataset.dailyInjected='0';
+    injectIntoTasksMenu();
   }
 
   function refreshDaily(s,viaAd){
     var d=ensure(s);if(!d)return false;
     if(!viaAd && d.refreshFreeUsed){msg('📅 Бесплатное обновление на сегодня уже использовано.');return false;}
-    if(Number(d.rewardClaims)>=3){msg('📅 Все 3 награды за сегодня уже можно получить только по текущим заданиям.');return false;}
     if(!viaAd)d.refreshFreeUsed=true;
     d.refreshCount=(Number(d.refreshCount)||0)+1;
-    var old=Array.isArray(d.questIds)?d.questIds.slice():[];
-    var pool=QUEST_POOL.filter(function(q){return old.indexOf(q.id)<0;});
+    var prev=Array.isArray(d.questIds)?d.questIds.slice():[];
+    var pool=QUEST_POOL.filter(function(q){return prev.indexOf(q.id)<0;});
     if(pool.length<3)pool=QUEST_POOL.slice();
-    d.questIds=pool.sort(function(){return Math.random()-.5;}).slice(0,3).map(function(q){return q.id;});
+    pool=pool.sort(function(){return Math.random()-.5;});
+    var next=pool.slice(0,3).map(function(q){return q.id;});
+    if(next.length<3){
+      var rest=QUEST_POOL.map(function(q){return q.id;}).filter(function(id){return next.indexOf(id)<0;});
+      rest.sort(function(){return Math.random()-.5;});
+      while(next.length<3&&rest.length) next.push(rest.shift());
+    }
+    d.questIds=next;
     d.taps=0;d.raids=0;d.deals=0;d.npc=0;d.claimed={};
     d.lastTotalTaps=Number(s.totalTaps)||0;
     d.lastAuthorityDeals=Number(s.tasks&&s.tasks.authorityDeals)||0;
     d.lastNpcSuccess=Number(s.tasks&&s.tasks.npcSuccess)||0;
     save();ui();
-    msg(viaAd?'📺 Задания обновлены за рекламу.':'🔄 Ежедневные задания обновлены бесплатно.');
+    msg(viaAd?'📺 Задания обновлены за рекламу.':'🔄 Ежедневные задания обновлены.');
+    rebuildDailyBlock();
     return true;
   }
 
   function requestRefreshAd(){
-    if(typeof window.showRewardedAd!=='function'){msg('📺 Реклама пока недоступна.');return;}
-    window.showRewardedAd(function(ok){if(!ok){msg('📺 Реклама не просмотрена полностью.');return;}var s=st();if(s)refreshDaily(s,true);});
+    if(typeof window.showRewardedAd!=='function'){
+      var s=st();if(s){refreshDaily(s,true);}
+      else msg('📺 Реклама пока недоступна.');
+      return;
+    }
+    window.showRewardedAd(function(ok){
+      if(!ok){msg('📺 Реклама не просмотрена полностью.');return;}
+      var s=st();if(s)refreshDaily(s,true);
+    });
   }
 
   function claim(s,q){
@@ -137,114 +144,57 @@
     if(!isDone(s,q))return false;
     d.claimed[q.id]=Date.now();
     d.rewardClaims=(Number(d.rewardClaims)||0)+1;
-    if(q.rewardType==='points') s.points=(Number(s.points)||0)+q.rewardAmount;
-    else s.chifir=(Number(s.chifir)||0)+q.rewardAmount;
-    msg('📅 День: '+q.title+' · +'+q.reward);
-    save(); ui();
+    if(q.rewardType==='chifir') s.chifir=(Number(s.chifir)||0)+Number(q.rewardAmount||0);
+    save();ui();
+    msg('🎁 '+q.title+': +'+(q.reward||''));
     return true;
   }
-
   function claimAllReady(s){
-    QUESTS.forEach(function(q){ if(canClaim(s,q)) claim(s,q); });
+    ensure(s);
+    QUESTS.forEach(function(q){ if(isDone(s,q)&&!s.daily.claimed[q.id]) claim(s,q); });
   }
 
-  function syncCounters(){
-    var s=st();
-    if(!s)return;
-    var d=ensure(s);
-    if(!d)return;
-
-    var total=Number(s.totalTaps)||0;
-    if(typeof d.lastTotalTaps!=='number') d.lastTotalTaps=total;
-    if(total>d.lastTotalTaps){
-      d.taps+=(total-d.lastTotalTaps);
-      d.lastTotalTaps=total;
-      save();
-    }
-
-    var ad=Number(s.tasks&&s.tasks.authorityDeals)||0;
-    if(typeof d.lastAuthorityDeals!=='number') d.lastAuthorityDeals=ad;
-    if(ad>d.lastAuthorityDeals){
-      d.deals+=(ad-d.lastAuthorityDeals);
-      d.lastAuthorityDeals=ad;
-      save();
-    }
-
-    var ns=Number(s.tasks&&s.tasks.npcSuccess)||0;
-    if(typeof d.lastNpcSuccess!=='number') d.lastNpcSuccess=ns;
-    if(ns>d.lastNpcSuccess){
-      d.npc+=(ns-d.lastNpcSuccess);
-      d.lastNpcSuccess=ns;
-      save();
-    }
-
-    // авто-награда при выполнении
-    claimAllReady(s);
+  function syncProgress(s){
+    var d=ensure(s);if(!d)return;
+    var taps=Number(s.totalTaps)||0;
+    var last=Number(d.lastTotalTaps)||0;
+    if(taps>last){ d.taps=(Number(d.taps)||0)+(taps-last); d.lastTotalTaps=taps; }
+    var deals=Number(s.tasks&&s.tasks.authorityDeals)||0;
+    var ld=Number(d.lastAuthorityDeals)||0;
+    if(deals>ld){ d.deals=(Number(d.deals)||0)+(deals-ld); d.lastAuthorityDeals=deals; }
+    var npc=Number(s.tasks&&s.tasks.npcSuccess)||0;
+    var ln=Number(d.lastNpcSuccess)||0;
+    if(npc>ln){ d.npc=(Number(d.npc)||0)+(npc-ln); d.lastNpcSuccess=npc; }
   }
 
-  function noteRaidWin(){
-    var s=st();
-    if(!s)return;
-    var d=ensure(s);
-    if(!d)return;
+  window.__dailyNoteRaidWin=function(){
+    var s=st();if(!s)return;
+    var d=ensure(s);if(!d)return;
     d.raids=(Number(d.raids)||0)+1;
     save();
-    claimAllReady(s);
-  }
-
-  function wrapMarkWin(){
-    if(typeof window.markWin==='function' && !window.markWin.__dailyWrapped){
-      var orig=window.markWin;
-      function wrapped(){
-        var r=orig.apply(this,arguments);
-        try{ noteRaidWin(); }catch(e){}
-        return r;
-      }
-      wrapped.__dailyWrapped=true;
-      window.markWin=wrapped;
-      return;
-    }
-    // raids-ui may define markWin as local — hook via custom event if exposed later
-  }
-
-  // raids-ui markWin is internal; listen to common patterns
-  function hookRaids(){
-    wrapMarkWin();
-    // patch if raids expose on win message
-    if(typeof window.__raidOnWin==='function' && !window.__raidOnWin.__daily){
-      var o=window.__raidOnWin;
-      window.__raidOnWin=function(){ try{ noteRaidWin(); }catch(e){} return o.apply(this,arguments); };
-      window.__raidOnWin.__daily=true;
-    }
-  }
+  };
+  window.__dailyNoteTap=function(){
+    var s=st();if(!s)return;
+    var d=ensure(s);if(!d)return;
+    d.taps=(Number(d.taps)||0)+1;
+    save();
+  };
 
   function cardsHtml(s){
-    ensure(s);
+    var d=ensure(s);
     return QUESTS.map(function(q){
-      var cur=Math.min(q.target, progress(s,q));
-      // for deal+npc alt show combined hint
-      var d=s.daily;
-      var extra='';
-      if(q.key==='deals'){
-        var deals=Number(d.deals)||0;
-        var npc=Number(d.npc)||0;
-        extra=' <span style="opacity:.75">(дела '+deals+', барак '+npc+'/2)</span>';
-        if(deals>=1||npc>=2)cur=q.target;
-        else cur=deals>=1?1:0;
-      }
+      var p=progress(s,q);
       var done=!!(d.claimed&&d.claimed[q.id])||isDone(s,q);
       var claimed=!!(d.claimed&&d.claimed[q.id]);
-      var pct=Math.min(100,(cur/q.target)*100);
+      var pct=Math.min(100,Math.floor(p/Math.max(1,q.target)*100));
       var icon=claimed?'✓':(done?'🎁':'📅');
-      return '<div class="task-card daily-card '+(claimed?'task-done':'')+'">'+
-        '<div class="task-icon">'+icon+'</div>'+
-        '<div class="task-body">'+
-        '<b>'+q.title+'</b>'+
-        '<p>'+q.desc+extra+'</p>'+
-        '<div class="task-progress"><span style="width:'+pct+'%"></span></div>'+
-        '<small>'+fmt(cur)+' / '+fmt(q.target)+' · Награда: <strong>'+q.reward+'</strong>'+
-        (claimed?' · получено':(done?' · забирается…':''))+'</small>'+
-        '</div></div>';
+      return '<div class="task-card daily-card '+(claimed?'task-done':'')+'">'+'
+        <div class="task-icon">'+icon+'</div>'+'
+        <div class="task-body"><b>'+q.title+'</b><p>'+q.desc+'</p>'+'
+        <div class="task-track"><span style="width:'+pct+'%"></span></div>'+'
+        <small>'+fmt(p)+' / '+fmt(q.target)+' · награда '+q.reward+
+        (claimed?' · получено':(done?' · забирается…':''))+'</small>'+'
+        </div></div>';
     }).join('');
   }
 
@@ -261,38 +211,34 @@
     var d=s.daily;
     var free=!!d.refreshFreeUsed;
     var claims=Math.min(3,Number(d.rewardClaims)||0);
-    var refreshHtml='<div class="daily-refresh"><button type="button" id="daily-refresh-btn">🔄 Обновить задания <span>'+(free?'📺 за рекламу':'🆓 бесплатно')+'</span></button><small>'+(free?'Бесплатное обновление уже использовано · дальше можно обновлять за рекламу без ограничений.':'1 бесплатное обновление в день · после него — за рекламу без ограничений.')+' Награды за день: '+claims+'/3.</small></div>';
+    var refreshHtml='<div class="daily-refresh"><button type="button" id="daily-refresh-btn">🔄 Обновить задания <span>'+(free?'📺 за рекламу':'🆓 бесплатно')+'</span></button><small>'+(free?'Бесплатное обновление уже использовано · дальше — за рекламу.':'1 бесплатное обновление в день · дальше — за рекламу.')+' Награды: '+claims+'/3.</small></div>';
     var block=document.createElement('div');
     block.className='daily-block';
     block.innerHTML=
       '<div class="daily-head"><span class="section-kicker">СЕГОДНЯ</span>'+
       '<p class="section-subtitle" style="margin:6px 0 10px">Сброс в полночь · '+todayKey()+'</p></div>'+
       refreshHtml+'<div class="tasks-list daily-list">'+cardsHtml(s)+'</div>'+
-      '<hr class="daily-sep">';
+      '<hr class="daily-sep" style="margin:14px 0;border:none;border-top:1px solid rgba(255,255,255,.08)">';
 
-    var h2=content.querySelector('h2');
     var list=content.querySelector('.tasks-list');
-    if(list&&list.parentNode){
-      list.parentNode.insertBefore(block, list);
-    }else if(h2&&h2.parentNode){
-      h2.parentNode.insertBefore(block, h2.nextSibling);
-    }
-    // Ищем кнопку после вставки блока: раньше обработчик навешивался
-    // до вставки и бесплатная кнопка оставалась полностью неактивной.
+    if(list) list.parentNode.insertBefore(block, list);
+    else content.insertBefore(block, content.firstChild);
+
     var rb=block.querySelector('#daily-refresh-btn');
-    if(rb&&!rb.dataset.bound){
-      rb.dataset.bound='1';
+    if(rb){
       rb.disabled=false;
+      rb.style.pointerEvents='auto';
+      rb.style.cursor='pointer';
       rb.setAttribute('aria-disabled','false');
-      rb.addEventListener('click',function(e){
+      rb.onclick=function(e){
         e.preventDefault();
         e.stopPropagation();
         var current=st();
-        if(!current)return;
+        if(!current){msg('Игра ещё загружается…');return;}
         ensure(current);
         if(current.daily.refreshFreeUsed)requestRefreshAd();
         else refreshDaily(current,false);
-      });
+      };
     }
   }
 
@@ -309,28 +255,22 @@
     if(overlay&&!overlay.dataset.dailyObs){
       overlay.dataset.dailyObs='1';
       new MutationObserver(function(){
-        setTimeout(injectIntoTasksMenu,20);
+        setTimeout(injectIntoTasksMenu,30);
       }).observe(overlay,{childList:true,subtree:true});
     }
   }
 
-  // Public API for other modules
-  window.__dailyNoteRaidWin=noteRaidWin;
-  window.__dailySync=syncCounters;
-  window.getDailyQuests=function(){var s=st();if(s)ensure(s);return QUESTS.slice()};
+  function tick(){
+    var s=st();if(!s)return;
+    syncProgress(s);
+    claimAllReady(s);
+  }
 
   function boot(){
     bindTasksButton();
-    syncCounters();
-    setInterval(function(){ syncCounters(); hookRaids(); },1000);
-    hookRaids();
-    // also after raid timer patch loads
-    setTimeout(hookRaids,2000);
-    setTimeout(hookRaids,5000);
+    setInterval(tick,2000);
+    console.log('[daily] v1.2 ready');
   }
-
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot);
   else boot();
-
-  console.log('[daily] v2.0 quests ready');
 })();
