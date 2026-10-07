@@ -2,7 +2,7 @@
 #raid-open-button{
   position:absolute!important;
   right:8px!important;
-  top:128px!important;
+  top:158px!important;
   z-index:60!important;
   width:72px!important;
   min-height:78px!important;
@@ -21,7 +21,7 @@
   opacity:1!important;
   pointer-events:auto!important;
   filter:drop-shadow(0 5px 12px rgba(0,0,0,.65));
-  animation:raidBtnPulse 2.4s ease-in-out infinite;
+  animation:raidBtnPulse 1.9s ease-in-out infinite, raidBtnGlow 1.9s ease-in-out infinite;
   transform-origin:center center;
 }
 #raid-open-button .raid-btn-icon{
@@ -58,7 +58,7 @@
 @media (max-width:700px){
   #raid-open-button{
     right:6px!important;
-    top:118px!important;
+    top:148px!important;
     width:68px!important;
     min-height:74px!important;
   }
@@ -74,6 +74,10 @@
   }
   #raid-open-button .raid-btn-icon{width:40px!important;height:40px!important;flex-basis:40px!important}
   #raid-open-button .raid-btn-label{font-size:9px!important}
+}
+@keyframes raidBtnGlow{
+  0%,100%{filter:drop-shadow(0 5px 12px rgba(0,0,0,.65)) drop-shadow(0 0 5px rgba(255,196,45,.35)) drop-shadow(0 0 12px rgba(255,120,20,.18))}
+  50%{filter:drop-shadow(0 5px 12px rgba(0,0,0,.65)) drop-shadow(0 0 12px rgba(255,205,55,.95)) drop-shadow(0 0 28px rgba(255,110,20,.62)) drop-shadow(0 0 44px rgba(255,55,10,.28))}
 }
 @keyframes raidBtnPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.08)}}
 .raid-select{width:min(620px,92vw);max-height:min(760px,88vh);overflow:auto;padding:20px;border-radius:18px;background:linear-gradient(145deg,#252525,#101010);color:#fff;box-shadow:0 20px 70px rgba(0,0,0,.75)}
