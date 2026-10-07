@@ -45,14 +45,14 @@
     if(phase===1) return;
 
     /* Phase 2/3: stronger spray radiating from the actual tap. */
-    var count=phase===3?8:6;
+    var count=phase===3?10:8;
     for(var i=0;i<count;i++){
       var drop=document.createElement('div');
       drop.className='raid-blood raid-blood-spray phase-'+phase;
-      var size=(phase===3?4:3)+Math.random()*(phase===3?8:6);
+      var size=(phase===3?7:5)+Math.random()*(phase===3?12:9);
       drop.style.width=size+'px'; drop.style.height=(size*(.7+Math.random()*.55))+'px';
       drop.style.left=lx+'px'; drop.style.top=ly+'px';
-      var ang=Math.random()*Math.PI*2, dist=(phase===3?28:22)+Math.random()*(phase===3?58:42);
+      var ang=Math.random()*Math.PI*2, dist=(phase===3?38:30)+Math.random()*(phase===3?78:58);
       drop.style.setProperty('--dx',(Math.cos(ang)*dist)+'px');
       drop.style.setProperty('--dy',(Math.sin(ang)*dist-10-Math.random()*16)+'px');
       scene.appendChild(drop);
