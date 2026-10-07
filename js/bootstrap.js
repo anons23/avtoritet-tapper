@@ -14,6 +14,7 @@
     {src:'./js/prestige.js?v=1.0',critical:false},
     /* equipment.js disabled — use equipment-v2.js from index.html */
     {src:'./js/ads.js?v=1.0',critical:false},
+    {src:'./js/ads-policy.js?v=1.0',critical:false},
     {src:'./js/yandex-progress.js?v=1.0',critical:false},
     {src:'./js/offline.js?v=1.0',critical:false},
     {src:'./js/share.js?v=1.0',critical:false},
@@ -53,7 +54,7 @@
         if(item.critical)return;
       }
     }
-    console.log('[bootstrap] v2.93 ready (more rumors)');
+    console.log('[bootstrap] v2.94 ready (ads-policy)');
   }
 
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot);
