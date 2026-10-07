@@ -12,14 +12,13 @@
     {src:'./js/choice-events.js?v=1.1',critical:false},
     {src:'./js/sentence.js?v=1.0',critical:false},
     {src:'./js/prestige.js?v=1.0',critical:false},
-    /* equipment.js disabled — use equipment-v2.js from index.html */
-    {src:'./js/ads.js?v=1.0',critical:false},
-    {src:'./js/ads-policy.js?v=1.0',critical:false},
+    {src:'./js/ads-policy.js?v=1.1',critical:false},
+    {src:'./js/shop-booster-ad.js?v=1.0',critical:false},
     {src:'./js/yandex-progress.js?v=1.0',critical:false},
     {src:'./js/offline.js?v=1.0',critical:false},
     {src:'./js/share.js?v=1.0',critical:false},
     {src:'./js/leaderboard.js?v=1.0',critical:false},
-    {src:'./js/daily.js?v=2.1',critical:false},
+    {src:'./js/daily.js?v=1.2',critical:false},
     {src:'./js/authority-css-restore.js?v=1.6',critical:false},
     {src:'./js/authority-ui.js?v=1.9',critical:false},
     {src:'./js/authority-folder-fix.js?v=1.0',critical:false},
@@ -54,7 +53,7 @@
         if(item.critical)return;
       }
     }
-    console.log('[bootstrap] v2.94 ready (ads-policy)');
+    console.log('[bootstrap] v2.95 ready');
   }
 
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot);
