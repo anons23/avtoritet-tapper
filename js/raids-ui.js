@@ -191,6 +191,14 @@
     }catch(e){}
   }
 
+  function syncRaidPhaseFx(phase){
+    var fighter=$('raid-fighter');
+    if(!fighter) return;
+    fighter.classList.remove('phase-pressure','phase-rage');
+    if(phase===2) fighter.classList.add('phase-pressure');
+    else if(phase===3) fighter.classList.add('phase-rage');
+  }
+
   function startRaid(i){
     var f=FIGHTERS[i]; if(!f||!unlocked(f)) return;
     var pr=pFor(f);
@@ -220,6 +228,7 @@
       '<div class="raid-result" id="raid-result"><div class="raid-result-card"><div id="raid-result-title"></div><div id="raid-result-text"></div><div id="raid-result-drop" class="raid-result-drop"></div><button type="button" id="raid-result-ok">Ок</button></div></div>'+
       '</div></div>';
     if(hasIdle) playIdle(f);
+    syncRaidPhaseFx(phase);
     (HITS[f.id]||[]).forEach(function(src){ var im=new Image(); im.src=src; });
     var back=$('raid-back');
     if(back) back.addEventListener('click',function(e){ e.stopPropagation(); pr.hp=hp; openRaidMenu(); });
@@ -251,6 +260,7 @@
       var newPhase=phaseFor(hp,f.hp);
       if(fill) fill.style.width=p2+'%';
       var phaseEl=$('raid-phase'); if(phaseEl) phaseEl.textContent=phaseLabel(newPhase);
+      syncRaidPhaseFx(newPhase);
       if(txt) txt.textContent=hp+' / '+f.hp;
       if(bar) bar.classList.toggle('low-hp', p2<=25&&p2>0);
       showHit(f);
