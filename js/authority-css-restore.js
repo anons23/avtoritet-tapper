@@ -1,33 +1,25 @@
+/* authority-css-restore v1.7 — layout fixes without full-screen hotspot */
 'use strict';
-(function () {
+(function(){
   if (document.getElementById('authority-ui-css-restore')) return;
   var s = document.createElement('style');
   s.id = 'authority-ui-css-restore';
   s.textContent = [
-    '.authority-strip{display:none!important}',
-    '#test-version,#test-reset-btn,.test-reset-btn{display:none!important}',
-
-    '#game-container.authority-mode{',
-    '  background:#0a0e10!important;',
-    '  background-image:linear-gradient(rgba(4,8,10,.12),rgba(4,8,10,.32)),url("./assets/backgrounds/desktop/avtoritet.webp")!important;',
-    '  background-size:cover!important;',
-    '  background-position:center center!important;',
-    '  background-repeat:no-repeat!important;',
-    '  height:100dvh!important;min-height:100dvh!important;max-height:100dvh!important;',
-    '}',
-    '#game-container.authority-mode .authority-hero{background:transparent!important;border:0!important;border-radius:0!important;box-shadow:none!important;min-height:0!important}',
-    '#game-container.authority-mode .authority-hero-bg{display:none!important}',
-    '#game-container.authority-mode .authority-shade{display:block!important;background:linear-gradient(180deg,rgba(3,7,9,.14) 0%,rgba(3,7,9,.05) 45%,rgba(3,7,9,.42) 100%)!important}',
-
-    /* Portrait */
-    '@media (max-width:700px) and (orientation:portrait){',
+    /* Portrait / default */
+    '@media (max-width:900px){',
     '  #game-container.authority-mode{',
-    '    background-image:linear-gradient(rgba(4,8,10,.10),rgba(4,8,10,.28)),url("./assets/backgrounds/mobile/avtoritet.webp")!important;',
-    '    background-size:cover!important;background-position:center 32%!important;',
+    '    background-image:linear-gradient(rgba(4,8,10,.12),rgba(4,8,10,.32)),url("./assets/backgrounds/desktop/avtoritet.webp")!important;',
+    '    background-size:cover!important;background-position:center center!important;',
     '  }',
-    '  #game-container.authority-mode .authority-context,#game-container.authority-mode .authority-influence{display:flex!important}',
-    '  #game-container.authority-mode .authority-mini-row{position:absolute!important;left:10px!important;right:10px!important;bottom:calc(72px + env(safe-area-inset-bottom,0px))!important;z-index:6!important;margin:0!important}',
-    '  #game-container.authority-mode .authority-desk-hotspot{left:8%!important;right:8%!important;bottom:10%!important;width:auto!important;height:42%!important;z-index:100!important;pointer-events:auto!important}',
+    '  #game-container.authority-mode #tap-area{padding:8px!important;}',
+    '  #game-container.authority-mode .authority-deal-btn{',
+    '    position:relative!important;z-index:6!important;margin:0 auto!important;',
+    '  }',
+    '  #game-container.authority-mode .authority-desk-hotspot{',
+    '    left:18%!important;right:18%!important;bottom:12%!important;',
+    '    width:auto!important;height:22%!important;max-height:140px!important;',
+    '    z-index:8!important;pointer-events:auto!important;',
+    '  }',
     '}',
 
     /* Landscape compact UI */
@@ -38,55 +30,32 @@
     '    width:100vw!important;max-width:none!important;padding-bottom:48px!important;',
     '  }',
     '  #game-container.authority-mode #top-bar{padding:3px 10px!important;min-height:0!important}',
-    '  #game-container.authority-mode #top-bar .resource{font-size:11px!important}',
-    '  #game-container.authority-mode #sentence-panel{margin:1px auto 0!important;padding:2px 8px!important;width:min(200px,42vw)!important}',
-    '  #game-container.authority-mode #sentence-panel .sentence-head{font-size:7px!important}',
-    '  #game-container.authority-mode #sentence-panel .sentence-head b{font-size:8px!important}',
-    '  #game-container.authority-mode #sentence-panel .sentence-track{height:2px!important;margin:1px 0!important}',
-    '  #game-container.authority-mode #sentence-panel small{font-size:6px!important}',
-    '  #game-container.authority-mode #player-info{padding:1px 8px 0!important}',
-    '  #game-container.authority-mode #nickname{font-size:13px!important}',
-    '  #game-container.authority-mode #rank{font-size:9px!important}',
-    '  #game-container.authority-mode #rank-goal.rank-goal,#game-container.authority-mode .rank-goal{width:min(200px,45vw)!important;max-width:200px!important;margin:1px auto 0!important;padding:2px 6px!important}',
-    '  #game-container.authority-mode .rank-goal-head{font-size:7px!important}',
-    '  #game-container.authority-mode .rank-goal-head b{font-size:7px!important}',
-    '  #game-container.authority-mode .rank-goal-track{height:2px!important;margin-top:1px!important}',
-    '  #game-container.authority-mode .authority-context,#game-container.authority-mode .authority-influence{display:flex!important}',
-    '  #game-container.authority-mode .authority-context{top:8px!important;left:8px!important;padding:4px 8px!important}',
-    '  #game-container.authority-mode .authority-context span{font-size:8px!important}',
-    '  #game-container.authority-mode .authority-context b{font-size:10px!important}',
-    '  #game-container.authority-mode .authority-influence{top:48px!important;left:8px!important;padding:4px 8px!important;min-width:90px!important}',
-    '  #game-container.authority-mode .authority-influence span{font-size:7px!important}',
-    '  #game-container.authority-mode .authority-influence b{font-size:16px!important}',
-    '  #game-container.authority-mode .authority-mini-row{position:absolute!important;left:10px!important;right:10px!important;bottom:calc(50px + env(safe-area-inset-bottom,0px))!important;z-index:6!important;margin:0!important;gap:5px!important}',
-    '  #game-container.authority-mode .authority-mini-card{padding:5px 7px!important;border-radius:10px!important}',
-    '  #game-container.authority-mode .authority-mini-card b{font-size:10px!important}',
-    '  #game-container.authority-mode .authority-mini-card span{font-size:8px!important;margin-top:2px!important;line-height:1.2!important}',
-    '  #game-container.authority-mode .authority-desk-hotspot{left:16%!important;right:16%!important;bottom:4%!important;width:auto!important;height:58%!important;z-index:100!important;pointer-events:auto!important}',
-    '  #game-container.authority-mode #raid-open-button{width:40px!important;height:40px!important;top:auto!important;bottom:calc(54px + env(safe-area-inset-bottom,0px))!important;right:10px!important}',
-    '  #game-container.authority-mode #raid-open-button img{width:40px!important;height:40px!important}',
-    '  #game-container.authority-mode .raid-music-mute,#game-container.authority-mode button.raid-music-mute{width:34px!important;height:34px!important;font-size:14px!important;top:auto!important;bottom:calc(54px + env(safe-area-inset-bottom,0px))!important;left:10px!important}',
-    '  #game-container.authority-mode #event-message{bottom:calc(96px + env(safe-area-inset-bottom,0px))!important;font-size:12px!important;max-width:min(520px,88vw)!important;padding:8px 12px!important}',
-    '  #game-container.authority-mode #bottom-bar{min-height:44px!important;padding:4px 6px calc(4px + env(safe-area-inset-bottom,0px))!important}',
-    '  #game-container.authority-mode #bottom-bar .nav-btn{font-size:10px!important;padding:6px 4px!important}',
-    '}',
-
-    /* Very short landscape */
-    '@media (max-width:900px) and (orientation:landscape) and (max-height:380px){',
-    '  #game-container.authority-mode #sentence-panel{display:none!important}',
-    '  #game-container.authority-mode #rank-goal.rank-goal,#game-container.authority-mode .rank-goal{display:none!important}',
-    '  #game-container.authority-mode .authority-influence{top:36px!important}',
-    '  #game-container.authority-mode .authority-mini-card span{display:none!important}',
-    '  #game-container.authority-mode .authority-mini-card{padding:4px 6px!important}',
-    '  #game-container.authority-mode .authority-mini-card b{font-size:9px!important}',
-    '}',
-
-    '@media (min-width:701px){',
-    '  #game-container.authority-mode{',
-    '    background-image:linear-gradient(rgba(4,8,10,.10),rgba(4,8,10,.28)),url("./assets/backgrounds/desktop/avtoritet.webp")!important;',
-    '    background-size:cover!important;background-position:center center!important;',
+    '  #game-container.authority-mode .authority-desk-hotspot{',
+    '    left:20%!important;right:20%!important;bottom:8%!important;',
+    '    width:auto!important;height:20%!important;max-height:120px!important;',
+    '    z-index:8!important;',
     '  }',
+    '}',
+
+    /* Centered authority dialogs */
+    '#modal-overlay.authority-open{',
+    '  align-items:center!important;',
+    '  justify-content:center!important;',
+    '  padding:12px!important;',
+    '}',
+    '#modal.authority-modal{',
+    '  border-radius:22px!important;',
+    '  width:min(520px,94vw)!important;',
+    '  max-height:min(88svh,720px)!important;',
+    '  margin:0 auto!important;',
+    '}',
+    '.authority-deal-btn img,.authority-deal-btn .authority-deal-img{',
+    '  max-width:min(280px,70vw)!important;',
+    '  max-height:120px!important;',
+    '  width:auto!important;height:auto!important;',
+    '  display:block!important;margin:0 auto!important;',
     '}'
-  ].join('');
+  ].join('\n');
   document.head.appendChild(s);
+  console.log('[authority-css-restore] v1.7');
 })();
