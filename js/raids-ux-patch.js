@@ -20,11 +20,11 @@
     }
     el.textContent=energyLabel();
   }
-  function spawnFloatDmg(x,y,dmg,crit){
+  function spawnFloatDmg(x,y,dmg,crit,phase){
     var scene=$('raid-scene'); if(!scene) return;
     var rect=scene.getBoundingClientRect();
     var el=document.createElement('div');
-    el.className='raid-float-dmg'+(crit?' is-crit':'');
+    el.className='raid-float-dmg phase-'+(phase||1)+(crit?' is-crit':'');
     el.textContent=(crit?'CRIT ':'')+'-'+dmg;
     el.style.left=(x-rect.left)+'px';
     el.style.top=(y-rect.top)+'px';
@@ -181,7 +181,7 @@
         if(crit) dmg=Math.round(dmg*2.2);
       }catch(err){}
       setTimeout(function(){
-        spawnFloatDmg(cx,cy,dmg,crit);
+        spawnFloatDmg(cx,cy,dmg,crit,phase);
         spawnBlood(cx,cy,phase);
         ensureEnergyHud();
         setTimeout(syncHpAnim, 30);
