@@ -375,3 +375,113 @@
 @media(max-width:700px){
   #raid-energy-hud{top:8px!important;right:8px!important;font-size:13px!important;padding:5px 8px!important}
 }
+
+
+/* RAID PHASE FX — visual-only layer. Does not change fighter/background/layout. */
+.raid-fighter::before{
+  content:"";
+  position:absolute;
+  inset:0;
+  z-index:0;
+  pointer-events:none;
+  opacity:0;
+  overflow:hidden;
+}
+
+/* PHASE 2 — НАПОР: yellow speed/pressure streaks behind the fighter */
+.raid-fighter.phase-pressure::before{
+  opacity:1;
+  background:
+    repeating-linear-gradient(
+      118deg,
+      transparent 0 24px,
+      rgba(255,221,45,.0) 24px 30px,
+      rgba(255,221,45,.82) 30px 34px,
+      rgba(255,244,120,.98) 34px 37px,
+      rgba(255,221,45,.0) 37px 64px
+    );
+  mix-blend-mode:screen;
+  filter:blur(.2px) drop-shadow(0 0 7px rgba(255,214,30,.9));
+  animation:raidPressureStreaks 1.05s linear infinite;
+}
+
+.raid-fighter.phase-pressure::after{
+  content:"";
+  position:absolute;
+  inset:8% 4%;
+  z-index:0;
+  pointer-events:none;
+  border-radius:50%;
+  background:radial-gradient(
+    ellipse at center,
+    rgba(255,220,40,.16) 0%,
+    rgba(255,190,0,.07) 42%,
+    transparent 72%
+  );
+  animation:raidPressureGlow .8s ease-in-out infinite alternate;
+}
+
+@keyframes raidPressureStreaks{
+  from{background-position:0 0}
+  to{background-position:120px -90px}
+}
+@keyframes raidPressureGlow{
+  from{opacity:.55;transform:scale(.96)}
+  to{opacity:1;transform:scale(1.04)}
+}
+
+/* PHASE 3 — ЯРОСТЬ: scarlet pulse and aggressive energy behind the fighter */
+.raid-fighter.phase-rage::before{
+  opacity:1;
+  background:
+    radial-gradient(circle at 50% 55%,rgba(255,25,25,.30) 0 8%,transparent 34%),
+    repeating-conic-gradient(
+      from 0deg at 50% 58%,
+      transparent 0deg 7deg,
+      rgba(190,0,0,.34) 8deg 10deg,
+      transparent 11deg 18deg
+    );
+  mix-blend-mode:screen;
+  filter:drop-shadow(0 0 10px rgba(190,0,0,.9));
+  animation:raidRagePulse .7s ease-in-out infinite;
+}
+
+.raid-fighter.phase-rage::after{
+  content:"";
+  position:absolute;
+  inset:4% 2%;
+  z-index:0;
+  pointer-events:none;
+  border-radius:50%;
+  border:2px solid rgba(255,40,40,.28);
+  box-shadow:
+    0 0 14px rgba(255,25,25,.55),
+    inset 0 0 22px rgba(180,0,0,.42);
+  animation:raidRageRing 1.05s ease-out infinite;
+}
+
+@keyframes raidRagePulse{
+  0%,100%{opacity:.55;transform:scale(.96)}
+  50%{opacity:1;transform:scale(1.035)}
+}
+@keyframes raidRageRing{
+  0%{opacity:.1;transform:scale(.78)}
+  45%{opacity:.65}
+  100%{opacity:0;transform:scale(1.08)}
+}
+
+/* Keep the existing fighter media above the new FX layer. */
+.raid-fighter.phase-pressure .raid-fighter-media,
+.raid-fighter.phase-rage .raid-fighter-media{
+  position:relative;
+  z-index:1;
+}
+
+@media(prefers-reduced-motion:reduce){
+  .raid-fighter.phase-pressure::before,
+  .raid-fighter.phase-pressure::after,
+  .raid-fighter.phase-rage::before,
+  .raid-fighter.phase-rage::after{
+    animation:none!important;
+  }
+}
