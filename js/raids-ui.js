@@ -1,4 +1,4 @@
-/* raids-ui v4.81 — English asset paths for psikh/krest */
+/* raids-ui v4.82 — WebM + MP4 fallback for iOS */
 'use strict';
 (function(){
   var REQS=[0,1500,5000,15000,50000];
@@ -88,43 +88,82 @@
     if(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1) return true;
     return false;
   }
+  var IDLE_MP4={
+    petrovich:'./assets/raids/fighters/petrovich.mp4',
+    vtirach:'./assets/raids/fighters/Vtirach.mp4',
+    mafioznik:'./assets/raids/fighters/mafioznik_idle.mp4',
+    mongol:'./assets/raids/fighters/Mongol.mp4',
+    glaz:'./assets/raids/fighters/Glaz.mp4',
+    krest:'./assets/raids/fighters/krest.mp4',
+    psikh:'./assets/raids/fighters/psikh.mp4'
+  };
+
+  function supportsVideo(type){
+    try{
+      var v=document.createElement('video');
+      var t=v.canPlayType(type||'video/mp4; codecs="avc1.42E01E, mp4a.40.2"');
+      return !!t && t!=='';
+    }catch(e){ return false; }
+  }
   function canPlayWebm(){
-    if(isIOSLike()) return false;
     try{
       var v=document.createElement('video');
       var t=v.canPlayType('video/webm; codecs="vp9"')||v.canPlayType('video/webm; codecs="vp8"')||v.canPlayType('video/webm');
       return !!t && t!=='';
     }catch(e){ return false; }
   }
+  function idleSources(f){
+    var mp4=IDLE_MP4[f.id], webm=IDLE[f.id], out=[];
+    if(isIOSLike()){
+      if(mp4) out.push({src:mp4,type:'video/mp4'});
+      if(webm) out.push({src:webm,type:'video/webm'});
+    }else{
+      if(webm && canPlayWebm()) out.push({src:webm,type:'video/webm'});
+      if(mp4 && supportsVideo('video/mp4')) out.push({src:mp4,type:'video/mp4'});
+    }
+    return out;
+  }
   function playIdle(f){
     stopIdle();
     var img=$('raid-fighter-img');
     var media=$('raid-fighter-media'); if(!media) return;
-    if(!canPlayWebm() || !IDLE[f.id]){
+    var sources=idleSources(f);
+    if(!sources.length){
       if(img){ img.style.opacity='1'; img.style.display='block'; }
       return;
     }
-    var src=IDLE[f.id];
     var v=$('raid-idle-video');
     if(!v){
       v=document.createElement('video');
       v.id='raid-idle-video'; v.muted=true; v.loop=true; v.playsInline=true;
       v.setAttribute('playsinline',''); v.setAttribute('webkit-playsinline','');
+      v.setAttribute('muted',''); v.setAttribute('autoplay','');
       v.setAttribute('preload','auto');
       v.style.cssText='position:absolute;left:0;top:0;width:100%;height:100%;object-fit:contain;object-position:center bottom;z-index:2;pointer-events:none;background:transparent';
-      v.addEventListener('error',function(){
-        try{v.style.display='none';}catch(e){}
-        if(img){ img.style.opacity='1'; img.style.display='block'; }
-      });
       media.appendChild(v);
     }
-    v.src=src; v.style.display='block';
-    if(img) img.style.opacity='0';
-    var p=v.play();
-    if(p&&p.catch) p.catch(function(){
-      if(img){ img.style.opacity='1'; }
-      try{v.style.display='none';}catch(e){}
-    });
+    var pos=0;
+    function trySource(){
+      if(pos>=sources.length){
+        try{v.style.display='none';}catch(e){}
+        if(img){ img.style.opacity='1'; img.style.display='block'; }
+        return;
+      }
+      var src=sources[pos++];
+      try{
+        v.pause();
+        v.removeAttribute('src');
+        v.load();
+        v.src=src.src;
+        v.type=src.type;
+        v.style.display='block';
+        if(img) img.style.opacity='0';
+        var p=v.play();
+        if(p&&p.catch) p.catch(function(){ trySource(); });
+      }catch(e){ trySource(); }
+    }
+    v.onerror=function(){ trySource(); };
+    trySource();
   }
 
   function showHit(f){
@@ -140,9 +179,9 @@
     if(media){media.classList.remove('hit-pulse'); void media.offsetWidth; media.classList.add('hit-pulse');}
     if(idleTimer) clearTimeout(idleTimer);
     idleTimer=setTimeout(function(){
-      if(canPlayWebm() && IDLE[f.id] && v){
+      if(v && idleSources(f).length){
         v.style.display='block';
-        v.play().catch(function(){});
+        var p=v.play(); if(p&&p.catch) p.catch(function(){playIdle(f);});
         if(img) img.style.opacity='0';
       } else if(img){
         img.style.opacity='1';
