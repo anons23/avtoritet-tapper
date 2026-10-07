@@ -1,4 +1,4 @@
-/* daily.js v1.2 — ежедневные задания: тапы / рейд / дело */
+/* daily.js v1.3 — ежедневные задания */
 'use strict';
 (function(){
   var QUEST_POOL=[
@@ -96,18 +96,20 @@
     if(!content)return;
     var old=content.querySelector('.daily-block');
     if(old) old.remove();
-    content.dataset.dailyInjected='0';
     injectIntoTasksMenu();
   }
 
   function refreshDaily(s,viaAd){
     var d=ensure(s);if(!d)return false;
-    if(!viaAd && d.refreshFreeUsed){msg('📅 Бесплатное обновление на сегодня уже использовано.');return false;}
+    if(!viaAd && d.refreshFreeUsed){
+      msg('Бесплатное обновление на сегодня уже использовано.');
+      return false;
+    }
     if(!viaAd)d.refreshFreeUsed=true;
     d.refreshCount=(Number(d.refreshCount)||0)+1;
     var prev=Array.isArray(d.questIds)?d.questIds.slice():[];
     var pool=QUEST_POOL.filter(function(q){return prev.indexOf(q.id)<0;});
-    if(pool.length<3)pool=QUEST_POOL.slice();
+    if(pool.length<3) pool=QUEST_POOL.slice();
     pool=pool.sort(function(){return Math.random()-.5;});
     var next=pool.slice(0,3).map(function(q){return q.id;});
     if(next.length<3){
@@ -121,20 +123,22 @@
     d.lastAuthorityDeals=Number(s.tasks&&s.tasks.authorityDeals)||0;
     d.lastNpcSuccess=Number(s.tasks&&s.tasks.npcSuccess)||0;
     save();ui();
-    msg(viaAd?'📺 Задания обновлены за рекламу.':'🔄 Ежедневные задания обновлены.');
+    msg(viaAd?'Задания обновлены за рекламу.':'Ежедневные задания обновлены.');
     rebuildDailyBlock();
     return true;
   }
 
   function requestRefreshAd(){
     if(typeof window.showRewardedAd!=='function'){
-      var s=st();if(s){refreshDaily(s,true);}
-      else msg('📺 Реклама пока недоступна.');
+      var s=st();
+      if(s) refreshDaily(s,true);
+      else msg('Реклама пока недоступна.');
       return;
     }
     window.showRewardedAd(function(ok){
-      if(!ok){msg('📺 Реклама не просмотрена полностью.');return;}
-      var s=st();if(s)refreshDaily(s,true);
+      if(!ok){ msg('Реклама не просмотрена полностью.'); return; }
+      var s=st();
+      if(s) refreshDaily(s,true);
     });
   }
 
@@ -146,12 +150,14 @@
     d.rewardClaims=(Number(d.rewardClaims)||0)+1;
     if(q.rewardType==='chifir') s.chifir=(Number(s.chifir)||0)+Number(q.rewardAmount||0);
     save();ui();
-    msg('🎁 '+q.title+': +'+(q.reward||''));
+    msg(q.title+': +'+(q.reward||''));
     return true;
   }
   function claimAllReady(s){
     ensure(s);
-    QUESTS.forEach(function(q){ if(isDone(s,q)&&!s.daily.claimed[q.id]) claim(s,q); });
+    QUESTS.forEach(function(q){
+      if(isDone(s,q)&&!s.daily.claimed[q.id]) claim(s,q);
+    });
   }
 
   function syncProgress(s){
@@ -187,14 +193,19 @@
       var done=!!(d.claimed&&d.claimed[q.id])||isDone(s,q);
       var claimed=!!(d.claimed&&d.claimed[q.id]);
       var pct=Math.min(100,Math.floor(p/Math.max(1,q.target)*100));
-      var icon=claimed?'✓':(done?'🎁':'📅');
-      return '<div class="task-card daily-card '+(claimed?'task-done':'')+'">'+'
-        <div class="task-icon">'+icon+'</div>'+'
-        <div class="task-body"><b>'+q.title+'</b><p>'+q.desc+'</p>'+'
-        <div class="task-track"><span style="width:'+pct+'%"></span></div>'+'
-        <small>'+fmt(p)+' / '+fmt(q.target)+' · награда '+q.reward+
-        (claimed?' · получено':(done?' · забирается…':''))+'</small>'+'
-        </div></div>';
+      var icon=claimed?'OK':(done?'!':'');
+      var status=claimed?' · получено':(done?' · забирается…':'');
+      return (
+        '<div class="task-card daily-card '+(claimed?'task-done':'')+'">'+
+          '<div class="task-icon">'+(claimed?'✓':(done?'🎁':'📅'))+'</div>'+
+          '<div class="task-body">'+
+            '<b>'+q.title+'</b>'+
+            '<p>'+q.desc+'</p>'+
+            '<div class="task-track"><span style="width:'+pct+'%"></span></div>'+
+            '<small>'+fmt(p)+' / '+fmt(q.target)+' · награда '+q.reward+status+'</small>'+
+          '</div>'+
+        '</div>'
+      );
     }).join('');
   }
 
@@ -211,17 +222,27 @@
     var d=s.daily;
     var free=!!d.refreshFreeUsed;
     var claims=Math.min(3,Number(d.rewardClaims)||0);
-    var refreshHtml='<div class="daily-refresh"><button type="button" id="daily-refresh-btn">🔄 Обновить задания <span>'+(free?'📺 за рекламу':'🆓 бесплатно')+'</span></button><small>'+(free?'Бесплатное обновление уже использовано · дальше — за рекламу.':'1 бесплатное обновление в день · дальше — за рекламу.')+' Награды: '+claims+'/3.</small></div>';
+    var freeLabel=free?'за рекламу':'бесплатно';
+    var freeHint=free
+      ?'Бесплатное обновление уже использовано · дальше — за рекламу.'
+      :'1 бесплатное обновление в день · дальше — за рекламу.';
+
     var block=document.createElement('div');
     block.className='daily-block';
     block.innerHTML=
-      '<div class="daily-head"><span class="section-kicker">СЕГОДНЯ</span>'+
-      '<p class="section-subtitle" style="margin:6px 0 10px">Сброс в полночь · '+todayKey()+'</p></div>'+
-      refreshHtml+'<div class="tasks-list daily-list">'+cardsHtml(s)+'</div>'+
+      '<div class="daily-head">'+
+        '<span class="section-kicker">СЕГОДНЯ</span>'+
+        '<p class="section-subtitle" style="margin:6px 0 10px">Сброс в полночь · '+todayKey()+'</p>'+
+      '</div>'+
+      '<div class="daily-refresh">'+
+        '<button type="button" id="daily-refresh-btn">Обновить задания ('+freeLabel+')</button>'+
+        '<small>'+freeHint+' Награды: '+claims+'/3.</small>'+
+      '</div>'+
+      '<div class="tasks-list daily-list">'+cardsHtml(s)+'</div>'+
       '<hr class="daily-sep" style="margin:14px 0;border:none;border-top:1px solid rgba(255,255,255,.08)">';
 
     var list=content.querySelector('.tasks-list');
-    if(list) list.parentNode.insertBefore(block, list);
+    if(list&&list.parentNode) list.parentNode.insertBefore(block, list);
     else content.insertBefore(block, content.firstChild);
 
     var rb=block.querySelector('#daily-refresh-btn');
@@ -229,14 +250,13 @@
       rb.disabled=false;
       rb.style.pointerEvents='auto';
       rb.style.cursor='pointer';
-      rb.setAttribute('aria-disabled','false');
       rb.onclick=function(e){
         e.preventDefault();
         e.stopPropagation();
         var current=st();
-        if(!current){msg('Игра ещё загружается…');return;}
+        if(!current){ msg('Игра ещё загружается…'); return; }
         ensure(current);
-        if(current.daily.refreshFreeUsed)requestRefreshAd();
+        if(current.daily.refreshFreeUsed) requestRefreshAd();
         else refreshDaily(current,false);
       };
     }
@@ -249,6 +269,7 @@
       btn.addEventListener('click',function(){
         setTimeout(injectIntoTasksMenu,40);
         setTimeout(injectIntoTasksMenu,150);
+        setTimeout(injectIntoTasksMenu,400);
       });
     }
     var overlay=document.getElementById('modal-overlay');
@@ -269,8 +290,8 @@
   function boot(){
     bindTasksButton();
     setInterval(tick,2000);
-    console.log('[daily] v1.2 ready');
+    console.log('[daily] v1.3 ready');
   }
-  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot);
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',boot);
   else boot();
 })();
