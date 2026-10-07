@@ -10,7 +10,6 @@
     {title:'Долг за услугу',story:'Один человек требует вернуть долг, второй говорит, что срок ещё не вышел. Оба пришли к тебе.',img:'hero',choices:[['Дать срок',160,35,'safe'],['Заставить вернуть',200,45,'clash'],['Разделить ответственность',140,25,'safe']]},
     {title:'Кому достанется место',story:'Освободилась койка в более тихом углу барака. За неё уже спорят двое.',img:'clash',choices:[['Жребий',190,40,'safe'],['По очереди',150,20,'safe'],['Решить силой авторитета',230,50,'clash']]}
   ];
-  const SUPPORTS=[['Союзник','Старший заключённый предлагает поддержать твоё решение.',10,8],['Староста','Староста хаты кивает: можно опереться на его слово.',12,10]];
 
   let root=null,tapArea=null,originalTapHTML='',authorityActive=false,modalOpen=false,dealResolving=false,clashState=null,clashTimer=null,oppTimer=null,tapsSinceDeal=0;
   const AUTO_DEAL_EVERY=50;
@@ -72,10 +71,10 @@
     root.classList.add('authority-mode');
     root.classList.remove('game-booting');
     tapArea.classList.add('authority-tap-area');
-    // Полный UI с hero — не жёлтая кнопка на весь экран
+    // Без кнопки «дело»: только стол + тапы, дело ~каждые 50 тапов
     tapArea.innerHTML=
       '<div class="authority-screen">'+
-        '<div class="authority-hero">'+
+        '<div class="authority-hero" id="authority-desk">'+
           img('hero','authority-hero-bg')+
           '<div class="authority-shade"></div>'+
           '<div class="authority-heading">'+
@@ -83,19 +82,7 @@
             '<div><div class="authority-kicker">МАСТЬ</div><h1>Авторитет</h1><p>Разбирай дела барака. Твой голос имеет вес.</p></div>'+
           '</div>'+
           '<div class="authority-influence"><span>🧠 ВЛИЯНИЕ</span><b id="authority-influence-value">'+fmt(s.points)+'</b></div>'+
-          '<div class="authority-action-wrap">'+
-            '<button type="button" class="authority-desk-hotspot" data-authority-action="folder" aria-label="Папки с делами"></button>'+
-          '</div>'+
         '</div>'+
-        '<div class="authority-strip">'+
-          '<div><small>ЧЕФИР</small><b>🍵 '+fmt(s.chifir||0)+'</b></div>'+
-          '<div><small>УВАЖЕНИЕ</small><b>🧠 '+fmt(s.respect||0)+'</b></div>'+
-          '<div><small>СИЛА</small><b>💪 '+fmt(s.power||0)+'</b></div>'+
-        '</div>'+
-        '<div class="authority-mini-row">'+
-          '<div class="authority-mini-card"><b>📋 Дело барака</b><span>Нажми на папку на столе или подожди ~50 тапов.</span></div>'+
-        '</div>'+
-        '<button type="button" class="authority-deal-btn" id="authority-deal-btn">'+img('deal','authority-deal-img')+'</button>'+
       '</div>';
     if(typeof window.refreshObjectVisuals==='function'){
       queueMicrotask(function(){try{window.refreshObjectVisuals();}catch(e){}});
@@ -214,10 +201,6 @@
   function handleAuthorityButton(e){
     const t=e.target;
     if(!t||!t.closest)return;
-    const hotspot=t.closest('.authority-desk-hotspot');
-    if(hotspot){e.preventDefault();e.stopImmediatePropagation();startDeal(false);return;}
-    const dealBtn=t.closest('.authority-deal-btn');
-    if(dealBtn){e.preventDefault();e.stopImmediatePropagation();startDeal(false);return;}
     if(t.closest('.authority-pressure-btn')){clashTap(e);}
   }
 
@@ -225,9 +208,9 @@
     if(!authorityActive)return;
     const s=state();
     if(!s||Number(s.points)<40000||s.currentObject!==4||s.jailed)return;
-    if(e.target&&e.target.closest&&e.target.closest('.authority-desk-hotspot,.authority-deal-btn,.authority-pressure-btn,#modal-overlay'))return;
+    if(e.target&&e.target.closest&&e.target.closest('.authority-pressure-btn,#modal-overlay,#modal'))return;
     if(modalOpen||clashState)return;
-    // обычный тап — счётчик до авто-дела (~50), НЕ стычка каждый раз
+    // тап по столу / экрану — счётчик до дела (~50)
     tapsSinceDeal++;
     if(tapsSinceDeal>=AUTO_DEAL_EVERY){
       tapsSinceDeal=0;
@@ -268,7 +251,7 @@
     sync();
     const close=$('modal-close');
     if(close) close.addEventListener('click',()=>{ if(modalOpen&&$('modal-overlay')?.dataset.locked!=='1') closeAuthorityModal(); });
-    console.log('[authority-ui] v2.2 root restore');
+    console.log('[authority-ui] v2.3 desk taps only');
   }
   if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',init,{once:true});
   else init();
