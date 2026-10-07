@@ -434,3 +434,90 @@
   .raid-tap-flash{animation:none!important;opacity:0!important}
   .raid-tap-flash::before{animation:none!important}
 }
+
+
+/* PHASE BLOOD PROGRESSION — tap mark -> spray -> rare camera hit */
+.raid-blood-splat.phase-1{
+  width:34px!important;height:28px!important;
+}
+.raid-blood-splat.phase-2{
+  width:38px!important;height:30px!important;
+  filter:drop-shadow(0 2px 4px rgba(0,0,0,.75))!important;
+}
+.raid-blood-splat.phase-3{
+  width:42px!important;height:33px!important;
+  filter:drop-shadow(0 2px 5px rgba(0,0,0,.8))!important;
+}
+.raid-blood-spray{
+  transform-origin:center!important;
+}
+.raid-blood-spray.phase-2{
+  background:#a20f12!important;
+}
+.raid-blood-spray.phase-3{
+  background:#bd1518!important;
+  box-shadow:0 0 5px rgba(100,0,0,.95)!important;
+}
+
+/* Blood that lands on the camera/screen in phase 3. */
+.raid-screen-blood{
+  position:absolute!important;
+  z-index:95!important;
+  width:var(--blood-w,30px);
+  height:var(--blood-h,24px);
+  pointer-events:none!important;
+  border-radius:62% 38% 58% 42%!important;
+  background:
+    radial-gradient(ellipse at 28% 34%,rgba(255,92,92,.55) 0 7%,transparent 8%),
+    radial-gradient(ellipse at 63% 42%,rgba(72,0,0,.78) 0 18%,transparent 20%),
+    radial-gradient(ellipse at 48% 58%,rgba(150,8,12,.72) 0 38%,transparent 52%),
+    radial-gradient(ellipse at 70% 70%,rgba(95,0,0,.52) 0 16%,transparent 22%);
+  filter:blur(.15px) drop-shadow(0 2px 3px rgba(0,0,0,.45));
+  opacity:0;
+  animation:raidScreenBloodHit .42s ease-out forwards;
+}
+.raid-screen-blood::after{
+  content:"";
+  position:absolute;
+  left:48%;
+  top:72%;
+  width:5px;
+  height:var(--drip-len);
+  border-radius:70% 70% 55% 55%;
+  background:linear-gradient(to bottom,rgba(137,8,12,.72),rgba(104,0,0,.48) 72%,transparent);
+  transform-origin:top center;
+  transform:translateX(var(--drip-x)) scaleY(.08);
+  animation:raidBloodDrip 2.8s 0.38s ease-in-out forwards;
+}
+.raid-screen-blood-dot{
+  position:absolute!important;
+  z-index:96!important;
+  width:var(--dot-size);
+  height:var(--dot-size);
+  margin:calc(var(--dot-size) / -2) 0 0 calc(var(--dot-size) / -2);
+  border-radius:50%;
+  pointer-events:none!important;
+  background:rgba(135,8,12,.62);
+  filter:blur(.15px);
+  opacity:0;
+  animation:raidScreenDot .34s ease-out forwards;
+}
+@keyframes raidScreenBloodHit{
+  0%{opacity:0;transform:scale(.35) rotate(-8deg)}
+  25%{opacity:.88;transform:scale(1.08) rotate(4deg)}
+  100%{opacity:.68;transform:scale(1) rotate(0)}
+}
+@keyframes raidBloodDrip{
+  0%{transform:translateX(var(--drip-x)) scaleY(.08);opacity:0}
+  12%{opacity:.72}
+  55%{transform:translateX(var(--drip-x)) scaleY(.72);opacity:.62}
+  100%{transform:translateX(var(--drip-x)) scaleY(1);opacity:0}
+}
+@keyframes raidScreenDot{
+  0%{opacity:0;transform:translate(0,0) scale(.35)}
+  25%{opacity:.72;transform:translate(var(--dot-dx),var(--dot-dy)) scale(1)}
+  100%{opacity:.45;transform:translate(var(--dot-dx),var(--dot-dy)) scale(.82)}
+}
+@media(prefers-reduced-motion:reduce){
+  .raid-screen-blood,.raid-screen-blood-dot{animation:none!important;opacity:0!important}
+}
