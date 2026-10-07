@@ -272,3 +272,116 @@
     font-size:13px;
   }
 }
+
+
+/* CARCER SITUATIONS — unified buttons and compact readable modal */
+#modal-content .jail-event-window{
+  padding:4px 2px 8px!important;
+}
+#modal-content .jail-event-window .section-kicker{
+  margin:0 0 7px!important;
+  color:#d5a84a!important;
+  font-size:10px!important;
+  font-weight:950!important;
+  letter-spacing:2px!important;
+}
+#modal-content .jail-event-window h2{
+  margin:0 34px 10px 0!important;
+  padding:0 0 10px!important;
+  border-bottom:1px solid rgba(213,168,74,.24)!important;
+  color:#f1e4c3!important;
+  font-size:24px!important;
+  line-height:1.12!important;
+  text-shadow:0 2px 5px rgba(0,0,0,.65)!important;
+}
+#modal-content .jail-event-window .section-subtitle{
+  margin:0 0 16px!important;
+  padding:12px 13px!important;
+  border:1px solid rgba(255,255,255,.08)!important;
+  border-radius:13px!important;
+  background:rgba(255,255,255,.045)!important;
+  color:#d5d5d8!important;
+  font-size:15px!important;
+  line-height:1.48!important;
+}
+#modal-content .jail-event-window .npc-choice-title{
+  margin:0 2px 8px!important;
+  color:#d5a84a!important;
+  font-size:11px!important;
+  font-weight:900!important;
+  letter-spacing:1.1px!important;
+}
+#modal-content .jail-event-window .jail-ev-choice,
+#modal-content .jail-event-window #jail-ev-ok,
+#modal-content .section-window [data-prison-choice]{
+  appearance:none!important;
+  -webkit-appearance:none!important;
+  display:flex!important;
+  align-items:center!important;
+  justify-content:flex-start!important;
+  width:100%!important;
+  min-height:54px!important;
+  margin:8px 0 0!important;
+  padding:13px 15px!important;
+  box-sizing:border-box!important;
+  border:1px solid rgba(213,168,74,.34)!important;
+  border-radius:13px!important;
+  background:linear-gradient(145deg,#30302f,#20201e)!important;
+  color:#f4f4f4!important;
+  font:inherit!important;
+  font-size:14px!important;
+  font-weight:850!important;
+  line-height:1.3!important;
+  text-align:left!important;
+  box-shadow:0 5px 14px rgba(0,0,0,.28),inset 0 1px rgba(255,255,255,.045)!important;
+  cursor:pointer!important;
+  touch-action:manipulation!important;
+  transition:transform .1s ease,border-color .1s ease,background .1s ease!important;
+}
+#modal-content .jail-event-window .jail-ev-choice:before,
+#modal-content .section-window [data-prison-choice]:before{
+  content:'›'!important;
+  flex:0 0 auto!important;
+  margin-right:10px!important;
+  color:#d5a84a!important;
+  font-size:20px!important;
+  font-weight:950!important;
+  line-height:1!important;
+}
+#modal-content .jail-event-window .jail-ev-choice:hover,
+#modal-content .section-window [data-prison-choice]:hover{
+  border-color:rgba(213,168,74,.72)!important;
+  background:linear-gradient(145deg,#3a3427,#24221d)!important;
+}
+#modal-content .jail-event-window .jail-ev-choice:active,
+#modal-content .section-window [data-prison-choice]:active{
+  transform:scale(.985)!important;
+}
+#modal-content .jail-event-window #jail-ev-ok{
+  justify-content:center!important;
+  text-align:center!important;
+  border-color:#9a7932!important;
+  background:linear-gradient(135deg,#4a3b1f,#2f2617)!important;
+}
+@media(max-width:700px){
+  #modal-content .jail-event-window h2{font-size:22px!important}
+  #modal-content .jail-event-window .section-subtitle{
+    font-size:14px!important;
+    line-height:1.45!important;
+    padding:11px 12px!important;
+  }
+  #modal-content .jail-event-window .jail-ev-choice,
+  #modal-content .section-window [data-prison-choice]{
+    min-height:52px!important;
+    padding:12px 13px!important;
+    font-size:14px!important;
+    border-radius:12px!important;
+  }
+}
+@media(max-width:380px){
+  #modal-content .jail-event-window .jail-ev-choice,
+  #modal-content .section-window [data-prison-choice]{
+    min-height:50px!important;
+    font-size:13px!important;
+  }
+}
