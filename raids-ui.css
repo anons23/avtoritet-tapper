@@ -441,11 +441,11 @@
   width:34px!important;height:28px!important;
 }
 .raid-blood-splat.phase-2{
-  width:38px!important;height:30px!important;
+  width:44px!important;height:35px!important;
   filter:drop-shadow(0 2px 4px rgba(0,0,0,.75))!important;
 }
 .raid-blood-splat.phase-3{
-  width:42px!important;height:33px!important;
+  width:49px!important;height:39px!important;
   filter:drop-shadow(0 2px 5px rgba(0,0,0,.8))!important;
 }
 .raid-blood-spray{
@@ -453,9 +453,11 @@
 }
 .raid-blood-spray.phase-2{
   background:#a20f12!important;
+  filter:drop-shadow(0 1px 3px rgba(70,0,0,.85))!important;
 }
 .raid-blood-spray.phase-3{
   background:#bd1518!important;
+  filter:drop-shadow(0 1px 4px rgba(70,0,0,.9))!important;
   box-shadow:0 0 5px rgba(100,0,0,.95)!important;
 }
 
