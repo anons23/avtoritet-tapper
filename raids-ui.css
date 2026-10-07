@@ -320,23 +320,24 @@
 .raid-float-dmg{
   position:absolute!important;
   z-index:80!important;
-  transform:translate(-50%,-50%)!important;
+  transform:translate(0,-50%)!important;
   pointer-events:none!important;
   color:#fff!important;
   font-size:clamp(20px,4vw,32px)!important;
   font-weight:1000!important;
   line-height:1!important;
   text-shadow:0 2px 4px #000,0 0 8px rgba(255,70,70,.75)!important;
-  animation:raidFloatDamage .7s ease-out forwards!important;
+  animation:raidFloatDamage .82s ease-out forwards!important;
 }
 .raid-float-dmg.is-crit{
   color:#ffd36a!important;
   font-size:clamp(24px,5vw,38px)!important;
 }
 @keyframes raidFloatDamage{
-  0%{opacity:0;transform:translate(-50%,-50%) scale(.65)}
-  15%{opacity:1;transform:translate(-50%,-50%) scale(1.08)}
-  100%{opacity:0;transform:translate(-50%,calc(-50% - 48px)) scale(1)}
+  0%{opacity:0;transform:translate(12px,-50%) scale(.72)}
+  12%{opacity:1;transform:translate(12px,-50%) scale(1)}
+  70%{opacity:.72;transform:translate(12px,calc(-50% - 28px)) scale(1)}
+  100%{opacity:0;transform:translate(12px,calc(-50% - 58px)) scale(.96)}
 }
 .raid-blood-splat{
   position:absolute!important;
