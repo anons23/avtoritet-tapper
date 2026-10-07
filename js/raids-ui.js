@@ -191,12 +191,29 @@
     }catch(e){}
   }
 
-  function syncRaidPhaseFx(phase){
+  function spawnRaidTapFx(scene,phase){
+    if(!scene || phase===1) return;
     var fighter=$('raid-fighter');
-    if(!fighter) return;
-    fighter.classList.remove('phase-pressure','phase-rage');
-    if(phase===2) fighter.classList.add('phase-pressure');
-    else if(phase===3) fighter.classList.add('phase-rage');
+    var media=$('raid-fighter-media');
+    if(!fighter || !media) return;
+    var fr=fighter.getBoundingClientRect();
+    var sr=scene.getBoundingClientRect();
+    var x=fr.left+fr.width/2-sr.left;
+    var y=fr.top+fr.height*.58-sr.top;
+    var wave=document.createElement('div');
+    wave.className='raid-tap-wave '+(phase===3?'phase-rage':'phase-pressure');
+    wave.style.setProperty('--raid-fx-x',x+'px');
+    wave.style.setProperty('--raid-fx-y',y+'px');
+    for(var k=1;k<=8;k++){
+      var ray=document.createElement('i');
+      ray.className='raid-wave-ray ray'+k;
+      wave.appendChild(ray);
+    }
+    scene.appendChild(wave);
+    var flash=document.createElement('div');
+    flash.className='raid-tap-flash '+(phase===3?'phase-rage':'phase-pressure');
+    scene.appendChild(flash);
+    setTimeout(function(){if(wave.parentNode)wave.remove();if(flash.parentNode)flash.remove();},620);
   }
 
   function startRaid(i){
@@ -228,7 +245,6 @@
       '<div class="raid-result" id="raid-result"><div class="raid-result-card"><div id="raid-result-title"></div><div id="raid-result-text"></div><div id="raid-result-drop" class="raid-result-drop"></div><button type="button" id="raid-result-ok">Ок</button></div></div>'+
       '</div></div>';
     if(hasIdle) playIdle(f);
-    syncRaidPhaseFx(phase);
     (HITS[f.id]||[]).forEach(function(src){ var im=new Image(); im.src=src; });
     var back=$('raid-back');
     if(back) back.addEventListener('click',function(e){ e.stopPropagation(); pr.hp=hp; openRaidMenu(); });
@@ -260,10 +276,10 @@
       var newPhase=phaseFor(hp,f.hp);
       if(fill) fill.style.width=p2+'%';
       var phaseEl=$('raid-phase'); if(phaseEl) phaseEl.textContent=phaseLabel(newPhase);
-      syncRaidPhaseFx(newPhase);
       if(txt) txt.textContent=hp+' / '+f.hp;
       if(bar) bar.classList.toggle('low-hp', p2<=25&&p2>0);
       showHit(f);
+      spawnRaidTapFx(scene,currentPhase);
       scene.classList.remove('shake','crit-flash'); void scene.offsetWidth;
       scene.classList.add(crit?'crit-flash':'shake');
       if(hp<=0){
