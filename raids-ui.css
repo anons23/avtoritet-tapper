@@ -378,100 +378,59 @@
 
 
 
-/* RAID TAP FX — isolated visual layer only. No fighter/background/layout changes. */
-.raid-tap-wave{
-  position:absolute;
-  left:var(--raid-fx-x);
-  top:var(--raid-fx-y);
-  width:28px;
-  height:28px;
-  margin:-14px 0 0 -14px;
-  border-radius:50%;
-  pointer-events:none;
-  z-index:90;
-  box-sizing:border-box;
-  animation:raidTapWave .5s cubic-bezier(.16,.7,.2,1) forwards;
-}
-.raid-tap-wave::before,
-.raid-tap-wave::after{
-  content:"";
-  position:absolute;
-  inset:0;
-  border-radius:50%;
-  box-sizing:border-box;
-}
-.raid-tap-wave::before{
-  border:3px solid rgba(255,221,45,.98);
-  box-shadow:0 0 10px rgba(255,214,30,.95),0 0 26px rgba(255,180,0,.65);
-}
-.raid-tap-wave::after{
-  inset:7px;
-  border:2px solid rgba(255,248,170,.9);
-  box-shadow:0 0 12px rgba(255,225,45,.8);
-}
-.raid-tap-wave.phase-rage::before{
-  border-color:rgba(255,35,35,.98);
-  box-shadow:0 0 12px rgba(255,20,20,1),0 0 32px rgba(170,0,0,.8);
-}
-.raid-tap-wave.phase-rage::after{
-  border-color:rgba(255,115,115,.95);
-  box-shadow:0 0 14px rgba(255,30,30,.9);
-}
-@keyframes raidTapWave{
-  0%{opacity:0;transform:scale(.35)}
-  10%{opacity:1;transform:scale(.55)}
-  100%{opacity:0;transform:scale(18)}
-}
 
-/* Long screen-wide streaks expanding from the fighter/tap point. */
-.raid-tap-wave .raid-wave-ray{
-  position:absolute;
-  left:50%;
-  top:50%;
-  width:2px;
-  height:42vh;
-  transform-origin:50% 100%;
-  background:linear-gradient(to top,rgba(255,245,150,.95),transparent);
-  box-shadow:0 0 7px rgba(255,215,40,.85);
-  opacity:0;
-  animation:raidWaveRay .46s ease-out forwards;
-}
-.raid-tap-wave.phase-rage .raid-wave-ray{
-  background:linear-gradient(to top,rgba(255,105,105,.98),transparent);
-  box-shadow:0 0 9px rgba(255,25,25,.95);
-}
-.raid-tap-wave .ray1{transform:translate(-50%,-100%) rotate(0deg)}
-.raid-tap-wave .ray2{transform:translate(-50%,-100%) rotate(45deg)}
-.raid-tap-wave .ray3{transform:translate(-50%,-100%) rotate(90deg)}
-.raid-tap-wave .ray4{transform:translate(-50%,-100%) rotate(135deg)}
-.raid-tap-wave .ray5{transform:translate(-50%,-100%) rotate(180deg)}
-.raid-tap-wave .ray6{transform:translate(-50%,-100%) rotate(225deg)}
-.raid-tap-wave .ray7{transform:translate(-50%,-100%) rotate(270deg)}
-.raid-tap-wave .ray8{transform:translate(-50%,-100%) rotate(315deg)}
-@keyframes raidWaveRay{
-  0%{opacity:0;height:8vh}
-  18%{opacity:1}
-  100%{opacity:0;height:58vh}
-}
-
+/* RAID TAP RIPPLE — subtle TV-screen shimmer, visual only. */
 .raid-tap-flash{
   position:absolute;
   inset:0;
   z-index:85;
   pointer-events:none;
-  animation:raidTapFlash .22s ease-out forwards;
+  opacity:0;
+  mix-blend-mode:soft-light;
+  animation:raidTvRipple .32s ease-out forwards;
+  background:
+    repeating-linear-gradient(
+      to bottom,
+      rgba(255,255,255,.035) 0,
+      rgba(255,255,255,.035) 1px,
+      transparent 1px,
+      transparent 5px
+    );
 }
-.raid-tap-flash.phase-pressure{background:rgba(255,215,35,.10)}
-.raid-tap-flash.phase-rage{background:rgba(210,0,0,.15)}
-@keyframes raidTapFlash{
-  0%{opacity:0}
-  20%{opacity:1}
-  100%{opacity:0}
+.raid-tap-flash::before{
+  content:"";
+  position:absolute;
+  inset:-8%;
+  background:
+    repeating-linear-gradient(
+      to bottom,
+      transparent 0,
+      transparent 7px,
+      rgba(255,255,255,.025) 8px,
+      transparent 9px
+    );
+  animation:raidTvLines .32s ease-out forwards;
+}
+.raid-tap-flash.phase-pressure{
+  box-shadow:inset 0 0 80px rgba(255,205,40,.06);
+}
+.raid-tap-flash.phase-rage{
+  box-shadow:inset 0 0 90px rgba(210,20,20,.08);
+}
+@keyframes raidTvRipple{
+  0%{opacity:0;transform:translateY(0) scale(1)}
+  18%{opacity:.42;transform:translateY(-1px) scale(1.002)}
+  45%{opacity:.22;transform:translateY(1px) scale(.999)}
+  100%{opacity:0;transform:translateY(0) scale(1)}
+}
+@keyframes raidTvLines{
+  0%{transform:translateY(-5px)}
+  50%{transform:translateY(4px)}
+  100%{transform:translateY(0)}
 }
 
+/* Keep the effect completely inert for reduced-motion users. */
 @media(prefers-reduced-motion:reduce){
-  .raid-tap-wave,.raid-tap-wave .raid-wave-ray,.raid-tap-flash{
-    animation:none!important;
-    opacity:0!important;
-  }
+  .raid-tap-flash{animation:none!important;opacity:0!important}
+  .raid-tap-flash::before{animation:none!important}
 }
