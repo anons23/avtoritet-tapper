@@ -14,6 +14,7 @@
     {src:'./js/prestige.js?v=1.0',critical:false},
     {src:'./js/ads-policy.js?v=1.1',critical:false},
     {src:'./js/shop-booster-ad.js?v=1.0',critical:false},
+    {src:'./js/jail-lock.js?v=1.0',critical:false},
     {src:'./js/yandex-progress.js?v=1.0',critical:false},
     {src:'./js/offline.js?v=1.0',critical:false},
     {src:'./js/share.js?v=1.0',critical:false},
@@ -53,7 +54,7 @@
         if(item.critical)return;
       }
     }
-    console.log('[bootstrap] v2.97 ready');
+    console.log('[bootstrap] v2.98 ready (jail-lock)');
   }
 
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot);
