@@ -22,7 +22,7 @@
     {src:'./js/leaderboard.js?v=1.0',critical:false},
     {src:'./js/daily.js?v=1.4',critical:false},
     {src:'./js/authority-css-restore.js?v=1.7',critical:false},
-    {src:'./js/authority-ui.js?v=2.3',critical:false},
+    {src:'./js/authority-ui.js?v=2.4',critical:false},
     {src:'./js/authority-folder-fix.js?v=1.0',critical:false},
     {src:'./js/authority-gate.js?v=1.3',critical:false},
     {src:'./js/authority-auto-deal.js?v=1.1',critical:false},
@@ -55,7 +55,7 @@
         if(item.critical)return;
       }
     }
-    console.log('[bootstrap] v3.4');
+    console.log('[bootstrap] v3.5');
   }
 
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot);
