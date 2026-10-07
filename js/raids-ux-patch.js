@@ -1,4 +1,4 @@
-/* raids-ux-patch v1.1 — energy HUD, float dmg, blood, HP bar anim */
+/* raids-ux-patch v1.2 — phase blood progression + rare screen blood */
 'use strict';
 (function(){
   function $(id){ return document.getElementById(id); }
@@ -31,27 +31,66 @@
     scene.appendChild(el);
     setTimeout(function(){ try{el.remove();}catch(e){} },700);
   }
-  function spawnBlood(x,y){
+  function spawnBlood(x,y,phase){
     var scene=$('raid-scene'); if(!scene) return;
     var rect=scene.getBoundingClientRect();
     var lx=x-rect.left, ly=y-rect.top;
     var splat=document.createElement('div');
-    splat.className='raid-blood-splat';
+    splat.className='raid-blood-splat phase-'+phase;
     splat.style.left=lx+'px'; splat.style.top=ly+'px';
     scene.appendChild(splat);
-    setTimeout(function(){ try{splat.remove();}catch(e){} },520);
-    for(var i=0;i<5;i++){
+    setTimeout(function(){ try{splat.remove();}catch(e){} },620);
+
+    /* Phase 1: only the compact blood mark at the tap point. */
+    if(phase===1) return;
+
+    /* Phase 2/3: stronger spray radiating from the actual tap. */
+    var count=phase===3?8:6;
+    for(var i=0;i<count;i++){
       var drop=document.createElement('div');
-      drop.className='raid-blood';
-      var size=6+Math.random()*10;
-      drop.style.width=size+'px'; drop.style.height=size+'px';
+      drop.className='raid-blood raid-blood-spray phase-'+phase;
+      var size=(phase===3?4:3)+Math.random()*(phase===3?8:6);
+      drop.style.width=size+'px'; drop.style.height=(size*(.7+Math.random()*.55))+'px';
       drop.style.left=lx+'px'; drop.style.top=ly+'px';
-      var ang=Math.random()*Math.PI*2, dist=18+Math.random()*36;
+      var ang=Math.random()*Math.PI*2, dist=(phase===3?28:22)+Math.random()*(phase===3?58:42);
       drop.style.setProperty('--dx',(Math.cos(ang)*dist)+'px');
-      drop.style.setProperty('--dy',(Math.sin(ang)*dist-12)+'px');
+      drop.style.setProperty('--dy',(Math.sin(ang)*dist-10-Math.random()*16)+'px');
       scene.appendChild(drop);
-      (function(d){ setTimeout(function(){ try{d.remove();}catch(e){} },560); })(drop);
+      (function(d){ setTimeout(function(){ try{d.remove();}catch(e){} },720); })(drop);
     }
+
+    /* Phase 3: rare blood hits the "camera" and then a drop slowly runs down. */
+    if(phase===3 && Math.random()<0.16){
+      spawnScreenBlood(scene,lx,ly);
+    }
+  }
+
+  function spawnScreenBlood(scene,lx,ly){
+    var stain=document.createElement('div');
+    stain.className='raid-screen-blood';
+    var w=22+Math.random()*30;
+    var h=18+Math.random()*28;
+    var sx=Math.max(8,Math.min(scene.clientWidth-w-8,lx+(Math.random()-.5)*90));
+    var sy=Math.max(12,Math.min(scene.clientHeight-h-12,ly+(Math.random()-.5)*70));
+    stain.style.left=sx+'px';
+    stain.style.top=sy+'px';
+    stain.style.setProperty('--drip-len',(55+Math.random()*110)+'px');
+    stain.style.setProperty('--drip-x',((Math.random()-.5)*18)+'px');
+    scene.appendChild(stain);
+
+    var spots=3+Math.floor(Math.random()*4);
+    for(var i=0;i<spots;i++){
+      var dot=document.createElement('i');
+      dot.className='raid-screen-blood-dot';
+      dot.style.left=(sx+(Math.random()*w))+'px';
+      dot.style.top=(sy+(Math.random()*h*.8))+'px';
+      dot.style.setProperty('--dot-size',(3+Math.random()*8)+'px');
+      dot.style.setProperty('--dot-dx',((Math.random()-.5)*22)+'px');
+      dot.style.setProperty('--dot-dy',((Math.random()-.5)*18)+'px');
+      scene.appendChild(dot);
+      (function(d){ setTimeout(function(){ try{d.remove();}catch(e){} },3000); })(dot);
+    }
+    setTimeout(function(){ try{stain.remove();}catch(e){} },3600);
   }
 
   var _hpLastPct = 100;
@@ -128,6 +167,9 @@
         return;
       }
       var cx=e.clientX, cy=e.clientY;
+      var phaseEl=$('raid-phase');
+      var phaseText=phaseEl?phaseEl.textContent:'';
+      var phase=/ФАЗА 3/.test(phaseText)?3:(/ФАЗА 2/.test(phaseText)?2:1);
       var bonus=0;
       try{ if(typeof window.getEquipRaidBonus==='function') bonus=Number(window.getEquipRaidBonus())||0; }catch(err){}
       var dmg=300+bonus;
@@ -140,7 +182,7 @@
       }catch(err){}
       setTimeout(function(){
         spawnFloatDmg(cx,cy,dmg,crit);
-        spawnBlood(cx,cy);
+        spawnBlood(cx,cy,phase);
         ensureEnergyHud();
         setTimeout(syncHpAnim, 30);
         setTimeout(syncHpAnim, 120);
