@@ -1,4 +1,4 @@
-/* raids-ux-patch v1.2 — phase blood progression + rare screen blood */
+/* raids-ux-patch v1.3 — larger screen blood + longer drips */
 'use strict';
 (function(){
   function $(id){ return document.getElementById(id); }
@@ -68,17 +68,17 @@
   function spawnScreenBlood(scene,lx,ly){
     var stain=document.createElement('div');
     stain.className='raid-screen-blood';
-    var w=22+Math.random()*30;
-    var h=18+Math.random()*28;
+    var w=34+Math.random()*42;
+    var h=26+Math.random()*38;
     var sx=Math.max(8,Math.min(scene.clientWidth-w-8,lx+(Math.random()-.5)*90));
     var sy=Math.max(12,Math.min(scene.clientHeight-h-12,ly+(Math.random()-.5)*70));
     stain.style.left=sx+'px';
     stain.style.top=sy+'px';
-    stain.style.setProperty('--drip-len',(55+Math.random()*110)+'px');
+    stain.style.setProperty('--drip-len',(95+Math.random()*145)+'px');
     stain.style.setProperty('--drip-x',((Math.random()-.5)*18)+'px');
     scene.appendChild(stain);
 
-    var spots=3+Math.floor(Math.random()*4);
+    var spots=5+Math.floor(Math.random()*5);
     for(var i=0;i<spots;i++){
       var dot=document.createElement('i');
       dot.className='raid-screen-blood-dot';
