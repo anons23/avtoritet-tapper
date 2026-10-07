@@ -7,7 +7,7 @@
     {src:'./js/tasks-ui.js?v=1.2',critical:false},
     {src:'./js/npc-barrack.js?v=4.3',critical:true},
     {src:'./js/npc-memory.js?v=1.0',critical:false},
-    {src:'./js/npc-rumors.js?v=1.3',critical:false},
+    {src:'./js/npc-rumors.js?v=1.4',critical:false},
     {src:'./js/object-visuals.js?v=3.3',critical:true},
     {src:'./js/choice-events.js?v=1.1',critical:false},
     {src:'./js/sentence.js?v=1.0',critical:false},
@@ -55,7 +55,7 @@
         if(item.critical)return;
       }
     }
-    console.log('[bootstrap] v3.1 ready (authority restored)');
+    console.log('[bootstrap] v3.2 ready');
   }
 
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot);
