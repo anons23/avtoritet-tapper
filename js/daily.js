@@ -1,4 +1,4 @@
-/* daily.js v1.3 — ежедневные задания */
+/* daily.js v1.4 */
 'use strict';
 (function(){
   var QUEST_POOL=[
@@ -15,6 +15,23 @@
   ];
   var QUESTS=[];
 
+  function st(){
+    try{ if(typeof window.getGameState==='function') return window.getGameState(); }catch(e){}
+    return window.s||null;
+  }
+  function save(){ try{ if(typeof window.saveGame==='function') window.saveGame(); }catch(e){} }
+  function ui(){ try{ if(typeof window.ui==='function') window.ui(); }catch(e){} }
+  function msg(t){
+    var e=document.getElementById('event-message');
+    if(e){ e.textContent=t; e.classList.add('show'); setTimeout(function(){ e.classList.remove('show'); },2400); }
+    else if(typeof window.msg==='function') try{ window.msg(t); }catch(e){}
+  }
+  function fmt(n){ return String(Math.floor(Number(n)||0)).replace(/\B(?=(\d{3})+(?!\d))/g,' '); }
+  function todayKey(){
+    var d=new Date();
+    return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+  }
+
   function buildQuestSet(s){
     var d=s.daily;
     if(!d)return;
@@ -24,29 +41,10 @@
       d.questIds=ids;
       save();
     }
-    QUESTS=ids.map(function(id){return QUEST_POOL.find(function(q){return q.id===id;});}).filter(Boolean);
-  }
-
-  function st(){
-    try{ if(typeof window.getGameState==='function') return window.getGameState(); }catch(e){}
-    return window.s||null;
-  }
-  function save(){
-    try{ if(typeof window.saveGame==='function') window.saveGame(); }catch(e){}
-  }
-  function ui(){
-    try{ if(typeof window.ui==='function') window.ui(); }catch(e){}
-  }
-  function msg(t){
-    var e=document.getElementById('event-message');
-    if(e){ e.textContent=t; e.classList.add('show'); setTimeout(function(){ e.classList.remove('show'); },2400); }
-    else if(typeof window.msg==='function') try{ window.msg(t); }catch(e){}
-  }
-  function fmt(n){ return String(Math.floor(Number(n)||0)).replace(/\B(?=(\d{3})+(?!\d))/g,' '); }
-
-  function todayKey(){
-    var d=new Date();
-    return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+    QUESTS=ids.map(function(id){
+      for(var i=0;i<QUEST_POOL.length;i++) if(QUEST_POOL[i].id===id) return QUEST_POOL[i];
+      return null;
+    }).filter(Boolean);
   }
 
   function ensure(s){
@@ -56,13 +54,8 @@
     var key=todayKey();
     if(d.day!==key){
       s.daily={
-        day:key,
-        taps:0,raids:0,deals:0,npc:0,
-        claimed:{},
-        questIds:[],
-        refreshFreeUsed:false,
-        refreshCount:0,
-        rewardClaims:0,
+        day:key,taps:0,raids:0,deals:0,npc:0,claimed:{},questIds:[],
+        refreshFreeUsed:false,refreshCount:0,rewardClaims:0,
         lastTotalTaps:Number(s.totalTaps)||0,
         lastAuthorityDeals:Number(s.tasks&&s.tasks.authorityDeals)||0,
         lastNpcSuccess:Number(s.tasks&&s.tasks.npcSuccess)||0
@@ -130,15 +123,12 @@
 
   function requestRefreshAd(){
     if(typeof window.showRewardedAd!=='function'){
-      var s=st();
-      if(s) refreshDaily(s,true);
-      else msg('Реклама пока недоступна.');
+      var s=st(); if(s) refreshDaily(s,true); else msg('Реклама пока недоступна.');
       return;
     }
     window.showRewardedAd(function(ok){
       if(!ok){ msg('Реклама не просмотрена полностью.'); return; }
-      var s=st();
-      if(s) refreshDaily(s,true);
+      var s=st(); if(s) refreshDaily(s,true);
     });
   }
 
@@ -155,9 +145,7 @@
   }
   function claimAllReady(s){
     ensure(s);
-    QUESTS.forEach(function(q){
-      if(isDone(s,q)&&!s.daily.claimed[q.id]) claim(s,q);
-    });
+    QUESTS.forEach(function(q){ if(isDone(s,q)&&!s.daily.claimed[q.id]) claim(s,q); });
   }
 
   function syncProgress(s){
@@ -174,91 +162,95 @@
   }
 
   window.__dailyNoteRaidWin=function(){
-    var s=st();if(!s)return;
-    var d=ensure(s);if(!d)return;
-    d.raids=(Number(d.raids)||0)+1;
-    save();
+    var s=st();if(!s)return; var d=ensure(s);if(!d)return;
+    d.raids=(Number(d.raids)||0)+1; save();
   };
   window.__dailyNoteTap=function(){
-    var s=st();if(!s)return;
-    var d=ensure(s);if(!d)return;
-    d.taps=(Number(d.taps)||0)+1;
-    save();
+    var s=st();if(!s)return; var d=ensure(s);if(!d)return;
+    d.taps=(Number(d.taps)||0)+1; save();
   };
 
   function cardsHtml(s){
     var d=ensure(s);
-    return QUESTS.map(function(q){
+    var out='';
+    for(var i=0;i<QUESTS.length;i++){
+      var q=QUESTS[i];
       var p=progress(s,q);
       var done=!!(d.claimed&&d.claimed[q.id])||isDone(s,q);
       var claimed=!!(d.claimed&&d.claimed[q.id]);
       var pct=Math.min(100,Math.floor(p/Math.max(1,q.target)*100));
-      var icon=claimed?'OK':(done?'!':'');
       var status=claimed?' · получено':(done?' · забирается…':'');
-      return (
-        '<div class="task-card daily-card '+(claimed?'task-done':'')+'">'+
-          '<div class="task-icon">'+(claimed?'✓':(done?'🎁':'📅'))+'</div>'+
-          '<div class="task-body">'+
-            '<b>'+q.title+'</b>'+
-            '<p>'+q.desc+'</p>'+
-            '<div class="task-track"><span style="width:'+pct+'%"></span></div>'+
-            '<small>'+fmt(p)+' / '+fmt(q.target)+' · награда '+q.reward+status+'</small>'+
-          '</div>'+
-        '</div>'
-      );
-    }).join('');
+      var icon=claimed?'✓':(done?'🎁':'📅');
+      out+='<div class="task-card daily-card'+(claimed?' task-done':'')+'">';
+      out+='<div class="task-icon">'+icon+'</div>';
+      out+='<div class="task-body">';
+      out+='<b>'+q.title+'</b>';
+      out+='<p>'+q.desc+'</p>';
+      out+='<div class="task-track"><span style="width:'+pct+'%"></span></div>';
+      out+='<small>'+fmt(p)+' / '+fmt(q.target)+' · награда '+q.reward+status+'</small>';
+      out+='</div></div>';
+    }
+    return out;
   }
 
   function injectIntoTasksMenu(){
-    var content=document.getElementById('modal-content');
-    if(!content)return;
-    if(!content.querySelector('.tasks-window'))return;
-    if(content.querySelector('.daily-block'))return;
-    var s=st();
-    if(!s)return;
-    ensure(s);
-    claimAllReady(s);
+    try{
+      var content=document.getElementById('modal-content');
+      if(!content)return;
+      var isTasks=!!content.querySelector('.tasks-window');
+      if(!isTasks){
+        // запасной признак меню поручений
+        var txt=content.textContent||'';
+        if(txt.indexOf('Поручения')<0 && txt.indexOf('ЦЕЛИ')<0) return;
+      }
+      if(content.querySelector('.daily-block'))return;
+      var s=st();
+      if(!s)return;
+      ensure(s);
+      claimAllReady(s);
+      var d=s.daily;
+      var free=!!d.refreshFreeUsed;
+      var claims=Math.min(3,Number(d.rewardClaims)||0);
+      var freeLabel=free?'за рекламу':'бесплатно';
+      var freeHint=free
+        ?'Бесплатное обновление уже использовано · дальше — за рекламу.'
+        :'1 бесплатное обновление в день · дальше — за рекламу.';
 
-    var d=s.daily;
-    var free=!!d.refreshFreeUsed;
-    var claims=Math.min(3,Number(d.rewardClaims)||0);
-    var freeLabel=free?'за рекламу':'бесплатно';
-    var freeHint=free
-      ?'Бесплатное обновление уже использовано · дальше — за рекламу.'
-      :'1 бесплатное обновление в день · дальше — за рекламу.';
+      var block=document.createElement('div');
+      block.className='daily-block';
+      var html='';
+      html+='<div class="daily-head">';
+      html+='<span class="section-kicker">СЕГОДНЯ</span>';
+      html+='<p class="section-subtitle" style="margin:6px 0 10px">Сброс в полночь · '+todayKey()+'</p>';
+      html+='</div>';
+      html+='<div class="daily-refresh">';
+      html+='<button type="button" id="daily-refresh-btn">Обновить задания ('+freeLabel+')</button>';
+      html+='<small>'+freeHint+' Награды: '+claims+'/3.</small>';
+      html+='</div>';
+      html+='<div class="tasks-list daily-list">'+cardsHtml(s)+'</div>';
+      html+='<hr class="daily-sep" style="margin:14px 0;border:none;border-top:1px solid rgba(255,255,255,.08)">';
+      block.innerHTML=html;
 
-    var block=document.createElement('div');
-    block.className='daily-block';
-    block.innerHTML=
-      '<div class="daily-head">'+
-        '<span class="section-kicker">СЕГОДНЯ</span>'+
-        '<p class="section-subtitle" style="margin:6px 0 10px">Сброс в полночь · '+todayKey()+'</p>'+
-      '</div>'+
-      '<div class="daily-refresh">'+
-        '<button type="button" id="daily-refresh-btn">Обновить задания ('+freeLabel+')</button>'+
-        '<small>'+freeHint+' Награды: '+claims+'/3.</small>'+
-      '</div>'+
-      '<div class="tasks-list daily-list">'+cardsHtml(s)+'</div>'+
-      '<hr class="daily-sep" style="margin:14px 0;border:none;border-top:1px solid rgba(255,255,255,.08)">';
+      var list=content.querySelector('.tasks-list');
+      if(list&&list.parentNode) list.parentNode.insertBefore(block, list);
+      else content.insertBefore(block, content.firstChild);
 
-    var list=content.querySelector('.tasks-list');
-    if(list&&list.parentNode) list.parentNode.insertBefore(block, list);
-    else content.insertBefore(block, content.firstChild);
-
-    var rb=block.querySelector('#daily-refresh-btn');
-    if(rb){
-      rb.disabled=false;
-      rb.style.pointerEvents='auto';
-      rb.style.cursor='pointer';
-      rb.onclick=function(e){
-        e.preventDefault();
-        e.stopPropagation();
-        var current=st();
-        if(!current){ msg('Игра ещё загружается…'); return; }
-        ensure(current);
-        if(current.daily.refreshFreeUsed) requestRefreshAd();
-        else refreshDaily(current,false);
-      };
+      var rb=block.querySelector('#daily-refresh-btn');
+      if(rb){
+        rb.style.pointerEvents='auto';
+        rb.style.cursor='pointer';
+        rb.onclick=function(e){
+          e.preventDefault();
+          e.stopPropagation();
+          var current=st();
+          if(!current){ msg('Игра ещё загружается…'); return; }
+          ensure(current);
+          if(current.daily.refreshFreeUsed) requestRefreshAd();
+          else refreshDaily(current,false);
+        };
+      }
+    }catch(err){
+      console.warn('[daily] inject error', err);
     }
   }
 
@@ -275,9 +267,7 @@
     var overlay=document.getElementById('modal-overlay');
     if(overlay&&!overlay.dataset.dailyObs){
       overlay.dataset.dailyObs='1';
-      new MutationObserver(function(){
-        setTimeout(injectIntoTasksMenu,30);
-      }).observe(overlay,{childList:true,subtree:true});
+      new MutationObserver(function(){ setTimeout(injectIntoTasksMenu,30); }).observe(overlay,{childList:true,subtree:true});
     }
   }
 
@@ -290,7 +280,7 @@
   function boot(){
     bindTasksButton();
     setInterval(tick,2000);
-    console.log('[daily] v1.3 ready');
+    console.log('[daily] v1.4 ready');
   }
   if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',boot);
   else boot();
