@@ -1,7 +1,7 @@
 'use strict';
 (function(){
   const AS='./assets/authority/';
-  const A={hero:'./assets/backgrounds/desktop/avtoritet.webp',deal:AS+'deal_button.webp',pressure:AS+'authority_pressure.webp',folder:AS+'barrack_cases_icon.webp',resolved:AS+'case_resolved.webp',clash:AS+'clash.webp',fight:AS+'fight.webp',great:AS+'excellent.webp'};
+  const A={hero:'./assets/backgrounds/mobile/avtoritet.webp',deal:AS+'deal_button.webp',pressure:AS+'authority_pressure.webp',folder:AS+'barrack_cases_icon.webp',resolved:AS+'case_resolved.webp',clash:AS+'clash.webp',fight:AS+'fight.webp',great:AS+'excellent.webp'};
   const DEALS=[
     {title:'Место у окна',story:'Двое заключённых не поделили место в общей зоне. Оба считают, что правы.',img:'clash',choices:[['Поговорить с обоими',180,40,'clash'],['Разделить поровну',150,25,'safe'],['Отдать старшему',120,15,'safe']]},
     {title:'Очередь за чаем',story:'В столовой начался спор: один человек пытается пройти без очереди. Люди ждут твоего решения.',img:'hero',choices:[['Вернуть очередь',170,30,'safe'],['Разобрать на месте',200,45,'clash'],['Пусть разбираются сами',90,10,'safe']]},
@@ -71,7 +71,6 @@
     root.classList.add('authority-mode');
     root.classList.remove('game-booting');
     tapArea.classList.add('authority-tap-area');
-    // Без кнопки «дело»: только стол + тапы, дело ~каждые 50 тапов
     tapArea.innerHTML=
       '<div class="authority-screen">'+
         '<div class="authority-hero" id="authority-desk">'+
@@ -210,7 +209,6 @@
     if(!s||Number(s.points)<40000||s.currentObject!==4||s.jailed)return;
     if(e.target&&e.target.closest&&e.target.closest('.authority-pressure-btn,#modal-overlay,#modal'))return;
     if(modalOpen||clashState)return;
-    // тап по столу / экрану — счётчик до дела (~50)
     tapsSinceDeal++;
     if(tapsSinceDeal>=AUTO_DEAL_EVERY){
       tapsSinceDeal=0;
@@ -251,7 +249,7 @@
     sync();
     const close=$('modal-close');
     if(close) close.addEventListener('click',()=>{ if(modalOpen&&$('modal-overlay')?.dataset.locked!=='1') closeAuthorityModal(); });
-    console.log('[authority-ui] v2.3 desk taps only');
+    console.log('[authority-ui] v2.4 mobile bg full desk');
   }
   if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',init,{once:true});
   else init();

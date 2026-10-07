@@ -1,10 +1,9 @@
-/* Авторитет — стол виден, без кнопки дела на фоне */
+/* Авторитет — портретный фон, стол и папка целиком */
 #game-container.authority-mode{
   background:#0a0e10!important;
-  background-image:linear-gradient(rgba(4,8,10,.08),rgba(4,8,10,.28)),url('./assets/backgrounds/desktop/avtoritet.webp')!important;
-  /* ещё сильнее отдаляем фон */
-  background-size:78% auto!important;
-  background-position:center 40%!important;
+  background-image:linear-gradient(rgba(4,8,10,.10),rgba(4,8,10,.28)),url('./assets/backgrounds/mobile/avtoritet.webp')!important;
+  background-size:cover!important;
+  background-position:center center!important;
   background-repeat:no-repeat!important;
 }
 #game-container.authority-mode #tap-area{padding:6px;align-items:stretch;justify-content:stretch;overflow:hidden}
@@ -14,7 +13,7 @@
 .authority-screen{width:100%;max-width:1180px;margin:auto;display:flex;flex-direction:column;gap:0;padding:0;height:100%}
 .authority-hero{
   position:relative;
-  min-height:min(62vh,520px);
+  min-height:min(70vh,640px);
   flex:1 1 auto;
   border:1px solid rgba(213,168,74,.28);
   border-radius:18px;
@@ -22,19 +21,18 @@
   background:#0b1013;
   box-shadow:0 14px 40px rgba(0,0,0,.48),inset 0 1px rgba(255,255,255,.08);
 }
-/* hero-картинка сильнее отдалена */
+/* Портретная картинка: cover + центр — видна папка «ДЕЛА БАРАКА» */
 .authority-hero-bg{
   position:absolute;inset:0;width:100%;height:100%;
-  object-fit:contain;
-  object-position:center 45%;
-  transform:scale(0.78);
-  transform-origin:center center;
-  opacity:.95;
-  filter:saturate(.9) contrast(1.02);
+  object-fit:cover;
+  object-position:center 55%;
+  transform:none;
+  opacity:1;
+  filter:saturate(.92) contrast(1.02);
 }
 .authority-shade{
   position:absolute;inset:0;
-  background:linear-gradient(180deg,rgba(3,7,9,.18) 0%,rgba(3,7,9,.04) 40%,rgba(3,7,9,.35) 100%);
+  background:linear-gradient(180deg,rgba(3,7,9,.20) 0%,rgba(3,7,9,.04) 42%,rgba(3,7,9,.40) 100%);
   pointer-events:none;
 }
 .authority-heading{position:absolute;top:12px;left:12px;right:12px;display:flex;gap:10px;align-items:flex-start;text-shadow:0 3px 10px #000;z-index:4;pointer-events:none}
@@ -46,15 +44,11 @@
 .authority-influence span{font-size:10px;color:#aaa;font-weight:800}
 .authority-influence b{font-size:17px;color:#fff}
 
-/* кнопки дела на фоне больше нет */
-.authority-deal-btn{display:none!important}
-.authority-desk-hotspot{display:none!important}
-.authority-mini-row,.authority-strip{display:none!important}
+.authority-deal-btn,.authority-desk-hotspot,.authority-mini-row,.authority-strip{display:none!important}
 
 .authority-pressure-btn{border:0;background:transparent;padding:0;display:block;margin:10px auto 0;touch-action:manipulation;cursor:pointer}
 .authority-pressure-btn img{max-width:min(220px,60vw);max-height:100px;display:block;margin:0 auto}
 
-/* Authority modals: CENTERED */
 #modal-overlay.authority-open{align-items:center!important;justify-content:center!important;padding:12px!important}
 #modal.authority-modal{width:min(520px,94vw)!important;max-height:min(88svh,720px)!important;padding:0!important;background:#091014!important;border:1px solid rgba(213,168,74,.42)!important;border-radius:22px!important;overflow:auto!important;margin:0 auto!important}
 #modal.authority-modal #modal-close{z-index:20;top:9px;right:9px;width:36px;height:36px;border-radius:50%;background:#071014d9;color:#eee;border:1px solid #4b5b}
