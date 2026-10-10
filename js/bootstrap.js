@@ -1,25 +1,19 @@
 'use strict';
 (function(){
+  /* Only scripts that exist on the branch. Removed 404s:
+     music-stage, tasks-ui, choice-events, sentence, prestige,
+     yandex-progress, offline, share, leaderboard */
   const scripts=[
-    {src:'./js/save-migration.js?v=1.0',critical:true},
-    {src:'./js/game.js?v=4.87',critical:true},
-    {src:'./js/music-stage.js?v=1.0',critical:false},
-    {src:'./js/tasks-ui.js?v=1.2',critical:false},
+    {src:'./js/save-migration.js?v=1.1',critical:true},
+    {src:'./js/game.js?v=4.88',critical:true},
     {src:'./js/npc-barrack.js?v=4.3',critical:true},
     {src:'./js/npc-memory.js?v=1.0',critical:false},
     {src:'./js/npc-rumors.js?v=1.4',critical:false},
     {src:'./js/object-visuals.js?v=3.3',critical:true},
-    {src:'./js/choice-events.js?v=1.1',critical:false},
-    {src:'./js/sentence.js?v=1.0',critical:false},
-    {src:'./js/prestige.js?v=1.0',critical:false},
     {src:'./js/ads-policy.js?v=1.1',critical:false},
     {src:'./js/shop-booster-ad.js?v=1.0',critical:false},
     {src:'./js/jail-lock.js?v=1.0',critical:false},
     {src:'./js/nickname-rename.js?v=1.1',critical:false},
-    {src:'./js/yandex-progress.js?v=1.0',critical:false},
-    {src:'./js/offline.js?v=1.0',critical:false},
-    {src:'./js/share.js?v=1.0',critical:false},
-    {src:'./js/leaderboard.js?v=1.0',critical:false},
     {src:'./js/daily.js?v=1.4',critical:false},
     {src:'./js/authority-css-restore.js?v=1.8',critical:false},
     {src:'./js/authority-ui.js?v=2.4',critical:false},
@@ -55,7 +49,7 @@
         if(item.critical)return;
       }
     }
-    console.log('[bootstrap] v3.5');
+    console.log('[bootstrap] v3.6');
   }
 
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot);
