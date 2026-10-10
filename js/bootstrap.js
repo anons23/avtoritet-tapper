@@ -7,7 +7,7 @@
     {src:'./js/save-migration.js?v=1.1',critical:true},
     {src:'./js/game.js?v=4.88',critical:true},
     {src:'./js/save-guard.js?v=1.0',critical:false},
-    {src:'./js/npc-barrack.js?v=4.3',critical:true},
+    {src:'./js/npc-barrack.js?v=4.4',critical:true},
     {src:'./js/npc-memory.js?v=1.0',critical:false},
     {src:'./js/npc-rumors.js?v=1.4',critical:false},
     {src:'./js/object-visuals.js?v=3.3',critical:true},
