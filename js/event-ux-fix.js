@@ -1,6 +1,6 @@
 'use strict';
 (function () {
-  /* Soft-lock choice buttons 650ms when event modal opens; reduce event spam */
+  /* Briefly lock event choices on open so an accidental tap cannot choose immediately. */
 
   function softLockChoices(root) {
     try {
@@ -17,7 +17,7 @@
           b.style.opacity = '';
           b.style.pointerEvents = '';
         });
-      }, 650);
+      }, (document.getElementById('game-container') && document.getElementById('game-container').classList.contains('jail-mode')) ? 1100 : 650);
     } catch (e) {}
   }
 
