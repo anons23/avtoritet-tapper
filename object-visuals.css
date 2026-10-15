@@ -122,3 +122,10 @@
 
 /* Animation safety: do not let static frame sizing with !important cancel runtime transforms. */
 .boxing-bag-image,.cellmate-image,.pushups-image,.trainer-image{backface-visibility:hidden;-webkit-backface-visibility:hidden;transform-style:preserve-3d;}
+
+
+/* Desktop: prevent the bag artwork from appearing undersized while preserving its ratio. */
+@media(min-width:701px) {
+  #tap-object.bag-mode { width:min(560px,46vw)!important; height:min(560px,62vh)!important; }
+  #tap-object.bag-mode .boxing-bag-image { width:min(560px,46vw)!important; height:min(560px,62vh)!important; object-fit:contain!important; }
+}
