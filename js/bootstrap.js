@@ -5,7 +5,7 @@
      yandex-progress, offline, share, leaderboard */
   const scripts=[
     {src:'./js/save-migration.js?v=1.1',critical:true},
-    {src:'./js/game.js?v=4.88',critical:true},
+    {src:'./js/game.js?v=4.89',critical:true},
     {src:'./js/save-guard.js?v=1.0',critical:false},
     {src:'./js/npc-barrack.js?v=4.4',critical:true},
     {src:'./js/npc-memory.js?v=1.0',critical:false},
