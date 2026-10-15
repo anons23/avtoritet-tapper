@@ -499,6 +499,19 @@ function more(){
   openModal('<div class="section-window"><div class="section-kicker">ТВОЁ МЕСТО</div><h2>☰ Барак</h2><p class="section-subtitle">Персонажи барака загружаются…</p></div>');
 }
 
+function showNoEnergyPrompt(){
+  const overlay=$('modal-overlay'), content=$('modal-content');
+  if(!overlay||!content){ msg('⚡ Нет энергии'); return; }
+  content.innerHTML='<div class="no-energy-prompt"><div class="energy-kicker">НУЖНО ВОССТАНОВИТЬСЯ</div><h2>⚡ Нет энергии</h2><p>Энергия закончилась — восстанови её, чтобы продолжить удары.</p><button type="button" id="no-energy-restore">Восстановить</button></div>';
+  overlay.dataset.locked='0';
+  overlay.classList.remove('hidden');
+  const button=$('no-energy-restore');
+  if(button)button.onclick=function(){
+    if(window.EnergyUI&&typeof window.EnergyUI.open==='function')window.EnergyUI.open();
+    else { msg('⚡ Открой индикатор энергии для восстановления'); overlay.classList.add('hidden'); }
+  };
+}
+
 function tap(e){
   if(e && e.preventDefault) e.preventDefault();
   if(activeEvent)return;
@@ -513,7 +526,7 @@ function tap(e){
     ui(); saveNow(); return;
   }
   restoreEnergy(Date.now());
-  if(s.energy < 1){ msg('⚡ Нет энергии'); return; }
+  if(s.energy < 1){ showNoEnergyPrompt(); return; }
   s.energy--;
   s.totalTaps++;
   s.tasks.taps++;
