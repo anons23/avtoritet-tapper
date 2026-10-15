@@ -74,3 +74,42 @@
 .clash-bar.opponent span{background:linear-gradient(90deg,#8b3a3a,#c45)}
 .authority-clash-timer{text-align:center;font-size:22px;font-weight:1000;color:#f2b93e;margin-top:8px}
 .authority-clash-note{text-align:center;font-size:12px;color:#aaa;margin-top:4px}
+
+
+/* FIX 2026-10: artwork in compact Authority popups scales to its box instead of cropping/zooming. */
+#modal.authority-modal .authority-deal-art,
+#modal.authority-modal .authority-clash-art,
+#modal.authority-modal .authority-result-art {
+  box-sizing:border-box!important;
+  width:100%!important;
+  height:clamp(110px, 28vh, 220px)!important;
+  max-width:100%!important;
+  overflow:hidden!important;
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+}
+#modal.authority-modal .authority-deal-art img,
+#modal.authority-modal .authority-clash-art img,
+#modal.authority-modal .authority-result-art img {
+  display:block!important;
+  width:100%!important;
+  height:100%!important;
+  max-width:100%!important;
+  max-height:100%!important;
+  min-width:0!important;
+  min-height:0!important;
+  object-fit:contain!important;
+  object-position:center!important;
+  flex:0 1 auto!important;
+}
+#modal.authority-modal img {
+  max-width:100%;
+}
+@media (max-width:700px) {
+  #modal.authority-modal .authority-deal-art,
+  #modal.authority-modal .authority-clash-art,
+  #modal.authority-modal .authority-result-art {
+    height:clamp(96px, 22vh, 170px)!important;
+  }
+}
