@@ -540,3 +540,28 @@
 @media(prefers-reduced-motion:reduce){
   .raid-screen-blood,.raid-screen-blood-dot{animation:none!important;opacity:0!important}
 }
+
+
+/* FIX 2026-10: desktop raid button stays fully inside the viewport; enlarge Glaz and Petrovich artwork. */
+#raid-open-button {
+  position: fixed !important;
+  left: auto !important;
+  right: max(16px, calc((100vw - 1200px) / 2 + 16px)) !important;
+  top: 158px !important;
+  transform-origin: center center !important;
+}
+@media (min-width: 701px) {
+  #modal-overlay.raid-fullscreen .raid-fighter.petrovich .raid-fighter-media img,
+  #modal-overlay.raid-fullscreen .raid-fighter.petrovich .raid-fighter-media #raid-idle-video {
+    transform: scale(1.72) !important;
+    transform-origin: center bottom !important;
+  }
+  #modal-overlay.raid-fullscreen .raid-fighter.glaz .raid-fighter-media img,
+  #modal-overlay.raid-fullscreen .raid-fighter.glaz .raid-fighter-media #raid-idle-video {
+    transform: scale(1.58) !important;
+    transform-origin: center bottom !important;
+  }
+}
+@media (max-width: 700px) {
+  #raid-open-button { position: fixed !important; right: 12px !important; left: auto !important; }
+}
