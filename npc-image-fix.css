@@ -72,3 +72,25 @@
   mix-blend-mode:screen!important;
   background:transparent!important;
 }
+
+
+/* Keep all NPC artwork proportionate and fully inside the scene viewport. */
+#modal.npc-modal .npc-hero-img,
+#modal.-modal .-hero-img,
+#modal.-modal .-hero img {
+  object-fit:contain!important;
+  object-position:center bottom!important;
+}
+@media(min-width:701px) {
+  #modal.npc-modal .npc-hero,
+  #modal.-modal .-hero { overflow:hidden!important; }
+  #modal.npc-modal .npc-hero-img,
+  #modal.-modal .-hero-img,
+  #modal.-modal .-hero img {
+    max-width:min(64%,760px)!important;
+    max-height:calc(100% - 24px)!important;
+    width:auto!important;height:auto!important;
+    object-fit:contain!important;
+    object-position:center bottom!important;
+  }
+}
