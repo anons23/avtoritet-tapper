@@ -371,3 +371,17 @@
     flex-basis: 56px !important;
   }
 }
+
+
+/* Desktop polish: larger tap object, compact centered progress tracks and readable sentence panel. */
+@media (min-width:701px) {
+  #tap-object.bag-mode { width:min(560px,46vw)!important; height:min(560px,62vh)!important; }
+  #tap-object.bag-mode .boxing-bag-image { width:min(560px,46vw)!important; height:min(560px,62vh)!important; object-fit:contain!important; }
+  #rank-goal.rank-goal, #sentence-panel { width:min(50%,560px)!important; max-width:560px!important; margin-left:auto!important; margin-right:auto!important; }
+  #sentence-panel { background:#292929!important; border-color:#484848!important; color:#f5f5f5!important; }
+  #sentence-panel *, #rank-goal.rank-goal * { color:inherit; }
+}
+.no-energy-prompt { text-align:center; padding:12px 4px 4px; }
+.no-energy-prompt h2 { margin:6px 0 8px; font-size:26px; }
+.no-energy-prompt p { color:#c8c8c8; line-height:1.45; margin:0 0 18px; }
+.no-energy-prompt button { width:100%; min-height:50px; border:1px solid #987637; border-radius:13px; background:linear-gradient(135deg,#493a20,#2c2417); color:#fff; font-weight:900; }
