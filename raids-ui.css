@@ -565,3 +565,14 @@
 @media (max-width: 700px) {
   #raid-open-button { position: fixed !important; right: 12px !important; left: auto !important; }
 }
+
+
+/* DESKTOP TWEAK 2026-10: slightly enlarge Krest on PC only. */
+@media (min-width: 701px) {
+  #modal-overlay.raid-fullscreen .raid-fighter.krest .raid-fighter-media img,
+  #modal-overlay.raid-fullscreen .raid-fighter.krest .raid-fighter-media #raid-idle-video {
+    transform: scale(1.30) translateY(10%) !important;
+    transform-origin: center bottom !important;
+    object-position: center bottom !important;
+  }
+}
