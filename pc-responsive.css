@@ -385,3 +385,13 @@
 .no-energy-prompt h2 { margin:6px 0 8px; font-size:26px; }
 .no-energy-prompt p { color:#c8c8c8; line-height:1.45; margin:0 0 18px; }
 .no-energy-prompt button { width:100%; min-height:50px; border:1px solid #987637; border-radius:13px; background:linear-gradient(135deg,#493a20,#2c2417); color:#fff; font-weight:900; }
+
+
+/* Desktop background must fill the whole game frame; contain leaves black side/top bars. */
+@media (min-width:701px) {
+  #game-container {
+    background-size:cover !important;
+    background-position:center center !important;
+    background-repeat:no-repeat !important;
+  }
+}
