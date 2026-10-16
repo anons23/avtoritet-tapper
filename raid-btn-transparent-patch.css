@@ -1,4 +1,4 @@
-/* Raid button: force no background on PC / Android / iOS (transparent asset). */
+/* Raid button: no background PC / Android / iOS. Mobile never uses <video> (black box). */
 #raid-open-button,
 #raid-open-button:hover,
 #raid-open-button:active,
@@ -41,9 +41,14 @@
   position: relative !important;
   z-index: 1 !important;
 }
-@supports (-webkit-touch-callout: none) {
+/* Android / phones: hide video entirely (black frame under webm) */
+@media (max-width: 700px) {
   #raid-open-button .raid-btn-media {
-    mix-blend-mode: normal !important;
-    -webkit-backface-visibility: hidden;
+    display: none !important;
+  }
+  #raid-open-button .raid-btn-fallback {
+    position: static !important;
+    inset: auto !important;
+    z-index: 1 !important;
   }
 }

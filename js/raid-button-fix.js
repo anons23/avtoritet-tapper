@@ -1,12 +1,30 @@
 'use strict';
 (function () {
-  /* Raid open button: transparent icon (webm + fallbacks), opens MENU not fight. */
+  /* Raid button: transparent icon. Mobile/Android = img only (no black video box). */
 
   var ICON_SRC_WEBM = './assets/raids/raid_icon_transparent.webm';
   var ICON_SRC_WEBP = './assets/raids/raid_icon_transparent.webp';
   var ICON_SRC_OLD = './assets/raids/ui/raid-button.webp';
 
+  function isMobileLike() {
+    try {
+      if (window.matchMedia && window.matchMedia('(max-width: 700px)').matches) return true;
+    } catch (e) {}
+    var ua = navigator.userAgent || '';
+    return /Android|iPhone|iPad|iPod|Mobile/i.test(ua);
+  }
+
   function iconHtml() {
+    // Android/iOS: only <img> — <video webm> paints a black rectangle
+    if (isMobileLike()) {
+      return (
+        '<span class="raid-btn-icon">' +
+          '<img class="raid-btn-fallback" src="' + ICON_SRC_WEBP + '" alt=""' +
+          ' onerror="this.onerror=null;this.src=\'' + ICON_SRC_OLD + '\'">' +
+        '</span>' +
+        '<span class="raid-btn-label">Рейды</span>'
+      );
+    }
     return (
       '<span class="raid-btn-icon">' +
         '<video class="raid-btn-media" autoplay muted loop playsinline webkit-playsinline disablepictureinpicture' +
@@ -73,19 +91,22 @@
 
   function ensureMedia(btn) {
     var video = btn.querySelector('video.raid-btn-media');
-    if (video) {
-      video.muted = true;
-      video.playsInline = true;
-      video.setAttribute('playsinline', '');
-      video.setAttribute('webkit-playsinline', '');
-      video.addEventListener('error', function () {
-        video.style.display = 'none';
-        var fb = btn.querySelector('.raid-btn-fallback');
-        if (fb) fb.style.display = 'block';
-      });
-      var p = video.play();
-      if (p && typeof p.catch === 'function') p.catch(function () {});
+    if (!video) return;
+    if (isMobileLike()) {
+      video.style.display = 'none';
+      return;
     }
+    video.muted = true;
+    video.playsInline = true;
+    video.setAttribute('playsinline', '');
+    video.setAttribute('webkit-playsinline', '');
+    video.addEventListener('error', function () {
+      video.style.display = 'none';
+      var fb = btn.querySelector('.raid-btn-fallback');
+      if (fb) fb.style.display = 'block';
+    });
+    var p = video.play();
+    if (p && typeof p.catch === 'function') p.catch(function () {});
   }
 
   function ensure() {
@@ -93,6 +114,7 @@
       var parent = document.getElementById('game-container') || document.body;
       if (!parent) return;
       var btn = document.getElementById('raid-open-button');
+      var wantMobile = isMobileLike();
       if (!btn) {
         btn = document.createElement('button');
         btn.id = 'raid-open-button';
@@ -102,13 +124,13 @@
         btn.innerHTML = iconHtml();
         parent.appendChild(btn);
       } else {
-        var hasNew =
-          btn.querySelector('video.raid-btn-media') ||
-          (btn.querySelector('img.raid-btn-fallback') &&
-            (btn.querySelector('img.raid-btn-fallback').getAttribute('src') || '').indexOf('raid_icon_transparent') >= 0);
-        if (!hasNew || !btn.querySelector('.raid-btn-label')) {
-          btn.innerHTML = iconHtml();
-        }
+        var hasVideo = !!btn.querySelector('video.raid-btn-media');
+        var hasImg = !!btn.querySelector('.raid-btn-fallback, .raid-btn-icon img');
+        var needRebuild =
+          !btn.querySelector('.raid-btn-label') ||
+          (wantMobile && hasVideo) ||
+          (!wantMobile && !hasVideo && !hasImg);
+        if (needRebuild) btn.innerHTML = iconHtml();
       }
       if (!btn.__avtRaidBound) {
         btn.addEventListener('click', onBtn, true);
