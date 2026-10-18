@@ -1,5 +1,24 @@
 'use strict';
 (function(){
+  /* One-time force fresh start: clear local + skip/wipe cloud once per device */
+  (function forceFreshOnce(){
+    try{
+      var FLAG='avt_wiped_v20261018';
+      if(localStorage.getItem(FLAG)==='1') return;
+      ['avtoritet_save_v2','avtoritet_save_v2_backup','avtoritet_save_v3','avtoritet_health_v3',
+       'avtoritet_save_conflict_local_v1','avtoritet_save_conflict_cloud_v1',
+       'avtoritet_health_conflict_local_v1','avtoritet_health_conflict_cloud_v1'
+      ].forEach(function(k){ try{ localStorage.removeItem(k); }catch(e){} });
+      try{
+        sessionStorage.setItem('avt_force_fresh','1');
+        sessionStorage.setItem('avt_skip_cloud_once','1');
+      }catch(e){}
+      window.__AVT_RESET_LOCK=true;
+      localStorage.setItem(FLAG,'1');
+      console.log('[Yandex SDK] force fresh start once');
+    }catch(e){}
+  })();
+
   const SAVE_KEY='avtoritet_save_v2';
   const HEALTH_KEY='avtoritet_health_v3';
   let ysdk=null,player=null,pendingData=null,saveTimer=null,cloudReady=false,adBusy=false,adSessionId=0;
@@ -40,21 +59,20 @@ async function clearCloudData(){
     catch(e){log('cloud reset failed',e);return false;}
   }
   async function init(){
-    /* Sync: honor force-fresh before any cloud read */
     try{
-      if(sessionStorage.getItem('avt_force_fresh')==='1'||sessionStorage.getItem('avt_skip_cloud_once')==='1'){
-        window.__AVT_RESET_LOCK=true;
-        try{['avtoritet_save_v2','avtoritet_save_v2_backup','avtoritet_health_v3'].forEach(function(k){localStorage.removeItem(k);});}catch(e){}
-      }
-    }catch(e){}
-    if(!window.YaGames){log('SDK loader unavailable; local save remains active.');return;}
-    try{
-      ysdk=await window.YaGames.init();window.ysdk=ysdk;
-      try{player=await ysdk.getPlayer();}catch(e){log('player init failed',e);}
-      if(player){
+      /* Sync: honor force-fresh before any cloud read */
+      try{
+        if(sessionStorage.getItem('avt_force_fresh')==='1'||sessionStorage.getItem('avt_skip_cloud_once')==='1'){
+          window.__AVT_RESET_LOCK=true;
+        }
+      }catch(e){}
+      if(typeof YaGames==='undefined'){log('YaGames missing');return;}
+      ysdk=await YaGames.init();
+      try{
+        player=await ysdk.getPlayer({scopes:false});
         cloudReady=true;
         try{
-          let skipCloud=false;
+          var skipCloud=false;
           try{
             skipCloud=sessionStorage.getItem('avt_skip_cloud_once')==='1'||sessionStorage.getItem('avt_force_fresh')==='1';
             if(skipCloud){
@@ -62,10 +80,11 @@ async function clearCloudData(){
               sessionStorage.removeItem('avt_force_fresh');
             }
           }catch(e){}
-          if(skipCloud){
+          if(skipCloud||window.__AVT_RESET_LOCK){
             log('skip cloud restore (force fresh reset)');
             try{await player.setData({},true);await player.setStats({},true);}catch(e){log('post-reset cloud wipe failed',e);}
             lastLocalSnapshot=localSnapshotKey();
+            window.__AVT_RESET_LOCK=false;
             throw new Error('skip-cloud-restore');
           }
           const cloud=await player.getData(['gameSave','healthSave']);
@@ -91,7 +110,8 @@ async function clearCloudData(){
           if(useCloudHealth)localStorage.setItem(HEALTH_KEY,JSON.stringify(cloud.healthSave));
         }catch(e){log('cloud load failed; local save will continue and cloud writes remain enabled',e);}
         if(!window.__AVT_RESET_LOCK)queueCloudSave(false);
-      }
+        setInterval(pollLocalChanges,4000);
+      }catch(e){log('player failed',e);}
       if(ysdk.on){ysdk.on('game_api_pause',function(){gameplayStop();flushCloudSave(true);});ysdk.on('game_api_resume',function(){gameplayStart();});}
       gameplayStart();log('initialized');
     }catch(e){log('init failed',e);}
@@ -115,80 +135,25 @@ async function clearCloudData(){
       if(!adBusy&&typeof onReward==='function')onReward(false);
       return false;
     }
-
     adBusy=true;
     const sessionId=++adSessionId;
     gameplayStop();
-
-    let active=true;
     let rewarded=false;
-    let callbackSent=false;
-    let watchdog=null;
-
-    const notify=function(ok){
-      if(callbackSent)return;
-      callbackSent=true;
-      if(typeof onReward==='function')onReward(ok===true);
-    };
-
-    const cleanup=function(){
-      if(!active)return;
-      active=false;
-      if(watchdog){clearTimeout(watchdog);watchdog=null;}
+    const done=function(){
       if(sessionId!==adSessionId)return;
+      if(!adBusy)return;
       adBusy=false;
       gameplayStart();
+      if(typeof onReward==='function')onReward(!!rewarded);
     };
-
-    const finishWithoutReward=function(){
-      notify(false);
-      cleanup();
-    };
-
-    const handleRewarded=function(){
-      if(sessionId!==adSessionId||!active)return;
-      rewarded=true;
-      notify(true);
-      log('rewarded ad reward granted');
-    };
-
-    const handleClose=function(wasShown){
-      if(sessionId!==adSessionId)return;
-      if(!rewarded)notify(false);
-      cleanup();
-      log('rewarded ad closed',wasShown);
-    };
-
-    const handleError=function(err){
-      if(sessionId!==adSessionId)return;
-      if(!rewarded)notify(false);
-      cleanup();
-      log('rewarded ad error',err);
-    };
-
-    watchdog=setTimeout(function(){
-      if(sessionId!==adSessionId||!active)return;
-      notify(false);
-      cleanup();
-      log('rewarded ad watchdog timeout');
-    },120000);
-
     try{
-      ysdk.adv.showRewardedVideo({
-        callbacks:{
-          onRewarded:handleRewarded,
-          onClose:handleClose,
-          onError:handleError
-        }
-      });
+      ysdk.adv.showRewardedVideo({callbacks:{
+        onOpen:function(){},
+        onRewarded:function(){rewarded=true;},
+        onClose:done,
+        onError:done
+      }});
       return true;
-    }catch(e){
-      finishWithoutReward();
-      log('rewarded ad call failed',e);
-      return false;
-    }
+    }catch(e){done();return false;}
   };
-  const pollTimer=setInterval(pollLocalChanges,2000);
-  window.addEventListener('pagehide',function(){clearInterval(pollTimer);if(!window.__AVT_RESET_LOCK)flushCloudSave(true);});
-  window.addEventListener('beforeunload',function(){if(!window.__AVT_RESET_LOCK)flushCloudSave(true);});
 })();
