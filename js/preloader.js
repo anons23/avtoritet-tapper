@@ -6,6 +6,7 @@
   const status=document.getElementById('preloader-status');
   let current=0;
   let messageTimer=null;
+  let finished=false;
   const messages=[
     'Готовим нары. Картишки раздавать будем?',
     'Ты откуда будешь, браток?',
@@ -33,8 +34,11 @@
     return new Promise(resolve=>{
       const img=new Image();
       img.decoding='async';
-      img.onload=()=>resolve(true);
-      img.onerror=()=>resolve(false);
+      let done=false;
+      const finish=function(ok){ if(done)return; done=true; resolve(!!ok); };
+      const t=window.setTimeout(function(){ finish(false); },8000);
+      img.onload=function(){ window.clearTimeout(t); finish(true); };
+      img.onerror=function(){ window.clearTimeout(t); finish(false); };
       img.src=src;
     });
   }
@@ -42,7 +46,7 @@
   function preloadVideo(src){
     return new Promise(resolve=>{
       let settled=false;
-      const done=(ok)=>{
+      const done=function(ok){
         if(settled)return;
         settled=true;
         resolve(!!ok);
@@ -51,18 +55,16 @@
       v.muted=true;
       v.playsInline=true;
       v.setAttribute('playsinline','');
-      v.preload='auto';
-      const t=window.setTimeout(()=>done(false),10000);
-      v.addEventListener('canplaythrough',()=>{window.clearTimeout(t);done(true)},{once:true});
-      v.addEventListener('loadeddata',()=>{window.clearTimeout(t);done(true)},{once:true});
-      v.addEventListener('error',()=>{window.clearTimeout(t);done(false)},{once:true});
-      v.src=src;
-      try{v.load()}catch(e){window.clearTimeout(t);done(false)}
+      v.preload='metadata';
+      const t=window.setTimeout(function(){ done(false); },4000);
+      v.addEventListener('loadeddata',function(){ window.clearTimeout(t); done(true); },{once:true});
+      v.addEventListener('error',function(){ window.clearTimeout(t); done(false); },{once:true});
+      try{ v.src=src; v.load(); }catch(e){ window.clearTimeout(t); done(false); }
     });
   }
 
   const RAID_IMAGES=[
-    './assets/raids/raid_icon_transparent.webm',
+    './assets/raids/raid_icon_transparent.webp',
     './assets/raids/fighters/mafioznik_hit_1.webp',
     './assets/raids/fighters/mafioznik_hit_2.webp',
     './assets/raids/fighters/mafioznik_hit_3.webp',
@@ -93,32 +95,28 @@
     './assets/raids/fighters/petrovich4.webp'
   ];
   const RAID_VIDEOS=[
-    './assets/raids/fighters/petrovich_idle.mp4',
-    './assets/raids/fighters/vtirach_idle.mp4',
-    './assets/raids/fighters/mafioznik_idle.mp4',
-    './assets/raids/fighters/mongol_idle.mp4',
-    './assets/raids/fighters/glaz_idle.mp4',
-    './assets/raids/fighters/krest_idle.mp4',
-    './assets/raids/fighters/psikh_idle.mp4'
+    './assets/raids/fighters/petrovich.webm',
+    './assets/raids/fighters/Vtirach.webm',
+    './assets/raids/fighters/mafioznik_idle.webm',
+    './assets/raids/fighters/Mongol.webm',
+    './assets/raids/fighters/Glaz.webm',
+    './assets/raids/fighters/krest.webm',
+    './assets/raids/fighters/psikh.webm'
   ];
 
   let raidReadyResolve=null;
   window.__raidAssetsReady=new Promise(function(resolve){raidReadyResolve=resolve;});
 
   async function preloadRaidAssets(){
-    const essential=['./assets/raids/raid_icon_transparent.webm'];
     setProgress(28,'Готовим бойцов…');
-    await Promise.all(essential.map(src=>preloadImage(src).catch(()=>false)));
-    setProgress(40,'Рейды почти готовы');
-    const imgs=RAID_IMAGES.filter(s=>!essential.includes(s));
-    let done=0;
-    await Promise.all(imgs.map(async src=>{
-      await preloadImage(src);
-      done++;
-      if(done%4===0)setProgress(40+Math.min(25,done),messages[messageIndex]);
-    }));
+    await Promise.all(RAID_IMAGES.slice(0,8).map(function(src){ return preloadImage(src); }));
+    setProgress(50,'Рейды почти готовы');
+    await Promise.all(RAID_IMAGES.slice(8).map(function(src){ return preloadImage(src); }));
     setProgress(70,'Подгружаем анимации');
-    await Promise.all(RAID_VIDEOS.map(src=>preloadVideo(src).catch(()=>false)));
+    await Promise.race([
+      Promise.all(RAID_VIDEOS.map(function(src){ return preloadVideo(src); })),
+      new Promise(function(r){ window.setTimeout(r, 5000); })
+    ]);
     setProgress(88,'Почти готово');
     if(typeof raidReadyResolve==='function')raidReadyResolve(true);
   }
@@ -168,22 +166,37 @@
       return;
     }
     setProgress(3,messages[messageIndex]);
-    messageTimer=window.setInterval(()=>{messageIndex=(messageIndex+1)%messages.length;setProgress(current,messages[messageIndex]);},2200);
+    messageTimer=window.setInterval(function(){
+      messageIndex=(messageIndex+1)%messages.length;
+      setProgress(current,messages[messageIndex]);
+    },2200);
+    window.setTimeout(function(){
+      if(!finished){
+        console.warn('[Preloader] safety finish after timeout');
+        window.__finishPreloader();
+      }
+    },20000);
     const mobile=window.matchMedia&&window.matchMedia('(max-width:700px)').matches;
     const bg=mobile?'./assets/backgrounds/mobile/loading-mobile.webp':'./assets/backgrounds/desktop/loading-desktop.webp';
     await Promise.all([preloadImage(bg),preloadImage('./assets/backgrounds/handcuffs.webp')]);
     setProgress(12,messages[messageIndex]);
     setProgress(16,'Грузим грушу…');
-    await Promise.all(stage0Assets(mobile).map(src=>preloadImage(src)));
+    await Promise.all(stage0Assets(mobile).map(function(src){ return preloadImage(src); }));
     setProgress(24,'Локация готова');
     try{ await preloadRaidAssets(); }
     catch(e){
       console.debug('[Preloader] raid assets',e);
       if(typeof raidReadyResolve==='function')raidReadyResolve(false);
     }
+    setProgress(90,'Запускаем…');
+    window.setTimeout(function(){
+      if(!finished) window.__finishPreloader();
+    },1500);
   }
 
   window.__finishPreloader=function(){
+    if(finished) return;
+    finished=true;
     if(messageTimer){window.clearInterval(messageTimer);messageTimer=null;}
     setProgress(100,'Готово');
     window.setTimeout(function(){
