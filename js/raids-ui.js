@@ -277,7 +277,7 @@
       '<div id="raid-hp-text" class="raid-hp-text">'+hp+' / '+f.hp+'</div><div id="raid-phase" class="raid-phase">'+phaseLabel(phase)+'</div></div></div>'+
       '<div class="raid-fighter '+f.id+'" id="raid-fighter">'+
       '<div class="raid-fighter-media" id="raid-fighter-media">'+
-      '<img id="raid-fighter-img" src="'+still+'" alt="'+f.name+'" style="'+(hasIdle?'opacity:0':'')+'">'+
+      '<img id="raid-fighter-img" src="'+still+'" alt="'+f.name+'" data-fallback="'+f.name+'" onerror="this.onerror=null;this.style.display=\'none\';this.parentNode.classList.add(\'raid-image-missing\');this.parentNode.setAttribute(\'data-fallback\',this.getAttribute(\'data-fallback\')||this.alt)" style="'+(hasIdle?'opacity:0':'')+'">'+
       '</div></div>'+
       '<div class="raid-controls"><button type="button" class="raid-next" id="raid-back">← К бойцам</button></div>'+
       '<div class="raid-note" id="raid-note"></div>'+
