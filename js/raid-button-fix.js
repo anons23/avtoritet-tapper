@@ -7,7 +7,7 @@
   function iconHtml() {
     return '<span class="raid-btn-icon">' +
       '<img class="raid-btn-fallback" src="' + ICON_SRC_WEBP + '" alt=""' +
-      ' onerror="this.onerror=null;this.src=\'' + ICON_SRC_OLD + '\'">' +
+      ' onerror="this.onerror=null;this.style.display=\'none\';this.parentNode.classList.add(\'raid-icon-missing\');this.parentNode.textContent=\'⚔️\'">' +
       '</span><span class="raid-btn-label">Рейды</span>';
   }
 
