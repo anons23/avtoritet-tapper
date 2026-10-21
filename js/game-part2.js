@@ -61,7 +61,7 @@ function updateRankGoal(){
   const next=R[i+1];
   if(!next){
     label.textContent='Максимальная масть';
-    value.textContent='50 000 ⭐ · максимум';
+    value.textContent='30 000 ⭐ · максимум';
     fill.style.width='100%';
     return;
   }
