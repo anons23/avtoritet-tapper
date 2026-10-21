@@ -1,7 +1,7 @@
 'use strict';
 (function(){
   const ID='avtoritet',SAVE_KEY='avtoritet_save_v2',USE_KEY='npc5_uses_v1';
-  const RANK_POINTS=[0,1500,5000,15000,50000];
+  const RANK_POINTS=[0,1500,5000,15000,30000];
   const RANK_NAMES=['Салага','Пацан','Блатной','Смотрящий','Авторитет'];
   const NPC={name:'Авторитет',icon:'👑',avatar:'./assets/backgrounds/avtoritet_avatar.webp',desc:'старший',rank:4,baseChance:78};
   const TASKS=[
