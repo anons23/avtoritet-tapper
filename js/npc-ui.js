@@ -53,7 +53,7 @@
     if(r>=1)return '«А, это ты. Помню тебя.»';
     return '«Есть поручение. Решение за тобой.»';
   }
-  const rankIndex=()=>{const s=liveGame(),p=Number(s.points||0),t=[0,1500,5000,15000,50000];let i=0;for(let j=0;j<t.length;j++)if(p>=t[j])i=j;return i};
+  const rankIndex=()=>{const s=liveGame(),p=Number(s.points||0),t=[0,1500,5000,15000,30000];let i=0;for(let j=0;j<t.length;j++)if(p>=t[j])i=j;return i};
   const unlocked=id=>rankIndex()>=S[id].rank;
   const data=id=>{const x=uses[id]||{};return {used:Number(x.used||0),extra:Number(x.extra||0),until:Number(x.until||0)}};
   function state(id){const d=data(id),now=Date.now();if(d.until&&now>=d.until){d.used=0;d.extra=0;d.until=0;uses[id]=d;save()}if(d.used>MAX_FREE){d.used=MAX_FREE;uses[id]=d;save()}return {used:d.used,extra:Math.max(0,d.extra),free:Math.max(0,MAX_FREE-d.used),total:Math.max(0,MAX_FREE-d.used)+Math.max(0,d.extra),locked:d.until>now,until:d.until}}
