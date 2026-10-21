@@ -6,7 +6,7 @@
     {name:'Пацан',threshold:1500,multiplier:1.5},
     {name:'Блатной',threshold:5000,multiplier:2.5},
     {name:'Смотрящий',threshold:15000,multiplier:4},
-    {name:'Авторитет',threshold:50000,multiplier:7}
+    {name:'Авторитет',threshold:30000,multiplier:7}
   ];
   const BASE_CHIFIR=1000;
   const BASE_POINTS=500;
