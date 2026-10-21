@@ -1,6 +1,6 @@
 'use strict';
 (function(){
-  const MIN_POINTS=50000;
+  const MIN_POINTS=30000;
   const MIN_OBJECT=4;
   const DEAL_COOLDOWN_TAPS=50;
   const DEAL_RE=/^(📋\s*)?(Дело барака|Распределение|Разговор|Решение|Договорённость)/;
