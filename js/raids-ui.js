@@ -203,7 +203,7 @@
       var ok=unlocked(f), pr=pFor(f), need=REQS[f.rank]||0;
       var hpShow=pr.hp>0?pr.hp:f.hp;
       list+='<button type="button" class="raid-fighter-card'+(ok?'':' locked')+'" data-i="'+i+'" '+(ok?'':'disabled')+'>'+
-        '<div class="raid-card-portrait"><img src="'+PORTRAIT[f.id]+'" alt="" onerror="this.onerror=null;this.style.display=\'none\';this.parentNode.classList.add(\'missing\');this.parentNode.setAttribute(\'data-fallback\',\'⚔ '+f.name+'\')"></div>'+
+        '<div class="raid-card-portrait"><img src="'+PORTRAIT[f.id]+'" alt="" onerror="this.style.opacity=.3"></div>'+
         '<div class="raid-card-info"><div class="raid-card-name '+f.id+'">'+f.name+'</div>'+
         '<small>'+(ok?('HP '+hpShow+'/'+f.hp+(pr.wins?' · побед: '+pr.wins:'')):('🔒 '+RANK_NAMES[f.rank]+' ('+need+' ⭐)'))+'</small></div></button>';
     });
