@@ -121,7 +121,7 @@
     if(typeof raidReadyResolve==='function')raidReadyResolve(true);
   }
 
-  const STAGE_THRESHOLDS=[0,1500,5000,15000,50000];
+  const STAGE_THRESHOLDS=[0,1500,5000,15000,30000];
   function stage0Assets(mobile){
     const folder=mobile?'mobile':'desktop';
     return [
