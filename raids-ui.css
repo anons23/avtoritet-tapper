@@ -576,3 +576,10 @@
     object-position: center bottom !important;
   }
 }
+
+/* Resilient fallbacks when optional raid artwork is absent */
+#raid-open-button .raid-btn-icon.raid-icon-missing{display:grid!important;place-items:center!important;font-size:38px!important;line-height:1!important;color:#f3d27a!important}
+.raid-card-portrait.missing{display:grid!important;place-items:center!important;color:#f3d27a!important;font-size:12px!important;font-weight:900!important;text-align:center!important;padding:5px!important;overflow-wrap:anywhere!important}
+.raid-card-portrait.missing:after{content:attr(data-fallback)}
+.raid-fighter-media.raid-image-missing{display:grid!important;place-items:center!important;background:rgba(0,0,0,.2)!important}
+.raid-fighter-media.raid-image-missing:after{content:attr(data-fallback);display:block;color:#f3d27a;font-size:clamp(30px,7vw,72px);font-weight:1000;letter-spacing:.08em;text-shadow:0 4px 14px #000;border:2px solid rgba(243,210,122,.5);border-radius:18px;padding:24px}
