@@ -99,7 +99,7 @@
           {t:'Промолчать',ok:.9,pts:20,rep:0,msg:'Смотрящий принимает молчание за разумность.'}
         ]}
       ]},
-    {id:'avtoritet',unlockPoints:50000,name:'Авторитет',role:'Старый волк',icon:'👑',avatar:AV+'avtoritet_avatar.webp',
+    {id:'avtoritet',unlockPoints:30000,name:'Авторитет',role:'Старый волк',icon:'👑',avatar:AV+'avtoritet_avatar.webp',
       greet:'Авторитет не торопится: «Слова должны весить.»',
       dialogs:[
         {q:'Авторитет: «Скажи, что для тебя важнее — деньги или имя?»',choices:[
@@ -411,7 +411,7 @@
       if(unlocked){
         html+='<button type="button" class="npc-link" data-npc="'+n.id+'"><span aria-hidden="true">'+n.icon+'</span><b>'+n.name+'</b><small>'+n.role+'</small></button>';
       }else{
-        html+='<button type="button" class="npc-link npc-link-locked" disabled aria-disabled="true"><span aria-hidden="true">🔒</span><b>'+n.name+'</b><small>Откроется с мастью «'+(function(){var rr={0:'Салага',1500:'Пацан',5000:'Блатной',15000:'Смотрящий',50000:'Авторитет'};return rr[Number(n.unlockPoints)]||'следующей мастью';})()+'»</small></button>';
+        html+='<button type="button" class="npc-link npc-link-locked" disabled aria-disabled="true"><span aria-hidden="true">🔒</span><b>'+n.name+'</b><small>Откроется с мастью «'+(function(){var rr={0:'Салага',1500:'Пацан',5000:'Блатной',15000:'Смотрящий',30000:'Авторитет'};return rr[Number(n.unlockPoints)]||'следующей мастью';})()+'»</small></button>';
       }
     });
     html+='</div></div>';
