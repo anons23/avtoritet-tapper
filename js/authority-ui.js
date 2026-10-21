@@ -64,7 +64,7 @@
 
   function renderAuthority(){
     const s=state();
-    if(!s||Number(s.points)<50000||s.currentObject!==4||s.jailed){deactivate();return;}
+    if(!s||Number(s.points)<30000||s.currentObject!==4||s.jailed){deactivate();return;}
     if(!tapArea||!root)return;
     if(!originalTapHTML) originalTapHTML=tapArea.innerHTML;
     authorityActive=true;
@@ -104,7 +104,7 @@
     if(modalOpen||clashState)return;
     dealResolving=false;
     const s=state();
-    if(!s||Number(s.points)<50000||s.currentObject!==4||s.jailed)return;
+    if(!s||Number(s.points)<30000||s.currentObject!==4||s.jailed)return;
     if(!free&&!spendEnergy(3))return;
     const d=DEALS[Math.floor(Math.random()*DEALS.length)];
     let choices='';
@@ -206,7 +206,7 @@
   function capture(e){
     if(!authorityActive)return;
     const s=state();
-    if(!s||Number(s.points)<50000||s.currentObject!==4||s.jailed)return;
+    if(!s||Number(s.points)<30000||s.currentObject!==4||s.jailed)return;
     if(e.target&&e.target.closest&&e.target.closest('.authority-pressure-btn,#modal-overlay,#modal'))return;
     if(modalOpen||clashState)return;
     tapsSinceDeal++;
@@ -218,7 +218,7 @@
 
   function sync(){
     const s=state();
-    if(!s||Number(s.points)<50000||s.currentObject!==4||s.jailed){deactivate();return;}
+    if(!s||Number(s.points)<30000||s.currentObject!==4||s.jailed){deactivate();return;}
     if(!authorityActive) renderAuthority();
     else {
       const el=$('authority-influence-value');
@@ -230,7 +230,7 @@
   window.__authorityNoteTap=function(){
     if(!authorityActive||modalOpen||clashState)return;
     const s=state();
-    if(!s||Number(s.points)<50000||s.currentObject!==4||s.jailed)return;
+    if(!s||Number(s.points)<30000||s.currentObject!==4||s.jailed)return;
     tapsSinceDeal++;
     if(tapsSinceDeal>=AUTO_DEAL_EVERY){
       tapsSinceDeal=0;
