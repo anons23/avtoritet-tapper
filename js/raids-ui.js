@@ -1,7 +1,7 @@
 /* raids-ui v4.85 - production damage (power+equip), no test 300 */
 'use strict';
 (function(){
-  var REQS=[0,1500,5000,15000,50000];
+  var REQS=[0,1500,5000,15000,30000];
   var RANK_NAMES=['Салага','Пацан','Блатной','Смотрящий','Авторитет'];
   var FIGHTERS=[
     {id:'petrovich',name:'ПЕТРОВИЧ',rank:0,hp:1500,scene:'talk',first:{chifir:2000,points:150},repeat:{chifir:500,points:40}},
