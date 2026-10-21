@@ -588,3 +588,16 @@
 #raid-open-button{position:fixed!important;right:max(6px,calc((100vw - 520px)/2 + 6px))!important;top:calc(env(safe-area-inset-top) + 145px)!important;z-index:1800!important;}
 @media(max-width:700px){#raid-open-button{right:6px!important;top:calc(env(safe-area-inset-top) + 138px)!important;}}
 @media(max-width:900px) and (orientation:landscape){#raid-open-button{top:calc(env(safe-area-inset-top) + 54px)!important;}}
+
+/* Petrovich: increase both the idle video and still-frame size to match Vtirach. */
+.raid-fighter.petrovich .raid-fighter-media img,
+.raid-fighter.petrovich #raid-idle-video {
+  transform: scale(1.62) !important;
+  transform-origin: center bottom !important;
+}
+@media (max-width: 600px) {
+  .raid-fighter.petrovich .raid-fighter-media img,
+  .raid-fighter.petrovich #raid-idle-video {
+    transform: scale(1.48) !important;
+  }
+}
