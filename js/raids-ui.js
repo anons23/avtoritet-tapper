@@ -378,7 +378,7 @@
   function ensureBtn(){
     var parent=$('game-container')||document.body; if(!parent) return;
     var btn=$('raid-open-button');
-    var iconHtml='<span class="raid-btn-icon raid-icon-missing" aria-hidden="true">⚔️</span><span class="raid-btn-label">Рейды</span>';
+    var iconHtml='<span class="raid-btn-icon"><video class="raid-btn-media" autoplay muted loop playsinline webkit-playsinline disablepictureinpicture preload="auto" aria-hidden="true"><source src="./assets/raids/raid_icon_transparent.webm" type="video/webm"></video><img class="raid-btn-fallback" src="./assets/raids/raid_icon_transparent.webp" alt="" onerror="this.onerror=null;this.src=\'./assets/raids/ui/raid-button.webp\'"></span><span class="raid-btn-label">Рейды</span>';
     if(!btn){
       btn=document.createElement('button');
       btn.id='raid-open-button'; btn.type='button'; btn.title='Рейды';
