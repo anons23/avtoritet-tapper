@@ -1,0 +1,10 @@
+/* Punch reaction: bag/cellmate recoil. Push-ups have their own vertical animation and must not inherit the side-to-side punch. */
+.tap-target.punch{animation:punch-hit .18s cubic-bezier(.2,.8,.25,1) both!important;transform:none!important}
+.tap-target.punch #object-emoji{animation:punch-emoji .18s cubic-bezier(.2,.8,.25,1) both}
+.tap-target.pushups-mode.punch{animation:none!important;transform:none!important}
+.tap-target.pushups-mode.punch #object-emoji{animation:none!important;transform:none!important}
+@keyframes punch-hit{0%{transform:translateX(0) rotate(0deg) scale(1)}18%{transform:translateX(8px) rotate(1.5deg) scale(.98)}42%{transform:translateX(-13px) rotate(-2deg) scale(1.01)}68%{transform:translateX(5px) rotate(.8deg) scale(1)}100%{transform:translateX(0) rotate(0deg) scale(1)}}
+@keyframes punch-emoji{0%{transform:translateX(0)}25%{transform:translateX(7px) rotate(2deg)}50%{transform:translateX(-8px) rotate(-2deg)}75%{transform:translateX(4px) rotate(1deg)}100%{transform:translateX(0) rotate(0deg)}}
+
+/* Legacy punch animation must not animate image-object containers. */
+#tap-object.bag-mode.punch #object-emoji,#tap-object.cellmate-mode.punch #object-emoji,#tap-object.pushups-mode.punch #object-emoji,#tap-object.trainer-mode.punch #object-emoji{animation:none!important;transform:none!important}

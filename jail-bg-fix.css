@@ -1,0 +1,45 @@
+/* Jail / карцер: no black plate behind squats on any device */
+
+/* style.css sets #game-container.jail-mode .tap-target { dark gradient } — override it */
+#game-container.jail-mode #tap-object,
+#game-container.jail-mode #tap-object.tap-target,
+#game-container.jail-mode #tap-object.jail-mode,
+#game-container.jail-mode .tap-target.jail-mode{
+  background: transparent !important;
+  background-image: none !important;
+  background-color: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+  border-radius: 0 !important;
+  outline: none !important;
+}
+
+#game-container.jail-mode #tap-object #object-emoji,
+#game-container.jail-mode #tap-object.jail-mode #object-emoji{
+  background: transparent !important;
+  background-color: transparent !important;
+  box-shadow: none !important;
+  /* grayscale on whole emoji box made some WebViews paint a dark slab */
+  filter: none !important;
+}
+
+#game-container.jail-mode #tap-object .squat-image,
+#tap-object.jail-mode .squat-image{
+  background: transparent !important;
+  background-color: transparent !important;
+  /* keep character readable without a plate */
+  filter: drop-shadow(0 12px 16px rgba(0,0,0,.5)) !important;
+  -webkit-filter: drop-shadow(0 12px 16px rgba(0,0,0,.5)) !important;
+}
+
+/* Some mobile WebViews paint img default background — force none */
+#game-container.jail-mode img.squat-image{
+  background: transparent !important;
+  background-color: transparent !important;
+  image-rendering: auto;
+}
+
+/* Tap area itself must not draw a dark panel in jail */
+#game-container.jail-mode #tap-area{
+  background: transparent !important;
+}
