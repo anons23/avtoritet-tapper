@@ -553,7 +553,7 @@
 @media (min-width: 701px) {
   #modal-overlay.raid-fullscreen .raid-fighter.petrovich .raid-fighter-media img,
   #modal-overlay.raid-fullscreen .raid-fighter.petrovich .raid-fighter-media #raid-idle-video {
-    transform: scale(0.82) !important;
+    transform: scale(1.18) !important;
     transform-origin: center bottom !important;
   }
   #modal-overlay.raid-fullscreen .raid-fighter.glaz .raid-fighter-media img,
