@@ -91,29 +91,55 @@ async function clearCloudData(){
     try{ysdk.adv.showFullscreenAdv({callbacks:{onClose:done,onError:done}});return true;}catch(e){done();return false;}
   }};
   window.showRewardedAd=function(onReward){
-    if(adBusy||!ysdk?.adv||typeof ysdk.adv.showRewardedVideo!=='function'){
-      if(!adBusy&&typeof onReward==='function')onReward(false);
+    if(adBusy){
+      if(typeof onReward==='function')onReward(false);
       return false;
     }
     adBusy=true;
     const sessionId=++adSessionId;
+    let rewarded=false,finished=false,timeoutId=0;
     gameplayStop();
-    let rewarded=false;
-    const done=function(){
-      if(sessionId!==adSessionId)return;
-      if(!adBusy)return;
+    const done=function(ok){
+      if(sessionId!==adSessionId||finished)return;
+      finished=true;
+      clearTimeout(timeoutId);
       adBusy=false;
       gameplayStart();
-      if(typeof onReward==='function')onReward(!!rewarded);
+      if(typeof onReward==='function')onReward(!!ok);
     };
-    try{
-      ysdk.adv.showRewardedVideo({callbacks:{
-        onOpen:function(){},
-        onRewarded:function(){rewarded=true;},
-        onClose:done,
-        onError:done
-      }});
-      return true;
-    }catch(e){done();return false;}
+    // В превью SDK инициализируется асинхронно. Ждём его, а не теряем первый клик.
+    timeoutId=setTimeout(function(){
+      log('rewarded ad timed out');
+      done(false);
+    },30000);
+    Promise.resolve(window.YandexGameReady).then(function(){
+      if(sessionId!==adSessionId||finished)return;
+      if(!ysdk||!ysdk.adv||typeof ysdk.adv.showRewardedVideo!=='function'){
+        log('rewarded ad unavailable: SDK/adv not ready');
+        done(false);
+        return;
+      }
+      try{
+        ysdk.adv.showRewardedVideo({callbacks:{
+          onOpen:function(){log('rewarded ad opened');},
+          onRewarded:function(){rewarded=true;log('rewarded ad reward confirmed');},
+          onClose:function(wasShown){
+            log('rewarded ad closed; wasShown:',wasShown,'rewarded:',rewarded);
+            done(rewarded);
+          },
+          onError:function(err){
+            log('rewarded ad error',err);
+            done(false);
+          }
+        }});
+      }catch(e){
+        log('rewarded ad call failed',e);
+        done(false);
+      }
+    }).catch(function(err){
+      log('SDK init promise failed before rewarded ad',err);
+      done(false);
+    });
+    return true;
   };
 })();
