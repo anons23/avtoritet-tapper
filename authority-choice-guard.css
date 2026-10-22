@@ -1,0 +1,23 @@
+/* Guard: deal choices locked briefly after open */
+.authority-choices.choices-locked{
+  pointer-events:none!important;
+  opacity:.45!important;
+  filter:grayscale(.25);
+}
+.authority-choice.choice-disabled{
+  pointer-events:none!important;
+  cursor:not-allowed!important;
+}
+.authority-choice-guard-hint{
+  display:none;
+  margin:0 0 10px;
+  padding:8px 12px;
+  border-radius:10px;
+  border:1px solid rgba(213,168,74,.4);
+  background:rgba(20,30,36,.92);
+  color:#f1c04c;
+  font-size:12px;
+  font-weight:800;
+  text-align:center;
+  letter-spacing:.2px;
+}

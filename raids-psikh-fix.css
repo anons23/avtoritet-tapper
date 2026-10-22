@@ -1,0 +1,9 @@
+/* Psikh backgrounds — English filenames */
+.raid-scene.psikh{
+  background-image:url('./assets/raids/backgrounds/psikh_pc.webp')!important;
+}
+@media (max-width:700px){
+  #modal-overlay.raid-fullscreen .raid-scene.psikh{
+    background-image:url('./assets/raids/backgrounds/psikh_mobile.webp')!important;
+  }
+}

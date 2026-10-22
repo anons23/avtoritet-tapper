@@ -1,0 +1,54 @@
+/* Raid button: no background PC / Android / iOS. Mobile never uses <video> (black box). */
+#raid-open-button,
+#raid-open-button:hover,
+#raid-open-button:active,
+#raid-open-button:focus {
+  background: transparent !important;
+  background-color: transparent !important;
+  background-image: none !important;
+  border: 0 !important;
+  box-shadow: none !important;
+  -webkit-appearance: none !important;
+  appearance: none !important;
+  -webkit-tap-highlight-color: transparent !important;
+  outline: none !important;
+}
+#raid-open-button .raid-btn-icon {
+  background: transparent !important;
+  background-color: transparent !important;
+  overflow: visible !important;
+  position: relative !important;
+}
+#raid-open-button .raid-btn-media,
+#raid-open-button .raid-btn-fallback,
+#raid-open-button .raid-btn-icon img,
+#raid-open-button .raid-btn-icon video {
+  display: block !important;
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: contain !important;
+  background: transparent !important;
+  background-color: transparent !important;
+  border: 0 !important;
+  pointer-events: none !important;
+}
+#raid-open-button .raid-btn-fallback {
+  position: absolute !important;
+  inset: 0 !important;
+  z-index: 0 !important;
+}
+#raid-open-button .raid-btn-media {
+  position: relative !important;
+  z-index: 1 !important;
+}
+/* Android / phones: hide video entirely (black frame under webm) */
+@media (max-width: 700px) {
+  #raid-open-button .raid-btn-media {
+    display: none !important;
+  }
+  #raid-open-button .raid-btn-fallback {
+    position: static !important;
+    inset: auto !important;
+    z-index: 1 !important;
+  }
+}

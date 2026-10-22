@@ -1,0 +1,5 @@
+/* These three legacy character stats are no longer part of the game UI. */
+#player-info .stats{display:none!important}
+
+/* Never show the old fallback tap object while the real boxing bag is loading. */
+#tap-object.preload-hidden{visibility:hidden}

@@ -1,0 +1,232 @@
+/* Authority clash + result polish */
+
+/* --- Result window: image fits the dialog, not the other way around --- */
+#modal.authority-modal{
+  width:min(420px,94vw)!important;
+  max-height:min(88svh,640px)!important;
+}
+#modal.authority-modal #modal-content{
+  padding:14px 14px calc(14px + env(safe-area-inset-bottom))!important;
+}
+
+.authority-result{
+  text-align:center;
+  animation:auth-pop-in .28s cubic-bezier(.2,.9,.25,1) both;
+}
+.authority-result-art{
+  position:relative!important;
+  margin:10px auto 12px!important;
+  width:100%!important;
+  max-width:320px!important;
+  height:120px!important;
+  max-height:120px!important;
+  border-radius:14px!important;
+  overflow:hidden!important;
+  border:1px solid rgba(213,168,74,.35)!important;
+  background:#05090b!important;
+}
+.authority-result-img{
+  width:100%!important;
+  height:100%!important;
+  object-fit:cover!important;
+  object-position:center center!important;
+  display:block!important;
+}
+.authority-result-overlay{
+  position:absolute!important;
+  inset:0!important;
+  background:linear-gradient(180deg,rgba(0,0,0,.05),rgba(0,0,0,.72))!important;
+  pointer-events:none!important;
+}
+.authority-result-title{
+  position:absolute!important;
+  left:10px!important;
+  right:10px!important;
+  bottom:10px!important;
+  font-size:20px!important;
+  font-weight:1000!important;
+  letter-spacing:.3px!important;
+  text-shadow:0 2px 8px #000!important;
+  color:#f4c24e!important;
+  margin:0!important;
+}
+.authority-result.fail .authority-result-title{color:#e0a06f!important}
+.authority-result p{
+  font-size:13px!important;
+  line-height:1.4!important;
+  color:#dce2e4!important;
+  margin:0 0 10px!important;
+}
+.authority-result-reward{
+  display:flex!important;
+  justify-content:center!important;
+  gap:6px!important;
+  flex-wrap:wrap!important;
+  margin:8px 0 12px!important;
+}
+.authority-result-reward span{
+  padding:7px 10px!important;
+  border:1px solid rgba(213,168,74,.35)!important;
+  border-radius:10px!important;
+  background:#111c21!important;
+  color:#f1c04c!important;
+  font-weight:850!important;
+  font-size:12px!important;
+}
+.authority-great-img{
+  width:min(280px,90%)!important;
+  max-height:64px!important;
+  height:auto!important;
+  object-fit:contain!important;
+}
+
+/* --- Deal art also slightly smaller --- */
+.authority-deal-art{
+  height:140px!important;
+  max-height:140px!important;
+  margin:10px 0!important;
+}
+.authority-deal-art-img{
+  width:100%!important;
+  height:100%!important;
+  object-fit:cover!important;
+  object-position:center 40%!important;
+}
+
+/* --- Clash window animations --- */
+.authority-clash-window{
+  animation:auth-pop-in .28s cubic-bezier(.2,.9,.25,1) both;
+}
+.authority-clash-art{
+  position:relative!important;
+  height:150px!important;
+  max-height:150px!important;
+  margin:10px 0 12px!important;
+  border-radius:14px!important;
+  overflow:hidden!important;
+  border:1px solid #344954!important;
+  animation:auth-clash-pulse 1.2s ease-in-out infinite;
+}
+.authority-clash-img{
+  width:100%!important;
+  height:100%!important;
+  object-fit:cover!important;
+  object-position:center center!important;
+  display:block!important;
+  transition:transform .08s ease-out, filter .08s;
+}
+.authority-clash-window.hit .authority-clash-img{
+  transform:scale(1.04);
+  filter:brightness(1.15) saturate(1.1);
+}
+.authority-clash-window.hit .authority-clash-art{
+  animation:auth-clash-shake .18s linear;
+}
+.authority-art-vignette{
+  position:absolute!important;
+  inset:0!important;
+  background:radial-gradient(ellipse at center,transparent 40%,rgba(0,0,0,.45) 100%)!important;
+  pointer-events:none!important;
+}
+
+.clash-score-row{
+  display:grid!important;
+  grid-template-columns:1fr 1fr!important;
+  gap:10px!important;
+  margin:8px 0 6px!important;
+}
+.clash-score-row small{
+  display:block!important;
+  font-size:9px!important;
+  letter-spacing:1px!important;
+  color:#8f9ba0!important;
+  font-weight:900!important;
+}
+.clash-score-row b{
+  font-size:15px!important;
+  color:#f1f2f2!important;
+}
+.clash-bar{
+  height:12px!important;
+  border-radius:999px!important;
+  background:#1a2228!important;
+  border:1px solid #3a4a52!important;
+  overflow:hidden!important;
+  margin-top:6px!important;
+}
+.clash-bar span{
+  display:block!important;
+  height:100%!important;
+  width:0;
+  background:linear-gradient(90deg,#37bd61,#8fe18e)!important;
+  transition:width .1s linear!important;
+  box-shadow:0 0 10px rgba(80,220,120,.45);
+}
+.clash-bar.opponent{
+  background:#281517!important;
+  border-color:#61373b!important;
+}
+.clash-bar.opponent span{
+  background:linear-gradient(90deg,#c54a4e,#ed8a79)!important;
+  box-shadow:0 0 10px rgba(220,80,80,.4);
+}
+.authority-pressure-btn{
+  display:block!important;
+  margin:12px auto 4px!important;
+  border:0!important;
+  background:transparent!important;
+  padding:0!important;
+  animation:auth-pressure-glow 1.4s ease-in-out infinite;
+  transition:transform .08s;
+}
+.authority-pressure-btn:active{
+  transform:scale(.96);
+}
+.authority-pressure-img{
+  width:min(280px,92%)!important;
+  max-height:72px!important;
+  height:auto!important;
+  object-fit:contain!important;
+  filter:drop-shadow(0 6px 10px #0008)!important;
+}
+.authority-clash-timer{
+  text-align:center!important;
+  font-weight:1000!important;
+  font-size:22px!important;
+  color:#f1be4a!important;
+  margin-top:4px!important;
+  text-shadow:0 0 12px rgba(241,190,74,.35);
+}
+.authority-clash-timer.urgent{
+  color:#ff6b6b!important;
+  animation:auth-timer-blink .4s step-end infinite;
+}
+
+@keyframes auth-pop-in{
+  0%{opacity:0;transform:translateY(12px) scale(.96)}
+  100%{opacity:1;transform:translateY(0) scale(1)}
+}
+@keyframes auth-clash-pulse{
+  0%,100%{box-shadow:0 0 0 0 rgba(213,168,74,0)}
+  50%{box-shadow:0 0 18px 0 rgba(213,168,74,.28)}
+}
+@keyframes auth-clash-shake{
+  0%,100%{transform:translateX(0)}
+  25%{transform:translateX(-3px)}
+  75%{transform:translateX(3px)}
+}
+@keyframes auth-pressure-glow{
+  0%,100%{filter:brightness(1)}
+  50%{filter:brightness(1.12)}
+}
+@keyframes auth-timer-blink{
+  50%{opacity:.45}
+}
+
+/* Win/lose flash on result */
+.authority-result.success .authority-result-art{
+  box-shadow:0 0 24px rgba(80,200,120,.35);
+}
+.authority-result.fail .authority-result-art{
+  box-shadow:0 0 24px rgba(200,80,60,.3);
+}

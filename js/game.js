@@ -1,46 +1,673 @@
-/* АВТОРИТЕТ 2.0 — стабильная версия */
+/* АВТОРИТЕТ 2.0 — core v4.90 (save keep raid/npc + debounce) */
 'use strict';
-const REWARDED_AD_UNIT='/YOUR_NETWORK_CODE/YOUR_REWARDED_AD_UNIT';
-const REWARDED_AD_ENABLED=!REWARDED_AD_UNIT.includes('YOUR_');
-const N=['Чахлый','Додик','Дрыщ','Шкет','Хлюпик','Тормоз','Балбес','Лопух','Тюфяк','Заморыш','Пузан','Пельмень','Кочерыжка','Шнурок','Обормот','Кабачок','Мокрый Носок','Кривой Шнурок','Тормозной','Клоп','Пузатый Шкет','Малявка','Руки-Крюки','Горе-Авторитет','Гремлин','Пельмень Без Вилки','Шнурок Без Ботинка','Тапок','Сопливый Шкет','Чайник','Криворукий','Недомерок','Каштан','Мятый','Забытый','Ходячая Ошибка','Кривой Прицел','Потеряшка','Мелкий Косяк','Батон','Вечный Новенький','Шмоня','Картонный Боец','Голова-Кирпич','Тихий Пельмень','Сбитый Прицел','Герой Очереди','Местный Балбес','Почти Пацан','Не Суетись'];
-const R=[['Салага',0],['Пацан',100],['Блатной',500],['Смотрящий',2000],['Авторитет',8000],['Вор в законе',25000]];
-const O=[['Груша','🥊',1,0],['Сокамерник','👊',1.3,150],['Отжимания','💪',1.6,400],['Тренажёр','🏋️',2.2,1500],['Авторитет','👑',3.2,6000]];
-const EVENTS=[['Шмон!','Надзиратели ворвались в камеру. Что делаешь?',[['Спрятать папиросы',.55,40,15],['Стоять спокойно',0,10,5],['Сделать вид, что спишь',.25,5,8]]],['Малява','Тебе передали маляву. Что в ней?',[['Прочитать сразу',.4,30,20],['Спрятать до завтра',.15,15,10],['Выбросить',0,0,3]]],['Посылка','Пришла посылка, но непонятно чья.',[['Забрать себе',.6,60,10],['Отдать смотрящему',0,0,20],['Оставить',.1,0,5]]]];
-const FUN=['Надзиратель идёт... сделай умный вид.','Сегодня без шмона. Чудо.','Шайба сказал, что ты нормальный пацан.','Кто-то опять забрал папиросы. Классика.','В столовой сегодня мясо. Или что-то похожее.','Сегодня раздача посылок. Надежда умирает последней.'];
-const NPCS={
- шайба:{name:'Шайба',icon:'🧢',desc:'торговец',action:'Попросить скидку',run(){if(s.jailed){msg('🔒 Сначала выйди из карцера');return}const gain=25+s.prestige*5;s.cigarettes+=gain;s.respect+=1;msg('🧢 Шайба помог: +'+gain+' 🚬 и +1 🧠')}},
- бугор:{name:'Бугор',icon:'💪',desc:'даёт задания',action:'Потренироваться',run(){if(s.jailed){msg('🔒 Сначала выйди из карцера');return}if(s.energy<10){msg('⚡ Бугор: сначала восстанови хотя бы 10 энергии');return}s.energy-=10;s.power++;s.respect+=2;s.points+=15;msg('💪 Бугор потренировал тебя: +1 💪 +2 🧠 +15 ⭐')}},
- косой:{name:'Косой',icon:'😏',desc:'рискованные сделки',action:'Рискнуть',run(){if(s.jailed){msg('🔒 Сначала выйди из карцера');return}const win=Math.random()<.55;if(win){s.cigarettes+=100;s.points+=40;msg('😏 Косой: сделка удалась! +100 🚬 +40 ⭐')}else{s.cigarettes=Math.max(0,s.cigarettes-60);s.points=Math.max(0,s.points-20);msg('😏 Косой: сделка провалилась. -60 🚬 -20 ⭐')}}},
- смотрящий:{name:'Смотрящий',icon:'👑',desc:'следит за продвижением',action:'Получить совет',run(){if(s.jailed){msg('🔒 Сначала выйди из карцера');return}const r=rank();msg('👑 Смотрящий: твой текущий уровень — «'+r[0]+'». Следующая цель: '+fmt((R.find(x=>x[1]>s.points)||R[R.length-1])[1])+' ⭐')}}
+const TEST_MODE = false;
+const TEST_POINTS_PER_TAP = 500;
+const N = ['Чахлый','Додик','Дрыщ','Шкет','Хлюпик','Тормоз','Балбес','Лопух','Тюфяк','Заморыш','Пузан','Пельмень','Кочерыжка','Шнурок','Обормот','Кабачок','Мокрый Носок','Кривой Шнурок','Тормозной','Клоп','Пузатый Шкет','Малявка','Руки-Крюки','Горе-Авторитет','Гремлин','Пельмень Без Вилки','Шнурок Без Ботинка','Тапок','Сопливый Шкет','Чайник'];
+const R = [['Салага',0],['Пацан',1500],['Блатной',5000],['Смотрящий',15000],['Авторитет',30000]];
+const O = [['Груша','🥊',1,0],['Сокамерник','👊',1.3,1500],['Отжимания','💪',1.6,5000],['Тренажёр','🏋️',2.2,15000],['Разборка','🗣️',3.2,30000]];
+const FUN = ['Надзиратель идёт... сделай умный вид.','Сегодня без шмона. Чудо.','Шайба в кармане греет душу.','В столовой сегодня мясо. Или что-то похожее.','Кто-то опять забрал папиросы. Классика.','Сегодня раздача посылок. Надежда умирает последней.'];
+const EVENTS=[
+  ['Шмон!','Надзиратели ворвались в камеру. Что делаешь?',[['Спрятать папиросы',.55,40,15,2],['Стоять спокойно',0,10,5,1],['Сделать вид, что спишь',.25,5,8,1]],0],
+  ['Малява','Тебе передали маляву. Что в ней?',[['Прочитать сразу',.4,30,20,2],['Спрятать до завтра',.15,15,10,1],['Выбросить',0,0,3,0]],0],
+  ['Посылка','Пришла посылка, но непонятно чья.',[['Забрать себе',.6,60,10,-1],['Отдать смотрящему',0,0,20,3],['Оставить',.1,0,5,0]],0],
+  ['Тихий разговор','Сосед по камере просит помочь решить мелкий спор.',[['Выслушать обе стороны',.65,35,18,3],['Не вмешиваться',.35,10,5,0],['Сразу поддержать знакомого',.2,20,2,-2]],1],
+  ['Проверка камеры','Кто-то ищет пропавшую вещь.',[['Помочь проверить',.7,45,22,3],['Спрятать свою вещь',.45,65,8,0],['Сделать вид, что не слышал',.2,0,4,-1]],1],
+  ['Слух','По бараку пошёл слух о твоём деле.',[['Проверить источник',.65,20,28,4],['Не обращать внимания',.5,5,12,1],['Спорить со всеми',.25,40,0,-4]],2],
+  ['Шайба','Шайба предлагает «выгодный обмен».',[['Согласиться',.45,50,20,1],['Торговаться',.3,20,10,2],['Отказаться',0,0,0,0]],1],
+  ['Карцерный слух','Ходят слухи, что тебя хотят закрыть.',[['Залечь на дно',.4,10,5,0],['Дать отпор',.35,30,25,3],['Игнорировать',.2,0,0,0]],2]
+];
+const TASKS = {
+  taps10000:{title:'Первые 10 000 тапов',desc:'Сделай 10 000 обычных тапов.',target:10000,rewardAmount:500,rewardType:'chifir',reward:'500 🍵',get:()=>s.tasks.taps},
+  bugor10:{title:'Десять тренировок',desc:'Успешно пройди 10 тренировок с Бугром.',target:10,rewardAmount:750,rewardType:'chifir',reward:'750 🍵',get:()=>s.tasks.bugorSuccess||0},
+  crit100:{title:'Точный удар',desc:'Сделай 100 критических тапов.',target:100,rewardAmount:1000,rewardType:'chifir',reward:'1000 🍵',get:()=>s.tasks.crit},
+  earned100k:{title:'Запас на чёрный день',desc:'Заработай 100 000 🍵 тапами и делами.',target:100000,rewardAmount:5000,rewardType:'chifir',reward:'5000 🍵',get:()=>Math.floor(s.tasks.earned||0)},
+  tasks25:{title:'Опытный порученец',desc:'Успешно выполни 25 поручений.',target:25,rewardAmount:1500,rewardType:'points',reward:'1500 ⭐',get:()=>s.tasks.npcSuccess||0}
 };
-let s={cigarettes:0,points:0,energy:250,maxEnergy:250,power:1,critChance:.05,respect:0,wealth:0,nickname:'',currentObject:0,prestige:0,upgrades:{power:0,crit:0,energyMax:0},boosters:{double:0},tasks:{taps:0,crit:0,events:0,earned:0,jail:0},completed:{},lastEnergyTime:Date.now(),lastChoiceEvent:0,totalTaps:0,jailed:false,jailTaps:0,jailRequired:500,confiscatedCigarettes:0,jailProtection:0};
-let started=false,messageQueue=[],messageBusy=false,activeEvent=false;
-let rewardedSlot=null,pendingNickname='',rewardGranted=false,rewardedListenersReady=false,rewardTimeout=null;
-const $=id=>document.getElementById(id);
-function save(){try{s.lastEnergyTime=Date.now();localStorage.setItem('avtoritet_save_v2',JSON.stringify(s))}catch(e){}}
-function highestUnlocked(){let i=0;for(let j=0;j<O.length;j++)if(s.points>=O[j][3])i=j;return i}
-function syncObject(showMessage){const max=highestUnlocked();if(s.currentObject>max)s.currentObject=max;if(s.currentObject===0&&max>0){s.currentObject=max;if(showMessage)msg('🔓 Открыт новый объект: '+O[max][0])}}
-function load(){try{const raw=localStorage.getItem('avtoritet_save_v2');if(raw){const d=JSON.parse(raw);if(d&&typeof d==='object')s={...s,...d,upgrades:{...s.upgrades,...(d.upgrades||{})},tasks:{...s.tasks,...(d.tasks||{})},boosters:{...s.boosters,...(d.boosters||{})}}}}catch(e){}if(!s.nickname)s.nickname=N[Math.floor(Math.random()*N.length)];if(!Number.isFinite(s.energy))s.energy=250;if(!Number.isFinite(s.maxEnergy))s.maxEnergy=250;if(!Number.isFinite(s.lastEnergyTime))s.lastEnergyTime=Date.now();if(!Number.isFinite(s.jailTaps)||s.jailTaps<0)s.jailTaps=0;if(!Number.isFinite(s.jailRequired)||s.jailRequired<1)s.jailRequired=500;if(!Number.isFinite(s.confiscatedCigarettes)||s.confiscatedCigarettes<0)s.confiscatedCigarettes=0;if(!Number.isFinite(s.jailProtection)||s.jailProtection<0)s.jailProtection=0;s.energy=Math.min(s.maxEnergy,s.energy+Math.floor(Math.max(0,Date.now()-s.lastEnergyTime)/30000));syncObject(false)}
-function fmt(n){n=Math.floor(Number(n)||0);return n>=1e6?(n/1e6).toFixed(1)+'M':n>=1e3?(n/1e3).toFixed(1)+'K':String(n)}
-function rank(){let r=R[0];for(const x of R)if(s.points>=x[1])r=x;return r}
-function ui(){const ids=['cigarettes','points','energy','max-energy','nickname','rank','power-stat','respect-stat','wealth-stat','object-emoji','object-name'];if(ids.some(id=>!$(id)))return;$('cigarettes').textContent=fmt(s.cigarettes);$('points').textContent=fmt(s.points);$('energy').textContent=Math.floor(s.energy);$('max-energy').textContent=s.maxEnergy;$('nickname').textContent=s.nickname;$('rank').textContent=rank()[0];$('power-stat').textContent=s.power;$('respect-stat').textContent=s.respect;$('wealth-stat').textContent=s.wealth;const o=O[s.currentObject]||O[0];$('object-emoji').textContent=s.jailed?'⛓️':o[1];$('object-name').textContent=s.jailed?'Карцер':o[0];const gc=$('game-container');if(gc)gc.classList.toggle('jail-mode',!!s.jailed);const jp=$('jail-panel');if(jp){jp.classList.toggle('hidden',!s.jailed);if(s.jailed){$('jail-count').textContent=Math.min(s.jailTaps,s.jailRequired)+' / '+s.jailRequired;$('jail-left').textContent=Math.max(0,s.jailRequired-s.jailTaps)}else{$('jail-count').textContent='0 / '+s.jailRequired;$('jail-left').textContent=s.jailRequired}}['btn-shop','btn-rank','btn-tasks','btn-more'].forEach(id=>{const b=$(id);if(b)b.disabled=!!s.jailed})}
-function msg(x){messageQueue.push(String(x));processMessages()}
-function processMessages(){if(messageBusy||!messageQueue.length)return;const e=$('event-message');if(!e){messageQueue=[];return}messageBusy=true;e.textContent=messageQueue.shift();e.classList.add('show');setTimeout(()=>{e.classList.remove('show');setTimeout(()=>{messageBusy=false;processMessages()},250)},4200)}
-function feedback(e,n,c){const x=$('tap-feedback');if(!x)return;x.textContent=(c?'КРИТ! ':'+')+n;x.style.left=(e&&e.clientX||150)+'px';x.style.top=(e&&e.clientY||250)+'px';x.classList.remove('show');void x.offsetWidth;x.classList.add('show')}
-function jailTap(e){if(!s.jailed)return;e&&e.preventDefault&&e.preventDefault();if(s.jailTaps>=s.jailRequired)return;s.jailTaps++;const t=$('tap-object');if(t){t.classList.remove('punch');void t.offsetWidth;t.classList.add('punch')}feedback(e,1,false);if(s.jailTaps>=s.jailRequired)releaseFromJail();else ui();save()}
-function releaseFromJail(){const confiscated=Math.max(0,Math.floor(s.confiscatedCigarettes));s.jailed=false;s.cigarettes+=confiscated;s.confiscatedCigarettes=0;s.jailTaps=0;s.tasks.jail=(s.tasks.jail||0)+1;s.jailProtection=75;msg('🔓 Карцер пройден! Тебя выпустили. 🚬 Конфискованные сигареты возвращены: '+fmt(confiscated));tasksCheck();ui();save()}
-function enterJail(reason){if(s.jailed)return;s.jailed=true;s.jailRequired=500;s.jailTaps=0;s.confiscatedCigarettes=Math.max(0,Math.floor(s.cigarettes));s.cigarettes=0;s.jailProtection=0;activeEvent=false;const o=$('modal-overlay');if(o){o.dataset.locked='0';o.classList.add('hidden')}msg('🚨 Ты загремел в карцер! Все сигареты временно изъяты.');if(reason)msg(reason+' Отсидеть: 500 тапов.');ui();save()}
-function tap(e){if(s.jailed){jailTap(e);return}if(activeEvent)return;if(s.energy<1){msg('⚡ Энергия закончилась. Отдохни или используй бонус.');return}e&&e.preventDefault&&e.preventDefault();s.energy--;s.totalTaps++;s.tasks.taps++;if(s.jailProtection>0)s.jailProtection--;let g=s.power*O[s.currentObject][2];const c=Math.random()<s.critChance;if(c){g*=2;s.tasks.crit++}if(s.boosters.double>0){g*=2;s.boosters.double--}s.cigarettes+=g;s.tasks.earned+=g;s.points+=g*.8;const t=$('tap-object');if(t){t.classList.remove('punch');void t.offsetWidth;t.classList.add('punch')}feedback(e,Math.floor(g),c);const old=s.currentObject;syncObject(true);if(old!==s.currentObject)ui();if(Math.random()<.025)msg(FUN[Math.floor(Math.random()*FUN.length)]);if(Math.random()<.012&&s.points-s.lastChoiceEvent>30)openEvent();tasksCheck();ui();save()}
-function openModal(h,locked=false){if(s.jailed)return;const c=$('modal-content'),o=$('modal-overlay');if(!c||!o)return;c.innerHTML=h;o.classList.remove('hidden');o.dataset.locked=locked?'1':'0'}
-function closeModal(){const o=$('modal-overlay');if(!o)return;if(o.dataset.locked==='1')return;o.classList.add('hidden')}
-function finishEvent(){activeEvent=false;const o=$('modal-overlay');if(o)o.dataset.locked='0';closeModal();tasksCheck();ui();save()}
-function openEvent(){if(s.jailed||activeEvent)return;activeEvent=true;const v=EVENTS[Math.floor(Math.random()*EVENTS.length)];let h='<h2>⚠️ '+v[0]+'</h2><p>'+v[1]+'</p><p><b>Выбери один вариант:</b></p><div class="choices">';v[2].forEach((c,i)=>h+='<button type="button" class="choice" data-i="'+i+'">'+c[0]+'</button>');openModal(h+'</div>',true);document.querySelectorAll('.choice').forEach(b=>b.addEventListener('click',()=>{if(!activeEvent||s.jailed)return;const c=v[2][Number(b.dataset.i)];s.tasks.events++;s.lastChoiceEvent=s.points;if(Math.random()>c[1]){s.cigarettes+=c[2];s.tasks.earned+=c[2];s.points+=c[3];s.respect+=Math.floor(c[3]/5);msg('Удачно! +'+c[2]+' 🚬 +'+c[3]+' ⭐');finishEvent()}else{const loss=Math.max(3,Math.ceil(c[3]*1.5));s.points=Math.max(0,s.points-loss);if(c[1]>0&&s.jailProtection<=0&&Math.random()<.04){finishEvent();enterJail('❌ Рискованный ход провалился.');}else{msg('Не повезло. Авторитет пострадал.');finishEvent()}}}))}
-function objectMenu(){if(s.jailed)return;let max=highestUnlocked(),h='<h2>🥊 Объекты</h2><p>Каждый новый объект увеличивает доход за тап.</p><div class="shop-grid">';O.forEach((o,i)=>{const unlocked=i<=max;h+='<button type="button" data-o="'+i+'" '+(unlocked?'':'disabled')+'>'+o[1]+' '+o[0]+'<br>×'+o[2]+' · '+(unlocked?'Открыт':'🔒 '+fmt(o[3])+' ⭐')+(i===s.currentObject?' · ВЫБРАН':'')+'</button>'});openModal(h+'</div>');document.querySelectorAll('[data-o]').forEach(b=>b.addEventListener('click',()=>{const i=Number(b.dataset.o);if(i>highestUnlocked()||s.jailed)return;s.currentObject=i;ui();save();objectMenu()}))}
-function shop(){if(s.jailed){msg('🔒 Магазин закрыт до выхода из карцера');return}openModal('<h2>🛒 Магазин</h2><div class="shop-grid"><button type="button" data-b="p">💪 Сила<br>Цена '+(100+s.upgrades.power*250)+'</button><button type="button" data-b="c">🎯 Крит<br>Цена '+(300+s.upgrades.crit*500)+'</button><button type="button" data-b="e">⚡ Энергия<br>Цена '+(400+s.upgrades.energyMax*700)+'</button><button type="button" data-b="d">🔥 ×2 на 100 тапов<br>Цена 500</button></div><button type="button" id="objects-btn" style="width:100%;margin-top:10px">🥊 Выбрать объект</button>');
-  document.querySelectorAll('[data-b]').forEach(b=>b.addEventListener('click',()=>{const type=b.dataset.b,cost=type==='p'?100+s.upgrades.power*250:type==='c'?300+s.upgrades.crit*500:type==='e'?400+s.upgrades.energyMax*700:500;if(s.cigarettes<cost){msg('🚬 Не хватает сигарет. Нужно '+cost+'.');return}s.cigarettes-=cost;if(type==='p')s.power++;if(type==='c')s.critChance=Math.min(.5,s.critChance+.02);if(type==='e'){s.maxEnergy+=25;s.energy=s.maxEnergy}if(type==='d')s.boosters.double+=100;ui();save();shop()}));const ob=$('objects-btn');if(ob)ob.onclick=objectMenu}
-function rankMenu(){if(s.jailed)return;openModal('<h2>🏆 Масть</h2><p>Твоя масть: <b>'+rank()[0]+'</b></p><p>Следующая ступень: '+((R.find(x=>x[1]>s.points)||R[R.length-1])[0])+' · '+fmt((R.find(x=>x[1]>s.points)||R[R.length-1])[1])+' ⭐</p>');}
-function tasksCheck(){if(!s.tasks)return}
-function tasksMenu(){if(s.jailed)return;openModal('<h2>🎯 Поручения</h2><p>Тапы: '+s.tasks.taps+'</p><p>Криты: '+s.tasks.crit+'</p><p>События: '+s.tasks.events+'</p><p>Карcer: '+s.tasks.jail+'/2</p>')}
-function more(){if(s.jailed)return;openModal('<h2>☰ Барак</h2><p>Здесь можно открыть NPC, достижения и новый срок.</p>')}
-function init(){load();ui();const tapArea=$('tap-area');if(tapArea){tapArea.addEventListener('click',tap);tapArea.addEventListener('touchstart',tap,{passive:false})}const close=$('modal-close');if(close)close.addEventListener('click',closeModal);const bs=[['btn-shop',shop],['btn-rank',rankMenu],['btn-tasks',tasksMenu],['btn-more',more]];bs.forEach(([id,fn])=>{const b=$(id);if(b)b.addEventListener('click',fn)});setInterval(()=>{if(!s.jailed){const now=Date.now(),gain=Math.floor((now-s.lastEnergyTime)/30000);if(gain>0){s.energy=Math.min(s.maxEnergy,s.energy+gain);s.lastEnergyTime=now;ui();save()}}},1000)}
-if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});else init();
+
+let activeEvent=false;
+let s = {
+  chifir:0, points:0, energy:250, maxEnergy:250, power:1, critChance:0.05,
+  respect:0, wealth:0, nickname:'', currentObject:0, prestige:0,
+  upgrades:{power:0, crit:0, energyMax:0}, boosters:{double:0},
+  tasks:{taps:0, crit:0, events:0, earned:0, jail:0, bugorSuccess:0, npcSuccess:0, authorityDeals:0, npcDrop:0},
+  completed:{}, achievements:{}, lastEnergyTime:Date.now(),
+  saveUpdatedAt:Date.now(), lastChoiceEvent:0, totalTaps:0,
+  jailed:false, jailTaps:0, jailRequired:500, confiscatedChifir:0, jailProtection:0,
+  authorityTaps:0, sentenceDays:100, servedSentenceMinutes:0, sentenceTapCounter:0, lastSentenceTick:Date.now()
+};
+
+const $ = id => document.getElementById(id);
+function fmt(n){ return String(Math.floor(Number(n)||0)).replace(/\B(?=(\d{3})+(?!\d))/g,' '); }
+function rank(){ let r=R[0]; for(const x of R) if(s.points>=x[1]) r=x; return r; }
+function highestUnlocked(){ let i=0; for(let k=0;k<O.length;k++) if(s.points>=O[k][3]) i=k; return i; }
+
+function msg(t){
+  const el = $('event-message');
+  if(!el) return;
+  el.textContent = t;
+  el.classList.add('show');
+  setTimeout(()=>el.classList.remove('show'), 2200);
+}
+window.msg = msg;
+
+function restoreEnergy(now){
+  now = Number(now)||Date.now();
+  if(s.energy >= s.maxEnergy){ s.lastEnergyTime = now; return; }
+  const gain = Math.floor(Math.max(0, now - s.lastEnergyTime) / 30000);
+  if(gain > 0){
+    s.energy = Math.min(s.maxEnergy, s.energy + gain);
+    s.lastEnergyTime += gain * 30000;
+  }
+}
+
+function ui(){
+  try{
+    if($('chifir')) $('chifir').textContent = fmt(s.chifir);
+    if($('points')) $('points').textContent = fmt(s.points);
+    if($('energy')) $('energy').textContent = fmt(s.energy);
+    if($('max-energy')) $('max-energy').textContent = fmt(s.maxEnergy);
+    if($('nickname')) $('nickname').textContent = s.nickname || 'Салага';
+    if($('rank')) $('rank').textContent = rank()[0];
+    if($('power-stat')) $('power-stat').textContent = fmt(s.power);
+    if($('respect-stat')) $('respect-stat').textContent = fmt(s.respect);
+    if($('wealth-stat')) $('wealth-stat').textContent = fmt(s.wealth);
+    const o = O[s.currentObject] || O[0];
+    if($('object-name')) $('object-name').textContent = s.jailed ? 'Карцер' : o[0];
+    if($('object-action')) $('object-action').textContent = s.jailed ? 'ТАПАЙ ДЛЯ ВЫХОДА' : (s.currentObject===4 ? 'РАЗОБРАТЬ ДЕЛО' : 'ТАПАЙ!');
+    if($('sentence-left')) $('sentence-left').textContent = Math.max(0, Math.ceil(s.sentenceDays - s.servedSentenceMinutes/1440)) + ' дней';
+    const t = $('tap-object');
+    if(t){ t.classList.remove('preload-hidden'); t.style.visibility = 'visible'; t.style.opacity = '1'; }
+    const g = $('game-container');
+    if(g){ g.classList.remove('game-booting'); g.classList.toggle('jail-mode', !!s.jailed); }
+    const pre = $('preloader');
+    if(pre){ pre.style.display = 'none'; pre.remove(); }
+    if(typeof window.__finishPreloader === 'function') try{ window.__finishPreloader(); }catch(e){}
+    if(typeof window.refreshObjectVisuals === 'function') try{ window.refreshObjectVisuals(); }catch(e){}
+    const jp = $('jail-panel');
+    if(jp){
+      jp.classList.toggle('hidden', !s.jailed);
+      if(s.jailed){
+        if($('jail-count')) $('jail-count').textContent = Math.min(s.jailTaps,s.jailRequired)+' / '+s.jailRequired;
+        if($('jail-left')) $('jail-left').textContent = Math.max(0,s.jailRequired-s.jailTaps);
+      }
+    }
+    try{
+      const nextRank = R.find(x => x[1] > s.points);
+      const curIdx = (()=>{ let i=0; for(let k=0;k<R.length;k++) if(s.points>=R[k][1]) i=k; return i; })();
+      const from = R[curIdx] ? R[curIdx][1] : 0;
+      const to = nextRank ? nextRank[1] : (R[R.length-1][1] || from);
+      const span = Math.max(1, to - from);
+      const progressed = Math.max(0, Math.min(span, s.points - from));
+      const pct = nextRank ? Math.min(100, (progressed / span) * 100) : 100;
+      const label = $('rank-goal-label');
+      const value = $('rank-goal-value');
+      const fill = $('rank-goal-fill');
+      if(label) label.textContent = nextRank ? ('До масти «'+nextRank[0]+'»') : 'Максимальная масть';
+      if(value) value.textContent = nextRank ? (fmt(s.points)+' / '+fmt(to)+' ⭐') : (fmt(s.points)+' ⭐');
+      if(fill) fill.style.width = pct + '%';
+    }catch(e){}
+    ['btn-shop','btn-rank','btn-tasks','btn-more'].forEach(id=>{
+      const b=$(id); if(b) b.disabled=!!s.jailed;
+    });
+  }catch(e){ console.warn('[ui]', e); }
+}
+
+function feedback(e, g, c){
+  let f = $('tap-feedback');
+  if(!f){
+    f = document.createElement('div');
+    f.id = 'tap-feedback';
+    f.setAttribute('aria-hidden','true');
+    document.body.appendChild(f);
+  }
+  const x = (e && (e.clientX||(e.touches&&e.touches[0]&&e.touches[0].clientX))) || (window.innerWidth/2);
+  const y = (e && (e.clientY||(e.touches&&e.touches[0]&&e.touches[0].clientY))) || (window.innerHeight/2);
+  f.style.left = x + 'px';
+  f.style.top = y + 'px';
+  f.textContent = (c ? '⚡ ' : '') + '+' + Math.floor(g);
+  f.classList.remove('show');
+  void f.offsetWidth;
+  f.classList.add('show');
+  clearTimeout(f._hideT);
+  f._hideT = setTimeout(()=>f.classList.remove('show'), 700);
+}
+
+function clampNum(v, min, max, fallback){
+  const n = Number(v);
+  if(!Number.isFinite(n)) return fallback;
+  return Math.min(max, Math.max(min, n));
+}
+function clampInt(v, min, max, fallback){
+  return Math.floor(clampNum(v, min, max, fallback));
+}
+function isPlainObject(o){
+  return !!o && typeof o === 'object' && !Array.isArray(o);
+}
+function sanitizeNickname(v){
+  let n = String(v == null ? '' : v);
+  n = n.replace(/[^\w\u0400-\u04FF\- ]/g, '').trim();
+  if(n.length > 16) n = n.slice(0, 16);
+  return n;
+}
+/** Sanitize save payload in-place. Caps absurd values, drops unknown types. */
+function sanitizeGameState(state){
+  if(!isPlainObject(state)) return state;
+  const MAX_RES = 1e12;
+  const MAX_STAT = 1e6;
+  const MAX_TS = Date.now() + 86400000 * 365;
+
+  state.chifir = clampNum(state.chifir, 0, MAX_RES, 0);
+  state.points = clampNum(state.points, 0, MAX_RES, 0);
+  state.respect = clampNum(state.respect, 0, MAX_STAT, 0);
+  state.wealth = clampNum(state.wealth, 0, MAX_STAT, 0);
+  state.power = clampInt(state.power, 1, 100000, 1);
+  state.critChance = clampNum(state.critChance, 0, 0.5, 0.05);
+  state.maxEnergy = clampInt(state.maxEnergy, 1, 100000, 250);
+  state.energy = clampInt(state.energy, 0, state.maxEnergy, Math.min(250, state.maxEnergy));
+  state.currentObject = clampInt(state.currentObject, 0, Math.max(0, O.length - 1), 0);
+  state.prestige = clampInt(state.prestige, 0, 1000, 0);
+  state.totalTaps = clampInt(state.totalTaps, 0, MAX_RES, 0);
+  state.lastChoiceEvent = clampNum(state.lastChoiceEvent, 0, MAX_RES, 0);
+  state.lastEnergyTime = clampNum(state.lastEnergyTime, 0, MAX_TS, Date.now());
+  state.saveUpdatedAt = clampNum(state.saveUpdatedAt, 0, MAX_TS, Date.now());
+
+  state.jailed = !!state.jailed;
+  state.jailTaps = clampInt(state.jailTaps, 0, 1000000, 0);
+  state.jailRequired = clampInt(state.jailRequired, 1, 1000000, 500);
+  state.confiscatedChifir = clampNum(state.confiscatedChifir, 0, MAX_RES, 0);
+  state.jailProtection = clampInt(state.jailProtection, 0, 100000, 0);
+
+  state.authorityTaps = clampInt(state.authorityTaps, 0, MAX_RES, 0);
+  state.sentenceDays = clampNum(state.sentenceDays, 0, 100000, 100);
+  state.servedSentenceMinutes = clampNum(state.servedSentenceMinutes, 0, 1e9, 0);
+  state.sentenceTapCounter = clampInt(state.sentenceTapCounter, 0, MAX_RES, 0);
+  state.lastSentenceTick = clampNum(state.lastSentenceTick, 0, MAX_TS, Date.now());
+
+  const up = isPlainObject(state.upgrades) ? state.upgrades : {};
+  state.upgrades = {
+    power: clampInt(up.power, 0, 100000, 0),
+    crit: clampInt(up.crit, 0, 100000, 0),
+    energyMax: clampInt(up.energyMax, 0, 100000, 0)
+  };
+  const bo = isPlainObject(state.boosters) ? state.boosters : {};
+  state.boosters = {
+    double: clampInt(bo.double, 0, 1000000, 0)
+  };
+  const tk = isPlainObject(state.tasks) ? state.tasks : {};
+  state.tasks = {
+    taps: clampInt(tk.taps, 0, MAX_RES, 0),
+    crit: clampInt(tk.crit, 0, MAX_RES, 0),
+    events: clampInt(tk.events, 0, MAX_RES, 0),
+    earned: clampNum(tk.earned, 0, MAX_RES, 0),
+    jail: clampInt(tk.jail, 0, MAX_RES, 0),
+    bugorSuccess: clampInt(tk.bugorSuccess, 0, MAX_RES, 0),
+    npcSuccess: clampInt(tk.npcSuccess, 0, MAX_RES, 0),
+    authorityDeals: clampInt(tk.authorityDeals, 0, MAX_RES, 0),
+    npcDrop: clampInt(tk.npcDrop, 0, MAX_RES, 0)
+  };
+
+  if(!isPlainObject(state.completed)) state.completed = {};
+  else {
+    const clean = {};
+    Object.keys(state.completed).slice(0, 200).forEach(function(k){
+      const key = String(k).slice(0, 64);
+      const v = state.completed[k];
+      if(v && typeof v === 'object') clean[key] = {completedAt: clampNum(v.completedAt, 0, MAX_TS, Date.now())};
+      else if(v) clean[key] = {completedAt: Date.now()};
+    });
+    state.completed = clean;
+  }
+  if(!isPlainObject(state.achievements)) state.achievements = {};
+
+  state.nickname = sanitizeNickname(state.nickname);
+
+  /* Equipment: keep only string ids / lists, equipment module re-validates against catalog */
+  if(isPlainObject(state.equipment)){
+    state.equipment = {
+      weapon: String(state.equipment.weapon || 'fists').slice(0, 32),
+      armor: String(state.equipment.armor || 'tee').slice(0, 32)
+    };
+  }
+  if(Array.isArray(state.ownedWeapons)){
+    state.ownedWeapons = state.ownedWeapons.slice(0, 64).map(function(x){ return String(x).slice(0, 32); }).filter(Boolean);
+  }
+  if(Array.isArray(state.ownedArmor)){
+    state.ownedArmor = state.ownedArmor.slice(0, 64).map(function(x){ return String(x).slice(0, 32); }).filter(Boolean);
+  }
+
+  const rs = isPlainObject(state.raidStats) ? state.raidStats : (isPlainObject(state.raidProgress) ? state.raidProgress : {});
+  state.raidStats = {
+    wins: clampInt(rs.wins, 0, MAX_RES, 0),
+    bugorLevel: clampInt(rs.bugorLevel, 1, 5, 1)
+  };
+  state.raidProgress = state.raidStats;
+
+  function sanitizeTalkMap(src){
+    const clean = {};
+    if(!isPlainObject(src)) return clean;
+    Object.keys(src).slice(0, 64).forEach(function(k){
+      const key = String(k).slice(0, 48);
+      const v = src[k];
+      if(typeof v === 'number' || typeof v === 'string'){
+        clean[key] = clampInt(v, 0, 100000, 0);
+      }else if(isPlainObject(v)){
+        clean[key] = {
+          used: clampInt(v.used, 0, 100000, 0),
+          extra: clampInt(v.extra, 0, 100000, 0),
+          until: clampNum(v.until, 0, MAX_TS, 0)
+        };
+      }
+    });
+    return clean;
+  }
+  const talks = isPlainObject(state.npcTalks) ? state.npcTalks : (isPlainObject(state.npcTalk) ? state.npcTalk : {});
+  state.npcTalks = sanitizeTalkMap(talks);
+  state.npcTalk = state.npcTalks;
+
+  const relSrc = isPlainObject(state.npcRelations) ? state.npcRelations : {};
+  const relClean = {};
+  Object.keys(relSrc).slice(0, 32).forEach(function(k){
+    const key = String(k).slice(0, 32);
+    const v = relSrc[k];
+    if(!isPlainObject(v)) return;
+    relClean[key] = {
+      rep: clampInt(v.rep, 0, 60, 0),
+      helped: clampInt(v.helped, 0, MAX_RES, 0),
+      failed: clampInt(v.failed, 0, MAX_RES, 0),
+      betrayed: clampInt(v.betrayed, 0, MAX_RES, 0),
+      saved: clampInt(v.saved, 0, MAX_RES, 0)
+    };
+  });
+  state.npcRelations = relClean;
+
+  return state;
+}
+
+let saveTimer = null;
+function saveNow(){
+  try{
+    if(saveTimer){ clearTimeout(saveTimer); saveTimer = null; }
+    sanitizeGameState(s);
+    s.saveUpdatedAt = Date.now();
+    localStorage.setItem('avtoritet_save_v2', JSON.stringify(s));
+  }catch(e){}
+}
+function saveSoon(){
+  if(saveTimer) return;
+  saveTimer = setTimeout(function(){
+    saveTimer = null;
+    saveNow();
+  }, 1500);
+}
+
+function load(){
+  try{
+    const raw = localStorage.getItem('avtoritet_save_v2');
+    if(raw){
+      const d = JSON.parse(raw);
+      if(d && typeof d === 'object' && !Array.isArray(d)){
+        /* Whitelist merge: only known top-level keys from defaults + common extensions */
+        const allowed = {
+          chifir:1, points:1, energy:1, maxEnergy:1, power:1, critChance:1,
+          respect:1, wealth:1, nickname:1, currentObject:1, prestige:1,
+          upgrades:1, boosters:1, tasks:1, completed:1, achievements:1,
+          lastEnergyTime:1, saveUpdatedAt:1, lastChoiceEvent:1, totalTaps:1,
+          jailed:1, jailTaps:1, jailRequired:1, confiscatedChifir:1, jailProtection:1,
+          authorityTaps:1, sentenceDays:1, servedSentenceMinutes:1, sentenceTapCounter:1, lastSentenceTick:1,
+          equipment:1, ownedWeapons:1, ownedArmor:1, saveVersion:1,
+          raidProgress:1, raidStats:1, npcTalk:1, npcTalks:1, npcRelations:1,
+          daily:1, authority:1, cigarettes:1
+        };
+        Object.keys(d).forEach(function(k){
+          if(allowed[k]) s[k] = d[k];
+        });
+        s.upgrades = Object.assign({power:0,crit:0,energyMax:0}, isPlainObject(d.upgrades) ? d.upgrades : {});
+        s.boosters = Object.assign({double:0}, isPlainObject(d.boosters) ? d.boosters : {});
+        s.tasks = Object.assign({taps:0,crit:0,events:0,earned:0,jail:0,bugorSuccess:0,npcSuccess:0,authorityDeals:0,npcDrop:0}, isPlainObject(d.tasks) ? d.tasks : {});
+        s.completed = isPlainObject(d.completed) ? d.completed : {};
+        s.achievements = isPlainObject(d.achievements) ? d.achievements : {};
+      }
+    }
+  }catch(e){}
+  sanitizeGameState(s);
+  if(!s.nickname) s.nickname = N[Math.floor(Math.random()*N.length)];
+  s.currentObject = highestUnlocked();
+  s.energy = Math.min(s.energy, s.maxEnergy);
+  /* Persist cleaned save so cloud/local stay consistent */
+  try{
+    s.saveUpdatedAt = Date.now();
+    localStorage.setItem('avtoritet_save_v2', JSON.stringify(s));
+  }catch(e){}
+}
+
+function openModal(h,locked){
+  const c = $('modal-content'), o = $('modal-overlay');
+  if(!c || !o) return;
+  c.innerHTML = h;
+  o.classList.remove('hidden');
+  o.classList.add('show');
+  o.dataset.locked = locked ? '1' : '0';
+  const m = $('modal');
+  if(m) m.classList.toggle('locked', !!locked);
+}
+
+function closeModal(){
+  const o = $('modal-overlay');
+  if(!o) return;
+  if(o.dataset.locked==='1' && activeEvent) return;
+  activeEvent=false;
+  o.dataset.locked='0';
+  o.classList.remove('raid-fullscreen','raid-selection-fullscreen','show');
+  o.classList.add('hidden');
+}
+
+function tasksCheck(){
+  if(!s.tasks) return;
+  let changed = false;
+  Object.entries(TASKS).forEach(([id,t])=>{
+    if(!s.completed[id] && t.get() >= t.target){
+      s.completed[id] = {completedAt:Date.now()};
+      if(t.rewardType==='points') s.points += t.rewardAmount;
+      else s.chifir += t.rewardAmount;
+      msg('🎯 Поручение выполнено: '+t.title+' · награда '+t.reward);
+      changed = true;
+    }
+  });
+  if(changed){ saveNow(); ui(); }
+}
+
+function choiceResult(x,ok){
+  const e=$('choice-result');
+  if(!e)return;
+  e.textContent=String(x);
+  e.classList.remove('show','success','fail');
+  e.classList.add(ok?'success':'fail');
+  void e.offsetWidth;
+  e.classList.add('show');
+  clearTimeout(choiceResult.timer);
+  choiceResult.timer=setTimeout(()=>e.classList.remove('show'),2600);
+}
+function finishEvent(){
+  activeEvent=false;
+  const o=$('modal-overlay');
+  if(o) o.dataset.locked='0';
+  closeModal();
+  tasksCheck();
+  ui();
+  saveNow();
+}
+function reduceSentenceForTap(){
+  // Считаются только обычные тапы по объектам. Карцер имеет отдельный tap-режим,
+  // а рейды не вызывают эту функцию.
+  s.sentenceTapCounter=Math.max(0,Number(s.sentenceTapCounter)||0)+1;
+  if(s.sentenceTapCounter<50)return;
+  const daysToRemove=Math.floor(s.sentenceTapCounter/50);
+  s.sentenceTapCounter=s.sentenceTapCounter%50;
+  if(Number(s.sentenceDays||0)<=0)return;
+  const before=Math.max(0,Number(s.sentenceDays)||0);
+  s.sentenceDays=Math.max(0,before-daysToRemove);
+  const removed=before-s.sentenceDays;
+  if(removed>0)msg('⛓️ 50 тапов — срок сокращён на '+removed+' дн.');
+}
+function addSentence(days,reason){
+  days=Math.max(0,Math.floor(Number(days)||0));
+  if(!days)return;
+  const current=Number(s.sentenceDays||0);
+  const baseDays=current<=0?100:current;
+  s.sentenceDays=baseDays+days;
+  if(current<=0)s.servedSentenceMinutes=0;
+  s.lastSentenceTick=Date.now();
+  if(reason) msg('⛓️ Срок +'+days+' дн. · '+reason);
+}
+function enterJail(reason){
+  if(s.jailed)return;
+  addSentence(3,'карцер');
+  s.jailed=true;
+  s.jailRequired=500;
+  s.jailTaps=0;
+  const rate=.20+Math.random()*.05;
+  s.confiscatedChifir=Math.min(Math.max(0,Math.floor(s.chifir)),Math.floor(Math.max(0,s.chifir)*rate));
+  s.chifir=Math.max(0,s.chifir-s.confiscatedChifir);
+  s.jailProtection=0;
+  activeEvent=false;
+  const o=$('modal-overlay');
+  if(o){o.dataset.locked='0';o.classList.add('hidden');o.classList.remove('show')}
+  msg('🚨 Карцер. Изъято '+fmt(s.confiscatedChifir)+' 🍵. Отсидеть: 500 тапов.');
+  if(reason) msg(reason);
+  ui();
+  saveNow();
+}
+function openEvent(){
+  if(s.jailed||activeEvent)return;
+  const stage=Math.max(0,Number(s.currentObject)||0);
+  const available=EVENTS.filter(e=>stage>=Number(e[3]||0));
+  if(!available.length)return;
+  activeEvent=true;
+  const v=available[Math.floor(Math.random()*available.length)];
+  let h='<div class="section-window event-window"><div class="section-kicker">СОБЫТИЕ</div><h2>⚠️ '+v[0]+'</h2><p>'+v[1]+'</p><p><b>Решай быстро:</b></p><div class="choices">';
+  v[2].forEach((c,i)=>{ h+='<button type="button" class="choice" data-i="'+i+'">'+c[0]+'</button>'; });
+  h+='</div></div>';
+  openModal(h,true);
+  document.querySelectorAll('.choice').forEach(b=>b.addEventListener('click',()=>{
+    if(!activeEvent||s.jailed)return;
+    const c=v[2][Number(b.dataset.i)];
+    s.tasks.events=(s.tasks.events||0)+1;
+    s.lastChoiceEvent=s.points;
+    if(Math.random()<c[1]){
+      s.chifir+=c[2];
+      s.tasks.earned=(s.tasks.earned||0)+c[2];
+      s.points+=c[3];
+      s.respect=Math.max(0,(s.respect||0)+Number(c[4]||0));
+      const bonus=c[4]?(' · уважение '+(c[4]>0?'+':'')+c[4]):'';
+      choiceResult('Удачно! +'+c[2]+' 🍵 +'+c[3]+' ⭐'+bonus,true);
+      finishEvent();
+    }else{
+      const loss=Math.max(3,Math.ceil(Math.max(1,c[3])*1.5));
+      addSentence(c[1]>=.6?2:1,'провал события');
+      s.points=Math.max(0,s.points-loss);
+      if(c[1]>0&&(s.jailProtection||0)<=0&&Math.random()<.08){
+        finishEvent();
+        enterJail('❌ Рискованный ход провалился.');
+      }else{
+        choiceResult('Не повезло. Последствия уже чувствуются.',false);
+        finishEvent();
+      }
+    }
+  }));
+}
+
+function shop(){
+  if(s.jailed){ msg('🔒 Качалка закрыта до выхода из карцера'); return; }
+  const costP = 100 + s.upgrades.power * 250;
+  const costC = 300 + s.upgrades.crit * 500;
+  const costE = 400 + s.upgrades.energyMax * 700;
+  openModal(
+    '<div class="section-window shop-window">'+
+    '<div class="section-kicker">ПРОКАЧКА</div>'+
+    '<h2>💪 Качалка</h2>'+
+    '<p class="section-subtitle">Трать чефир на постоянные улучшения.</p>'+
+    '<div class="shop-grid">'+
+    '<button type="button" data-b="p">💪 <b>Сила</b><br><small>+1 сила · сейчас '+s.power+'</small><br>Цена '+costP+' 🍵</button>'+
+    '<button type="button" data-b="c">🎯 <b>Крит</b><br><small>+2% · сейчас '+Math.round(s.critChance*100)+'%</small><br>Цена '+costC+' 🍵</button>'+
+    '<button type="button" data-b="e">⚡ <b>Энергия</b><br><small>+25 макс · сейчас '+s.maxEnergy+'</small><br>Цена '+costE+' 🍵</button>'+
+    '<button type="button" data-b="d">🔥 <b>Ускоритель</b><br><small>×2 на 100 тапов · осталось '+(s.boosters.double||0)+'</small><br>📺 За рекламу</button>'+
+    '</div>'+
+    '<button type="button" id="shop-eq-btn" class="eq-btn shop-eq-link" style="width:100%;margin:12px 0 0;padding:12px;font-size:14px">⚔️ Оружие и броня</button>'+
+    '</div>'
+  );
+  document.querySelectorAll('[data-b]').forEach(b=>{
+    b.style.pointerEvents = 'auto';
+    b.addEventListener('click', (e)=>{ e.preventDefault(); e.stopPropagation(); buy(b); });
+  });
+  var eqBtn=document.getElementById('shop-eq-btn');
+  if(eqBtn){
+    eqBtn.addEventListener('click', function(e){
+      e.preventDefault(); e.stopPropagation();
+      if(typeof window.openEquipment==='function') window.openEquipment();
+      else if(typeof window.msg==='function') window.msg('⚔️ Снаряжение ещё загружается…');
+    });
+  }
+  function buy(b){
+    const type = b.dataset.b;
+    if(type==='d'){ msg('📺 Ускоритель доступен только за рекламу'); return; }
+    const cost = type==='p' ? costP : type==='c' ? costC : costE;
+    if(s.chifir < cost){ msg('🍵 Не хватает чефира. Нужно '+fmt(cost)+'.'); return; }
+    s.chifir -= cost;
+    if(type==='p'){ s.power++; s.upgrades.power++; msg('💪 Сила теперь '+s.power); }
+    if(type==='c'){ s.critChance = Math.min(0.5, s.critChance+0.02); s.upgrades.crit++; msg('🎯 Крит '+Math.round(s.critChance*100)+'%'); }
+    if(type==='e'){ s.maxEnergy += 25; s.energy = s.maxEnergy; s.upgrades.energyMax++; s.lastEnergyTime = Date.now(); msg('⚡ Макс. энергия '+s.maxEnergy); }
+    ui(); saveNow(); shop();
+  }
+}
+
+function rankMenu(){
+  const r = rank(), next = R.find(x => x[1] > s.points);
+  const stage = O[s.currentObject] ? O[s.currentObject][0] : 'Груша';
+  const curIdx = (()=>{ let i=0; for(let k=0;k<R.length;k++) if(s.points>=R[k][1]) i=k; return i; })();
+  let ladder = '';
+  R.forEach(function(row, j){
+    const unlocked = j <= curIdx;
+    const mark = unlocked ? '✓ ' : '🔒 ';
+    ladder += '<div class="rank-ladder-row" style="padding:9px 10px;border-radius:9px;border:1px solid rgba(255,255,255,.12);margin:0 0 7px;opacity:'+(unlocked?'1':'.48')+'"><b>'+mark+row[0]+'</b><br><small>от '+fmt(row[1])+' ⭐</small></div>';
+  });
+  openModal(
+    '<div class="section-window">'+
+    '<div class="section-kicker">ПРОГРЕСС</div>'+
+    '<h2>🏆 Масть</h2>'+
+    '<p>Твоя масть: <b>'+r[0]+'</b> · этап: <b>'+stage+'</b></p>'+
+    (next ? '<p>До «'+next[0]+'»: <b>'+fmt(Math.max(0,next[1]-s.points))+'</b> ⭐</p>' : '<p>Максимальная масть.</p>')+
+    '<div style="margin-top:10px">'+ladder+'</div>'+
+    '</div>'
+  );
+}
+
+function tasksMenu(){
+  if(s.jailed) return;
+  const cards = Object.entries(TASKS).map(([id,t])=>{
+    const cur = Math.min(t.target, Math.floor(t.get()));
+    const done = !!s.completed[id];
+    const pct = Math.min(100, cur / t.target * 100);
+    return '<div class="task-card '+(done?'task-done':'')+'"><div class="task-icon">'+(done?'✓':'🎯')+'</div><div class="task-body"><b>'+t.title+'</b><p>'+t.desc+'</p><div class="task-progress"><span style="width:'+pct+'%"></span></div><small>'+fmt(cur)+' / '+fmt(t.target)+' · Награда: <strong>'+t.reward+'</strong></small></div></div>';
+  }).join('');
+  openModal('<div class="section-window tasks-window"><div class="section-kicker">ЦЕЛИ НА СЕЙЧАС</div><h2>🎯 Поручения</h2><p class="section-subtitle">Выполняй простые цели и забирай награды. Каждое поручение даёт приз.</p><div class="tasks-list">'+cards+'</div><div class="tasks-footer">Выполнено поручений: <b>'+Object.keys(s.completed).length+'</b></div></div>');
+}
+
+function more(){
+  if(typeof window.renderBarrack === 'function'){ window.renderBarrack(); return; }
+  openModal('<div class="section-window"><div class="section-kicker">ТВОЁ МЕСТО</div><h2>☰ Барак</h2><p class="section-subtitle">Персонажи барака загружаются…</p></div>');
+}
+
+function showNoEnergyPrompt(){
+  const overlay=$('modal-overlay'), content=$('modal-content');
+  if(!overlay||!content){ msg('⚡ Нет энергии'); return; }
+  content.innerHTML='<div class="no-energy-prompt"><div class="energy-kicker">НУЖНО ВОССТАНОВИТЬСЯ</div><h2>⚡ Нет энергии</h2><p>Энергия закончилась — восстанови её, чтобы продолжить удары.</p><button type="button" id="no-energy-restore">Восстановить</button></div>';
+  overlay.dataset.locked='0';
+  overlay.classList.remove('hidden');
+  overlay.classList.add('show');
+  const button=$('no-energy-restore');
+  if(button)button.onclick=function(){
+    if(window.EnergyUI&&typeof window.EnergyUI.open==='function')window.EnergyUI.open();
+    else { msg('⚡ Открой индикатор энергии для восстановления'); overlay.classList.add('hidden'); overlay.classList.remove('show'); }
+  };
+}
+
+function tap(e){
+  if(e && e.preventDefault) e.preventDefault();
+  if(activeEvent)return;
+  if(s.jailed){
+    s.jailTaps++;
+    const t = $('tap-object');
+    if(t){ t.classList.remove('punch','crit'); void t.offsetWidth; t.classList.add('punch'); clearTimeout(t._punchT); t._punchT=setTimeout(function(){ t.classList.remove('punch','crit'); },280); }
+    try{ if(window.GameSFX && typeof window.GameSFX.punch==='function') window.GameSFX.punch(false); }catch(e){}
+    if(typeof window.animateObjectVisual === 'function') window.animateObjectVisual();
+    feedback(e, 1, false);
+    if(s.jailTaps >= s.jailRequired){ s.jailed = false; s.tasks.jail = (s.tasks.jail||0)+1; msg('🔓 Вышел из карцера'); ui(); saveNow(); return; }
+    ui(); saveSoon(); return;
+  }
+  restoreEnergy(Date.now());
+  if(s.energy < 1){ showNoEnergyPrompt(); return; }
+  s.energy--;
+  s.totalTaps++;
+  s.tasks.taps++;
+  reduceSentenceForTap();
+  let g = TEST_MODE ? TEST_POINTS_PER_TAP : s.power * O[s.currentObject][2];
+  const c = Math.random() < s.critChance;
+  if(c){ s.tasks.crit++; if(!TEST_MODE) g *= 2; }
+  if(s.boosters.double > 0 && !TEST_MODE){ g *= 2; s.boosters.double--; }
+  s.chifir += g;
+  s.points += g;
+  s.tasks.earned = (s.tasks.earned||0) + g;
+  const old = s.currentObject;
+  s.currentObject = highestUnlocked();
+  if(old !== s.currentObject) msg('🏆 Новая масть: '+R[s.currentObject][0]+' · этап: '+O[s.currentObject][0]);
+  const t = $('tap-object');
+  if(t){ t.classList.remove('punch','crit'); void t.offsetWidth; t.classList.add('punch'); if(c) t.classList.add('crit'); clearTimeout(t._punchT); t._punchT=setTimeout(function(){ t.classList.remove('punch','crit'); },280); }
+  try{ if(window.GameSFX && typeof window.GameSFX.punch==='function') window.GameSFX.punch(!!c); }catch(e){}
+  if(typeof window.animateObjectVisual === 'function') window.animateObjectVisual();
+  if(typeof window.refreshObjectVisuals === 'function') window.refreshObjectVisuals();
+  feedback(e, g, c);
+  if(Math.random() < 0.03) msg(FUN[Math.floor(Math.random()*FUN.length)]);
+  if(Math.random() < 0.10 && s.points - (s.lastChoiceEvent||0) > 30) openEvent();
+  tasksCheck();
+  try{ if(typeof window.__maybePreloadNextStage==='function') window.__maybePreloadNextStage(s.points, TEST_MODE ? TEST_POINTS_PER_TAP : Math.max(1, s.power)); }catch(e){}
+  ui();
+  saveSoon();
+}
+
+function bind(){
+  load();
+  ui();
+  try{ if(typeof window.__finishPreloader === 'function') window.__finishPreloader(); }catch(e){}
+  const pre = document.getElementById('preloader');
+  if(pre){ pre.style.display='none'; pre.remove(); }
+  document.body.classList.remove('game-booting');
+  const gc = document.getElementById('game-container');
+  if(gc) gc.classList.remove('game-booting');
+
+  const area = $('tap-area') || $('tap-object');
+  let last = 0;
+  const handler = e => {
+    const n = Date.now();
+    if(n - last < 80) return;
+    last = n;
+    if(e.cancelable) e.preventDefault();
+    tap(e);
+  };
+  if(area){
+    area.addEventListener('pointerdown', handler, {capture:true, passive:false});
+  }
+  $('btn-shop')?.addEventListener('click', shop);
+  $('btn-rank')?.addEventListener('click', rankMenu);
+  $('btn-tasks')?.addEventListener('click', tasksMenu);
+  $('btn-more')?.addEventListener('click', more);
+  $('modal-close')?.addEventListener('click', closeModal);
+
+  setInterval(()=>{ restoreEnergy(Date.now()); ui(); }, 1000);
+  setInterval(saveNow, 15000);
+  window.addEventListener('pagehide', saveNow);
+
+  window.getGameState = () => s;
+  window.sanitizeGameState = sanitizeGameState;
+  window.saveGame = saveNow;
+  window.saveSoon = saveSoon;
+  window.msg = msg;
+  window.ui = ui;
+  window.openModal = openModal;
+  window.closeModal = closeModal;
+  window.checkTasks = tasksCheck;
+  window.TEST_MODE = TEST_MODE;
+  window.TEST_POINTS_PER_TAP = TEST_POINTS_PER_TAP;
+  window.showNoEnergyPrompt = showNoEnergyPrompt;
+  window.spendEnergyForRaid = function(){
+    if(s.energy < 1) return false;
+    s.energy--;
+    ui();
+    saveSoon();
+    return true;
+  };
+
+  console.log('[game] v4.90 OK TEST_MODE=', TEST_MODE, 'pts/tap=', TEST_POINTS_PER_TAP);
+}
+
+if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', bind, {once:true});
+else bind();
