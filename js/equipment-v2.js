@@ -246,6 +246,6 @@
   window.openEquipment=openEquipment;
   window.getEquipRaidBonus=function(){var s=st();if(!s||!s.equipment)return 0;var w=WEAPONS.find(function(x){return x.id===s.equipment.weapon});return w?Number(w.raid)||0:0};
   window.getEffectivePower=function(){var s=st();if(!s)return 1;return Math.max(1,Number(s.power)||1)};
-  window.getEffectiveCrit=function(){var s=st();if(!s)return 0.05;var a=ARMORS.find(function(x){return x.id===(s.equipment&&s.equipment.armor)});var bonus=a?Number(a.crit)||0:0;return Math.min(0.55,(Number(s.critChance)||0.05)+bonus)};
+  window.getEffectiveCrit=function(){var s=st();if(!s)return 0.05;var a=ARMORS.find(function(x){return x.id===(s.equipment&&s.equipment.armor)});var bonus=a?Number(a.crit)||0:0;return Math.min(0.50,(Number(s.critChance)||0.05)+bonus)};
   console.log('[equipment-v2] rebalance v3.6 raid-only');
 })();
