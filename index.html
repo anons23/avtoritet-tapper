@@ -42,9 +42,9 @@
 <script>
 (function () {
   var host = window.location.hostname;
-  var isYandexHost = /(^|\\.)yandex\\.(ru|net|com)$/.test(host);
+  var isYandexHost = host.indexOf('yandex.') !== -1;
   var sdkPath = isYandexHost ? '/sdk.js' : 'https://sdk.games.s3.yandex.net/sdk.js';
-  document.write('<script src="' + sdkPath + '"><\\/script>');
+  document.write('<script src="' + sdkPath + '"><\/script>');
 })();
 </script>
 <script src="./js/yandex-sdk.js?v=1.7"></script>
