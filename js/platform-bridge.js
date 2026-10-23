@@ -1,6 +1,6 @@
 'use strict';
 (function () {
-  // Platform-neutral adapter for the RuStore/Android build.
+  // Platform-neutral adapter for the Android build.
   // Game progress is stored locally; cloud saves are not used in this build.
   const log = (...args) => console.debug('[PlatformBridge]', ...args);
   let adBusy = false;
@@ -35,9 +35,6 @@
   };
 
   window.PlatformBridge = bridge;
-  // Keep this alias temporarily because older game modules may still call it.
-  window.YandexGameBridge = bridge;
-  window.YandexGameReady = Promise.resolve(null);
 
   window.showRewardedAd = function (onReward) {
     const done = typeof onReward === 'function' ? onReward : function () {};
