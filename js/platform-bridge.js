@@ -1,37 +1,49 @@
 'use strict';
 (function () {
-  // Platform-neutral bridge for the RuStore/Android build.
-  // Progress remains in localStorage; cloud saves are intentionally disabled.
+  // Platform-neutral adapter for the RuStore/Android build.
+  // Game progress is stored locally; cloud saves are not used in this build.
   const log = (...args) => console.debug('[PlatformBridge]', ...args);
   let adBusy = false;
 
-  window.YandexGameReady = Promise.resolve(null);
-  window.YandexGameBridge = {
-    getSDK: () => null,
-    queueSave: () => {},
-    flushSave: () => {},
-    resetCloudData: async () => true,
+  const bridge = {
     showFullscreenAd: function () {
       const ads = window.AndroidAds;
       if (adBusy || !ads || typeof ads.showFullscreenAd !== 'function') return false;
       adBusy = true;
+      let released = false;
+      const release = function () {
+        if (released) return;
+        released = true;
+        adBusy = false;
+      };
       try {
-        ads.showFullscreenAd();
-        window.setTimeout(() => { adBusy = false; }, 1000);
+        // Native adapter may accept a completion callback. The timeout is a
+        // fallback for providers that do not send one.
+        ads.showFullscreenAd(release);
+        window.setTimeout(release, 60000);
         return true;
       } catch (e) {
-        adBusy = false;
+        release();
         log('fullscreen ad unavailable', e);
         return false;
       }
-    }
+    },
+    getSDK: () => null,
+    queueSave: () => {},
+    flushSave: () => {},
+    resetCloudData: async () => true
   };
+
+  window.PlatformBridge = bridge;
+  // Keep this alias temporarily because older game modules may still call it.
+  window.YandexGameBridge = bridge;
+  window.YandexGameReady = Promise.resolve(null);
 
   window.showRewardedAd = function (onReward) {
     const done = typeof onReward === 'function' ? onReward : function () {};
     const ads = window.AndroidAds;
     if (adBusy || !ads || typeof ads.showRewardedAd !== 'function') {
-      log('rewarded ad unavailable: Android ad provider is not connected');
+      log('rewarded ad unavailable: native Android ad adapter is not connected');
       done(false);
       return false;
     }
@@ -59,5 +71,5 @@
       try { if (typeof window.saveGame === 'function') window.saveGame(); } catch (e) {}
     }
   });
-  log('local-save bridge initialized; Android ads require native SDK bridge');
+  log('local-save adapter initialized; native Android ads are not connected yet');
 })();
