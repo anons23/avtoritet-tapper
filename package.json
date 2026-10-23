@@ -1,0 +1,22 @@
+{
+  "name": "avtoritet-tapper-rustore",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Android wrapper for Авторитет 2.0 using Capacitor",
+  "scripts": {
+    "prepare:web": "node scripts/prepare-web.mjs",
+    "android:add": "npm run prepare:web && cap add android",
+    "android:sync": "npm run prepare:web && cap sync android",
+    "android:open": "cap open android"
+  },
+  "dependencies": {
+    "@capacitor/android": "^8.5.3",
+    "@capacitor/core": "^8.5.3"
+  },
+  "devDependencies": {
+    "@capacitor/cli": "^8.5.3"
+  },
+  "engines": {
+    "node": ">=22"
+  }
+}
