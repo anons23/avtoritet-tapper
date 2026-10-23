@@ -20,7 +20,7 @@ if ! command -v npm >/dev/null 2>&1; then
   exit 1
 fi
 
-if [ ! -d "$ANDROID_HOME" ] && [ ! -d "${ANDROID_SDK_ROOT:-}" ]; then
+if [ ! -d "${ANDROID_HOME:-}" ] && [ ! -d "${ANDROID_SDK_ROOT:-}" ]; then
   echo "Android SDK not found. Install Android Studio and configure ANDROID_HOME or ANDROID_SDK_ROOT." >&2
   exit 1
 fi
