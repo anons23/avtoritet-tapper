@@ -27,6 +27,14 @@ After changing the HTML/CSS/JS source files:
 npm run android:sync
 ```
 
+To build a local debug APK from a macOS/Linux shell after installing the requirements, run:
+
+```sh
+bash scripts/build-debug-apk.sh
+```
+
+The script checks Node.js and Android SDK availability, installs npm dependencies, creates the Android project, and runs Gradle to build a debug APK. It has not yet been run against this repository in a real Android build environment.
+
 Then open the project in Android Studio:
 
 ```sh
