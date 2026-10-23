@@ -1,6 +1,8 @@
-/* shop-booster-ad v1.0 — ускоритель только за рекламу (вместо 500 🍵) */
+/* shop-booster-ad v2.0 — main screen booster, ads only (RuStore) */
 'use strict';
 (function(){
+  var BTN_ID = 'booster-open-button';
+
   function st(){
     try{ if(typeof window.getGameState==='function') return window.getGameState(); }catch(e){}
     return window.s||null;
@@ -13,15 +15,39 @@
     else if(typeof window.msg==='function') try{ window.msg(t); }catch(err){}
   }
 
+  function leftCount(){
+    var s=st();
+    return s&&s.boosters ? (Number(s.boosters.double)||0) : 0;
+  }
+
+  function updateLabel(){
+    var btn=document.getElementById(BTN_ID);
+    if(!btn) return;
+    var left=leftCount();
+    var countEl=btn.querySelector('.booster-btn-count');
+    if(countEl){
+      if(left>0){
+        countEl.textContent='×2 · '+left;
+        countEl.classList.add('active');
+      } else {
+        countEl.textContent='';
+        countEl.classList.remove('active');
+      }
+    }
+    btn.title = left>0
+      ? 'Ускоритель: осталось '+left+' тапов ×2'
+      : 'Ускоритель: реклама → ×2 на 100 тапов';
+  }
+
   function grant(){
     var s=st();
-    if(!s)return;
-    s.boosters=s.boosters||{double:0};
-    s.boosters.double=(Number(s.boosters.double)||0)+100;
-    save(); ui();
+    if(!s) return;
+    s.boosters = s.boosters || {double:0};
+    s.boosters.double = (Number(s.boosters.double)||0) + 100;
+    save();
+    ui();
+    updateLabel();
     msg('🔥 Ускоритель +100 тапов (×2) за рекламу');
-    // обновить подпись в открытом магазине
-    relabel();
   }
 
   function watchAd(){
@@ -30,42 +56,62 @@
         if(ok) grant();
         else msg('📺 Реклама не просмотрена — ускоритель не выдан');
       });
-    }else{
-      // локально без SDK
+    } else {
       grant();
     }
   }
 
-  function relabel(){
-    var s=st();
-    var left=s&&s.boosters?Number(s.boosters.double)||0:0;
-    document.querySelectorAll('[data-b="d"]').forEach(function(btn){
-      btn.innerHTML='🔥 <b>Ускоритель</b><br><small>×2 на 100 тапов · осталось '+left+'</small><br>📺 За рекламу';
-      btn.dataset.adOnly='1';
-    });
-    // убрать дубль из ads-policy если был
-    var extra=document.getElementById('shop-booster-ad');
-    if(extra&&extra.getAttribute('data-b')!=='d') extra.remove();
+  function iconHtml(){
+    return ''+
+      '<span class="booster-btn-icon" aria-hidden="true">🔥</span>'+
+      '<span class="booster-btn-label">Ускоритель</span>'+
+      '<span class="booster-btn-count"></span>';
   }
 
-  // Перехват клика до обработчика game.js (capture)
-  document.addEventListener('click',function(e){
-    var btn=e.target&&e.target.closest&&e.target.closest('[data-b="d"]');
-    if(!btn)return;
-    e.preventDefault();
-    e.stopPropagation();
-    e.stopImmediatePropagation();
-    watchAd();
-  },true);
+  function ensureBtn(){
+    var parent=document.getElementById('game-container')||document.body;
+    if(!parent) return;
+    var btn=document.getElementById(BTN_ID);
+    if(!btn){
+      btn=document.createElement('button');
+      btn.id=BTN_ID;
+      btn.type='button';
+      btn.setAttribute('aria-label','Ускоритель за рекламу');
+      btn.innerHTML=iconHtml();
+      btn.addEventListener('click',function(e){
+        e.preventDefault();
+        e.stopPropagation();
+        watchAd();
+      });
+      parent.appendChild(btn);
+    } else if(!btn.querySelector('.booster-btn-label')){
+      btn.innerHTML=iconHtml();
+    }
+    updateLabel();
+  }
+
+  function hookUi(){
+    if(window.__boosterUiHooked) return;
+    window.__boosterUiHooked=true;
+    var orig=window.ui;
+    if(typeof orig==='function'){
+      window.ui=function(){
+        var r=orig.apply(this,arguments);
+        try{ updateLabel(); }catch(e){}
+        return r;
+      };
+    }
+    setInterval(updateLabel, 2000);
+  }
 
   function boot(){
-    var overlay=document.getElementById('modal-overlay');
-    if(overlay&&!overlay.dataset.boosterObs){
-      overlay.dataset.boosterObs='1';
-      new MutationObserver(function(){ setTimeout(relabel,30); }).observe(overlay,{childList:true,subtree:true});
-    }
-    console.log('[shop-booster-ad] v1.0 ready');
+    ensureBtn();
+    hookUi();
+    setTimeout(ensureBtn, 400);
+    setTimeout(ensureBtn, 1500);
+    console.log('[shop-booster-ad] v2.0 RuStore main-screen');
   }
-  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot);
+
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded', boot);
   else boot();
 })();
