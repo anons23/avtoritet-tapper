@@ -1,18 +1,16 @@
 'use strict';
 (function(){
-  /* Only scripts that exist on the branch. Removed 404s:
-     music-stage, tasks-ui, choice-events, sentence, prestige,
-     yandex-progress, offline, share, leaderboard */
+  /* RuStore branch bootstrap */
   const scripts=[
     {src:'./js/save-migration.js?v=1.2',critical:true},
-    {src:'./js/game.js?v=4.91',critical:true},
+    {src:'./js/game.js?v=5.0-rustore',critical:true},
     {src:'./js/save-guard.js?v=1.1',critical:false},
     {src:'./js/npc-barrack.js?v=4.5',critical:true},
     {src:'./js/npc-memory.js?v=1.0',critical:false},
     {src:'./js/npc-rumors.js?v=1.5',critical:false},
     {src:'./js/object-visuals.js?v=3.3',critical:true},
     {src:'./js/ads-policy.js?v=1.1',critical:false},
-    {src:'./js/shop-booster-ad.js?v=1.0',critical:false},
+    {src:'./js/shop-booster-ad.js?v=2.0',critical:false},
     {src:'./js/jail-lock.js?v=1.0',critical:false},
     {src:'./js/nickname-rename.js?v=1.1',critical:false},
     {src:'./js/daily.js?v=1.4',critical:false},
@@ -50,7 +48,7 @@
         if(item.critical)return;
       }
     }
-    console.log('[bootstrap] v3.6');
+    console.log('[bootstrap] rustore');
   }
 
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot);
