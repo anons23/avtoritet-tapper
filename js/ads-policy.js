@@ -35,7 +35,7 @@
       console.log('[ads-policy] fullscreen skip (cd)', reason);
       return false;
     }
-    var bridge=window.PlatformBridge||window.YandexGameBridge;
+    var bridge=window.PlatformBridge;
     var fn=bridge&&typeof bridge.showFullscreenAd==='function'?bridge.showFullscreenAd:null;
     if(!fn&&typeof window.showFullscreenAd==='function') fn=window.showFullscreenAd;
     if(!fn)return false;
@@ -47,7 +47,7 @@
   }
 
   function wrapBridgeFullscreen(){
-    var bridge=window.PlatformBridge||window.YandexGameBridge;
+    var bridge=window.PlatformBridge;
     if(!bridge||typeof bridge.showFullscreenAd!=='function'||bridge.__adsPolicyWrapped)return;
     var orig=bridge.showFullscreenAd.bind(bridge);
     bridge.showFullscreenAd=function(){
@@ -120,7 +120,7 @@
     var tries=0;
     var t=setInterval(function(){
       wrapBridgeFullscreen();
-      if((window.PlatformBridge||window.YandexGameBridge)&&(window.PlatformBridge||window.YandexGameBridge).__adsPolicyWrapped) clearInterval(t);
+      if((window.PlatformBridge)&&(window.PlatformBridge).__adsPolicyWrapped) clearInterval(t);
       if(++tries>40) clearInterval(t);
     },500);
 
