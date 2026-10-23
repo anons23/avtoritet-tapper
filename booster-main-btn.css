@@ -1,0 +1,51 @@
+/* Ускоритель — главный экран, слева */
+#booster-open-button{
+  position:fixed!important;
+  left:max(6px,calc((100vw - 520px)/2 + 6px))!important;
+  right:auto!important;
+  top:calc(env(safe-area-inset-top) + 145px)!important;
+  z-index:1800!important;
+  width:72px!important;
+  min-height:78px!important;
+  padding:4px 4px 6px!important;
+  border:0!important;
+  background:transparent!important;
+  cursor:pointer!important;
+  display:flex!important;
+  flex-direction:column!important;
+  align-items:center!important;
+  gap:2px!important;
+  -webkit-tap-highlight-color:transparent!important;
+  outline:none!important;
+  transform-origin:center center;
+  animation:boosterBtnPulse 1.35s ease-in-out infinite;
+}
+#booster-open-button .booster-btn-icon{
+  display:grid!important;place-items:center!important;
+  width:56px!important;height:56px!important;font-size:42px!important;line-height:1!important;
+  filter:drop-shadow(0 0 6px rgba(255,40,0,.95)) drop-shadow(0 0 14px rgba(255,60,0,.75)) drop-shadow(0 4px 10px rgba(0,0,0,.55));
+  animation:boosterFireBeat 1.15s ease-in-out infinite;
+  pointer-events:none!important;
+}
+#booster-open-button .booster-btn-label{
+  font-size:11px!important;font-weight:900!important;color:#ffb4a0!important;
+  text-shadow:0 1px 0 #2a0a06,0 0 6px rgba(0,0,0,.85)!important;
+  pointer-events:none!important;white-space:nowrap!important;
+}
+#booster-open-button .booster-btn-count{display:none;font-size:10px;font-weight:800;color:#ffe0c8;}
+#booster-open-button .booster-btn-count.active{display:block;}
+@keyframes boosterBtnPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.06)}}
+@keyframes boosterFireBeat{
+  0%,100%{transform:scale(1)}
+  35%{transform:scale(1.18);filter:drop-shadow(0 0 10px rgba(255,50,0,1)) drop-shadow(0 0 22px rgba(255,40,0,.9))}
+  55%{transform:scale(.94)}
+  75%{transform:scale(1.1)}
+}
+@media(max-width:700px){
+  #booster-open-button{left:6px!important;top:calc(env(safe-area-inset-top)+138px)!important;width:68px!important;}
+  #booster-open-button .booster-btn-icon{width:52px!important;height:52px!important;font-size:38px!important;}
+}
+@media(min-width:701px){
+  #booster-open-button{left:max(16px,calc((100vw - 1200px)/2 + 16px))!important;top:158px!important;}
+}
+#game-container.authority-mode #booster-open-button{opacity:0!important;pointer-events:none!important;}
