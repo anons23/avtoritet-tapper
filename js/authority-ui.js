@@ -77,7 +77,7 @@
           img('hero','authority-hero-bg')+
           '<div class="authority-shade"></div>'+
           '<div class="authority-heading">'+
-            '<div class="authority-crown">👑</div>'+
+            ''+
             '<div><div class="authority-kicker">МАСТЬ</div><h1>Авторитет</h1><p>Разбирай дела барака. Твой голос имеет вес.</p></div>'+
           '</div>'+
           '<div class="authority-influence"><span>🧠 ВЛИЯНИЕ</span><b id="authority-influence-value">'+fmt(s.points)+'</b></div>'+
