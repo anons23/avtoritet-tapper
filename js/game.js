@@ -288,6 +288,7 @@ function sanitizeGameState(state){
 
 let saveTimer = null;
 function saveNow(){
+  if(window.__AVTORITET_RESETTING) return;
   try{
     if(saveTimer){ clearTimeout(saveTimer); saveTimer = null; }
     sanitizeGameState(s);
@@ -296,6 +297,7 @@ function saveNow(){
   }catch(e){}
 }
 function saveSoon(){
+  if(window.__AVTORITET_RESETTING) return;
   if(saveTimer) return;
   saveTimer = setTimeout(function(){
     saveTimer = null;
