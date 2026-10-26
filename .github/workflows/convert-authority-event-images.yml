@@ -3,9 +3,6 @@ name: Convert Authority Event Art to WebP
 on:
   push:
     branches: [rustore]
-    paths:
-      - 'assets/authority/events/**'
-      - '.github/workflows/convert-authority-event-images.yml'
   workflow_dispatch:
 
 permissions:
@@ -50,8 +47,8 @@ jobs:
               if not source.exists():
                   if target.exists():
                       print(f"Already converted: {target}")
-                      continue
-                  print(f"Missing source: {source}")
+                  else:
+                      print(f"Missing source: {source}")
                   continue
               with Image.open(source) as original:
                   image = ImageOps.exif_transpose(original)
@@ -62,7 +59,7 @@ jobs:
                   image.save(target, "WEBP", quality=82, method=6)
               source.unlink()
               changed.extend([str(source), str(target)])
-              print(f"{source.stat().st_size if source.exists() else 'source removed'} -> {target} ({target.stat().st_size} bytes)")
+              print(f"Converted {source.name} -> {target.name} ({target.stat().st_size} bytes)")
           if changed:
               subprocess.run(["git", "config", "user.name", "github-actions[bot]"], check=True)
               subprocess.run(["git", "config", "user.email", "41898282+github-actions[bot]@users.noreply.github.com"], check=True)
