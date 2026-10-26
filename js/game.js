@@ -604,7 +604,7 @@ function tap(e){
   let g = TEST_MODE ? TEST_POINTS_PER_TAP : s.power * O[s.currentObject][2];
   const c = Math.random() < s.critChance;
   if(c){ s.tasks.crit++; if(!TEST_MODE) g *= 2; }
-  if(s.boosters.double > 0 && !TEST_MODE){ g *= 2; s.boosters.double--; }
+  if(s.boosters.double > 0){ g *= 2; s.boosters.double--; }
   s.chifir += g;
   s.points += g;
   s.tasks.earned = (s.tasks.earned||0) + g;
