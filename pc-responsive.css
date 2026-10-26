@@ -25,7 +25,7 @@
   .tap-target small { font-size:12px; }
   #tap-feedback { font-size:30px; }
   #event-message { width:min(900px,calc(100vw - 48px)) !important; max-width:900px; bottom:92px; min-height:50px; font-size:15px; }
-  #bottom-bar { width:min(1200px,100vw); min-height:74px; padding:10px 24px calc(10px + env(safe-area-inset-bottom)); gap:12px; grid-template-columns:repeat(4,minmax(0,1fr)); }
+  #bottom-bar { width:min(1200px,100vw); min-height:74px; padding:10px 24px calc(10px + env(safe-area-inset-bottom)); gap:12px; grid-template-columns:repeat(5,minmax(0,1fr)); }
   .nav-btn { min-height:54px; padding:11px 10px; font-size:14px; }
   #modal-overlay { align-items:center; padding:24px; }
   #modal { width:min(760px,calc(100vw - 48px)); max-width:760px; max-height:86dvh; border-radius:20px; padding:30px 26px 28px; }
