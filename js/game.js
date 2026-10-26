@@ -528,9 +528,23 @@ function openEvent(){
         else if(rewardKind===1){ gotPoints=Math.round((Number(c[3])||0)*scale); gotEnergy=Math.max(5,Math.round((Number(c[3])||100)*0.12*Math.min(scale,2.5))); }
         else { gotChifir=Math.round((Number(c[2])||0)*scale); gotPoints=Math.round((Number(c[3])||0)*scale); }
       }else{
-        gotChifir=Math.round((Number(c[2])||0)*scale);
-        gotPoints=Math.round((Number(c[3])||0)*scale);
-        gotRespect=Number(c[4])||0;
+        // В обычных событиях состав награды тоже меняется: не выдаём все показатели одновременно.
+        const rewardKind=(Math.floor(Math.max(0,Number(s.points)||0)/1500)+Number(b.dataset.i))%3;
+        const choiceText=String(c[0]||'').toLowerCase();
+        if(rewardKind===0){
+          gotChifir=Math.round((Number(c[2])||0)*scale);
+          gotRespect=Number(c[4])||0;
+        }else if(rewardKind===1){
+          gotRespect=Number(c[4])||0;
+          if(/спать|отдых|залечь|спокойно|не вмешиваться/.test(choiceText)){
+            gotEnergy=Math.max(5,Math.round((Number(c[3])||40)*0.15*Math.min(scale,2.5)));
+          }else{
+            gotPoints=Math.round((Number(c[3])||0)*scale);
+          }
+        }else{
+          gotChifir=Math.round((Number(c[2])||0)*scale);
+          gotPoints=Math.round((Number(c[3])||0)*scale);
+        }
       }
       s.chifir+=gotChifir;
       s.tasks.earned=(s.tasks.earned||0)+gotChifir;
