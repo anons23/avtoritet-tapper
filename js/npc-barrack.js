@@ -36,7 +36,7 @@
           {t:'Сказать: терпение',ok:.9,pts:20,rep:1,msg:'Бугор одобряет: «Вот это уже разговор.»'}
         ]},
         {q:'Бугор: «В зале народ спорит, кто самый крепкий. Хочешь проверить себя?»',choices:[
-          {t:'Вызваться первым',ok:.6,pts:35,rep:1,msg:'Ты выдерживаешь испытание. Бугор уважительно кивает. +25 ⭐.'},
+          {t:'Вызваться первым',ok:.6,pts:35,energy:25,rep:1,msg:'Ты выдерживаешь испытание. Бугор уважительно кивает и помогает восстановить силы.'},
           {t:'Заплатить 25 🍵 за тренировочный секрет',ok:.80,chifir:-25,pts:50,rep:2,msg:'Бугор показывает секретный приём. +50 ⭐.'},
           {t:'Сказать, что сегодня без геройства',ok:1,rep:0,msg:'Бугор усмехается: «Разумно. Завтра доберём.»'}
         ]},
@@ -47,7 +47,7 @@
         ]},
         {q:'Бугор: «Последний вопрос. Пойдёшь на риск ради авторитета?»',choices:[
           {t:'Да, если риск оправдан',ok:.6,pts:50,rep:1,msg:'Бугор хлопает по плечу: «Вот теперь понимаю.» +25 ⭐.'},
-          {t:'30 🍵 за тренировку перед риском',ok:.80,chifir:-30,pts:80,rep:2,msg:'Тренировка прошла жёстко. +80 ⭐.'},
+          {t:'30 🍵 за тренировку перед риском',ok:.80,chifir:-30,pts:80,energy:35,rep:2,msg:'Тренировка прошла жёстко. Бугор помог восстановить дыхание и силы.'},
           {t:'Нет, сначала подготовлюсь',ok:.95,pts:25,rep:1,msg:'Бугор одобряет осторожность. «Подготовка тоже сила.»'}
         ]}
       ]},
@@ -174,7 +174,7 @@
         {t:'Сам сходи',ok:1,rep:-1,msg:'Бугор пожимает плечами: «Ладно, понял.»'}
       ]},
       {minRep:10,q:'Бугор: «Хочу проверить одну технику. Нужен напарник. Впишешься?»',choices:[
-        {t:'Впишусь',ok:.72,rep:2,pts:55,risk:{chance:.18,pts:-15,msg:'На тренировке ты неудачно принял удар. -15 ⭐ опыта, но Бугор видит, что ты не сдался.',rep:1},msg:'Тренировка прошла жёстко, но ты выдержал. +25 ⭐.'},
+        {t:'Впишусь',ok:.72,rep:2,pts:55,energy:20,risk:{chance:.18,pts:-15,msg:'На тренировке ты неудачно принял удар. -15 ⭐ опыта, но Бугор видит, что ты не сдался.',rep:1},msg:'Тренировка прошла жёстко, но ты выдержал.'},
         {t:'Сначала объясни технику',ok:.9,rep:1,pts:25,msg:'Бугор объясняет всё по шагам.'},
         {t:'Сегодня пас',ok:1,rep:0,msg:'Бугор: «Отдых тоже часть тренировки.»'}
       ]},
@@ -357,6 +357,14 @@
   function save(){ try{ if(typeof window.saveGame==='function') window.saveGame(); }catch(e){} }
   function ui(){ try{ if(typeof window.ui==='function') window.ui(); }catch(e){} }
   function fmt(n){ n=Math.floor(Number(n)||0); return String(n).replace(/\B(?=(\d{3})+(?!\d))/g,' '); }
+  function rankRewardScale(points){
+    var p=Math.max(0,Number(points)||0);
+    if(p>=30000)return 4.5;
+    if(p>=15000)return 3.2;
+    if(p>=5000)return 2.2;
+    if(p>=1500)return 1.5;
+    return 1;
+  }
   function msg(t){
     var e=$('event-message');
     if(e){ e.textContent=t; e.classList.add('show'); setTimeout(function(){ e.classList.remove('show'); },2200); }
@@ -542,10 +550,19 @@
     var text;
     if(ok){
       if(baseRep) changeRel(npc,baseRep,s,baseRep>0?'help':baseRep<0?'fail':'');
-      var rewardChifir=Math.max(0,Number(choice.rewardChifir)||0);
-      var rewardPts=Number(choice.pts)||0;
+      var scale=rankRewardScale(s.points);
+      var rewardChifir=Math.round(Math.max(0,Number(choice.rewardChifir)||0)*scale);
+      var rewardPts=Math.round((Number(choice.pts)||0)*scale);
+      var rewardEnergy=Math.round(Math.max(0,Number(choice.energy)||0)*Math.min(scale,2.5));
       if(rewardChifir) s.chifir=(Number(s.chifir)||0)+rewardChifir;
       if(rewardPts) s.points=(Number(s.points)||0)+rewardPts;
+      var energyGained=0;
+      if(rewardEnergy){
+        var energyBefore=Math.max(0,Number(s.energy)||0);
+        s.energy=Math.min(Math.max(0,Number(s.maxEnergy)||0),energyBefore+rewardEnergy);
+        energyGained=s.energy-energyBefore;
+        s.lastEnergyTime=Date.now();
+      }
       if(choice.power) s.power=(Number(s.power)||1)+Number(choice.power);
       s.tasks=s.tasks||{};
       s.tasks.npcSuccess=(Number(s.tasks.npcSuccess)||0)+1;
@@ -570,7 +587,11 @@
         }
       }
       var dropText=dropRoll(npc,choice,s);
-      text=(npc.icon||'')+' '+(choice.msg||'Получилось.')+riskText+dropText;
+      var rewardParts=[];
+      if(rewardChifir)rewardParts.push('+'+fmt(rewardChifir)+' 🍵');
+      if(rewardPts)rewardParts.push('+'+fmt(rewardPts)+' ⭐');
+      if(energyGained)rewardParts.push('+'+fmt(energyGained)+' ⚡');
+      text=(npc.icon||'')+' '+(choice.msg||'Получилось.')+riskText+dropText+(rewardParts.length?' · Награда: '+rewardParts.join(' · '):'');
     }else{
       var outcome=failureOutcome(npc,choice,cost);
       var failRep=Number(choice.failRep);
