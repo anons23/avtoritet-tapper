@@ -516,7 +516,7 @@ function openEvent(){
       s.points+=c[3];
       s.respect=Math.max(0,(s.respect||0)+Number(c[4]||0));
       const bonus=c[4]?(' · уважение '+(c[4]>0?'+':'')+c[4]):'';
-      choiceResult(c[5]||( 'Удачно! +'+c[2]+' 🍵 +'+c[3]+' ⭐'+bonus),true);
+      choiceResult(c[5] ? c[5]+' · +'+c[2]+' 🍵 +'+c[3]+' ⭐'+bonus : 'Удачно! +'+c[2]+' 🍵 +'+c[3]+' ⭐'+bonus,true);
       finishEvent();
     }else{
       const loss=Math.max(3,Math.ceil(Math.max(1,c[3])*1.5));
