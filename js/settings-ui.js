@@ -70,7 +70,7 @@
     location.reload();
   };
   function bind(){
-    var btn=$('btn-settings');
+    var btn=$('settings-gear-button')||$('btn-settings');
     if(btn&&!btn.dataset.settingsBound){btn.dataset.settingsBound='1';btn.addEventListener('click',renderSettings);}
   }
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',bind,{once:true});else bind();
