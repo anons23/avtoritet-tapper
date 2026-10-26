@@ -601,3 +601,9 @@
     transform: scale(1.48) !important;
   }
 }
+
+
+/* 2026-10-26: lower raid entry button so it no longer covers rank progress. */
+#raid-open-button{top:188px!important}
+@media(max-width:700px){#raid-open-button{top:calc(env(safe-area-inset-top) + 184px)!important}}
+@media(max-width:900px) and (orientation:landscape){#raid-open-button{top:calc(env(safe-area-inset-top) + 64px)!important}}
