@@ -40,18 +40,18 @@
   width: 52px !important;
   height: 52px !important;
   flex: 0 0 52px !important;
-  font-size: 42px !important;
+  font-size: 34px !important;
   line-height: 52px !important;
   text-align: center !important;
   background: transparent !important;
-  filter: drop-shadow(0 0 7px rgba(255,100,15,.7));
+  filter: drop-shadow(0 0 7px rgba(90,155,220,.65));
   pointer-events: none !important;
 }
 #booster-open-button .booster-btn-label {
   display: block !important;
   width: 100% !important;
-  color: #ffd37a !important;
-  font-size: 10px !important;
+  color: #b9dfff !important;
+  font-size: 9px !important;
   font-weight: 900 !important;
   letter-spacing: .35px !important;
   line-height: 1.15 !important;
@@ -120,10 +120,22 @@
     font-size: 9px !important;
   }
 }
-@keyframes boosterFireGlow {
-  0%, 100% { filter: drop-shadow(0 0 5px rgba(255,100,15,.55)); }
-  50% { filter: drop-shadow(0 0 12px rgba(255,180,20,.95)) drop-shadow(0 0 22px rgba(255,70,10,.45)); }
+@keyframes boosterAdGlow {
+  0%, 100% { filter: drop-shadow(0 0 5px rgba(70,145,220,.5)); }
+  50% { filter: drop-shadow(0 0 12px rgba(120,190,255,.9)) drop-shadow(0 0 22px rgba(40,100,180,.4)); }
 }
 #booster-open-button .booster-btn-icon {
-  animation: boosterFireGlow 1.8s ease-in-out infinite;
+  animation: boosterAdGlow 2.4s ease-in-out infinite;
 }
+
+/* Clear ad-reward explainer */
+#modal-content .booster-info-window .booster-info-card{display:flex;align-items:center;gap:13px;margin:12px 0;padding:14px;border:1px solid rgba(115,170,220,.42);border-radius:15px;background:linear-gradient(145deg,#1f3040,#1b222a)}
+#modal-content .booster-info-icon{display:grid;place-items:center;width:58px;height:58px;flex:0 0 58px;border:1px solid #5d8eb6;border-radius:14px;background:#142331;color:#bfe3ff;font-size:24px;font-weight:1000}
+#modal-content .booster-info-card b{font-size:15px;color:#e4f3ff}
+#modal-content .booster-info-card p{margin:5px 0 0;color:#c2ced8;font-size:12px;line-height:1.45}
+#modal-content .booster-info-card strong{color:#fff}
+#modal-content .booster-info-status{display:flex;flex-direction:column;gap:5px;margin:12px 0;color:#bbb;font-size:12px}
+#modal-content .booster-status-active{color:#a5e9b0;font-weight:900}
+#modal-content .booster-info-status small,#modal-content .booster-info-note{color:#888;font-size:11px;line-height:1.4}
+#modal-content .booster-watch-ad{width:100%;min-height:50px;padding:12px;border:1px solid #5c8eb5;border-radius:13px;background:linear-gradient(135deg,#294b67,#1b3042);color:#fff;font-weight:950}
+#modal-content .booster-watch-ad:disabled{opacity:.65}
