@@ -86,6 +86,14 @@ let s = {
 const $ = id => document.getElementById(id);
 function fmt(n){ return String(Math.floor(Number(n)||0)).replace(/\B(?=(\d{3})+(?!\d))/g,' '); }
 function rank(){ let r=R[0]; for(const x of R) if(s.points>=x[1]) r=x; return r; }
+function rankRewardScale(points){
+  const p=Math.max(0,Number(points)||0);
+  if(p>=30000)return 4.5;
+  if(p>=15000)return 3.2;
+  if(p>=5000)return 2.2;
+  if(p>=1500)return 1.5;
+  return 1;
+}
 function highestUnlocked(){ let i=0; for(let k=0;k<O.length;k++) if(s.points>=O[k][3]) i=k; return i; }
 
 function msg(t){
@@ -511,12 +519,31 @@ function openEvent(){
     s.tasks.events=(s.tasks.events||0)+1;
     s.lastChoiceEvent=s.points;
     if(Math.random()<c[1]){
-      s.chifir+=c[2];
-      s.tasks.earned=(s.tasks.earned||0)+c[2];
-      s.points+=c[3];
-      s.respect=Math.max(0,(s.respect||0)+Number(c[4]||0));
-      const bonus=c[4]?(' · уважение '+(c[4]>0?'+':'')+c[4]):'';
-      choiceResult(c[5] ? c[5]+' · +'+c[2]+' 🍵 +'+c[3]+' ⭐'+bonus : 'Удачно! +'+c[2]+' 🍵 +'+c[3]+' ⭐'+bonus,true);
+      const scale=rankRewardScale(s.points);
+      let gotChifir=0,gotPoints=0,gotRespect=0,gotEnergy=0;
+      if(authorityEvent){
+        // Дела Авторитета чередуют тип награды: не каждый успех выдаёт все ресурсы сразу.
+        const rewardKind=(available.indexOf(v)*3+Number(b.dataset.i))%3;
+        if(rewardKind===0){ gotChifir=Math.round((Number(c[2])||0)*scale); gotRespect=Number(c[4])||0; }
+        else if(rewardKind===1){ gotPoints=Math.round((Number(c[3])||0)*scale); gotEnergy=Math.max(5,Math.round((Number(c[3])||100)*0.12*Math.min(scale,2.5))); }
+        else { gotChifir=Math.round((Number(c[2])||0)*scale); gotPoints=Math.round((Number(c[3])||0)*scale); }
+      }else{
+        gotChifir=Math.round((Number(c[2])||0)*scale);
+        gotPoints=Math.round((Number(c[3])||0)*scale);
+        gotRespect=Number(c[4])||0;
+      }
+      s.chifir+=gotChifir;
+      s.tasks.earned=(s.tasks.earned||0)+gotChifir;
+      s.points+=gotPoints;
+      s.respect=Math.max(0,(s.respect||0)+gotRespect);
+      if(gotEnergy){ const before=s.energy; s.energy=Math.min(s.maxEnergy,s.energy+gotEnergy); gotEnergy=s.energy-before; s.lastEnergyTime=Date.now(); }
+      const rewards=[];
+      if(gotChifir)rewards.push('+'+fmt(gotChifir)+' 🍵');
+      if(gotPoints)rewards.push('+'+fmt(gotPoints)+' ⭐');
+      if(gotRespect)rewards.push('уважение +'+gotRespect);
+      if(gotEnergy)rewards.push('+'+fmt(gotEnergy)+' ⚡');
+      const rewardText=rewards.length?' · '+rewards.join(' · '):'';
+      choiceResult((c[5]||'Удачно!')+rewardText,true);
       finishEvent();
     }else{
       const loss=Math.max(3,Math.ceil(Math.max(1,c[3])*1.5));
@@ -646,7 +673,7 @@ function tap(e){
     try{ if(window.GameSFX && typeof window.GameSFX.punch==='function') window.GameSFX.punch(false); }catch(e){}
     if(typeof window.animateObjectVisual === 'function') window.animateObjectVisual();
     feedback(e, 1, false);
-    if(s.jailTaps >= s.jailRequired){ s.jailed = false; s.tasks.jail = (s.tasks.jail||0)+1; msg('🔓 Вышел из карцера'); ui(); saveNow(); return; }
+    if(s.jailTaps >= s.jailRequired){ s.jailed = false; s.energy = s.maxEnergy; s.lastEnergyTime = Date.now(); s.tasks.jail = (s.tasks.jail||0)+1; msg('🔓 Вышел из карцера — энергия полностью восстановлена! ⚡ '+fmt(s.energy)+'/'+fmt(s.maxEnergy)); ui(); saveNow(); return; }
     ui(); saveSoon(); return;
   }
   restoreEnergy(Date.now());
