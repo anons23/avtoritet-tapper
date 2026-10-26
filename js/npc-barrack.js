@@ -414,8 +414,33 @@
         html+='<button type="button" class="npc-link npc-link-locked" disabled aria-disabled="true"><span aria-hidden="true">🔒</span><b>'+n.name+'</b><small>Откроется с мастью «'+(function(){var rr={0:'Салага',1500:'Пацан',5000:'Блатной',15000:'Смотрящий',30000:'Авторитет'};return rr[Number(n.unlockPoints)]||'следующей мастью';})()+'»</small></button>';
       }
     });
-    html+='</div></div>';
+    html+='</div>'+
+      '<div class="reset-progress-box" style="margin-top:16px;padding-top:14px;border-top:1px solid #444">'+
+      '<p style="margin:0 0 9px;color:#aaa;font-size:12px">Тестирование: можно начать игру заново.</p>'+
+      '<button type="button" id="reset-progress-open" style="width:100%;min-height:44px;border:1px solid #754646;border-radius:12px;background:#321f1f;color:#ffd6d6;font-weight:900">↻ Сбросить весь прогресс</button>'+
+      '</div></div>';
     openModal(html);
+    var resetOpen=$('reset-progress-open');
+    if(resetOpen) resetOpen.addEventListener('click',function(){
+      var c=$('modal-content');
+      if(!c)return;
+      c.innerHTML='<div class="section-window"><div class="section-kicker">ПОДТВЕРЖДЕНИЕ</div><h2>↻ Сбросить прогресс?</h2><p class="section-subtitle">Все очки, ресурсы, улучшения, масти и результаты рейдов на этом устройстве будут удалены. Действие нельзя отменить.</p><div style="display:grid;grid-template-columns:1fr 1fr;gap:9px"><button type="button" id="reset-progress-cancel" style="min-height:44px;border:1px solid #555;border-radius:12px;background:#292929;color:#fff;font-weight:800">Отмена</button><button type="button" id="reset-progress-confirm" style="min-height:44px;border:1px solid #a34d4d;border-radius:12px;background:#6b2525;color:#fff;font-weight:900">Да, сбросить</button></div></div>';
+      var cancel=$('reset-progress-cancel');
+      if(cancel)cancel.addEventListener('click',renderList);
+      var confirm=$('reset-progress-confirm');
+      if(confirm)confirm.addEventListener('click',function(){
+        try{
+          var keys=[];
+          for(var i=0;i<localStorage.length;i++){
+            var key=localStorage.key(i);
+            if(key && (/^avtoritet_/i.test(key)||/^avtoritet-/i.test(key)||/^raid_progress$/i.test(key)))keys.push(key);
+          }
+          keys.forEach(function(key){localStorage.removeItem(key);});
+          localStorage.removeItem('avtoritet_save_v2');
+        }catch(e){}
+        location.reload();
+      });
+    });
     var m=$('modal');
     if(m) m.classList.remove('npc-modal');
     document.querySelectorAll('.npc-link[data-npc]').forEach(function(btn){
