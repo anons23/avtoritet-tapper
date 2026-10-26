@@ -258,23 +258,9 @@
   }
 
   function ensureMuteButton() {
-    injectMuteStyles();
-    if (document.getElementById('music-mute-btn')) {
-      updateMuteBtn();
-      return;
-    }
-    const parent = document.getElementById('game-container') || document.body;
-    const btn = document.createElement('button');
-    btn.id = 'music-mute-btn';
-    btn.type = 'button';
-    btn.addEventListener('click', function (e) {
-      e.preventDefault();
-      e.stopPropagation();
-      unlock();
-      toggleMute();
-    });
-    parent.appendChild(btn);
-    updateMuteBtn();
+    /* Main-screen music toggle is intentionally removed; music is controlled in Settings. */
+    const btn = document.getElementById('music-mute-btn');
+    if (btn) btn.remove();
   }
 
   function bindRaidMuteBtn(btn) {
