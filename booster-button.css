@@ -1,0 +1,129 @@
+/* Booster button — mirror of the raid button on the left side. */
+#booster-open-button,
+#booster-open-button:hover,
+#booster-open-button:active,
+#booster-open-button:focus {
+  position: absolute !important;
+  left: 6px !important;
+  right: auto !important;
+  top: 148px !important;
+  z-index: 60 !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: flex-start !important;
+  gap: 2px !important;
+  width: 68px !important;
+  min-width: 68px !important;
+  max-width: 68px !important;
+  min-height: 74px !important;
+  height: auto !important;
+  margin: 0 !important;
+  padding: 4px 4px 6px !important;
+  box-sizing: border-box !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  background-color: transparent !important;
+  box-shadow: none !important;
+  color: #fff !important;
+  -webkit-appearance: none !important;
+  appearance: none !important;
+  cursor: pointer !important;
+  text-align: center !important;
+  line-height: 1.15 !important;
+  filter: drop-shadow(0 5px 12px rgba(0,0,0,.65));
+  transform-origin: center center;
+}
+#booster-open-button .booster-btn-icon {
+  display: block !important;
+  width: 52px !important;
+  height: 52px !important;
+  flex: 0 0 52px !important;
+  font-size: 42px !important;
+  line-height: 52px !important;
+  text-align: center !important;
+  background: transparent !important;
+  filter: drop-shadow(0 0 7px rgba(255,100,15,.7));
+  pointer-events: none !important;
+}
+#booster-open-button .booster-btn-label {
+  display: block !important;
+  width: 100% !important;
+  color: #ffd37a !important;
+  font-size: 10px !important;
+  font-weight: 900 !important;
+  letter-spacing: .35px !important;
+  line-height: 1.15 !important;
+  text-align: center !important;
+  text-shadow: 0 1px 0 #1a1206, 0 0 6px rgba(0,0,0,.9), 0 2px 4px rgba(0,0,0,.7) !important;
+  white-space: nowrap !important;
+  text-transform: uppercase !important;
+  pointer-events: none !important;
+}
+#booster-open-button .booster-btn-count {
+  display: block !important;
+  min-height: 0 !important;
+  color: #9cff9c !important;
+  font-size: 9px !important;
+  font-weight: 900 !important;
+  line-height: 1.1 !important;
+  text-shadow: 0 1px 3px #000 !important;
+  pointer-events: none !important;
+}
+#booster-open-button .booster-btn-count:empty {
+  display: none !important;
+}
+@media (min-width: 701px) {
+  #booster-open-button {
+    left: 8px !important;
+    top: 158px !important;
+    width: 72px !important;
+    min-width: 72px !important;
+    max-width: 72px !important;
+    min-height: 78px !important;
+  }
+  #booster-open-button .booster-btn-icon {
+    width: 56px !important;
+    height: 56px !important;
+    flex-basis: 56px !important;
+    font-size: 46px !important;
+    line-height: 56px !important;
+  }
+}
+@media (max-width: 700px) {
+  #booster-open-button {
+    left: 6px !important;
+    right: auto !important;
+    top: 148px !important;
+  }
+}
+@media (max-width: 900px) and (orientation: landscape) {
+  #booster-open-button {
+    left: 6px !important;
+    right: auto !important;
+    top: 56px !important;
+    width: 56px !important;
+    min-width: 56px !important;
+    max-width: 56px !important;
+    min-height: 60px !important;
+    padding: 3px !important;
+  }
+  #booster-open-button .booster-btn-icon {
+    width: 40px !important;
+    height: 40px !important;
+    flex-basis: 40px !important;
+    font-size: 32px !important;
+    line-height: 40px !important;
+  }
+  #booster-open-button .booster-btn-label {
+    font-size: 9px !important;
+  }
+}
+@keyframes boosterFireGlow {
+  0%, 100% { filter: drop-shadow(0 0 5px rgba(255,100,15,.55)); }
+  50% { filter: drop-shadow(0 0 12px rgba(255,180,20,.95)) drop-shadow(0 0 22px rgba(255,70,10,.45)); }
+}
+#booster-open-button .booster-btn-icon {
+  animation: boosterFireGlow 1.8s ease-in-out infinite;
+}
