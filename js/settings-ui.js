@@ -23,7 +23,7 @@
       settingButton('settings-music','Музыка','Фоновая музыка в игре',!musicMuted())+
       settingButton('settings-sfx','Звуковые эффекты','Удары, нажатия и победы',!sfxMuted())+
       '</div><div class="settings-group"><h3>Погремуха</h3>'+
-      '<form id="settings-nickname-form" class="settings-name-form"><label for="settings-nickname">Имя игрока</label><input id="settings-nickname" name="nickname" maxlength="16" autocomplete="nickname" value="'+esc(nick)+'" placeholder="Введи погремуху" required><button type="submit" class="settings-primary">Сохранить имя</button></form>'+
+      '<form id="settings-nickname-form" class="settings-name-form"><label for="settings-nickname">Имя игрока</label><input id="settings-nickname" name="nickname" maxlength="16" autocomplete="nickname" value="'+esc(nick)+'" placeholder="Введи погремуху" required><button type="submit" class="settings-primary">📺 Сохранить за рекламу</button></form>'+
       '</div><div class="settings-group"><h3>Как играть</h3>'+
       '<div class="settings-help"><p><b>Тапай по объекту</b> на главном экране, чтобы получать очки и чефир.</p><p><b>Энергия</b> расходуется на действия; улучшения доступны в «Качалке».</p><p><b>Масть и поручения</b> показывают развитие персонажа и дополнительные цели.</p><p><b>Рейды</b> открывают бои с персонажами. Следи за энергией и таймером бойца.</p><p><b>Барак</b> — разговоры с персонажами и их истории.</p></div>'+
       '</div><div class="settings-group settings-danger"><h3>Данные игры</h3><p>Сброс удалит очки, ресурсы, улучшения, масть, поручения и прогресс рейдов на этом устройстве. Настройки звука сохранятся.</p><button type="button" id="settings-reset-open" class="settings-reset">↻ Сбросить весь прогресс</button></div>'+
@@ -39,13 +39,23 @@
       var input=$('settings-nickname');
       var value=String(input&&input.value||'').replace(/[^\w\u0400-\u04FF\- ]/g,'').trim().slice(0,16);
       if(!value){if(input)input.focus();return;}
-      var s=typeof window.getGameState==='function'?window.getGameState():null;
-      if(!s)return;
-      s.nickname=value;
-      if(typeof window.saveGame==='function')window.saveGame();
-      if(typeof window.ui==='function')window.ui();
-      renderSettings();
-      var updated=$('settings-nickname');if(updated){updated.value=value;updated.focus();}
+      var state=typeof window.getGameState==='function'?window.getGameState():null;
+      if(!state)return;
+      var current=String(state.nickname||'Салага');
+      if(value===current){if(typeof window.msg==='function')window.msg('Это уже твоя кличка');return;}
+      var submit=form.querySelector('button[type="submit"]');
+      if(typeof window.showRewardedAd!=='function'){if(typeof window.msg==='function')window.msg('📺 Реклама пока недоступна — кличка не изменена');return;}
+      if(submit){submit.disabled=true;submit.textContent='Ожидаем завершения рекламы…';}
+      window.showRewardedAd(function(ok){
+        if(!ok){if(submit){submit.disabled=false;submit.textContent='📺 Сохранить за рекламу';}if(typeof window.msg==='function')window.msg('Реклама не просмотрена — кличка не изменена');return;}
+        var latest=typeof window.getGameState==='function'?window.getGameState():null;
+        if(!latest)return;
+        latest.nickname=value;
+        if(typeof window.saveGame==='function')window.saveGame();
+        if(typeof window.ui==='function')window.ui();
+        renderSettings();
+        if(typeof window.msg==='function')window.msg('Кличка изменена: '+value);
+      });
     });
     var reset=$('settings-reset-open');
     if(reset)reset.addEventListener('click',renderResetConfirmation);
