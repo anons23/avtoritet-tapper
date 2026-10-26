@@ -77,7 +77,13 @@ function ui(){
     const o = O[s.currentObject] || O[0];
     if($('object-name')) $('object-name').textContent = s.jailed ? 'Карцер' : o[0];
     if($('object-action')) $('object-action').textContent = s.jailed ? 'ТАПАЙ ДЛЯ ВЫХОДА' : (s.currentObject===4 ? 'РАЗОБРАТЬ ДЕЛО' : 'ТАПАЙ!');
-    if($('sentence-left')) $('sentence-left').textContent = Math.max(0, Math.ceil(s.sentenceDays - s.servedSentenceMinutes/1440)) + ' дней';
+    if($('sentence-left')) $('sentence-left').textContent = Math.max(0, Math.ceil(Number(s.sentenceDays)||0)) + ' дней';
+    const sentenceTaps = Math.max(0, Number(s.sentenceTapCounter)||0) % 50;
+    const sentenceDone = Number(s.sentenceDays||0) <= 0;
+    if($('sentence-fill')) $('sentence-fill').style.width = (sentenceDone ? 100 : sentenceTaps * 2) + '%';
+    if($('sentence-detail')) $('sentence-detail').textContent = sentenceDone
+      ? 'Срок отбыт · нарушения могут добавить дни'
+      : 'До сокращения на 1 день: ' + sentenceTaps + ' / 50 тапов';
     const t = $('tap-object');
     if(t){ t.classList.remove('preload-hidden'); t.style.visibility = 'visible'; t.style.opacity = '1'; }
     const g = $('game-container');
