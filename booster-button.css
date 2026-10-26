@@ -139,3 +139,15 @@
 #modal-content .booster-info-status small,#modal-content .booster-info-note{color:#888;font-size:11px;line-height:1.4}
 #modal-content .booster-watch-ad{width:100%;min-height:50px;padding:12px;border:1px solid #5c8eb5;border-radius:13px;background:linear-gradient(135deg,#294b67,#1b3042);color:#fff;font-weight:950}
 #modal-content .booster-watch-ad:disabled{opacity:.65}
+
+
+/* Rewarded-ad booster: framed icon, clear bonus badge, restrained pulse. */
+#booster-open-button{isolation:isolate!important;filter:none!important;overflow:visible!important}
+#booster-open-button::before{content:"";position:absolute;z-index:-1;left:7px;top:4px;width:54px;height:54px;border-radius:18px;border:1px solid rgba(132,202,255,.68);background:radial-gradient(circle at 35% 25%,rgba(91,166,229,.42),rgba(21,42,63,.92) 68%);box-shadow:0 0 0 2px rgba(45,115,174,.15),0 5px 15px rgba(0,0,0,.5),inset 0 0 13px rgba(130,202,255,.18);pointer-events:none}
+#booster-open-button .booster-btn-icon{position:relative!important;z-index:1!important;width:52px!important;height:52px!important;line-height:52px!important;font-size:31px!important;filter:drop-shadow(0 2px 2px #07121d)!important;animation:boosterAdIconPulse 2.4s ease-in-out infinite!important}
+#booster-open-button .booster-btn-label{position:relative!important;z-index:1!important;display:block!important;margin-top:3px!important;padding:3px 5px!important;border:1px solid rgba(137,202,255,.52)!important;border-radius:7px!important;background:linear-gradient(135deg,#244d6c,#152b3e)!important;color:#e4f4ff!important;box-shadow:0 2px 8px #0008!important;font-size:9px!important;letter-spacing:.45px!important}
+#booster-open-button .booster-btn-count.active{position:relative!important;z-index:1!important;margin-top:2px!important;padding:2px 5px!important;border-radius:6px!important;background:#16351f!important;border:1px solid #4f9c63!important;color:#b6ffbf!important}
+#booster-open-button:hover::before{border-color:#d2edff;box-shadow:0 0 0 3px rgba(72,155,220,.2),0 0 18px rgba(90,175,245,.65)}
+@keyframes boosterAdIconPulse{0%,100%{transform:scale(1);filter:drop-shadow(0 0 3px rgba(115,194,255,.55))}50%{transform:scale(1.06);filter:drop-shadow(0 0 9px rgba(115,194,255,.95))}}
+@media(max-width:900px) and (orientation:landscape){#booster-open-button::before{left:3px;top:2px;width:48px;height:40px;border-radius:13px}#booster-open-button .booster-btn-icon{width:40px!important;height:40px!important;line-height:40px!important;font-size:29px!important}#booster-open-button .booster-btn-label{font-size:8px!important;padding:2px 3px!important}}
+@media(prefers-reduced-motion:reduce){#booster-open-button .booster-btn-icon{animation:none!important}}
