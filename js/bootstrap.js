@@ -3,9 +3,9 @@
   /* RuStore branch bootstrap */
   const scripts=[
     {src:'./js/save-migration.js?v=1.2',critical:true},
-    {src:'./js/game.js?v=5.6-authority-events',critical:true},
+    {src:'./js/game.js?v=5.7-rank-rewards-jail-energy',critical:true},
     {src:'./js/save-guard.js?v=1.1',critical:false},
-    {src:'./js/npc-barrack.js?v=4.7-no-barrack-reset',critical:true},
+    {src:'./js/npc-barrack.js?v=4.8-rank-rewards',critical:true},
     {src:'./js/npc-memory.js?v=1.0',critical:false},
     {src:'./js/npc-rumors.js?v=1.5',critical:false},
     {src:'./js/object-visuals.js?v=3.3',critical:true},
