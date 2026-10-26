@@ -446,3 +446,15 @@
 #bottom-bar{grid-template-columns:repeat(4,minmax(0,1fr))!important}
 @media(min-width:701px){#top-bar{padding:7px 48px 7px 14px!important;gap:8px!important}#top-bar .resource{font-size:13px!important;padding:6px 8px!important}#top-bar .resource-icon{font-size:18px!important}#top-bar .resource-copy small{font-size:9px!important}#top-bar .resource-copy b{font-size:15px!important}#settings-gear-button{right:10px!important;width:34px!important;height:34px!important}}
 @media(max-width:360px){#top-bar{gap:3px!important;padding-left:4px!important;padding-right:39px!important}#top-bar .resource{gap:3px!important;padding:4px 2px!important}#top-bar .resource-icon{font-size:14px!important}#top-bar .resource-copy small{font-size:7px!important}#top-bar .resource-copy b{font-size:11px!important}#settings-gear-button{right:4px!important;width:29px!important;height:29px!important}}
+
+
+/* 2026-10-26: settings gear lives beside the sentence progress bar, not in the resource shelf. */
+#sentence-panel .sentence-track-row{display:flex!important;align-items:center!important;gap:8px!important;min-width:0!important}
+#sentence-panel .sentence-track-row .sentence-track{flex:1 1 auto!important;min-width:0!important;margin:7px 0 5px!important}
+#sentence-panel #settings-gear-button{position:static!important;top:auto!important;right:auto!important;transform:none!important;flex:0 0 28px!important;width:28px!important;height:28px!important;min-width:28px!important;max-width:28px!important;margin:0!important;padding:0!important;display:grid!important;place-items:center!important;border:1px solid #6b6048!important;border-radius:8px!important;background:linear-gradient(145deg,#30302d,#1c1c1b)!important;color:#f0d18a!important;font-size:18px!important;line-height:1!important;box-shadow:0 2px 8px #0008!important}
+#sentence-panel #settings-gear-button:active{transform:scale(.94)!important}
+@media(max-width:700px){
+ #sentence-panel .sentence-track-row{gap:6px!important}
+ #sentence-panel .sentence-track-row .sentence-track{margin:3px 0 2px!important}
+ #sentence-panel #settings-gear-button{flex-basis:25px!important;width:25px!important;height:25px!important;min-width:25px!important;max-width:25px!important;font-size:16px!important}
+}
