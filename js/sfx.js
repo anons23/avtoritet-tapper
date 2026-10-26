@@ -8,12 +8,11 @@
   const MASTER_GAIN = 0.48;
 
   function isMuted() {
-    try {
-      if (window.GameMusic && typeof window.GameMusic.isMuted === 'function') {
-        return !!window.GameMusic.isMuted();
-      }
-    } catch (e) {}
-    return false;
+    try { return localStorage.getItem('avt_sfx_muted') === '1'; }
+    catch (e) { return false; }
+  }
+  function setMuted(value) {
+    try { localStorage.setItem('avt_sfx_muted', value ? '1' : '0'); } catch (e) {}
   }
 
   function ensureCtx() {
@@ -227,6 +226,8 @@
     hit: playHit,
     win: playWin,
     click: playClick,
-    empty: playEmpty
+    empty: playEmpty,
+    isMuted: isMuted,
+    setMuted: setMuted
   };
 })();
