@@ -1,0 +1,72 @@
+name: Convert Authority Event Art to WebP
+
+on:
+  push:
+    branches: [rustore]
+    paths:
+      - 'assets/authority/events/**'
+      - '.github/workflows/convert-authority-event-images.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  convert:
+    if: "!contains(github.event.head_commit.message, '[webp-conversion]')"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: rustore
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Convert uploaded event images to WebP
+        run: |
+          python -m pip install --quiet Pillow
+          python <<'PY'
+          from pathlib import Path
+          from PIL import Image, ImageOps
+          import subprocess
+
+          folder = Path("assets/authority/events")
+          mapping = {
+              "недостача в общаке.jfif": "common_fund_shortage.webp",
+              "Спор за территорию.jfif": "territory_dispute.webp",
+              "звонок с воли.jfif": "call_from_outside.webp",
+              "партия задержана.jfif": "shipment_delayed.webp",
+              "Разговор со старшим вором.jfif": "talk_with_thief.webp",
+              "Долг между своими.jfif": "debt_between_own.webp",
+              "Утечка информации.jfif": "information_leak.webp",
+              "Просьба поручиться.jfif": "vouch_request.webp",
+              "Расходы на общее дело.jfif": "common_fund_expenses.webp",
+              "Два срочных дела.jfif": "two_urgent_matters.webp",
+          }
+          changed = []
+          for old_name, new_name in mapping.items():
+              source = folder / old_name
+              target = folder / new_name
+              if not source.exists():
+                  if target.exists():
+                      print(f"Already converted: {target}")
+                      continue
+                  print(f"Missing source: {source}")
+                  continue
+              with Image.open(source) as original:
+                  image = ImageOps.exif_transpose(original)
+                  if image.width > 1000 or image.height > 1250:
+                      image.thumbnail((1000, 1250), Image.Resampling.LANCZOS)
+                  if image.mode not in ("RGB", "RGBA"):
+                      image = image.convert("RGBA" if "transparency" in image.info else "RGB")
+                  image.save(target, "WEBP", quality=82, method=6)
+              source.unlink()
+              changed.extend([str(source), str(target)])
+              print(f"{source.stat().st_size if source.exists() else 'source removed'} -> {target} ({target.stat().st_size} bytes)")
+          if changed:
+              subprocess.run(["git", "config", "user.name", "github-actions[bot]"], check=True)
+              subprocess.run(["git", "config", "user.email", "41898282+github-actions[bot]@users.noreply.github.com"], check=True)
+              subprocess.run(["git", "add", "assets/authority/events"], check=True)
+              subprocess.run(["git", "commit", "-m", "Convert authority event images to WebP [webp-conversion]"], check=True)
+              subprocess.run(["git", "push", "origin", "HEAD:rustore"], check=True)
+          PY
