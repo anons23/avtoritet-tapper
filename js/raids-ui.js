@@ -311,11 +311,11 @@
       var currentPhase=phaseFor(hp,f.hp);
       var phaseMultiplier=currentPhase===3?0.72:(currentPhase===2?0.86:1);
       var bugorMultiplier=1+Math.max(0,metaNow.bugorLevel-1)*0.04;
-      var dmg=Math.max(1,Math.round((basePower+bonus)*phaseMultiplier/bugorMultiplier));
+      var dmg=(window.TEST_MODE===true)?300:Math.max(1,Math.round((basePower+bonus)*phaseMultiplier/bugorMultiplier));
       var critChance=0.05;
       try{ if(typeof window.getEffectiveCrit==='function') critChance=Number(window.getEffectiveCrit())||0.05; }
       catch(err){ critChance=Number(s&&s.critChance)||0.05; }
-      var crit=Math.random()<critChance;
+      var crit=window.TEST_MODE===true?false:(Math.random()<critChance);
       if(crit) dmg=Math.round(dmg*2.2);
       hp=Math.max(0,hp-dmg); pr.hp=hp;
       var fill=$('raid-hp-fill'), txt=$('raid-hp-text'), bar=$('raid-hp');
