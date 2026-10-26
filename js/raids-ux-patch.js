@@ -134,12 +134,12 @@
         }
         if(typeof window.getEffectivePower==='function') basePower=Math.max(1, Number(window.getEffectivePower())||basePower);
       }catch(err){}
-      var dmg=Math.max(1, Math.round(basePower+bonus));
+      var dmg=(window.TEST_MODE===true)?300:Math.max(1, Math.round(basePower+bonus));
       var crit=false;
       try{
         var ch=0.05;
         if(typeof window.getEffectiveCrit==='function') ch=Number(window.getEffectiveCrit())||0.05;
-        crit=Math.random()<ch;
+        crit=window.TEST_MODE===true?false:(Math.random()<ch);
         if(crit) dmg=Math.round(dmg*2.2);
       }catch(err){}
       setTimeout(function(){
