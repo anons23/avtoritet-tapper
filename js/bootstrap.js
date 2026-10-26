@@ -10,7 +10,7 @@
     {src:'./js/npc-rumors.js?v=1.5',critical:false},
     {src:'./js/object-visuals.js?v=3.3',critical:true},
     {src:'./js/ads-policy.js?v=1.1',critical:false},
-    {src:'./js/shop-booster-ad.js?v=2.0',critical:false},
+    {src:'./js/shop-booster-ad.js?v=2.1-ad-explainer',critical:false},
     {src:'./js/jail-lock.js?v=1.0',critical:false},
     {src:'./js/nickname-rename.js?v=1.1',critical:false},
     {src:'./js/daily.js?v=1.4',critical:false},
