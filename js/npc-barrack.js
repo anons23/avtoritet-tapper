@@ -429,6 +429,11 @@
       if(cancel)cancel.addEventListener('click',renderList);
       var confirm=$('reset-progress-confirm');
       if(confirm)confirm.addEventListener('click',function(){
+        if(typeof window.resetGameProgress==='function'){
+          window.resetGameProgress();
+          return;
+        }
+        window.__AVTORITET_RESETTING=true;
         try{
           var keys=[];
           for(var i=0;i<localStorage.length;i++){
@@ -437,6 +442,7 @@
           }
           keys.forEach(function(key){localStorage.removeItem(key);});
           localStorage.removeItem('avtoritet_save_v2');
+          localStorage.removeItem('avtoritet_save_v2_backup');
         }catch(e){}
         location.reload();
       });
