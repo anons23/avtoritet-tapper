@@ -509,7 +509,22 @@ function openEvent(){
   activeEvent=true;
   const v=available[Math.floor(Math.random()*available.length)];
   const authorityEvent=!!(v[4]==='authority');
-  let h='<div class="section-window event-window"><div class="section-kicker">'+(authorityEvent?'ДЕЛО АВТОРИТЕТА':'СОБЫТИЕ')+'</div><h2>⚠️ '+v[0]+'</h2><p>'+v[1]+'</p><p><b>'+(authorityEvent?'Выбери, как решить вопрос:':'Решай быстро:')+'</b></p><div class="choices">';
+  const authorityEventImages = {
+    'Недостача в общаке':'common_fund_shortage.webp',
+    'Спор за территорию':'territory_dispute.webp',
+    'Звонок с воли':'call_from_outside.webp',
+    'Партия задержана':'shipment_delayed.webp',
+    'Разговор со старшим вором':'talk_with_thief.webp',
+    'Долг между своими':'debt_between_own.webp',
+    'Утечка информации':'information_leak.webp',
+    'Просьба поручиться':'vouch_request.webp',
+    'Расходы на общее дело':'common_fund_expenses.webp',
+    'Два срочных дела':'two_urgent_matters.webp'
+  };
+  const authorityArt = authorityEvent
+    ? '<div class="authority-event-art"><img src="./assets/authority/events/'+authorityEventImages[v[0]]+'" alt="" loading="eager" decoding="async"></div>'
+    : '';
+  let h='<div class="section-window event-window"><div class="section-kicker">'+(authorityEvent?'ДЕЛО АВТОРИТЕТА':'СОБЫТИЕ')+'</div><h2>⚠️ '+v[0]+'</h2>'+authorityArt+'<p>'+v[1]+'</p><p><b>'+(authorityEvent?'Выбери, как решить вопрос:':'Решай быстро:')+'</b></p><div class="choices">';
   v[2].forEach((c,i)=>{ h+='<button type="button" class="choice" data-i="'+i+'">'+c[0]+'</button>'; });
   h+='</div></div>';
   openModal(h,true);
