@@ -6,7 +6,7 @@
   position: absolute !important;
   left: 6px !important;
   right: auto !important;
-  top: 188px !important;
+  top: calc(env(safe-area-inset-top) + 138px) !important;
   z-index: 60 !important;
   display: flex !important;
   flex-direction: column !important;
@@ -95,14 +95,14 @@
   #booster-open-button {
     left: 6px !important;
     right: auto !important;
-    top: 188px !important;
+    top: calc(env(safe-area-inset-top) + 138px) !important;
   }
 }
 @media (max-width: 900px) and (orientation: landscape) {
   #booster-open-button {
     left: 6px !important;
     right: auto !important;
-    top: 56px !important;
+    top: calc(env(safe-area-inset-top) + 54px) !important;
     width: 56px !important;
     min-width: 56px !important;
     max-width: 56px !important;
