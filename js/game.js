@@ -521,6 +521,18 @@ function openEvent(){
     'Расходы на общее дело':'common_fund_expenses.webp',
     'Два срочных дела':'two_urgent_matters.webp'
   };
+  const authorityEventOriginalImages = {
+    'Недостача в общаке':'недостача в общаке.jfif',
+    'Спор за территорию':'Спор за территорию.jfif',
+    'Звонок с воли':'звонок с воли.jfif',
+    'Партия задержана':'партия задержана.jfif',
+    'Разговор со старшим вором':'Разговор со старшим вором.jfif',
+    'Долг между своими':'Долг между своими.jfif',
+    'Утечка информации':'Утечка информации.jfif',
+    'Просьба поручиться':'Просьба поручиться.jfif',
+    'Расходы на общее дело':'Расходы на общее дело.jfif',
+    'Два срочных дела':'Два срочных дела.jfif'
+  };
   const authorityArt = authorityEvent
     ? '<div class="authority-event-art"><img src="./assets/authority/events/'+authorityEventImages[v[0]]+'" alt="" loading="eager" decoding="async"></div>'
     : '';
@@ -528,6 +540,14 @@ function openEvent(){
   v[2].forEach((c,i)=>{ h+='<button type="button" class="choice" data-i="'+i+'">'+c[0]+'</button>'; });
   h+='</div></div>';
   openModal(h,true);
+  const authorityEventImage=document.querySelector('.authority-event-art img');
+  if(authorityEventImage&&authorityEvent){
+    authorityEventImage.onerror=()=>{
+      authorityEventImage.onerror=null;
+      const original=authorityEventOriginalImages[v[0]];
+      if(original)authorityEventImage.src='./assets/authority/events/'+encodeURIComponent(original);
+    };
+  }
   document.querySelectorAll('.choice').forEach(b=>b.addEventListener('click',()=>{
     if(!activeEvent||s.jailed)return;
     const c=v[2][Number(b.dataset.i)];
