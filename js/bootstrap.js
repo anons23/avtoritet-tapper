@@ -3,7 +3,7 @@
   /* RuStore branch bootstrap */
   const scripts=[
     {src:'./js/save-migration.js?v=1.2',critical:true},
-    {src:'./js/game.js?v=5.0-rustore',critical:true},
+    {src:'./js/game.js?v=5.1-test-500',critical:true},
     {src:'./js/save-guard.js?v=1.1',critical:false},
     {src:'./js/npc-barrack.js?v=4.5',critical:true},
     {src:'./js/npc-memory.js?v=1.0',critical:false},
