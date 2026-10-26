@@ -1,4 +1,4 @@
-/* shop-booster-ad v2.0 — main screen booster, ads only (RuStore) */
+/* shop-booster-ad v2.1 — clearly explained rewarded tap bonus (main screen only) */
 'use strict';
 (function(){
   var BTN_ID = 'booster-open-button';
@@ -35,8 +35,8 @@
       }
     }
     btn.title = left>0
-      ? 'Ускоритель: осталось '+left+' тапов ×2'
-      : 'Ускоритель: реклама → ×2 на 100 тапов';
+      ? 'Бонус за рекламу: ×2 ещё на '+left+' тапов'
+      : 'Посмотри рекламу и получи ×2 на следующие 100 тапов';
   }
 
   function grant(){
@@ -47,7 +47,7 @@
     save();
     ui();
     updateLabel();
-    msg('🔥 Ускоритель +100 тапов (×2) за рекламу');
+    msg('📺 Бонус за рекламу получен: ×2 на следующие 100 тапов');
   }
 
   function watchAd(){
@@ -63,9 +63,33 @@
 
   function iconHtml(){
     return ''+
-      '<span class="booster-btn-icon" aria-hidden="true">🔥</span>'+
-      '<span class="booster-btn-label">Ускоритель</span>'+
+      '<span class="booster-btn-icon" aria-hidden="true">📺</span>'+
+      '<span class="booster-btn-label">БОНУС ×2</span>'+
       '<span class="booster-btn-count"></span>';
+  }
+
+
+  function openBoosterInfo(){
+    var s=st();
+    var left=leftCount();
+    var html='<div class="section-window booster-info-window">'+
+      '<div class="section-kicker">БОНУС ЗА ПРОСМОТР РЕКЛАМЫ</div>'+
+      '<h2>📺 Бонус ×2</h2>'+
+      '<p class="section-subtitle">Посмотри короткую рекламную вставку и получи удвоение награды за обычные тапы.</p>'+
+      '<div class="booster-info-card"><div class="booster-info-icon">×2</div><div><b>Удвоенная награда</b><p>Следующие <strong>100 обычных тапов</strong> принесут вдвое больше очков и чефира. Один бонус расходуется за каждый тап.</p></div></div>'+
+      '<div class="booster-info-status">'+(left>0?'<span class="booster-status-active">Уже активно: '+left+' тапов ×2</span><small>Новый просмотр добавит ещё 100 тапов к запасу.</small>':'<span>Сейчас бонус не активен</span><small>После успешного просмотра бонус появится автоматически.</small>')+'</div>'+
+      '<button type="button" id="booster-watch-ad" class="booster-watch-ad">📺 Смотреть рекламу и получить бонус</button>'+
+      '<p class="booster-info-note">Бонус выдаётся только после успешного завершения рекламы. Если реклама недоступна или не досмотрена, награда не начисляется.</p>'+
+      '</div>';
+    if(typeof window.openModal==='function')window.openModal(html);
+    else {msg('📺 Бонус ×2: +100 тапов за просмотр рекламы');return;}
+    var action=document.getElementById('booster-watch-ad');
+    if(action)action.addEventListener('click',function(){
+      action.disabled=true;
+      action.textContent='Ожидаем завершения рекламы…';
+      if(typeof window.closeModal==='function')window.closeModal();
+      watchAd();
+    });
   }
 
   function ensureBtn(){
@@ -81,7 +105,7 @@
       btn.addEventListener('click',function(e){
         e.preventDefault();
         e.stopPropagation();
-        watchAd();
+        openBoosterInfo();
       });
       parent.appendChild(btn);
     } else if(!btn.querySelector('.booster-btn-label')){
@@ -109,7 +133,7 @@
     hookUi();
     setTimeout(ensureBtn, 400);
     setTimeout(ensureBtn, 1500);
-    console.log('[shop-booster-ad] v2.0 RuStore main-screen');
+    console.log('[shop-booster-ad] v2.1 RuStore main-screen');
   }
 
   if(document.readyState==='loading') document.addEventListener('DOMContentLoaded', boot);
