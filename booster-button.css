@@ -151,3 +151,9 @@
 @keyframes boosterAdIconPulse{0%,100%{transform:scale(1);filter:drop-shadow(0 0 3px rgba(115,194,255,.55))}50%{transform:scale(1.06);filter:drop-shadow(0 0 9px rgba(115,194,255,.95))}}
 @media(max-width:900px) and (orientation:landscape){#booster-open-button::before{left:3px;top:2px;width:48px;height:40px;border-radius:13px}#booster-open-button .booster-btn-icon{width:40px!important;height:40px!important;line-height:40px!important;font-size:29px!important}#booster-open-button .booster-btn-label{font-size:8px!important;padding:2px 3px!important}}
 @media(prefers-reduced-motion:reduce){#booster-open-button .booster-btn-icon{animation:none!important}}
+
+
+/* 2026-10-26: keep the booster below the rank progress panel. */
+#booster-open-button,#booster-open-button:hover,#booster-open-button:active,#booster-open-button:focus{top:188px!important}
+@media(max-width:700px){#booster-open-button,#booster-open-button:hover,#booster-open-button:active,#booster-open-button:focus{top:calc(env(safe-area-inset-top) + 184px)!important}}
+@media(max-width:900px) and (orientation:landscape){#booster-open-button,#booster-open-button:hover,#booster-open-button:active,#booster-open-button:focus{top:calc(env(safe-area-inset-top) + 64px)!important}}
