@@ -458,3 +458,10 @@
  #sentence-panel .sentence-track-row .sentence-track{margin:3px 0 2px!important}
  #sentence-panel #settings-gear-button{flex-basis:25px!important;width:25px!important;height:25px!important;min-width:25px!important;max-width:25px!important;font-size:16px!important}
 }
+
+/* RuStore polish: keep the settings gear outside the sentence frame. */
+#sentence-panel{position:relative!important;overflow:visible!important;padding-right:10px!important}
+#sentence-panel #settings-gear-button{position:absolute!important;right:-35px!important;top:50%!important;transform:translateY(-50%)!important;z-index:20!important;flex:none!important;margin:0!important}
+#sentence-panel #settings-gear-button:active{transform:translateY(-50%) scale(.94)!important}
+.raid-settings-gear{display:grid;place-items:center;flex:0 0 34px;width:34px;height:34px;padding:0;border:1px solid #6b6048;border-radius:10px;background:linear-gradient(145deg,#30302d,#1c1c1b);color:#f0d18a;font-size:20px;line-height:1;box-shadow:0 2px 8px #0008;cursor:pointer}
+.raid-settings-gear:active{transform:scale(.94)}
