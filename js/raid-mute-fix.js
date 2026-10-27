@@ -49,6 +49,7 @@
   }
 
   function scan() {
+    document.querySelectorAll('.raid-music-mute').forEach(function (oldButton) { oldButton.remove(); });
     injectSelect();
     injectHud();
   }
