@@ -1,6 +1,6 @@
 'use strict';
 (function () {
-  /* Briefly lock event choices on open so an accidental tap cannot choose immediately. */
+  /* Briefly lock event choices; keep random events out of the tutorial until the player receives a nickname. */
 
   function softLockChoices(root) {
     try {
@@ -64,6 +64,8 @@
     var orig = window.openEvent;
     window.openEvent = function () {
       try {
+        var onboardingState = window.getGameState && window.getGameState();
+        if (window.__AVT_ONBOARDING_ACTIVE && onboardingState && onboardingState.onboarding && !onboardingState.onboarding.nameGiven) return;
         var st = window.getGameState && window.getGameState();
         if (st) {
           var pts = Number(st.points) || 0;
