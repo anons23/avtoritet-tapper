@@ -247,13 +247,13 @@
     else if (step === 3) goToStep(4);
     else if (step === 6) {
       var shop = document.getElementById('btn-shop');
-      if (shop) shop.click();
+      if (shop) { window.__AVT_TUTORIAL_PROGRAMMATIC_CLICK = true; shop.click(); window.__AVT_TUTORIAL_PROGRAMMATIC_CLICK = false; }
       setTimeout(function () { goToStep(7); }, 250);
     } else if (step === 7) {
       goToStep(8);
     } else if (step === 8) {
       var raid = document.getElementById('raid-open-button');
-      if (raid) raid.click();
+      if (raid) { window.__AVT_TUTORIAL_PROGRAMMATIC_CLICK = true; raid.click(); window.__AVT_TUTORIAL_PROGRAMMATIC_CLICK = false; }
       setTimeout(function () {
         var close = document.querySelector('.raid-menu-close, .raid-close, #raid-scene .raid-menu-close');
         if (close) close.click();
@@ -276,7 +276,7 @@
     if (window.__AVT_ONBOARDING_INPUT_BOUND) return;
     window.__AVT_ONBOARDING_INPUT_BOUND = true;
     document.addEventListener('click', function (e) {
-      var s = st();
+      if (window.__AVT_TUTORIAL_PROGRAMMATIC_CLICK) return;\n      var s = st();
       if (!s || isDone(s) || !s.onboarding) return;
       var step = s.onboarding.step;
       if (step === 5) return;
