@@ -82,14 +82,11 @@
       '#onboarding-overlay{position:fixed;inset:0;z-index:99990;pointer-events:none;display:none}' +
       '#onboarding-overlay.active{display:block}' +
       '#onboarding-hole{position:absolute;border-radius:16px;box-shadow:0 0 0 9999px rgba(0,0,0,.72);transition:all .28s ease;pointer-events:none}' +
-      '#onboarding-tip{position:absolute;max-width:min(320px,calc(100vw - 32px));background:#1c1c1f;border:1px solid #665329;border-radius:14px;padding:14px 16px;color:#f0e6c8;font-size:14px;line-height:1.4;box-shadow:0 10px 28px rgba(0,0,0,.45);pointer-events:auto;z-index:99991}' +
+      '#onboarding-tip{position:absolute;max-width:min(320px,calc(100vw - 32px));background:#1c1c1f;border:1px solid #665329;border-radius:14px;padding:14px 16px;color:#f0e6c8;font-size:14px;line-height:1.4;box-shadow:0 10px 28px rgba(0,0,0,.45);pointer-events:none;z-index:99991}' +
       '#onboarding-tip-kicker{font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:#c9a227;margin-bottom:6px}' +
-      '#onboarding-tip-text{margin-bottom:12px}' +
-      '#onboarding-tip-actions{display:flex;gap:8px;flex-wrap:wrap}' +
-      '#onboarding-tip-actions button{flex:1;min-width:110px;padding:10px 12px;border-radius:10px;border:1px solid #665329;background:#2a2418;color:#f0e6c8;font-size:13px;cursor:pointer}' +
-      '#onboarding-tip-actions button.primary{background:#c9a227;color:#1a1408;border-color:#c9a227;font-weight:600}' +
-      '#onboarding-tip-actions button:active{transform:scale(.97)}' +
-      'body.onboarding-lock #bottom-bar,body.onboarding-lock #settings-gear-button{pointer-events:none;opacity:.35}';
+      '#onboarding-tip-text{margin-bottom:0}' +
+      '#onboarding-tip-actions{display:none}' +
+      'body.onboarding-lock #bottom-bar,body.onboarding-lock #settings-gear-button{opacity:.35}';
     document.head.appendChild(style);
 
     holeEl = document.getElementById('onboarding-hole');
@@ -165,7 +162,7 @@
     runStep(step);
   }
 
-  function finishOnboarding() {
+  function finishOnboarding() {\n    window.__AVT_ONBOARDING_ACTIVE = false;\n    window.__AVT_ONBOARDING_STEP = -1;
     var s = st();
     if (!s) return;
     ensureState(s);
@@ -183,155 +180,145 @@
   function runStep(step) {
     var s = st();
     if (!s || isDone(s)) { hideSpotlight(); return; }
+    window.__AVT_ONBOARDING_ACTIVE = true;
+    window.__AVT_ONBOARDING_STEP = step;
 
-    if (step < 6) {
-      ['btn-shop','btn-rank','btn-tasks','btn-more'].forEach(function (id) {
-        var el = document.getElementById(id);
-        if (el) el.style.display = 'none';
-      });
-    }
+    ['btn-shop','btn-rank','btn-tasks','btn-more'].forEach(function (id) {
+      var el = document.getElementById(id);
+      if (el) {
+        el.style.display = step < 6 ? 'none' : '';
+        el.style.opacity = '1';
+        el.style.pointerEvents = 'auto';
+      }
+    });
 
     switch (step) {
       case 0:
-        showSpotlight('#tap-object', {
-          kicker: 'НАЧАЛО',
-          text: 'Это <b>груша</b>. Тапай по ней, чтобы зарабатывать ресурсы и расти в масти.',
-          padding: 14,
-          buttons: [{ label: 'Дальше', primary: true, onClick: function () { goToStep(1); } }]
-        });
+        showSpotlight('#tap-object', { kicker:'НАЧАЛО', text:'Это <b>груша</b>. Тапай по ней, чтобы зарабатывать ресурсы и расти в масти.', padding:14 });
         break;
-
       case 1:
-        showSpotlight('.resource-chifir', {
-          kicker: 'РЕСУРСЫ',
-          text: '<b>Чефир 🍵</b> — основная валюта. Трать его в Качалке на силу, крит и энергию.',
-          padding: 8,
-          buttons: [{ label: 'Дальше', primary: true, onClick: function () { goToStep(2); } }]
-        });
+        showSpotlight('.resource-chifir', { kicker:'РЕСУРСЫ', text:'<b>Чефир 🍵</b> — основная валюта. Трать его в Качалке на улучшения.', padding:8 });
         break;
-
       case 2:
-        showSpotlight('.resource-points', {
-          kicker: 'РЕСУРСЫ',
-          text: '<b>Понты ⭐</b> — твой авторитет. Чем больше понтов, тем выше масть.',
-          padding: 8,
-          buttons: [{ label: 'Дальше', primary: true, onClick: function () { goToStep(3); } }]
-        });
+        showSpotlight('.resource-points', { kicker:'РЕСУРСЫ', text:'<b>Понты ⭐</b> — твой авторитет. Чем больше понтов, тем выше масть.', padding:8 });
         break;
-
       case 3:
-        showSpotlight('.resource-energy', {
-          kicker: 'РЕСУРСЫ',
-          text: '<b>Энергия ⚡</b> тратится на тапы. Она медленно восстанавливается сама.',
-          padding: 8,
-          buttons: [{ label: 'Дальше', primary: true, onClick: function () { goToStep(4); } }]
-        });
+        showSpotlight('.resource-energy', { kicker:'РЕСУРСЫ', text:'<b>Энергия ⚡</b> тратится на действия. Она постепенно восстанавливается сама.', padding:8 });
         break;
-
       case 4:
         s.onboarding.practiceTaps = 0;
         save();
-        showSpotlight('#tap-object', {
-          kicker: 'ПРАКТИКА',
-          text: 'Тапани по груше <b>' + REQUIRED_PRACTICE_TAPS + ' раз</b>, чтобы почувствовать игру.',
-          padding: 14,
-          buttons: []
-        });
+        showSpotlight('#tap-object', { kicker:'ПРАКТИКА', text:'Тапни по груше <b>' + REQUIRED_PRACTICE_TAPS + ' раз</b>. Остальные кнопки пока заблокированы.', padding:14 });
         break;
-
       case 5:
         hideSpotlight();
         openNameEvent(function () { goToStep(6); });
         break;
-
       case 6:
-        var shopBtn = document.getElementById('btn-shop');
-        if (shopBtn) {
-          shopBtn.style.display = '';
-          shopBtn.style.opacity = '1';
-          shopBtn.style.pointerEvents = 'auto';
-        }
-        showSpotlight('#btn-shop', {
-          kicker: 'МЕНЮ',
-          text: 'Это <b>Качалка</b>. Здесь прокачивают силу и покупают улучшения за чефир.',
-          padding: 8,
-          buttons: [{
-            label: 'Открыть Качалку',
-            primary: true,
-            onClick: function () {
-              hideSpotlight();
-              var b = document.getElementById('btn-shop');
-              if (b) b.click();
-              setTimeout(function () { goToStep(7); }, 450);
-            }
-          }]
-        });
+        showSpotlight('#btn-shop', { kicker:'КАЧАЛКА', text:'Нажми на <b>Качалку</b>, чтобы посмотреть, где развивать персонажа.', padding:8 });
         break;
-
       case 7:
-        var eqBtn = document.getElementById('shop-eq-btn');
-        if (eqBtn) {
-          showSpotlight('#shop-eq-btn', {
-            kicker: 'СНАРЯЖЕНИЕ',
-            text: 'Здесь <b>оружие и броня</b>. Часть шмота можно достать бесплатно в Бараке и на рейдах.',
-            padding: 8,
-            buttons: [{
-              label: 'Понятно',
-              primary: true,
-              onClick: function () {
-                var close = document.getElementById('modal-close');
-                if (close) close.click();
-                goToStep(8);
-              }
-            }]
-          });
-        } else {
-          goToStep(8);
-        }
+        showSpotlight('#modal', { kicker:'КАЧАЛКА', text:'Осмотрись в этом окне. Когда закончишь, закрой его крестиком — вернёмся к груше.', padding:8 });
         break;
-
       case 8:
-        // Кнопка рейдов — только показ с пояснением, без входа в бой
-        var raidBtn = document.getElementById('raid-open-button');
-        if (raidBtn) {
-          raidBtn.style.display = '';
-          raidBtn.style.opacity = '1';
-          raidBtn.style.pointerEvents = 'none'; // не даём открыть во время обучения
-          showSpotlight('#raid-open-button', {
-            kicker: 'РЕЙДЫ',
-            text: 'Это <b>Рейды</b>. Здесь можно сражаться с бойцами зоны и получать награды, в том числе шмот.',
-            padding: 10,
-            buttons: [{
-              label: 'Дальше',
-              primary: true,
-              onClick: function () {
-                if (raidBtn) raidBtn.style.pointerEvents = '';
-                goToStep(9);
-              }
-            }]
-          });
-        } else {
-          goToStep(9);
-        }
+        showSpotlight('#raid-open-button', { kicker:'РЕЙДЫ', text:'Это <b>Рейды</b>. Здесь проходят игровые сражения и можно получать награды. Нажми кнопку, чтобы посмотреть раздел.', padding:10 });
         break;
-
       case 9:
-        ['btn-rank','btn-tasks','btn-more'].forEach(function (id) {
-          var el = document.getElementById(id);
-          if (el) { el.style.display = ''; el.style.opacity = '1'; el.style.pointerEvents = 'auto'; }
-        });
-        showSpotlight(null, {
-          kicker: 'ГОТОВО',
-          text: 'Теперь тебе открыты <b>Масть</b>, <b>Поручения</b> и <b>Барак</b>.<br>Тапай, качайся и поднимай авторитет.',
-          buttons: [{ label: 'Начать игру', primary: true, onClick: finishOnboarding }]
-        });
+        showSpotlight('#btn-rank', { kicker:'МАСТЬ', text:'Здесь отображается твоя <b>масть</b> и продвижение по рангам.', padding:8 });
         break;
-
+      case 10:
+        showSpotlight('#btn-tasks', { kicker:'ПОРУЧЕНИЯ', text:'В <b>Поручениях</b> собраны цели и задания, за которые можно получать награды.', padding:8 });
+        break;
+      case 11:
+        showSpotlight('#btn-more', { kicker:'БАРАК', text:'В <b>Бараке</b> находятся персонажи и дополнительные игровые разделы.', padding:8 });
+        break;
+      case 12:
+        showSpotlight(null, { kicker:'ГОТОВО', text:'Ты освоился! Теперь можешь свободно исследовать зону, качаться и повышать авторитет.' });
+        break;
       default:
         finishOnboarding();
     }
   }
 
+  function advanceFromTap(step) {
+    if (step === 0) goToStep(1);
+    else if (step === 1) goToStep(2);
+    else if (step === 2) goToStep(3);
+    else if (step === 3) goToStep(4);
+    else if (step === 6) {
+      var shop = document.getElementById('btn-shop');
+      if (shop) shop.click();
+      setTimeout(function () { goToStep(7); }, 250);
+    } else if (step === 7) {
+      goToStep(8);
+    } else if (step === 8) {
+      var raid = document.getElementById('raid-open-button');
+      if (raid) raid.click();
+      setTimeout(function () {
+        var close = document.querySelector('.raid-menu-close, .raid-close, #raid-scene .raid-menu-close');
+        if (close) close.click();
+        else {
+          var overlay = document.getElementById('modal-overlay');
+          if (overlay && overlay.classList.contains('show')) {
+            overlay.classList.remove('show');
+            overlay.classList.add('hidden');
+          }
+        }
+        goToStep(9);
+      }, 2600);
+    } else if (step === 9) goToStep(10);
+    else if (step === 10) goToStep(11);
+    else if (step === 11) goToStep(12);
+    else if (step === 12) finishOnboarding();
+  }
+
+  function bindOnboardingInput() {
+    if (window.__AVT_ONBOARDING_INPUT_BOUND) return;
+    window.__AVT_ONBOARDING_INPUT_BOUND = true;
+    document.addEventListener('click', function (e) {
+      var s = st();
+      if (!s || isDone(s) || !s.onboarding) return;
+      var step = s.onboarding.step;
+      if (step === 5) return;
+      var target = e.target && e.target.closest ? e.target.closest('button, a, #tap-object, .resource, #modal-close, #modal, #modal-overlay') : e.target;
+      var isPear = !!(e.target && e.target.closest && e.target.closest('#tap-object'));
+      var allowed = false;
+      if (step === 4) {
+        allowed = isPear;
+        if (!allowed) { e.preventDefault(); e.stopImmediatePropagation(); }
+        return;
+      }
+      if (step === 6) {
+        allowed = !!(e.target && e.target.closest && e.target.closest('#btn-shop'));
+        if (!allowed) { e.preventDefault(); e.stopImmediatePropagation(); return; }
+        e.preventDefault(); e.stopImmediatePropagation(); advanceFromTap(step); return;
+      }
+      if (step === 7) {
+        allowed = !!(e.target && e.target.closest && e.target.closest('#modal-close'));
+        if (!allowed) { e.preventDefault(); e.stopImmediatePropagation(); return; }
+        setTimeout(function () { goToStep(8); }, 120);
+        return;
+      }
+      if (step === 8) {
+        allowed = !!(e.target && e.target.closest && e.target.closest('#raid-open-button'));
+        if (!allowed) { e.preventDefault(); e.stopImmediatePropagation(); return; }
+        e.preventDefault(); e.stopImmediatePropagation(); advanceFromTap(step); return;
+      }
+      if (step >= 9 && step <= 11) {
+        var ids = {9:'#btn-rank',10:'#btn-tasks',11:'#btn-more'};
+        allowed = !!(e.target && e.target.closest && e.target.closest(ids[step]));
+        if (!allowed) { e.preventDefault(); e.stopImmediatePropagation(); return; }
+        e.preventDefault(); e.stopImmediatePropagation(); advanceFromTap(step); return;
+      }
+      if (step === 12) {
+        e.preventDefault(); e.stopImmediatePropagation(); finishOnboarding(); return;
+      }
+      // Steps 0-3 advance on any tap, including the highlighted resource.
+      if (step >= 0 && step <= 3) {
+        e.preventDefault(); e.stopImmediatePropagation(); advanceFromTap(step);
+      }
+    }, true);
+  }
   /* ========== NAME EVENT ========== */
   var nameCallback = null;
 
@@ -528,11 +515,9 @@
         return;
       }
 
-      setTimeout(function () {
-        runStep(s.onboarding.step || 0);
-      }, 700);
+      bindOnboardingInput();\n      window.__AVT_ONBOARDING_ACTIVE = true;\n      setTimeout(function () {\n        runStep(s.onboarding.step || 0);\n      }, 700);
 
-      console.log('[onboarding] v2.0 spotlight ready, step=', s.onboarding.step);
+      console.log('[onboarding] v2.2 guided spotlight ready, step=', s.onboarding.step);
     }, 200);
   }
 
