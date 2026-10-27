@@ -162,7 +162,9 @@
     runStep(step);
   }
 
-  function finishOnboarding() {\n    window.__AVT_ONBOARDING_ACTIVE = false;\n    window.__AVT_ONBOARDING_STEP = -1;
+  function finishOnboarding() {
+    window.__AVT_ONBOARDING_ACTIVE = false;
+    window.__AVT_ONBOARDING_STEP = -1;
     var s = st();
     if (!s) return;
     ensureState(s);
@@ -276,7 +278,8 @@
     if (window.__AVT_ONBOARDING_INPUT_BOUND) return;
     window.__AVT_ONBOARDING_INPUT_BOUND = true;
     document.addEventListener('click', function (e) {
-      if (window.__AVT_TUTORIAL_PROGRAMMATIC_CLICK) return;\n      var s = st();
+      if (window.__AVT_TUTORIAL_PROGRAMMATIC_CLICK) return;
+      var s = st();
       if (!s || isDone(s) || !s.onboarding) return;
       var step = s.onboarding.step;
       if (step === 5) return;
@@ -515,7 +518,11 @@
         return;
       }
 
-      bindOnboardingInput();\n      window.__AVT_ONBOARDING_ACTIVE = true;\n      setTimeout(function () {\n        runStep(s.onboarding.step || 0);\n      }, 700);
+      bindOnboardingInput();
+      window.__AVT_ONBOARDING_ACTIVE = true;
+      setTimeout(function () {
+        runStep(s.onboarding.step || 0);
+      }, 700);
 
       console.log('[onboarding] v2.2 guided spotlight ready, step=', s.onboarding.step);
     }, 200);
