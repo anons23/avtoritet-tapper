@@ -1,4 +1,4 @@
-/* onboarding.js v2.6 — resume tutorial for existing saves */
+/* onboarding.js v2.7 — recover tutorial after regression */
 'use strict';
 (function () {
   var NAME_TRIGGER_TAPS = 20;
@@ -566,8 +566,8 @@
 
       // Version the tutorial so old saves that were auto-marked as completed can see it.
       // Existing nicknames are preserved and skip the nickname event.
-      if (Number(s.onboarding.tutorialVersion || 0) < 3) {
-        s.onboarding.tutorialVersion = 3;
+      if (Number(s.onboarding.tutorialVersion || 0) < 4) {
+        s.onboarding.tutorialVersion = 4;
         s.onboarding.done = false;
         s.onboarding.step = 0;
         s.onboarding.nameGiven = !!(nick && nick !== 'Салага' && nick !== 'Новичок');
@@ -608,7 +608,7 @@
       // Show the first tutorial step as soon as state exists; do not leave a playable gap on slow devices.
       runStep(s.onboarding.step || 0);
 
-      console.log('[onboarding] v2.6 guided spotlight ready, step=', s.onboarding.step);
+      console.log('[onboarding] v2.7 guided spotlight ready, step=', s.onboarding.step);
     }, 200);
   }
 
