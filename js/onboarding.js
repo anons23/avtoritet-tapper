@@ -569,10 +569,12 @@
       ensureState(s);
       var nick = String(s.nickname || '').trim();
 
-      // Version the tutorial so old saves that were auto-marked as completed can see it.
+      // Bump this version whenever a previous tutorial rollout may have left
+      // saves marked as completed without the player actually seeing the tutorial.
+      // Version 7 deliberately re-opens the tutorial for saves at version 6.
       // Existing nicknames are preserved and skip the nickname event.
-      if (Number(s.onboarding.tutorialVersion || 0) < 6) {
-        s.onboarding.tutorialVersion = 6;
+      if (Number(s.onboarding.tutorialVersion || 0) < 7) {
+        s.onboarding.tutorialVersion = 7;
         s.onboarding.done = false;
         s.onboarding.step = 0;
         s.onboarding.nameGiven = !!(nick && nick !== 'Салага' && nick !== 'Новичок');
