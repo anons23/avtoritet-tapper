@@ -557,9 +557,14 @@
     var timer = setInterval(function () {
       tries++;
       var s = st();
-      if (!s && tries < 60) return;
+      // The game state can arrive late on slow devices or after a delayed bootstrap.
+      // Keep retrying instead of permanently abandoning the tutorial after 12 seconds.
+      if (!s && tries < 300) return;
       clearInterval(timer);
-      if (!s) return;
+      if (!s) {
+        setTimeout(boot, 1000);
+        return;
+      }
 
       ensureState(s);
       var nick = String(s.nickname || '').trim();
