@@ -13,7 +13,7 @@
     {src:'./js/shop-booster-ad.js?v=2.1-ad-explainer',critical:false},
     {src:'./js/jail-lock.js?v=1.0',critical:false},
     {src:'./js/nickname-rename.js?v=1.1',critical:false},
-    {src:'./js/onboarding.js?v=2.2',critical:false},
+    {src:'./js/onboarding.js?v=2.3',critical:false},
     {src:'./js/daily.js?v=1.4',critical:false},
     {src:'./js/authority-css-restore.js?v=1.8',critical:false},
     {src:'./js/authority-ui.js?v=2.7-no-crown',critical:false},
