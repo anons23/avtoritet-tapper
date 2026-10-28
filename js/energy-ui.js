@@ -46,8 +46,7 @@
     const rank=rankData(s);
     return {
       rank,
-      chifir:Math.round(BASE_CHIFIR*rank.multiplier),
-      points:Math.round(BASE_POINTS*rank.multiplier)
+      chifir:Math.round(BASE_CHIFIR*rank.multiplier)
     };
   }
 
@@ -87,7 +86,6 @@
     const gain=Math.min(Math.ceil(max*ENERGY_PART),Math.max(0,max-current));
     const full=current>=max;
     const enoughChifir=Number(s.chifir||0)>=c.chifir;
-    const enoughPoints=Number(s.points||0)>=c.points;
 
     content.innerHTML='<div class="energy-window">'
       +'<div class="energy-kicker">ВОССТАНОВЛЕНИЕ</div>'
@@ -96,7 +94,7 @@
       +'<div class="energy-offer energy-buy-offer">'
       +'<div class="energy-offer-icon">⚡</div>'
       +'<div class="energy-offer-body"><b>Восстановить 50%</b><span>+'+format(gain)+' энергии · масть «'+c.rank.name+'»</span><small>🍵 '+format(c.chifir)+' + ⭐ '+format(c.points)+'</small></div>'
-      +'<button type="button" id="energy-buy" '+(full||!enoughChifir||!enoughPoints?'disabled':'')+'>Купить</button>'
+      +'<button type="button" id="energy-buy" '+(full||!enoughChifir?'disabled':'')+'>Купить</button>'
       +'</div>'
       +'<div class="energy-or">ИЛИ</div>'
       +'<div class="energy-offer energy-ad-offer">'
@@ -104,7 +102,7 @@
       +'<div class="energy-offer-body"><b>Посмотреть рекламу</b><span>Полное восстановление энергии · 100%</span><small>Бесплатно</small></div>'
       +'<button type="button" id="energy-ad" '+(full?'disabled':'')+'>Смотреть</button>'
       +'</div>'
-      +(full?'<div class="energy-note">⚡ Энергия уже полностью восстановлена.</div>':'<div class="energy-note">Стоимость покупки растёт вместе с мастью персонажа.</div>')
+      +(full?'<div class="energy-note">⚡ Энергия уже полностью восстановлена.</div>':'<div class="energy-note">Для покупки нужны только чефир. Понты не списываются. Цена растёт вместе с мастью персонажа.</div>')
       +'</div>';
 
     overlay.dataset.locked='0';
@@ -126,15 +124,13 @@
     const gain=Math.min(Math.ceil(max*ENERGY_PART),Math.max(0,max-current));
     if(gain<=0){showMessage('⚡ Энергия уже полностью восстановлена');open();return;}
     if(Number(s.chifir||0)<c.chifir){showMessage('🍵 Не хватает чифира для восстановления энергии');return;}
-    if(Number(s.points||0)<c.points){showMessage('⭐ Не хватает понтов для восстановления энергии');return;}
     s.chifir-=c.chifir;
-    s.points-=c.points;
     s.energy=Math.min(max,current+gain);
     s.lastEnergyTime=Date.now();
     save();
     if(typeof window.ui==='function')window.ui();
     if(typeof window.checkTasks==='function')window.checkTasks();
-    showMessage('⚡ Энергия восстановлена на '+format(gain)+'. Потрачено 🍵 '+format(c.chifir)+' и ⭐ '+format(c.points));
+    showMessage('⚡ Энергия восстановлена на '+format(gain)+'. Потрачено только 🍵 '+format(c.chifir)+' — понты не списаны.');
     open();
   }
 
