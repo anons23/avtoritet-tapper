@@ -82,7 +82,7 @@
       '#onboarding-overlay{position:fixed;inset:0;z-index:99990;pointer-events:none;display:none}' +
       '#onboarding-overlay.active{display:block}' +
       '#onboarding-hole{position:absolute;border-radius:16px;box-shadow:0 0 0 9999px rgba(0,0,0,.72);transition:all .28s ease;pointer-events:none}' +
-      '#onboarding-tip{position:absolute;max-width:min(320px,calc(100vw - 32px));background:#1c1c1f;border:1px solid #665329;border-radius:14px;padding:14px 16px;color:#f0e6c8;font-size:14px;line-height:1.4;box-shadow:0 10px 28px rgba(0,0,0,.45);pointer-events:none;z-index:99991}' +
+      '#onboarding-tip{position:absolute;max-width:min(360px,calc(100vw - 28px));background:#1c1c1f;border:1px solid #665329;border-radius:14px;padding:14px 16px;color:#f0e6c8;font-size:14px;line-height:1.4;box-shadow:0 10px 28px rgba(0,0,0,.45);pointer-events:none;z-index:99991}' +
       '#onboarding-tip-kicker{font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:#c9a227;margin-bottom:6px}' +
       '#onboarding-tip-text{margin-bottom:0}' +
       '#onboarding-tip-actions{display:none}' +
@@ -238,7 +238,25 @@
         showSpotlight('#btn-more', { kicker:'БАРАК', text:'Открой <b>Барак</b>: внутри объясним, зачем разговаривать с персонажами и помогать им решать проблемы.', padding:8 });
         break;
       case 13:
-        showSpotlight(null, { kicker:'ГОТОВО', text:'Ты освоился! Теперь можешь свободно исследовать зону, качаться и повышать авторитет.' });
+        showSpotlight(null, {
+          kicker: 'БАРАК',
+          text:
+            '<b>Зачем заходить в Барак?</b><br><br>' +
+            'Здесь живут <b>персонажи зоны</b>. У каждого свой характер, свои дела и просьбы. ' +
+            'Общайся, помогай и выбирай, как поступить — от твоих ответов зависит, что получишь.<br><br>' +
+            '<b>Что можно вынести из разговоров:</b>' +
+            '<ul style="margin:8px 0 8px 18px;padding:0">' +
+            '<li><b>Чефир 🍵</b> — на прокачку в Качалке</li>' +
+            '<li><b>Понты ⭐</b> — рост масти и авторитета</li>' +
+            '<li><b>Энергия ⚡</b> — чтобы тапать дольше</li>' +
+            '<li><b>Отношения</b> — чем выше доверие, тем лучше диалоги</li>' +
+            '</ul>' +
+            '<b>3 ступени развития персонажа</b><br>' +
+            'По мере роста отношений открываются новые разговоры и более жирные награды. ' +
+            'На высоких ступенях может выпасть <b>дроп шмота или оружия</b> — то, что усиливает тебя в рейдах и в зоне.<br><br>' +
+            'Короче: зашёл в Барак → поговорил по делу → забрал плюшки. Так и поднимают авторитет.',
+          buttons: [{ label: 'Понятно братуха!', primary: true, onClick: finishOnboarding }]
+        });
         break;
       default:
         finishOnboarding();
@@ -445,27 +463,25 @@
       if (step === 12) {
         allowed = !!(e.target && e.target.closest && e.target.closest('#btn-more'));
         if (!allowed) { e.preventDefault(); e.stopImmediatePropagation(); return; }
+        // Не вставляем текст в игровое окно — показываем отдельное всплывающее окно обучения
         hideSpotlight();
+        // Закрываем игровой модал Барака, если он успел открыться
         setTimeout(function () {
-          var content = document.getElementById('modal-content');
           var overlay = document.getElementById('modal-overlay');
-          if (!content || !overlay || !overlay.classList.contains('show')) return;
-          var info = document.createElement('div');
-          info.className = 'section-window onboarding-barrack-info';
-          info.style.cssText = 'margin:0 0 12px;padding:14px;border:1px solid #665329;border-radius:12px;background:#1c1c1f;color:#f0e6c8';
-          info.innerHTML = '<div class="section-kicker">ЗАЧЕМ ОБЩАТЬСЯ С ПЕРСОНАЖАМИ</div><h3>Диалоги, поручения и помощь</h3><p>У каждого НПС свои заботы, просьбы и проблемы. Выбирай ответы в диалогах, выясняй подробности и решай, как поступить: помочь напрямую, договориться, поискать информацию или отказаться.</p><ul><li><b>Награды:</b> за удачные разговоры и помощь можно получать чефир, понты и другие игровые бонусы.</li><li><b>Репутация и доверие:</b> поступки влияют на отношения с персонажами и могут открывать новые варианты общения.</li><li><b>Решение проблем:</b> поручения помогают разобраться в событиях барака, получить полезные сведения и иногда избежать неприятностей. Некоторые решения рискованны — читай варианты и последствия.</li></ul><h4>3 ступени развития персонажа</h4><p>По мере роста отношений и прогресса открываются следующие ступени. С каждой ступенью становятся доступны новые диалоги и более ценные бонусы; чем выше развитие персонажа, тем выгоднее может быть взаимодействие с ним.</p>';
-          content.insertBefore(info, content.firstChild);
-          var observer = new MutationObserver(function () {
-            if (overlay.classList.contains('hidden') || !overlay.classList.contains('show')) {
-              observer.disconnect(); goToStep(13);
-            }
-          });
-          observer.observe(overlay, {attributes:true, attributeFilter:['class']});
-        }, 180);
+          if (overlay) {
+            overlay.classList.add('hidden');
+            overlay.classList.remove('show');
+          }
+          goToStep(13);
+        }, 120);
         return;
       }
       if (step === 13) {
-        e.preventDefault(); e.stopImmediatePropagation(); finishOnboarding(); return;
+        // Клики обрабатывает кнопка «Понятно братуха!» внутри spotlight
+        var tipBtn = e.target && e.target.closest && e.target.closest('#onboarding-tip-actions button');
+        if (tipBtn) return;
+        e.preventDefault(); e.stopImmediatePropagation();
+        return;
       }
       // Intro spotlights advance on taps, but never let the underlying game receive that same tap.
       if (step >= 0 && step <= 3) {
