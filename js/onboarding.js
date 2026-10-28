@@ -260,8 +260,25 @@
   function bindOnboardingInput() {
     if (window.__AVT_ONBOARDING_INPUT_BOUND) return;
     window.__AVT_ONBOARDING_INPUT_BOUND = true;
+    document.addEventListener('pointerdown', function (e) {
+      if (window.__AVT_TUTORIAL_PROGRAMMATIC_CLICK) return;
+      var ps = st();
+      if (!ps || isDone(ps) || !ps.onboarding) return;
+      var pstep = ps.onboarding.step;
+      if (pstep >= 0 && pstep <= 3) {
+        e.preventDefault(); e.stopImmediatePropagation();
+        window.__AVT_ONBOARDING_SUPPRESS_CLICK = true;
+        advanceFromTap(pstep);
+      } else if (pstep === 4 && !(e.target && e.target.closest && e.target.closest('#tap-object'))) {
+        e.preventDefault(); e.stopImmediatePropagation();
+      }
+    }, true);
     document.addEventListener('click', function (e) {
       if (window.__AVT_TUTORIAL_PROGRAMMATIC_CLICK) return;
+      if (window.__AVT_ONBOARDING_SUPPRESS_CLICK) {
+        window.__AVT_ONBOARDING_SUPPRESS_CLICK = false;
+        e.preventDefault(); e.stopImmediatePropagation(); return;
+      }
       var s = st();
       if (!s || isDone(s) || !s.onboarding) return;
       var step = s.onboarding.step;
