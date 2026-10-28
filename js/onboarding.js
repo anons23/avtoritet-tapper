@@ -220,10 +220,10 @@
         showSpotlight('#btn-shop', { kicker:'КАЧАЛКА', text:'Нажми на <b>Качалку</b>, чтобы посмотреть, где развивать персонажа.', padding:8 });
         break;
       case 7:
-        showSpotlight('#modal', { kicker:'КАЧАЛКА', text:'Можешь открыть вкладки с экипировкой и осмотреться. Когда закончишь, сам закрой окно крестиком — обучение продолжится.', padding:8 });
+        showSpotlight('#modal', { kicker:'КАЧАЛКА', text:'Здесь можно улучшать персонажа и просматривать доступную экипировку.', padding:8 });
         break;
       case 8:
-        showSpotlight('#raid-open-button', { kicker:'РЕЙДЫ', text:'Открой рейды. Можешь посмотреть бойцов, полистать список или начать бой. Обучение подождёт, пока ты сам не выйдешь из рейдов.', padding:10 });
+        showSpotlight('#raid-open-button', { kicker:'РЕЙДЫ', text:'Здесь можно выбирать бойцов и участвовать в сражениях за награды.', padding:10 });
         break;
       case 9:
         showSpotlight('#btn-rank', { kicker:'МАСТЬ', text:'Здесь отображается твоя <b>масть</b> и продвижение по рангам.', padding:8 });
@@ -232,7 +232,7 @@
         showSpotlight('#btn-tasks', { kicker:'ПОРУЧЕНИЯ', text:'В <b>Поручениях</b> собраны цели и задания, за которые можно получать награды.', padding:8 });
         break;
       case 11:
-        showSpotlight('#btn-more', { kicker:'БАРАК', text:'В <b>Бараке</b> находятся персонажи и дополнительные игровые разделы.', padding:8 });
+        showSpotlight('#btn-more', { kicker:'БАРАК', text:'Открой <b>Барак</b>, чтобы познакомиться с персонажами и их возможностями.', padding:8 });
         break;
       case 12:
         showSpotlight(null, { kicker:'ГОТОВО', text:'Ты освоился! Теперь можешь свободно исследовать зону, качаться и повышать авторитет.' });
@@ -297,7 +297,8 @@
         e.preventDefault(); e.stopImmediatePropagation(); advanceFromTap(step); return;
       }
       if (step === 7) {
-        // Allow all equipment tabs and controls in the gym; continue only when its window is closed.
+        // Let the player inspect tabs; hide the coach mark after the first interaction.
+        if (e.target && e.target.closest && !e.target.closest('#modal-close')) hideSpotlight();
         if (e.target && e.target.closest && e.target.closest('#modal-close')) {
           setTimeout(function () {
             var overlay = document.getElementById('modal-overlay');
@@ -326,11 +327,45 @@
         }
         return;
       }
-      if (step >= 9 && step <= 11) {
-        var ids = {9:'#btn-rank',10:'#btn-tasks',11:'#btn-more'};
+      if (step === 9 || step === 10) {
+        var ids = {9:'#btn-rank',10:'#btn-tasks'};
         allowed = !!(e.target && e.target.closest && e.target.closest(ids[step]));
         if (!allowed) { e.preventDefault(); e.stopImmediatePropagation(); return; }
-        e.preventDefault(); e.stopImmediatePropagation(); advanceFromTap(step); return;
+        hideSpotlight();
+        setTimeout(function () {
+          var overlay = document.getElementById('modal-overlay');
+          if (overlay) {
+            var observer = new MutationObserver(function () {
+              if (overlay.classList.contains('hidden') || !overlay.classList.contains('show')) {
+                observer.disconnect(); goToStep(step + 1);
+              }
+            });
+            observer.observe(overlay, {attributes:true, attributeFilter:['class']});
+          }
+        }, 100);
+        return;
+      }
+      if (step === 11) {
+        allowed = !!(e.target && e.target.closest && e.target.closest('#btn-more'));
+        if (!allowed) { e.preventDefault(); e.stopImmediatePropagation(); return; }
+        hideSpotlight();
+        setTimeout(function () {
+          var content = document.getElementById('modal-content');
+          var overlay = document.getElementById('modal-overlay');
+          if (!content || !overlay || !overlay.classList.contains('show')) return;
+          var info = document.createElement('div');
+          info.className = 'section-window onboarding-barrack-info';
+          info.style.cssText = 'margin:0 0 12px;padding:14px;border:1px solid #665329;border-radius:12px;background:#1c1c1f;color:#f0e6c8';
+          info.innerHTML = '<div class="section-kicker">КАК РАБОТАЕТ БАРАК</div><h3>Персонажи и развитие</h3><p>Знакомься с персонажами, выполняй их поручения и диалоги, получай чефир, понты и другие игровые награды.</p><p>У персонажей есть <b>3 ступени развития</b>: по мере роста отношений и прогресса открываются новые возможности и более ценные бонусы.</p>';
+          content.insertBefore(info, content.firstChild);
+          var observer = new MutationObserver(function () {
+            if (overlay.classList.contains('hidden') || !overlay.classList.contains('show')) {
+              observer.disconnect(); goToStep(12);
+            }
+          });
+          observer.observe(overlay, {attributes:true, attributeFilter:['class']});
+        }, 180);
+        return;
       }
       if (step === 12) {
         e.preventDefault(); e.stopImmediatePropagation(); finishOnboarding(); return;
