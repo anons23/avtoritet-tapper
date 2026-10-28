@@ -64,7 +64,7 @@
   function iconHtml(){
     return ''+
       '<span class="booster-btn-icon" aria-hidden="true">📺</span>'+
-      '<span class="booster-btn-label">БОНУС ×2</span>'+
+      '<span class="booster-btn-label">×2 ЗА ТАП</span>'+
       '<span class="booster-btn-count"></span>';
   }
 
