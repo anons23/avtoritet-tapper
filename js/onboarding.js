@@ -317,7 +317,7 @@
           window.__AVT_TUTORIAL_PROGRAMMATIC_CLICK = false;
           return;
         }
-        if (window.__AVT_TUTORIAL_RAIDS_OPEN && e.target && e.target.closest && e.target.closest('#raid-menu-close, .raid-menu-close, .raid-close, #raid-back')) {
+        if (window.__AVT_TUTORIAL_RAIDS_OPEN && e.target && e.target.closest && e.target.closest('#raid-menu-close, .raid-menu-close, .raid-close, #raid-back, #modal-close')) {
           window.__AVT_TUTORIAL_RAIDS_OPEN = false;
           setTimeout(function () {
             var overlay = document.getElementById('modal-overlay');
