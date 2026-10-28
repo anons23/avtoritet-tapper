@@ -4,7 +4,7 @@
   const scripts=[
     {src:'./js/save-migration.js?v=1.2',critical:true},
     {src:'./js/game.js?v=5.11-onboarding',critical:true},
-    {src:'./js/onboarding.js?v=2.7',critical:false},
+    {src:'./js/onboarding.js?v=2.8',critical:false},
     {src:'./js/save-guard.js?v=1.1',critical:false},
     {src:'./js/npc-barrack.js?v=4.8-rank-rewards',critical:true},
     {src:'./js/npc-memory.js?v=1.0',critical:false},
