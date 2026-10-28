@@ -391,19 +391,53 @@
         return;
       }
       if (step === 10 || step === 11) {
-        var ids = {10:'#btn-rank',11:'#btn-tasks'};
-        allowed = !!(e.target && e.target.closest && e.target.closest(ids[step]));
+        // Масть / Поручения: после открытия окна ждём закрытия, крестик не блокируем
+        var openFlag = step === 10 ? '__AVT_TUTORIAL_RANK_OPEN' : '__AVT_TUTORIAL_TASKS_OPEN';
+        var watcherFlag = step === 10 ? '__AVT_TUTORIAL_RANK_WATCHER' : '__AVT_TUTORIAL_TASKS_WATCHER';
+        var openBtn = step === 10 ? '#btn-rank' : '#btn-tasks';
+
+        if (window[openFlag]) {
+          var closeHit2 = !!(e.target && e.target.closest && e.target.closest('#modal-close, .modal-close, [data-close]'));
+          var insideModal2 = !!(e.target && e.target.closest && e.target.closest('#modal, #modal-content, #modal-overlay, .section-window'));
+          if (closeHit2 || insideModal2) {
+            if (closeHit2) {
+              setTimeout(function () {
+                var ov = document.getElementById('modal-overlay');
+                if (!ov || ov.classList.contains('hidden') || !ov.classList.contains('show')) {
+                  window[openFlag] = false;
+                  if (window[watcherFlag]) {
+                    try { window[watcherFlag].disconnect(); } catch (err) {}
+                    window[watcherFlag] = null;
+                  }
+                  goToStep(step + 1);
+                }
+              }, 220);
+            }
+            return;
+          }
+          e.preventDefault(); e.stopImmediatePropagation();
+          return;
+        }
+
+        allowed = !!(e.target && e.target.closest && e.target.closest(openBtn));
         if (!allowed) { e.preventDefault(); e.stopImmediatePropagation(); return; }
         hideSpotlight();
+        window[openFlag] = true;
         setTimeout(function () {
           var overlay = document.getElementById('modal-overlay');
           if (overlay) {
-            var observer = new MutationObserver(function () {
+            if (window[watcherFlag]) {
+              try { window[watcherFlag].disconnect(); } catch (err) {}
+            }
+            window[watcherFlag] = new MutationObserver(function () {
               if (overlay.classList.contains('hidden') || !overlay.classList.contains('show')) {
-                observer.disconnect(); goToStep(step + 1);
+                try { window[watcherFlag].disconnect(); } catch (err) {}
+                window[watcherFlag] = null;
+                window[openFlag] = false;
+                goToStep(step + 1);
               }
             });
-            observer.observe(overlay, {attributes:true, attributeFilter:['class']});
+            window[watcherFlag].observe(overlay, {attributes:true, attributeFilter:['class']});
           }
         }, 100);
         return;
