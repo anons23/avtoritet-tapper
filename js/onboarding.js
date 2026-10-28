@@ -316,6 +316,18 @@
           window.__AVT_TUTORIAL_PROGRAMMATIC_CLICK = true;
           e.target.closest('#raid-open-button').click();
           window.__AVT_TUTORIAL_PROGRAMMATIC_CLICK = false;
+          var raidOverlay = document.getElementById('modal-overlay');
+          if (raidOverlay && !window.__AVT_TUTORIAL_RAID_CLOSE_WATCHER) {
+            window.__AVT_TUTORIAL_RAID_CLOSE_WATCHER = new MutationObserver(function () {
+              if (window.__AVT_TUTORIAL_RAIDS_OPEN && (raidOverlay.classList.contains('hidden') || !raidOverlay.classList.contains('show'))) {
+                window.__AVT_TUTORIAL_RAIDS_OPEN = false;
+                window.__AVT_TUTORIAL_RAID_CLOSE_WATCHER.disconnect();
+                window.__AVT_TUTORIAL_RAID_CLOSE_WATCHER = null;
+                goToStep(9);
+              }
+            });
+            window.__AVT_TUTORIAL_RAID_CLOSE_WATCHER.observe(raidOverlay, {attributes:true, attributeFilter:['class']});
+          }
           return;
         }
         if (window.__AVT_TUTORIAL_RAIDS_OPEN && e.target && e.target.closest && e.target.closest('#raid-menu-close, .raid-menu-close, .raid-close, #raid-back, #modal-close')) {
