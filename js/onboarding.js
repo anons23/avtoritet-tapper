@@ -343,17 +343,50 @@
         return;
       }
       if (step === 9) {
+        // Пока окно бонуса ×2 открыто — разрешаем клики внутри модалки и по крестику.
+        // Обучение ждёт закрытия окна и только потом идёт дальше.
+        if (window.__AVT_TUTORIAL_BOOSTER_OPEN) {
+          var closeHit = !!(e.target && e.target.closest && e.target.closest('#modal-close, .modal-close, #booster-close, .booster-close, [data-close]'));
+          var insideModal = !!(e.target && e.target.closest && e.target.closest('#modal, #modal-content, #modal-overlay, .section-window, .booster-window, .shop-window'));
+          if (closeHit || insideModal) {
+            // не блокируем — даём закрыть окно / нажать кнопки внутри
+            if (closeHit) {
+              setTimeout(function () {
+                var ov = document.getElementById('modal-overlay');
+                if (!ov || ov.classList.contains('hidden') || !ov.classList.contains('show')) {
+                  window.__AVT_TUTORIAL_BOOSTER_OPEN = false;
+                  if (window.__AVT_TUTORIAL_BOOSTER_WATCHER) {
+                    try { window.__AVT_TUTORIAL_BOOSTER_WATCHER.disconnect(); } catch (err) {}
+                    window.__AVT_TUTORIAL_BOOSTER_WATCHER = null;
+                  }
+                  goToStep(10);
+                }
+              }, 220);
+            }
+            return;
+          }
+          e.preventDefault(); e.stopImmediatePropagation();
+          return;
+        }
+
         allowed = !!(e.target && e.target.closest && e.target.closest('#booster-open-button'));
         if (!allowed) { e.preventDefault(); e.stopImmediatePropagation(); return; }
         hideSpotlight();
+        window.__AVT_TUTORIAL_BOOSTER_OPEN = true;
         var boosterOverlay = document.getElementById('modal-overlay');
         if (boosterOverlay) {
-          var boosterObserver = new MutationObserver(function () {
+          if (window.__AVT_TUTORIAL_BOOSTER_WATCHER) {
+            try { window.__AVT_TUTORIAL_BOOSTER_WATCHER.disconnect(); } catch (err) {}
+          }
+          window.__AVT_TUTORIAL_BOOSTER_WATCHER = new MutationObserver(function () {
             if (boosterOverlay.classList.contains('hidden') || !boosterOverlay.classList.contains('show')) {
-              boosterObserver.disconnect(); goToStep(10);
+              try { window.__AVT_TUTORIAL_BOOSTER_WATCHER.disconnect(); } catch (err) {}
+              window.__AVT_TUTORIAL_BOOSTER_WATCHER = null;
+              window.__AVT_TUTORIAL_BOOSTER_OPEN = false;
+              goToStep(10);
             }
           });
-          boosterObserver.observe(boosterOverlay, {attributes:true, attributeFilter:['class']});
+          window.__AVT_TUTORIAL_BOOSTER_WATCHER.observe(boosterOverlay, {attributes:true, attributeFilter:['class']});
         }
         return;
       }
