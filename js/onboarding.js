@@ -1,4 +1,4 @@
-/* onboarding.js v2.1 — Spotlight / coach-marks онбординг */
+/* onboarding.js v2.3 — wait-for-close onboarding + input guard */
 'use strict';
 (function () {
   var NAME_TRIGGER_TAPS = 20;
@@ -220,10 +220,10 @@
         showSpotlight('#btn-shop', { kicker:'КАЧАЛКА', text:'Нажми на <b>Качалку</b>, чтобы посмотреть, где развивать персонажа.', padding:8 });
         break;
       case 7:
-        showSpotlight('#modal', { kicker:'КАЧАЛКА', text:'Осмотрись в этом окне. Когда закончишь, закрой его крестиком — вернёмся к груше.', padding:8 });
+        showSpotlight('#modal', { kicker:'КАЧАЛКА', text:'Можешь открыть вкладки с экипировкой и осмотреться. Когда закончишь, сам закрой окно крестиком — обучение продолжится.', padding:8 });
         break;
       case 8:
-        showSpotlight('#raid-open-button', { kicker:'РЕЙДЫ', text:'Это <b>Рейды</b>. Здесь проходят игровые сражения и можно получать награды. Нажми кнопку, чтобы посмотреть раздел.', padding:10 });
+        showSpotlight('#raid-open-button', { kicker:'РЕЙДЫ', text:'Открой рейды. Можешь посмотреть бойцов, полистать список или начать бой. Обучение подождёт, пока ты сам не выйдешь из рейдов.', padding:10 });
         break;
       case 9:
         showSpotlight('#btn-rank', { kicker:'МАСТЬ', text:'Здесь отображается твоя <b>масть</b> и продвижение по рангам.', padding:8 });
@@ -251,23 +251,6 @@
       var shop = document.getElementById('btn-shop');
       if (shop) { window.__AVT_TUTORIAL_PROGRAMMATIC_CLICK = true; shop.click(); window.__AVT_TUTORIAL_PROGRAMMATIC_CLICK = false; }
       setTimeout(function () { goToStep(7); }, 250);
-    } else if (step === 7) {
-      goToStep(8);
-    } else if (step === 8) {
-      var raid = document.getElementById('raid-open-button');
-      if (raid) { window.__AVT_TUTORIAL_PROGRAMMATIC_CLICK = true; raid.click(); window.__AVT_TUTORIAL_PROGRAMMATIC_CLICK = false; }
-      setTimeout(function () {
-        var close = document.querySelector('.raid-menu-close, .raid-close, #raid-scene .raid-menu-close');
-        if (close) close.click();
-        else {
-          var overlay = document.getElementById('modal-overlay');
-          if (overlay && overlay.classList.contains('show')) {
-            overlay.classList.remove('show');
-            overlay.classList.add('hidden');
-          }
-        }
-        goToStep(9);
-      }, 2600);
     } else if (step === 9) goToStep(10);
     else if (step === 10) goToStep(11);
     else if (step === 11) goToStep(12);
@@ -297,15 +280,34 @@
         e.preventDefault(); e.stopImmediatePropagation(); advanceFromTap(step); return;
       }
       if (step === 7) {
-        allowed = !!(e.target && e.target.closest && e.target.closest('#modal-close'));
-        if (!allowed) { e.preventDefault(); e.stopImmediatePropagation(); return; }
-        setTimeout(function () { goToStep(8); }, 120);
+        // Allow all equipment tabs and controls in the gym; continue only when its window is closed.
+        if (e.target && e.target.closest && e.target.closest('#modal-close')) {
+          setTimeout(function () {
+            var overlay = document.getElementById('modal-overlay');
+            if (!overlay || overlay.classList.contains('hidden') || !overlay.classList.contains('show')) goToStep(8);
+          }, 180);
+        }
         return;
       }
       if (step === 8) {
-        allowed = !!(e.target && e.target.closest && e.target.closest('#raid-open-button'));
-        if (!allowed) { e.preventDefault(); e.stopImmediatePropagation(); return; }
-        e.preventDefault(); e.stopImmediatePropagation(); advanceFromTap(step); return;
+        // The raids view is intentionally unmasked and fully playable. Wait for the player to close it.
+        if (e.target && e.target.closest && e.target.closest('#raid-open-button')) {
+          e.preventDefault(); e.stopImmediatePropagation();
+          hideSpotlight();
+          window.__AVT_TUTORIAL_RAIDS_OPEN = true;
+          window.__AVT_TUTORIAL_PROGRAMMATIC_CLICK = true;
+          e.target.closest('#raid-open-button').click();
+          window.__AVT_TUTORIAL_PROGRAMMATIC_CLICK = false;
+          return;
+        }
+        if (window.__AVT_TUTORIAL_RAIDS_OPEN && e.target && e.target.closest && e.target.closest('#raid-menu-close, .raid-menu-close, .raid-close, #raid-back')) {
+          window.__AVT_TUTORIAL_RAIDS_OPEN = false;
+          setTimeout(function () {
+            var overlay = document.getElementById('modal-overlay');
+            if (!overlay || overlay.classList.contains('hidden') || !overlay.classList.contains('show')) goToStep(9);
+          }, 220);
+        }
+        return;
       }
       if (step >= 9 && step <= 11) {
         var ids = {9:'#btn-rank',10:'#btn-tasks',11:'#btn-more'};
@@ -316,7 +318,7 @@
       if (step === 12) {
         e.preventDefault(); e.stopImmediatePropagation(); finishOnboarding(); return;
       }
-      // Steps 0-3 advance on any tap, including the highlighted resource.
+      // Intro spotlights advance on taps, but never let the underlying game receive that same tap.
       if (step >= 0 && step <= 3) {
         e.preventDefault(); e.stopImmediatePropagation(); advanceFromTap(step);
       }
@@ -520,11 +522,10 @@
 
       bindOnboardingInput();
       window.__AVT_ONBOARDING_ACTIVE = true;
-      setTimeout(function () {
-        runStep(s.onboarding.step || 0);
-      }, 700);
+      // Show the first tutorial step as soon as state exists; do not leave a playable gap on slow devices.
+      runStep(s.onboarding.step || 0);
 
-      console.log('[onboarding] v2.2 guided spotlight ready, step=', s.onboarding.step);
+      console.log('[onboarding] v2.3 guided spotlight ready, step=', s.onboarding.step);
     }, 200);
   }
 
