@@ -1,4 +1,4 @@
-/* onboarding.js v2.8 — force resume after tutorial startup regression */
+/* onboarding.js v3.0 — launch tutorial immediately on every first session after update */
 'use strict';
 (function () {
   var NAME_TRIGGER_TAPS = 20;
@@ -571,8 +571,8 @@
 
       // Version the tutorial so old saves that were auto-marked as completed can see it.
       // Existing nicknames are preserved and skip the nickname event.
-      if (Number(s.onboarding.tutorialVersion || 0) < 5) {
-        s.onboarding.tutorialVersion = 5;
+      if (Number(s.onboarding.tutorialVersion || 0) < 6) {
+        s.onboarding.tutorialVersion = 6;
         s.onboarding.done = false;
         s.onboarding.step = 0;
         s.onboarding.nameGiven = !!(nick && nick !== 'Салага' && nick !== 'Новичок');
@@ -613,7 +613,7 @@
       // Show the first tutorial step as soon as state exists; do not leave a playable gap on slow devices.
       runStep(s.onboarding.step || 0);
 
-      console.log('[onboarding] v2.8 guided spotlight ready, step=', s.onboarding.step);
+      console.log('[onboarding] v3.0 autostart ready, step=', s.onboarding.step);
     }, 200);
   }
 
