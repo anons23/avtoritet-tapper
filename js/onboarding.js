@@ -81,12 +81,19 @@
     style.textContent =
       '#onboarding-overlay{position:fixed;inset:0;z-index:99990;pointer-events:none;display:none}' +
       '#onboarding-overlay.active{display:block}' +
+      '#onboarding-overlay.card-mode{pointer-events:auto;background:rgba(0,0,0,.72)}' +
       '#onboarding-hole{position:absolute;border-radius:16px;box-shadow:0 0 0 9999px rgba(0,0,0,.72);transition:all .28s ease;pointer-events:none}' +
-      '#onboarding-tip{position:absolute;max-width:min(360px,calc(100vw - 28px));background:#1c1c1f;border:1px solid #665329;border-radius:14px;padding:14px 16px;color:#f0e6c8;font-size:14px;line-height:1.4;box-shadow:0 10px 28px rgba(0,0,0,.45);pointer-events:none;z-index:99991}' +
-      '#onboarding-tip-kicker{font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:#c9a227;margin-bottom:6px}' +
-      '#onboarding-tip-text{margin-bottom:0}' +
-      '#onboarding-tip-actions{display:none}' +
-      'body.onboarding-lock #bottom-bar,body.onboarding-lock #settings-gear-button{opacity:.35}';
+      '#onboarding-tip{position:absolute;width:min(340px,calc(100vw - 32px));max-width:calc(100vw - 32px);max-height:min(70vh,520px);display:flex;flex-direction:column;box-sizing:border-box;background:#1c1c1f;border:1px solid #665329;border-radius:16px;padding:14px 16px;color:#f0e6c8;font-size:14px;line-height:1.45;box-shadow:0 12px 32px rgba(0,0,0,.5);pointer-events:auto;z-index:99991}' +
+      '#onboarding-tip.card{left:50%!important;top:50%!important;transform:translate(-50%,-50%)!important;right:auto!important;bottom:auto!important}' +
+      '#onboarding-tip-kicker{font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:#c9a227;margin-bottom:8px;flex:0 0 auto}' +
+      '#onboarding-tip-text{margin:0 0 12px;flex:1 1 auto;min-height:0;max-height:none;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain}' +
+      '#onboarding-tip-text ul{margin:8px 0 8px 18px;padding:0}' +
+      '#onboarding-tip-text li{margin:0 0 6px}' +
+      '#onboarding-tip-actions{display:flex;gap:8px;flex-wrap:wrap;flex:0 0 auto}' +
+      '#onboarding-tip-actions button{flex:1;min-width:110px;padding:12px 14px;border-radius:12px;border:1px solid #665329;background:#2a2418;color:#f0e6c8;font-size:14px;cursor:pointer}' +
+      '#onboarding-tip-actions button.primary{background:#c9a227;color:#1a1408;border-color:#c9a227;font-weight:700}' +
+      '#onboarding-tip-actions button:active{transform:scale(.97)}' +
+      'body.onboarding-lock #bottom-bar,body.onboarding-lock #settings-gear-button{pointer-events:none;opacity:.35}';
     document.head.appendChild(style);
 
     holeEl = document.getElementById('onboarding-hole');
@@ -100,6 +107,10 @@
 
     overlayEl.classList.add('active');
     document.body.classList.add('onboarding-lock');
+    tipEl.style.transform = '';
+
+    tipEl.classList.remove('card');
+    overlayEl.classList.remove('card-mode');
     tipEl.style.transform = '';
 
     if (target) {
@@ -122,12 +133,18 @@
         tipTop = rect.bottom + 12;
       }
       tipEl.style.left = tipLeft + 'px';
-      tipEl.style.top = Math.max(16, Math.min(tipTop, window.innerHeight - 180)) + 'px';
+      tipEl.style.top = Math.max(16, Math.min(tipTop, window.innerHeight - 200)) + 'px';
+      tipEl.style.width = tipWidth + 'px';
+      tipEl.style.maxHeight = 'min(42vh, 320px)';
     } else {
+      // Центрированная карточка с прокруткой — для длинных текстов (Барак и финал)
       holeEl.style.display = 'none';
-      tipEl.style.left = '50%';
-      tipEl.style.top = '40%';
-      tipEl.style.transform = 'translate(-50%,-50%)';
+      overlayEl.classList.add('card-mode');
+      tipEl.classList.add('card');
+      tipEl.style.left = '';
+      tipEl.style.top = '';
+      tipEl.style.width = '';
+      tipEl.style.maxHeight = '';
     }
 
     document.getElementById('onboarding-tip-kicker').textContent = options.kicker || 'ОБУЧЕНИЕ';
@@ -148,7 +165,16 @@
   }
 
   function hideSpotlight() {
-    if (overlayEl) overlayEl.classList.remove('active');
+    if (overlayEl) {
+      overlayEl.classList.remove('active');
+      overlayEl.classList.remove('card-mode');
+    }
+    if (tipEl) {
+      tipEl.classList.remove('card');
+      tipEl.style.transform = '';
+      tipEl.style.width = '';
+      tipEl.style.maxHeight = '';
+    }
     document.body.classList.remove('onboarding-lock');
   }
 
@@ -241,20 +267,18 @@
         showSpotlight(null, {
           kicker: 'БАРАК',
           text:
-            '<b>Зачем заходить в Барак?</b><br><br>' +
-            'Здесь живут <b>персонажи зоны</b>. У каждого свой характер, свои дела и просьбы. ' +
-            'Общайся, помогай и выбирай, как поступить — от твоих ответов зависит, что получишь.<br><br>' +
-            '<b>Что можно вынести из разговоров:</b>' +
-            '<ul style="margin:8px 0 8px 18px;padding:0">' +
-            '<li><b>Чефир 🍵</b> — на прокачку в Качалке</li>' +
-            '<li><b>Понты ⭐</b> — рост масти и авторитета</li>' +
-            '<li><b>Энергия ⚡</b> — чтобы тапать дольше</li>' +
-            '<li><b>Отношения</b> — чем выше доверие, тем лучше диалоги</li>' +
+            '<b>Зачем заходить в Барак?</b><br>' +
+            'Здесь живут <b>персонажи зоны</b>. У каждого свои дела и просьбы. Общайся и решай, как поступить — от ответов зависит награда.<br><br>' +
+            '<b>Что можно получить:</b>' +
+            '<ul>' +
+            '<li><b>Чефир 🍵</b> — на прокачку</li>' +
+            '<li><b>Понты ⭐</b> — рост масти</li>' +
+            '<li><b>Энергия ⚡</b> — тапать дольше</li>' +
+            '<li><b>Отношения</b> — лучше диалоги</li>' +
             '</ul>' +
-            '<b>3 ступени развития персонажа</b><br>' +
-            'По мере роста отношений открываются новые разговоры и более жирные награды. ' +
-            'На высоких ступенях может выпасть <b>дроп шмота или оружия</b> — то, что усиливает тебя в рейдах и в зоне.<br><br>' +
-            'Короче: зашёл в Барак → поговорил по делу → забрал плюшки. Так и поднимают авторитет.',
+            '<b>3 ступени развития</b><br>' +
+            'Чем выше доверие, тем жирнее награды. На высоких ступенях может выпасть <b>шмот или оружие</b>.<br><br>' +
+            'Зашёл → поговорил → забрал плюшки. Так и качают авторитет.',
           buttons: [{ label: 'Понятно братуха!', primary: true, onClick: finishOnboarding }]
         });
         break;
