@@ -1,4 +1,4 @@
-/* onboarding.js v2.3 — wait-for-close onboarding + input guard */
+/* onboarding.js v2.5 — guided booster and barrack explanations */
 'use strict';
 (function () {
   var NAME_TRIGGER_TAPS = 20;
@@ -226,15 +226,18 @@
         showSpotlight('#raid-open-button', { kicker:'РЕЙДЫ', text:'Здесь можно выбирать бойцов и участвовать в сражениях за награды.', padding:10 });
         break;
       case 9:
-        showSpotlight('#btn-rank', { kicker:'МАСТЬ', text:'Здесь отображается твоя <b>масть</b> и продвижение по рангам.', padding:8 });
+        showSpotlight('#booster-open-button', { kicker:'БОНУС ×2', text:'Открой эту кнопку. За просмотр рекламы можно получить <b>×2 награды за обычные тапы</b> на следующие 100 тапов. Бонус помогает быстрее копить чефир и понты.', padding:8 });
         break;
       case 10:
-        showSpotlight('#btn-tasks', { kicker:'ПОРУЧЕНИЯ', text:'В <b>Поручениях</b> собраны цели и задания, за которые можно получать награды.', padding:8 });
+        showSpotlight('#btn-rank', { kicker:'МАСТЬ', text:'Здесь отображается твоя <b>масть</b> и продвижение по рангам.', padding:8 });
         break;
       case 11:
-        showSpotlight('#btn-more', { kicker:'БАРАК', text:'Открой <b>Барак</b>, чтобы познакомиться с персонажами и их возможностями.', padding:8 });
+        showSpotlight('#btn-tasks', { kicker:'ПОРУЧЕНИЯ', text:'В <b>Поручениях</b> собраны цели и задания, за которые можно получать награды.', padding:8 });
         break;
       case 12:
+        showSpotlight('#btn-more', { kicker:'БАРАК', text:'Открой <b>Барак</b>: внутри объясним, зачем разговаривать с персонажами и помогать им решать проблемы.', padding:8 });
+        break;
+      case 13:
         showSpotlight(null, { kicker:'ГОТОВО', text:'Ты освоился! Теперь можешь свободно исследовать зону, качаться и повышать авторитет.' });
         break;
       default:
@@ -251,10 +254,10 @@
       var shop = document.getElementById('btn-shop');
       if (shop) { window.__AVT_TUTORIAL_PROGRAMMATIC_CLICK = true; shop.click(); window.__AVT_TUTORIAL_PROGRAMMATIC_CLICK = false; }
       setTimeout(function () { goToStep(7); }, 250);
-    } else if (step === 9) goToStep(10);
-    else if (step === 10) goToStep(11);
+    } else if (step === 10) goToStep(11);
     else if (step === 11) goToStep(12);
-    else if (step === 12) finishOnboarding();
+    else if (step === 12) goToStep(13);
+    else if (step === 13) finishOnboarding();
   }
 
   function bindOnboardingInput() {
@@ -339,8 +342,23 @@
         }
         return;
       }
-      if (step === 9 || step === 10) {
-        var ids = {9:'#btn-rank',10:'#btn-tasks'};
+      if (step === 9) {
+        allowed = !!(e.target && e.target.closest && e.target.closest('#booster-open-button'));
+        if (!allowed) { e.preventDefault(); e.stopImmediatePropagation(); return; }
+        hideSpotlight();
+        var boosterOverlay = document.getElementById('modal-overlay');
+        if (boosterOverlay) {
+          var boosterObserver = new MutationObserver(function () {
+            if (boosterOverlay.classList.contains('hidden') || !boosterOverlay.classList.contains('show')) {
+              boosterObserver.disconnect(); goToStep(10);
+            }
+          });
+          boosterObserver.observe(boosterOverlay, {attributes:true, attributeFilter:['class']});
+        }
+        return;
+      }
+      if (step === 10 || step === 11) {
+        var ids = {10:'#btn-rank',11:'#btn-tasks'};
         allowed = !!(e.target && e.target.closest && e.target.closest(ids[step]));
         if (!allowed) { e.preventDefault(); e.stopImmediatePropagation(); return; }
         hideSpotlight();
@@ -357,7 +375,7 @@
         }, 100);
         return;
       }
-      if (step === 11) {
+      if (step === 12) {
         allowed = !!(e.target && e.target.closest && e.target.closest('#btn-more'));
         if (!allowed) { e.preventDefault(); e.stopImmediatePropagation(); return; }
         hideSpotlight();
@@ -368,18 +386,18 @@
           var info = document.createElement('div');
           info.className = 'section-window onboarding-barrack-info';
           info.style.cssText = 'margin:0 0 12px;padding:14px;border:1px solid #665329;border-radius:12px;background:#1c1c1f;color:#f0e6c8';
-          info.innerHTML = '<div class="section-kicker">КАК РАБОТАЕТ БАРАК</div><h3>Персонажи и развитие</h3><p>Знакомься с персонажами, выполняй их поручения и диалоги, получай чефир, понты и другие игровые награды.</p><p>У персонажей есть <b>3 ступени развития</b>: по мере роста отношений и прогресса открываются новые возможности и более ценные бонусы.</p>';
+          info.innerHTML = '<div class="section-kicker">ЗАЧЕМ ОБЩАТЬСЯ С ПЕРСОНАЖАМИ</div><h3>Диалоги, поручения и помощь</h3><p>У каждого НПС свои заботы, просьбы и проблемы. Выбирай ответы в диалогах, выясняй подробности и решай, как поступить: помочь напрямую, договориться, поискать информацию или отказаться.</p><ul><li><b>Награды:</b> за удачные разговоры и помощь можно получать чефир, понты и другие игровые бонусы.</li><li><b>Репутация и доверие:</b> поступки влияют на отношения с персонажами и могут открывать новые варианты общения.</li><li><b>Решение проблем:</b> поручения помогают разобраться в событиях барака, получить полезные сведения и иногда избежать неприятностей. Некоторые решения рискованны — читай варианты и последствия.</li></ul><h4>3 ступени развития персонажа</h4><p>По мере роста отношений и прогресса открываются следующие ступени. С каждой ступенью становятся доступны новые диалоги и более ценные бонусы; чем выше развитие персонажа, тем выгоднее может быть взаимодействие с ним.</p>
           content.insertBefore(info, content.firstChild);
           var observer = new MutationObserver(function () {
             if (overlay.classList.contains('hidden') || !overlay.classList.contains('show')) {
-              observer.disconnect(); goToStep(12);
+              observer.disconnect(); goToStep(13);
             }
           });
           observer.observe(overlay, {attributes:true, attributeFilter:['class']});
         }, 180);
         return;
       }
-      if (step === 12) {
+      if (step === 13) {
         e.preventDefault(); e.stopImmediatePropagation(); finishOnboarding(); return;
       }
       // Intro spotlights advance on taps, but never let the underlying game receive that same tap.
@@ -589,7 +607,7 @@
       // Show the first tutorial step as soon as state exists; do not leave a playable gap on slow devices.
       runStep(s.onboarding.step || 0);
 
-      console.log('[onboarding] v2.3 guided spotlight ready, step=', s.onboarding.step);
+      console.log('[onboarding] v2.5 guided spotlight ready, step=', s.onboarding.step);
     }, 200);
   }
 
