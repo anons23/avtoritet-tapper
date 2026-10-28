@@ -4,6 +4,7 @@
   const scripts=[
     {src:'./js/save-migration.js?v=1.2',critical:true},
     {src:'./js/game.js?v=5.11-onboarding',critical:true},
+    {src:'./js/onboarding.js?v=2.3',critical:false},
     {src:'./js/save-guard.js?v=1.1',critical:false},
     {src:'./js/npc-barrack.js?v=4.8-rank-rewards',critical:true},
     {src:'./js/npc-memory.js?v=1.0',critical:false},
@@ -13,7 +14,6 @@
     {src:'./js/shop-booster-ad.js?v=2.1-ad-explainer',critical:false},
     {src:'./js/jail-lock.js?v=1.0',critical:false},
     {src:'./js/nickname-rename.js?v=1.1',critical:false},
-    {src:'./js/onboarding.js?v=2.3',critical:false},
     {src:'./js/daily.js?v=1.4',critical:false},
     {src:'./js/authority-css-restore.js?v=1.8',critical:false},
     {src:'./js/authority-ui.js?v=2.7-no-crown',critical:false},
