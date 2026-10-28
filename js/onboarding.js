@@ -1,4 +1,4 @@
-/* onboarding.js v2.5 — guided booster and barrack explanations */
+/* onboarding.js v2.6 — resume tutorial for existing saves */
 'use strict';
 (function () {
   var NAME_TRIGGER_TAPS = 20;
@@ -562,19 +562,20 @@
       if (!s) return;
 
       ensureState(s);
-      var taps = Math.max(0, Number(s.totalTaps) || 0);
       var nick = String(s.nickname || '').trim();
 
-      if (!s.onboarding.done) {
-        if ((nick && nick !== 'Салага' && nick !== 'Новичок') || taps > 80) {
-          s.onboarding.done = true;
-          s.onboarding.nameGiven = true;
-          s.onboarding.unlocked = { shop: true, rank: true, tasks: true, more: true };
-          save();
-        }
+      // Version the tutorial so old saves that were auto-marked as completed can see it.
+      // Existing nicknames are preserved and skip the nickname event.
+      if (Number(s.onboarding.tutorialVersion || 0) < 3) {
+        s.onboarding.tutorialVersion = 3;
+        s.onboarding.done = false;
+        s.onboarding.step = 0;
+        s.onboarding.nameGiven = !!(nick && nick !== 'Салага' && nick !== 'Новичок');
+        s.onboarding.practiceTaps = 0;
+        save();
       }
 
-      if (!s.onboarding.nameGiven && (!nick || nick === '')) {
+      if (!s.onboarding.nameGiven && !nick) {
         s.nickname = 'Салага';
         save();
         ui();
@@ -607,7 +608,7 @@
       // Show the first tutorial step as soon as state exists; do not leave a playable gap on slow devices.
       runStep(s.onboarding.step || 0);
 
-      console.log('[onboarding] v2.5 guided spotlight ready, step=', s.onboarding.step);
+      console.log('[onboarding] v2.6 guided spotlight ready, step=', s.onboarding.step);
     }, 200);
   }
 
