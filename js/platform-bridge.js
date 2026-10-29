@@ -1,14 +1,30 @@
 'use strict';
 (function () {
-  // Platform-neutral adapter for the Android build.
-  // Game progress is stored locally; cloud saves are not used in this build.
+  // Platform-neutral adapter for the Android / RuStore build.
+  // Game progress is stored locally; ads go through native Yandex Mobile Ads SDK.
   const log = (...args) => console.debug('[PlatformBridge]', ...args);
   let adBusy = false;
+
+  function cfg() {
+    return window.AVT_ADS_CONFIG || {
+      rewardedBlockId: 'R-M-20297973-1',
+      interstitialBlockId: 'R-M-20297973-2'
+    };
+  }
+
+  function releaseBusySoon(ms) {
+    window.setTimeout(function () { adBusy = false; }, ms || 60000);
+  }
 
   const bridge = {
     showFullscreenAd: function () {
       const ads = window.AndroidAds;
-      if (adBusy || !ads || typeof ads.showFullscreenAd !== 'function') return false;
+      const blockId = cfg().interstitialBlockId;
+      if (adBusy) return false;
+      if (!ads) {
+        log('fullscreen: AndroidAds missing (web/mock)');
+        return false;
+      }
       adBusy = true;
       let released = false;
       const release = function () {
@@ -17,10 +33,15 @@
         adBusy = false;
       };
       try {
-        // Native adapter may accept a completion callback. The timeout is a
-        // fallback for providers that do not send one.
-        ads.showFullscreenAd(release);
-        window.setTimeout(release, 60000);
+        if (typeof ads.showFullscreenAd === 'function') {
+          ads.showFullscreenAd(blockId, release);
+        } else if (typeof ads.showInterstitial === 'function') {
+          ads.showInterstitial(blockId, release);
+        } else {
+          release();
+          return false;
+        }
+        releaseBusySoon(90000);
         return true;
       } catch (e) {
         release();
@@ -39,11 +60,29 @@
   window.showRewardedAd = function (onReward) {
     const done = typeof onReward === 'function' ? onReward : function () {};
     const ads = window.AndroidAds;
-    if (adBusy || !ads || typeof ads.showRewardedAd !== 'function') {
+    const blockId = cfg().rewardedBlockId;
+
+    if (adBusy) {
+      done(false);
+      return false;
+    }
+
+    // Нет нативного моста — mock только если явно разрешён (для тестов в браузере)
+    if (!ads || (typeof ads.showRewardedAd !== 'function' && typeof ads.showRewarded !== 'function')) {
+      if (cfg().useMockOnWeb !== false && !window.Capacitor && !window.AndroidAds) {
+        log('rewarded mock (no native SDK)');
+        adBusy = true;
+        window.setTimeout(function () {
+          adBusy = false;
+          done(true);
+        }, 700);
+        return true;
+      }
       log('rewarded ad unavailable: native Android ad adapter is not connected');
       done(false);
       return false;
     }
+
     adBusy = true;
     let finished = false;
     const finish = function (rewarded) {
@@ -52,9 +91,19 @@
       adBusy = false;
       done(rewarded === true);
     };
+
     try {
-      ads.showRewardedAd(finish);
-      window.setTimeout(() => finish(false), 60000);
+      if (typeof ads.showRewardedAd === 'function') {
+        ads.showRewardedAd(blockId, finish);
+      } else if (typeof ads.showRewarded === 'function') {
+        ads.showRewarded({
+          blockId: blockId,
+          onRewarded: function () { finish(true); },
+          onClosed: function (ok) { finish(!!ok); },
+          onError: function () { finish(false); }
+        });
+      }
+      releaseBusySoon(90000);
       return true;
     } catch (e) {
       log('rewarded ad failed', e);
@@ -68,5 +117,6 @@
       try { if (typeof window.saveGame === 'function') window.saveGame(); } catch (e) {}
     }
   });
-  log('local-save adapter initialized; native Android ads are not connected yet');
+
+  log('ready; rewarded=', cfg().rewardedBlockId, 'interstitial=', cfg().interstitialBlockId);
 })();
