@@ -34,7 +34,21 @@ if (!activity.includes(importLine)) {
   activity = activity.replace(/(package\s+[\w.]+;\s*)/, '$1\n' + importLine + '\n');
 }
 if (!activity.includes('registerPlugin(YandexAdsPlugin.class)')) {
-  activity = activity.replace(/(public\s+void\s+onCreate\s*\([^)]*\)\s*\{)/, '$1\n        registerPlugin(YandexAdsPlugin.class);');
+  const onCreatePattern = /(public\s+void\s+onCreate\s*\([^)]*\)\s*\{)/;
+  if (onCreatePattern.test(activity)) {
+    activity = activity.replace(onCreatePattern, '$1\n        registerPlugin(YandexAdsPlugin.class);');
+  } else {
+    if (!activity.includes('import android.os.Bundle;')) {
+      activity = activity.replace(/(package\s+[\w.]+;\s*)/, '$1\nimport android.os.Bundle;\n');
+    }
+    activity = activity.replace(/}\s*$/, `    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        registerPlugin(YandexAdsPlugin.class);
+        super.onCreate(savedInstanceState);
+    }
+}
+`);
+  }
 }
 if (!activity.includes('registerPlugin(YandexAdsPlugin.class)')) {
   throw new Error('Не удалось зарегистрировать YandexAdsPlugin в MainActivity.');
