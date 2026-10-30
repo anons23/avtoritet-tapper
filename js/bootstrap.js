@@ -1,11 +1,11 @@
 'use strict';
 (function(){
-  /* RuStore branch bootstrap — early-game boost v5.13 */
+  /* RuStore branch bootstrap — Blatnoy 4000 v5.14 */
   const scripts=[
     {src:'./js/save-migration.js?v=1.2',critical:true},
-    {src:'./js/game.js?v=5.13-early',critical:true},
+    {src:'./js/game.js?v=5.14-blatnoy',critical:true},
     {src:'./js/save-guard.js?v=1.1',critical:false},
-    {src:'./js/npc-barrack.js?v=4.8-rank-rewards',critical:true},
+    {src:'./js/npc-barrack.js?v=4.9-blatnoy4000',critical:true},
     {src:'./js/npc-memory.js?v=1.0',critical:false},
     {src:'./js/npc-rumors.js?v=1.5',critical:false},
     {src:'./js/object-visuals.js?v=3.3',critical:true},
@@ -48,7 +48,7 @@
         if(item.critical)return;
       }
     }
-    console.log('[bootstrap] rustore early-game boost v5.13');
+    console.log('[bootstrap] rustore Blatnoy 4000 v5.14');
   }
 
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot);
