@@ -1,4 +1,4 @@
-/* onboarding.js v3.0 — launch tutorial immediately on every first session after update */
+/* onboarding.js v3.1-starter — launch tutorial immediately on every first session after update */
 'use strict';
 (function () {
   var NAME_TRIGGER_TAPS = 20;
@@ -196,13 +196,24 @@
     ensureState(s);
     s.onboarding.done = true;
     s.onboarding.unlocked = { shop: true, rank: true, tasks: true, more: true };
+    // Стартовый набор один раз: чефир + бесплатный ×2, чтобы не упираться в рекламу в первые минуты
+    if (!s.onboarding.starterPack) {
+      s.onboarding.starterPack = true;
+      s.chifir = (Number(s.chifir) || 0) + 100;
+      s.boosters = s.boosters || { double: 0 };
+      s.boosters.double = (Number(s.boosters.double) || 0) + 80;
+      if (typeof s.maxEnergy === 'number' && s.maxEnergy < 350) s.maxEnergy = 350;
+      if (typeof s.energy === 'number') s.energy = Math.min(s.maxEnergy, Math.max(Number(s.energy) || 0, 350));
+    }
     save();
     hideSpotlight();
     ['btn-shop','btn-rank','btn-tasks','btn-more'].forEach(function (id) {
       var el = document.getElementById(id);
       if (el) { el.style.display = ''; el.style.opacity = '1'; el.style.pointerEvents = ''; }
     });
-    msg('Обучение завершено. Удачи в зоне!');
+    if (typeof ui === 'function') try { ui(); } catch (e) {}
+    if (typeof window.ui === 'function') try { window.ui(); } catch (e) {}
+    msg('Обучение завершено! +100 🍵 и 80 тапов ×2 — вперёд!');
   }
 
   function runStep(step) {

@@ -1,4 +1,4 @@
-/* АВТОРИТЕТ 2.0 — core v4.92 (TEST_MODE off) */
+/* АВТОРИТЕТ 2.0 — core v4.93 (early-game boost) */
 'use strict';
 const TEST_MODE = false;
 const TEST_POINTS_PER_TAP = 500;
@@ -6,8 +6,8 @@ const TEST_POINTS_PER_TAP = 500;
 window.TEST_MODE = TEST_MODE;
 window.TEST_POINTS_PER_TAP = TEST_POINTS_PER_TAP;
 const N = ['Чахлый','Додик','Дрыщ','Шкет','Хлюпик','Тормоз','Балбес','Лопух','Тюфяк','Заморыш','Пузан','Пельмень','Кочерыжка','Шнурок','Обормот','Кабачок','Мокрый Носок','Кривой Шнурок','Тормозной','Клоп','Пузатый Шкет','Малявка','Руки-Крюки','Горе-Авторитет','Гремлин','Пельмень Без Вилки','Шнурок Без Ботинка','Тапок','Сопливый Шкет','Чайник'];
-const R = [['Салага',0],['Пацан',1500],['Блатной',5000],['Смотрящий',15000],['Авторитет',30000]];
-const O = [['Груша','🥊',1,0],['Сокамерник','👊',1.3,1500],['Отжимания','💪',1.6,5000],['Тренажёр','🏋️',2.2,15000],['Разборка','🗣️',3.2,30000]];
+const R = [['Салага',0],['Пацан',900],['Блатной',5000],['Смотрящий',15000],['Авторитет',30000]];
+const O = [['Груша','🥊',1,0],['Сокамерник','👊',1.3,900],['Отжимания','💪',1.6,5000],['Тренажёр','🏋️',2.2,15000],['Разборка','🗣️',3.2,30000]];
 const FUN = ['Надзиратель идёт... сделай умный вид.','Сегодня без шмона. Чудо.','Шайба в кармане греет душу.','В столовой сегодня мясо. Или что-то похожее.','Кто-то опять забрал папиросы. Классика.','Сегодня раздача посылок. Надежда умирает последней.'];
 const EVENTS=[
   ['Шмон!','Надзиратели ворвались в камеру. Что делаешь?',[['Спрятать папиросы',.55,40,15,2],['Стоять спокойно',0,10,5,1],['Сделать вид, что спишь',.25,5,8,1]],0],
@@ -73,7 +73,7 @@ const TASKS = {
 
 let activeEvent=false;
 let s = {
-  chifir:0, points:0, energy:250, maxEnergy:250, power:1, critChance:0.05,
+  chifir:0, points:0, energy:350, maxEnergy:350, power:1, critChance:0.05,
   respect:0, wealth:0, nickname:'', currentObject:0, prestige:0,
   upgrades:{power:0, crit:0, energyMax:0}, boosters:{double:0},
   tasks:{taps:0, crit:0, events:0, earned:0, jail:0, bugorSuccess:0, npcSuccess:0, authorityDeals:0, npcDrop:0},
@@ -91,7 +91,7 @@ function rankRewardScale(points){
   if(p>=30000)return 4.5;
   if(p>=15000)return 3.2;
   if(p>=5000)return 2.2;
-  if(p>=1500)return 1.5;
+  if(p>=900)return 1.5;
   return 1;
 }
 function highestUnlocked(){ let i=0; for(let k=0;k<O.length;k++) if(s.points>=O[k][3]) i=k; return i; }
@@ -108,10 +108,12 @@ window.msg = msg;
 function restoreEnergy(now){
   now = Number(now)||Date.now();
   if(s.energy >= s.maxEnergy){ s.lastEnergyTime = now; return; }
-  const gain = Math.floor(Math.max(0, now - s.lastEnergyTime) / 30000);
+  // До первой масти (Пацан) энергия восстанавливается быстрее — мягкий старт.
+  const tickMs = (Number(s.points)||0) < 900 ? 20000 : 30000;
+  const gain = Math.floor(Math.max(0, now - s.lastEnergyTime) / tickMs);
   if(gain > 0){
     s.energy = Math.min(s.maxEnergy, s.energy + gain);
-    s.lastEnergyTime += gain * 30000;
+    s.lastEnergyTime += gain * tickMs;
   }
 }
 
@@ -225,8 +227,8 @@ function sanitizeGameState(state){
   state.wealth = clampNum(state.wealth, 0, MAX_STAT, 0);
   state.power = clampInt(state.power, 1, 100000, 1);
   state.critChance = clampNum(state.critChance, 0, 0.5, 0.05);
-  state.maxEnergy = clampInt(state.maxEnergy, 1, 100000, 250);
-  state.energy = clampInt(state.energy, 0, state.maxEnergy, Math.min(250, state.maxEnergy));
+  state.maxEnergy = clampInt(state.maxEnergy, 1, 100000, 350);
+  state.energy = clampInt(state.energy, 0, state.maxEnergy, Math.min(350, state.maxEnergy));
   state.currentObject = clampInt(state.currentObject, 0, Math.max(0, O.length - 1), 0);
   state.prestige = clampInt(state.prestige, 0, 1000, 0);
   state.totalTaps = clampInt(state.totalTaps, 0, MAX_RES, 0);
