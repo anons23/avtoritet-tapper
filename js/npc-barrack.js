@@ -27,7 +27,7 @@
           {t:'Отказаться',ok:1,rep:0,msg:'Шайба пожимает плечами: «Тоже вариант.»'}
         ]}
       ]},
-    {id:'bugor',unlockPoints:1500,name:'Бугор',role:'Тренер',icon:'💪',avatar:AV+'Bugor_avatar.webp',
+    {id:'bugor',unlockPoints:900,name:'Бугор',role:'Тренер',icon:'💪',avatar:AV+'Bugor_avatar.webp',
       greet:'Бугор хрустит костяшками: «Готов поработать?»',
       dialogs:[
         {q:'Бугор: «Как думаешь, что важнее — сила или терпение?»',choices:[
@@ -51,7 +51,7 @@
           {t:'Нет, сначала подготовлюсь',ok:.95,pts:25,rep:1,msg:'Бугор одобряет осторожность. «Подготовка тоже сила.»'}
         ]}
       ]},
-    {id:'kosoy',unlockPoints:5000,name:'Косой',role:'Торговец слухами',icon:'👁',avatar:AV+'Kosoy_avatar.webp',
+    {id:'kosoy',unlockPoints:4000,name:'Косой',role:'Торговец слухами',icon:'👁',avatar:AV+'Kosoy_avatar.webp',
       greet:'Косой щурится: «Информация — товар. Что нужно?»',
       dialogs:[
         {q:'Косой: «Есть слух, который стоит тридцать чефира. Берёшь?»',choices:[
@@ -361,8 +361,8 @@
     var p=Math.max(0,Number(points)||0);
     if(p>=30000)return 4.5;
     if(p>=15000)return 3.2;
-    if(p>=5000)return 2.2;
-    if(p>=1500)return 1.5;
+    if(p>=4000)return 2.2;
+    if(p>=900)return 1.5;
     return 1;
   }
   function msg(t){
@@ -419,7 +419,7 @@
       if(unlocked){
         html+='<button type="button" class="npc-link" data-npc="'+n.id+'"><span aria-hidden="true">'+n.icon+'</span><b>'+n.name+'</b><small>'+n.role+'</small></button>';
       }else{
-        html+='<button type="button" class="npc-link npc-link-locked" disabled aria-disabled="true"><span aria-hidden="true">🔒</span><b>'+n.name+'</b><small>Откроется с мастью «'+(function(){var rr={0:'Салага',1500:'Пацан',5000:'Блатной',15000:'Смотрящий',30000:'Авторитет'};return rr[Number(n.unlockPoints)]||'следующей мастью';})()+'»</small></button>';
+        html+='<button type="button" class="npc-link npc-link-locked" disabled aria-disabled="true"><span aria-hidden="true">🔒</span><b>'+n.name+'</b><small>Откроется с мастью «'+(function(){var rr={0:'Салага',900:'Пацан',4000:'Блатной',15000:'Смотрящий',30000:'Авторитет'};return rr[Number(n.unlockPoints)]||'следующей мастью';})()+'»</small></button>';
       }
     });
     html+='</div></div>';
