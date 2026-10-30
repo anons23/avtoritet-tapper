@@ -1,20 +1,18 @@
-/* ads-config.js — ID рекламных блоков Яндекса (RuStore) */
+/* ads-config.js — рекламные блоки Яндекса для Android / RuStore и браузерного превью */
 'use strict';
 (function () {
   window.AVT_ADS_CONFIG = {
-    // Приложение в partner.yandex.ru
+    // ID приложения в Рекламной сети Яндекса и package name Android-приложения.
     appId: '20297973',
     packageName: 'ru.avtoritet.game',
 
-    // Блоки (проверь в кабинете, что форматы совпадают)
+    // ID рекламных мест из кабинета Яндекса. Форматы должны совпадать с назначением.
     rewardedBlockId: 'R-M-20297973-1',
     interstitialBlockId: 'R-M-20297973-2',
 
-    // Пока нет нативного Android SDK — на вебе остаётся mock.
-    // В APK window.AndroidAds должен быть внедрён из Kotlin/Java.
+    // Только браузерное превью. В Android APK имитация отключается мостом автоматически.
     useMockOnWeb: true
   };
 
-  console.log('[ads-config] rewarded=', window.AVT_ADS_CONFIG.rewardedBlockId,
-    'interstitial=', window.AVT_ADS_CONFIG.interstitialBlockId);
+  console.log('[ads-config] Yandex ad blocks configured');
 })();
