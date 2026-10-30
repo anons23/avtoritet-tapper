@@ -1,1 +1,0 @@
-window.__AVT_GAME_SRC=(window.__AVT_GAME_SRC||'')+"PLACEHOLDER_USE_ARTIFACT";
