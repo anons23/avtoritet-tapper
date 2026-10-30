@@ -1,6 +1,6 @@
 'use strict';
 (function(){
-  /* RuStore branch bootstrap */
+  /* RuStore branch bootstrap — early-game boost v5.13 */
   const scripts=[
     {src:'./js/save-migration.js?v=1.2',critical:true},
     {src:'./js/game.js?v=5.13-early',critical:true},
@@ -48,7 +48,7 @@
         if(item.critical)return;
       }
     }
-    console.log('[bootstrap] rustore + onboarding');
+    console.log('[bootstrap] rustore early-game boost v5.13');
   }
 
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot);
