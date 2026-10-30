@@ -75,6 +75,9 @@ if (!gradle.includes('com.yandex.android:mobileads')) {
   } else {
     gradle = gradle.replace(/dependencies\s*\{/, "dependencies {\n    implementation 'com.yandex.android:mobileads:8.6.0'");
   }
+  if (!gradle.includes('com.yandex.android:mobileads')) {
+    throw new Error('Не удалось добавить Yandex Mobile Ads SDK в dependencies блока Gradle.');
+  }
 }
 await writeFile(gradlePath, gradle);
 console.log('Yandex Mobile Ads SDK 8.6.0 и Capacitor-мост подключены к Android-проекту.');
