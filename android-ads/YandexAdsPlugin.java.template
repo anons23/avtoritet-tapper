@@ -1,0 +1,150 @@
+package __PACKAGE__;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
+import com.getcapacitor.JSObject;
+import com.getcapacitor.Plugin;
+import com.getcapacitor.PluginCall;
+import com.getcapacitor.PluginMethod;
+import com.getcapacitor.annotation.CapacitorPlugin;
+import com.yandex.mobile.ads.common.AdRequest;
+import com.yandex.mobile.ads.common.AdRequestError;
+import com.yandex.mobile.ads.common.ImpressionData;
+import com.yandex.mobile.ads.rewarded.Reward;
+import com.yandex.mobile.ads.rewarded.RewardedAd;
+import com.yandex.mobile.ads.rewarded.RewardedAdEventListener;
+import com.yandex.mobile.ads.rewarded.RewardedAdLoadListener;
+import com.yandex.mobile.ads.rewarded.RewardedAdLoader;
+import com.yandex.mobile.ads.interstitial.InterstitialAd;
+import com.yandex.mobile.ads.interstitial.InterstitialAdEventListener;
+import com.yandex.mobile.ads.interstitial.InterstitialAdLoadListener;
+import com.yandex.mobile.ads.interstitial.InterstitialAdLoader;
+
+@CapacitorPlugin(name = "YandexAds")
+public class YandexAdsPlugin extends Plugin {
+    private boolean busy = false;
+    private RewardedAdLoader rewardedLoader;
+    private RewardedAd rewardedAd;
+    private InterstitialAdLoader interstitialLoader;
+    private InterstitialAd interstitialAd;
+
+    @PluginMethod
+    public void showRewardedAd(PluginCall call) {
+        final String blockId = call.getString("blockId");
+        if (blockId == null || blockId.trim().isEmpty()) {
+            call.reject("Не указан ID rewarded рекламного блока");
+            return;
+        }
+        if (busy) {
+            call.reject("Реклама уже открывается");
+            return;
+        }
+        busy = true;
+        getActivity().runOnUiThread(() -> {
+            rewardedLoader = new RewardedAdLoader(getContext());
+            rewardedLoader.setAdLoadListener(new RewardedAdLoadListener() {
+                @Override
+                public void onAdLoaded(@NonNull RewardedAd ad) {
+                    rewardedAd = ad;
+                    final boolean[] rewardEarned = {false};
+                    ad.setAdEventListener(new RewardedAdEventListener() {
+                        @Override public void onAdShown() {}
+                        @Override public void onAdFailedToShow(@NonNull com.yandex.mobile.ads.common.AdError error) {
+                            cleanupRewarded();
+                            busy = false;
+                            call.reject("Не удалось показать rewarded-рекламу: " + error.getDescription());
+                        }
+                        @Override public void onAdDismissed() {
+                            cleanupRewarded();
+                            busy = false;
+                            JSObject result = new JSObject();
+                            result.put("rewarded", rewardEarned[0]);
+                            call.resolve(result);
+                        }
+                        @Override public void onAdClicked() {}
+                        @Override public void onAdImpression(@Nullable ImpressionData data) {}
+                        @Override public void onRewarded(@NonNull Reward reward) {
+                            rewardEarned[0] = true;
+                        }
+                    });
+                    ad.show(getActivity());
+                }
+                @Override
+                public void onAdFailedToLoad(@NonNull AdRequestError error) {
+                    cleanupRewarded();
+                    busy = false;
+                    call.reject("Rewarded-реклама не загрузилась: " + error.getDescription());
+                }
+            });
+            rewardedLoader.loadAd(new AdRequest.Builder(blockId).build());
+        });
+    }
+
+    @PluginMethod
+    public void showInterstitialAd(PluginCall call) {
+        final String blockId = call.getString("blockId");
+        if (blockId == null || blockId.trim().isEmpty()) {
+            call.reject("Не указан ID interstitial рекламного блока");
+            return;
+        }
+        if (busy) {
+            call.reject("Реклама уже открывается");
+            return;
+        }
+        busy = true;
+        getActivity().runOnUiThread(() -> {
+            interstitialLoader = new InterstitialAdLoader(getContext());
+            interstitialLoader.setAdLoadListener(new InterstitialAdLoadListener() {
+                @Override
+                public void onAdLoaded(@NonNull InterstitialAd ad) {
+                    interstitialAd = ad;
+                    ad.setAdEventListener(new InterstitialAdEventListener() {
+                        @Override public void onAdShown() {}
+                        @Override public void onAdFailedToShow(@NonNull com.yandex.mobile.ads.common.AdError error) {
+                            cleanupInterstitial();
+                            busy = false;
+                            call.reject("Не удалось показать interstitial-рекламу: " + error.getDescription());
+                        }
+                        @Override public void onAdDismissed() {
+                            cleanupInterstitial();
+                            busy = false;
+                            call.resolve();
+                        }
+                        @Override public void onAdClicked() {}
+                        @Override public void onAdImpression(@Nullable ImpressionData data) {}
+                    });
+                    ad.show(getActivity());
+                }
+                @Override
+                public void onAdFailedToLoad(@NonNull AdRequestError error) {
+                    cleanupInterstitial();
+                    busy = false;
+                    call.reject("Interstitial-реклама не загрузилась: " + error.getDescription());
+                }
+            });
+            interstitialLoader.loadAd(new AdRequest.Builder(blockId).build());
+        });
+    }
+
+    private void cleanupRewarded() {
+        if (rewardedAd != null) rewardedAd.setAdEventListener(null);
+        rewardedAd = null;
+        if (rewardedLoader != null) rewardedLoader.setAdLoadListener(null);
+        rewardedLoader = null;
+    }
+
+    private void cleanupInterstitial() {
+        if (interstitialAd != null) interstitialAd.setAdEventListener(null);
+        interstitialAd = null;
+        if (interstitialLoader != null) interstitialLoader.setAdLoadListener(null);
+        interstitialLoader = null;
+    }
+
+    @Override
+    protected void handleOnDestroy() {
+        cleanupRewarded();
+        cleanupInterstitial();
+        super.handleOnDestroy();
+    }
+}
