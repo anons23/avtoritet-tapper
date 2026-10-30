@@ -1,81 +1,84 @@
-# Авторитет 2.0 — Android / RuStore
+# Авторитет 2.0 — сборка Android / RuStore
 
-This branch keeps the existing HTML/CSS/JavaScript game as the source of truth and uses Capacitor to package it as an Android application.
+Ветка `rustore` содержит игру и автоматическую настройку нативной рекламы Яндекса. Папка `android` создаётся у тебя на компьютере командой Capacitor, поэтому её нет в GitHub. Все нужные файлы для подключения рекламы уже сохранены в этой ветке.
 
-## Requirements
+## Что уже настроено в коде
 
-- Node.js 22 or newer
-- Android Studio with an Android SDK installed
-- JDK 21 (recommended for the current Gradle wrapper) or a JDK supported by the installed Android Gradle Plugin
-- Internet access on the first Android build so Gradle can download Yandex Mobile Ads SDK
+- Добавлен нативный мост между игрой и Android.
+- Подключается официальный Yandex Mobile Ads SDK версии 8.6.0.
+- Поддерживаются два формата: rewarded (реклама за игровую награду) и interstitial (полноэкранная реклама).
+- При rewarded-награде игра получает подтверждение от SDK. Если реклама не загрузилась или её закрыли без просмотра, награда не выдаётся.
+- В браузере оставлена тестовая имитация для проверки игровых кнопок. В APK эта имитация отключена.
+- Команды создания и обновления Android-проекта сами устанавливают нативный мост.
 
-## Create the Android project locally
+## Что сделать на компьютере
 
-From the repository root, on branch `rustore`:
+Требуются Node.js 22+, Android Studio и JDK 21.
 
-```sh
+**Если папки `android` ещё нет:**
+
+1. Скачай ветку `rustore` и распакуй проект.
+2. Открой папку проекта в проводнике.
+3. В адресной строке папки напиши `cmd` и нажми Enter.
+4. В чёрном окне выполни:
+
+```bat
 npm install
 npm run android:add
 ```
 
-The command stages the web game into `www/`, creates the native Android project, sets portrait orientation, registers the bundled Yandex Ads Capacitor plugin, and adds Yandex Mobile Ads SDK 8.6.0 to the Android app. The generated `android/` directory is intentionally not committed; the setup script recreates the native ad integration after Android project generation.
+**Если папка `android` уже есть:**
 
-## Sync game changes
+Открой командную строку в папке проекта и выполни:
 
-After changing the HTML/CSS/JS source files, run:
-
-```sh
+```bat
+npm install
 npm run android:sync
 ```
 
-This copies the latest game files and reapplies the native ads setup. The setup is safe to run more than once and does not add duplicate plugin registrations or SDK dependencies.
+Не запускай `android:add` поверх уже созданной папки `android`.
 
-## Build the APK
+## Как собрать APK
 
-1. Open Android Studio.
-2. Choose **Open** and select the project's `android` folder.
-3. Wait for Gradle sync to finish. On the first run it downloads Yandex Mobile Ads SDK.
-4. Connect an Android phone with USB debugging enabled, or select an emulator.
-5. In Android Studio choose **Build → Build Bundle(s) / APK(s) → Build APK(s)**.
-6. When the build finishes, click **locate** in the notification to find the APK.
+1. Открой Android Studio.
+2. Нажми **Open**.
+3. Выбери папку `android` внутри проекта.
+4. Подожди, пока закончится Gradle Sync. При первой сборке SDK рекламы скачивается из интернета.
+5. В меню нажми **Build → Build Bundle(s) / APK(s) → Build APK(s)**.
+6. После окончания сборки нажми **locate** в уведомлении — откроется папка с APK.
 
-Alternatively, run `gradlew.bat assembleDebug` from the `android` folder in Windows PowerShell.
+Можно также открыть терминал Android Studio в папке `android` и выполнить `gradlew.bat assembleDebug`.
 
-## Advertising configuration
+## Настройки рекламных блоков
 
-The current advertising IDs are stored in `js/ads-config.js`:
+В файле `js/ads-config.js` сейчас указаны:
 
-- Yandex app ID: `20297973`
-- Android package: `ru.avtoritet.game`
-- Rewarded block: `R-M-20297973-1`
-- Interstitial block: `R-M-20297973-2`
+- ID приложения Яндекса: `20297973`
+- Package Android: `ru.avtoritet.game`
+- Rewarded: `R-M-20297973-1`
+- Interstitial: `R-M-20297973-2`
 
-The native plugin passes these block IDs to Yandex Mobile Ads SDK. The IDs must exist in the same Yandex Advertising Network app and their formats must match (rewarded and interstitial). The repository cannot verify the status or moderation state of blocks in the user's Yandex account.
+Код подключает эти блоки к нативному SDK. Я не могу из GitHub проверить, активны ли они в твоём рекламном кабинете и прошли ли модерацию. Это проверим отдельно после сборки.
 
-The browser preview intentionally keeps a small mock rewarded-ad callback for testing game flows. It is explicitly disabled in native Android: if the native plugin or a real ad is unavailable, no reward is granted.
+## Как проверить рекламу
 
-## How to verify real ad integration
+1. Установи собранный APK на телефон.
+2. В игре нажми кнопку бонуса за рекламу (×2).
+3. Должно открыться настоящее объявление Яндекса. Бонус должен начислиться только после полного просмотра и подтверждения SDK.
+4. Если объявление не появилось, бонус не должен начисляться.
+5. Для диагностики в Android Studio открой **View → Tool Windows → Logcat** и поищи `Yandex Ads` или `YandexAds`.
 
-After building and installing the APK:
+Для первого технического теста Яндекс рекомендует демоблоки. Перед публикацией нужно использовать свои реальные блоки и проверить, что приложение и рекламные места активны.
 
-1. Open the game and trigger an action that asks to watch an ad (for example, the ×2 tap booster).
-2. Confirm that an actual Yandex test/advertisement is shown. If no ad appears, do not assume the reward was granted.
-3. In Android Studio open **View → Tool Windows → Logcat** and search for `Yandex Ads` or `YandexAds`.
-4. Check the SDK integration messages. Yandex's integration guide documents the expected success messages and troubleshooting output.
+## Важно
 
-For the first test, Yandex recommends using its demo ad unit IDs. Before release, switch back to the real block IDs from the advertising dashboard and verify that the app and blocks are active and approved.
+- GitHub не собирает APK сам по себе. APK собирается на твоём компьютере в Android Studio.
+- Нативный исходник плагина хранится в `android-ads/YandexAdsPlugin.java.template`, а скрипт `scripts/configure-android-ads.mjs` автоматически копирует его в созданный Android-проект.
+- Не удаляй папку `android-ads` и скрипт настройки.
+- Не загружай в GitHub ключи подписи APK и приватные keystore-файлы.
 
-## Important notes
+## Официальные инструкции Яндекса
 
-- The Yandex Mobile Ads SDK is integrated using the official Android SDK dependency `com.yandex.android:mobileads:8.6.0`.
-- Rewarded rewards are granted only after the SDK fires its `onRewarded` callback; closing or failing to load an ad does not grant a reward.
-- Interstitial ads are shown only when the game explicitly requests them.
-- The native Android source is generated locally by Capacitor and patched by `scripts/configure-android-ads.mjs`. Do not delete the `android-ads/` template or the setup script.
-- No APK/AAB is produced by GitHub commits. Build and test locally in Android Studio before publishing.
-- Never commit advertising secrets, signing keys, or private keystores.
-
-## Official Yandex documentation
-
-- [Android SDK quick start](https://yandex.com/support2/mobile-ads/support2/mobile-ads/ru/dev/android/quick-start)
-- [Rewarded ads](https://yandex.com/support2/mobile-ads/support2/mobile-ads/ru/dev/android/rewarded)
-- [Interstitial ads](https://ads.yandex.com/helpcenter/en/dev/android/interstitial)
+- [Подключение Android SDK](https://yandex.com/support2/mobile-ads/support2/mobile-ads/ru/dev/android/quick-start)
+- [Rewarded-реклама](https://yandex.com/support2/mobile-ads/support2/mobile-ads/ru/dev/android/rewarded)
+- [Межстраничная реклама](https://ads.yandex.com/helpcenter/en/dev/android/interstitial)
