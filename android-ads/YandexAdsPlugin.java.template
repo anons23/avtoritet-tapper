@@ -43,7 +43,7 @@ public class YandexAdsPlugin extends Plugin {
         busy = true;
         getActivity().runOnUiThread(() -> {
             rewardedLoader = new RewardedAdLoader(getContext());
-            rewardedLoader.setAdLoadListener(new RewardedAdLoadListener() {
+            rewardedLoader.loadAd(new AdRequest.Builder(blockId).build(), new RewardedAdLoadListener() {
                 @Override
                 public void onAdLoaded(@NonNull RewardedAd ad) {
                     rewardedAd = ad;
@@ -77,7 +77,6 @@ public class YandexAdsPlugin extends Plugin {
                     call.reject("Rewarded-реклама не загрузилась: " + error.getDescription());
                 }
             });
-            rewardedLoader.loadAd(new AdRequest.Builder(blockId).build());
         });
     }
 
@@ -95,7 +94,7 @@ public class YandexAdsPlugin extends Plugin {
         busy = true;
         getActivity().runOnUiThread(() -> {
             interstitialLoader = new InterstitialAdLoader(getContext());
-            interstitialLoader.setAdLoadListener(new InterstitialAdLoadListener() {
+            interstitialLoader.loadAd(new AdRequest.Builder(blockId).build(), new InterstitialAdLoadListener() {
                 @Override
                 public void onAdLoaded(@NonNull InterstitialAd ad) {
                     interstitialAd = ad;
@@ -123,21 +122,18 @@ public class YandexAdsPlugin extends Plugin {
                     call.reject("Interstitial-реклама не загрузилась: " + error.getDescription());
                 }
             });
-            interstitialLoader.loadAd(new AdRequest.Builder(blockId).build());
         });
     }
 
     private void cleanupRewarded() {
         if (rewardedAd != null) rewardedAd.setAdEventListener(null);
         rewardedAd = null;
-        if (rewardedLoader != null) rewardedLoader.setAdLoadListener(null);
         rewardedLoader = null;
     }
 
     private void cleanupInterstitial() {
         if (interstitialAd != null) interstitialAd.setAdEventListener(null);
         interstitialAd = null;
-        if (interstitialLoader != null) interstitialLoader.setAdLoadListener(null);
         interstitialLoader = null;
     }
 
