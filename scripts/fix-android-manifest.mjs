@@ -18,6 +18,12 @@ try {
   process.exit(0);
 }
 
+for (const p of ['android.permission.INTERNET', 'android.permission.ACCESS_NETWORK_STATE']) {
+  if (!xml.includes(p)) {
+    xml = xml.replace(/<manifest\b[^>]*>/, (m) => m + `\n    <uses-permission android:name="${p}" />`);
+  }
+}
+
 const activityPattern = /<activity\b([^>]*\bandroid:name="(?:\.?MainActivity|[^"]*\.MainActivity)"[^>]*)>/;
 const match = xml.match(activityPattern);
 
@@ -28,12 +34,11 @@ if (!match) {
   xml = xml.replace(activityPattern, (whole, attrs) =>
     '<activity' + attrs.replace(/\bandroid:screenOrientation="[^"]*"/, 'android:screenOrientation="portrait"') + '>'
   );
-  await writeFile(manifestPath, xml);
-  console.log('MainActivity orientation set to portrait.');
 } else {
   xml = xml.replace(activityPattern, (whole, attrs) =>
     '<activity' + attrs + ' android:screenOrientation="portrait">'
   );
-  await writeFile(manifestPath, xml);
-  console.log('MainActivity orientation set to portrait.');
 }
+
+await writeFile(manifestPath, xml);
+console.log('AndroidManifest updated (portrait + network permissions).');

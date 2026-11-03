@@ -1,7 +1,13 @@
+/* platform-bridge.js — Capacitor YandexAds + legacy AndroidAds */
 'use strict';
 (function () {
-  const log = (...args) => console.debug('[PlatformBridge]', ...args);
-  let adBusy = false;
+  const log = function () {
+    try {
+      var args = ['[PlatformBridge]'].concat([].slice.call(arguments));
+      console.log.apply(console, args);
+    } catch (e) {}
+  };
+  var adBusy = false;
 
   function cfg() {
     return window.AVT_ADS_CONFIG || {
@@ -13,118 +19,161 @@
 
   function isNative() {
     try {
-      const cap = window.Capacitor;
-      return !!(cap && ((typeof cap.isNativePlatform === 'function' && cap.isNativePlatform()) ||
-        (typeof cap.getPlatform === 'function' && cap.getPlatform() !== 'web')));
-    } catch (e) { return false; }
+      var cap = window.Capacitor;
+      if (!cap) return !!(window.AndroidAds);
+      if (typeof cap.isNativePlatform === 'function' && cap.isNativePlatform()) return true;
+      if (typeof cap.getPlatform === 'function' && cap.getPlatform() !== 'web') return true;
+      return false;
+    } catch (e) {
+      return !!window.AndroidAds;
+    }
   }
 
   function capacitorAds() {
     try {
-      const cap = window.Capacitor;
-      return cap && cap.Plugins && cap.Plugins.YandexAds ? cap.Plugins.YandexAds : null;
-    } catch (e) { return null; }
+      var cap = window.Capacitor;
+      if (!cap || !cap.Plugins) return null;
+      return cap.Plugins.YandexAds || null;
+    } catch (e) {
+      return null;
+    }
   }
 
-  const bridge = {
+  function diagnose() {
+    var plugin = capacitorAds();
+    var legacy = window.AndroidAds;
+    log(
+      'diag native=', isNative(),
+      'plugin=', !!(plugin && typeof plugin.showRewardedAd === 'function'),
+      'legacy=', !!(legacy && (typeof legacy.showRewardedAd === 'function' || typeof legacy.showRewarded === 'function')),
+      'rewardedId=', cfg().rewardedBlockId
+    );
+  }
+
+  window.PlatformBridge = {
     showFullscreenAd: function () {
       if (adBusy) return false;
-      const blockId = cfg().interstitialBlockId;
-      const plugin = capacitorAds();
-      const legacy = window.AndroidAds;
+      var blockId = cfg().interstitialBlockId;
+      var plugin = capacitorAds();
+      var legacy = window.AndroidAds;
+
       if (plugin && typeof plugin.showInterstitialAd === 'function') {
         adBusy = true;
-        plugin.showInterstitialAd({ blockId }).catch(err => log('interstitial failed', err))
-          .finally(() => { adBusy = false; });
+        plugin.showInterstitialAd({ blockId: blockId })
+          .catch(function (err) { log('interstitial failed', err); })
+          .finally(function () { adBusy = false; });
         return true;
       }
       if (legacy) {
-        const method = legacy.showFullscreenAd || legacy.showInterstitial;
+        var method = legacy.showFullscreenAd || legacy.showInterstitial;
         if (typeof method !== 'function') return false;
         adBusy = true;
         try {
-          method.call(legacy, blockId, () => { adBusy = false; });
-          window.setTimeout(() => { adBusy = false; }, 90000);
+          method.call(legacy, blockId, function () { adBusy = false; });
+          setTimeout(function () { adBusy = false; }, 90000);
           return true;
         } catch (e) {
           adBusy = false;
-          log('fullscreen ad failed', e);
+          log('fullscreen failed', e);
           return false;
         }
       }
-      log('fullscreen unavailable: native Yandex Ads plugin is not connected');
+      log('fullscreen unavailable — native plugin missing');
       return false;
     },
-    getSDK: () => null,
-    queueSave: () => {},
-    flushSave: () => {},
-    resetCloudData: async () => true
+    getSDK: function () { return null; },
+    queueSave: function () {},
+    flushSave: function () {},
+    resetCloudData: async function () { return true; },
+    diagnose: diagnose
   };
 
-  window.PlatformBridge = bridge;
-
   window.showRewardedAd = function (onReward) {
-    const done = typeof onReward === 'function' ? onReward : function () {};
-    if (adBusy) { done(false); return false; }
+    var done = typeof onReward === 'function' ? onReward : function () {};
+    if (adBusy) {
+      log('rewarded busy');
+      done(false);
+      return false;
+    }
 
-    const blockId = cfg().rewardedBlockId;
-    const plugin = capacitorAds();
-    const legacy = window.AndroidAds;
+    var blockId = cfg().rewardedBlockId;
+    var plugin = capacitorAds();
+    var legacy = window.AndroidAds;
 
     if (plugin && typeof plugin.showRewardedAd === 'function') {
       adBusy = true;
-      plugin.showRewardedAd({ blockId })
-        .then(result => done(!!(result && result.rewarded === true)))
-        .catch(err => { log('rewarded ad failed', err); done(false); })
-        .finally(() => { adBusy = false; });
+      log('rewarded via Capacitor YandexAds, block=', blockId);
+      plugin.showRewardedAd({ blockId: blockId })
+        .then(function (result) {
+          var ok = !!(result && result.rewarded === true);
+          log('rewarded result', ok, result);
+          done(ok);
+        })
+        .catch(function (err) {
+          log('rewarded plugin error', err);
+          done(false);
+        })
+        .finally(function () { adBusy = false; });
       return true;
     }
 
     if (legacy && (typeof legacy.showRewardedAd === 'function' || typeof legacy.showRewarded === 'function')) {
       adBusy = true;
-      let finished = false;
-      const finish = rewarded => {
+      log('rewarded via legacy AndroidAds, block=', blockId);
+      var finished = false;
+      var finish = function (rewarded) {
         if (finished) return;
         finished = true;
         adBusy = false;
         done(rewarded === true);
       };
       try {
-        if (typeof legacy.showRewardedAd === 'function') legacy.showRewardedAd(blockId, finish);
-        else legacy.showRewarded({
-          blockId,
-          onRewarded: () => finish(true),
-          onClosed: ok => finish(!!ok),
-          onError: () => finish(false)
-        });
-        window.setTimeout(() => { if (!finished) finish(false); }, 90000);
+        if (typeof legacy.showRewardedAd === 'function') {
+          legacy.showRewardedAd(blockId, finish);
+        } else {
+          legacy.showRewarded({
+            blockId: blockId,
+            onRewarded: function () { finish(true); },
+            onClosed: function (ok) { finish(!!ok); },
+            onError: function () { finish(false); }
+          });
+        }
+        setTimeout(function () { if (!finished) finish(false); }, 90000);
         return true;
       } catch (e) {
-        log('legacy rewarded ad failed', e);
+        log('legacy rewarded failed', e);
         finish(false);
         return false;
       }
     }
 
-    // The mock is only for desktop/mobile browsers. It can never grant rewards inside an APK.
     if (!isNative() && cfg().useMockOnWeb === true) {
-      log('rewarded browser mock (no real ad impression)');
+      log('rewarded browser mock');
       adBusy = true;
-      window.setTimeout(() => { adBusy = false; done(true); }, 700);
+      setTimeout(function () {
+        adBusy = false;
+        done(true);
+      }, 700);
       return true;
     }
 
-    log('rewarded unavailable: native Yandex Ads plugin is missing');
+    diagnose();
+    log('rewarded UNAVAILABLE — rebuild APK with npm run android:sync');
     done(false);
     return false;
   };
 
   document.addEventListener('visibilitychange', function () {
     if (document.hidden) {
-      try { if (typeof window.saveGame === 'function') window.saveGame(); } catch (e) {}
+      try {
+        if (typeof window.saveGame === 'function') window.saveGame();
+      } catch (e) {}
     }
   });
 
-  log('ready; rewarded=', cfg().rewardedBlockId, 'interstitial=', cfg().interstitialBlockId,
-    'native=', isNative());
+  setTimeout(function () {
+    if (isNative()) diagnose();
+  }, 1500);
+
+  log('ready; rewarded=', cfg().rewardedBlockId, 'interstitial=', cfg().interstitialBlockId, 'native=', isNative());
 })();
