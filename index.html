@@ -1,1 +1,71 @@
-PLACEHOLDER
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="theme-color" content="#0b0b0c">
+<title>Авторитет</title>
+<link rel="stylesheet" href="./css/style.css">
+<link rel="stylesheet" href="./preloader.css">
+</head>
+<body class="game-booting">
+<div id="preloader"></div>
+<div id="game-container" class="game-booting">
+  <div id="top-bar">
+    <div class="res"><span>🍵</span> <b id="chifir">0</b></div>
+    <div class="res"><span>⭐</span> <b id="points">0</b></div>
+    <div class="res"><span>⚡</span> <b id="energy">0</b>/<b id="max-energy">0</b></div>
+  </div>
+  <div id="sentence-panel" class="sentence-panel" aria-live="polite"><div class="sentence-head"><span>⛓️ Срок</span><b id="sentence-left">100 дней</b></div><div class="sentence-track-row"><div class="sentence-track"><span id="sentence-fill"></span></div><button type="button" id="settings-gear-button" aria-label="Открыть настройки" title="Настройки">⚙</button></div><small id="sentence-detail">Отбыл 0 / 100 дней</small></div>
+  <div id="rank-goal" class="rank-goal" aria-live="polite"><div class="rank-goal-head"><span id="rank-goal-label">До следующей масти</span><b id="rank-goal-value">0 / 900 ⭐</b></div><div class="rank-goal-track"><span id="rank-goal-fill"></span></div></div>
+  <section id="player-info"><div id="nickname-row"><span id="nickname">Салага</span><span id="test-version" aria-label="Тестовый режим" style="display:none"></span></div><div id="rank">Салага</div><div class="stats"><span>💪 <b id="power-stat">1</b></span><span>🧠 <b id="respect-stat">0</b></span><span>💰 <b id="wealth-stat">0</b></span></div></section>
+  <div id="tap-area"><div id="object-name">Груша</div><div id="tap-object"></div><div id="object-action">ТАПАЙ!</div></div>
+  <div id="jail-panel" class="hidden"><div>Карцер</div><div id="jail-count">0 / 500</div><div>Осталось: <span id="jail-left">500</span></div></div>
+  <div id="event-message"></div>
+  <nav id="bottom-nav">
+    <button type="button" id="btn-shop">Магаз</button>
+    <button type="button" id="btn-rank">Масть</button>
+    <button type="button" id="btn-tasks">Дела</button>
+    <button type="button" id="btn-more">Ещё</button>
+  </nav>
+</div>
+<div id="modal-overlay" class="hidden"><div id="modal"><button type="button" id="modal-close">×</button><div id="modal-content"></div></div></div>
+<script src="./js/ads-config.js?v=1.3-prod-ids"></script>
+<script src="./js/platform-bridge.js?v=1.3-diagnose"></script>
+<script src="./js/platform.js"></script>
+<script src="./js/resource-branding.js"></script>
+<script src="./js/preloader.js"></script>
+<script src="./js/onboarding.js?v=3.2-starter-pack"></script>
+<script defer src="./js/bootstrap.js?v=4.1-onboarding-first"></script>
+<script src="./js/raid-mute-fix.js?v=1.1"></script>
+<script src="./js/raid-button-fix.js?v=1.6"></script>
+<script defer src="./js/raids-ui.js?v=4.87-blatnoy"></script>
+<script defer src="./js/raids-ux-patch.js?v=1.6-test"></script>
+<script defer src="./js/raids-timer-patch.js?v=2.0"></script>
+<script defer src="./js/rank-ui.js"></script>
+<script defer src="./js/energy-ui.js"></script>
+<script defer src="./js/equipment-v2.js"></script>
+<script defer src="./js/shop-ui.js"></script>
+<script defer src="./js/settings-ui.js"></script>
+<script defer src="./js/backgrounds-ui.js"></script>
+<script defer src="./js/stories-ui-v2.js"></script>
+<script defer src="./js/music.js"></script>
+<script defer src="./js/sfx.js"></script>
+<script defer src="./js/sfx-hooks.js"></script>
+<script defer src="./js/stability-fixes.js"></script>
+<script defer src="./js/input-guard.js"></script>
+<script defer src="./js/orientation-fix.js"></script>
+<script defer src="./js/polish-phase2.js"></script>
+<script defer src="./js/polish-phase4.js"></script>
+<script defer src="./js/event-ux-fix.js"></script>
+<script defer src="./js/events-restore.js"></script>
+<script defer src="./js/npc-ui.js"></script>
+<script defer src="./js/npc5-ui.js"></script>
+<script defer src="./js/npc-motion.js"></script>
+<script defer src="./js/npc-no-emoji.js"></script>
+<script defer src="./js/npc-stat-cleanup.js"></script>
+<script defer src="./js/prison-ui.js"></script>
+<script defer src="./js/name-ui.js"></script>
+<script defer src="./js/stats-cleanup.js"></script>
+</body>
+</html>
