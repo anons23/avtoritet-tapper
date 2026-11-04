@@ -1,9 +1,9 @@
 'use strict';
 (function(){
-  /* RuStore branch bootstrap — Blatnoy 4000 v5.14 */
+  /* RuStore branch bootstrap — rewards + rank power v5.15 */
   const scripts=[
     {src:'./js/save-migration.js?v=1.2',critical:true},
-    {src:'./js/game.js?v=5.14-blatnoy',critical:true},
+    {src:'./js/game.js?v=5.15-rewards',critical:true},
     {src:'./js/save-guard.js?v=1.1',critical:false},
     {src:'./js/npc-barrack.js?v=4.9-blatnoy4000',critical:true},
     {src:'./js/npc-memory.js?v=1.0',critical:false},
@@ -48,7 +48,7 @@
         if(item.critical)return;
       }
     }
-    console.log('[bootstrap] rustore Blatnoy 4000 v5.14');
+    console.log('[bootstrap] rustore rewards v5.15');
   }
 
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot);
