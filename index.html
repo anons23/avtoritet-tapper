@@ -3,8 +3,9 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
-<meta name="theme-color" content="#0b0b0c">
-<title>Авторитет</title>
+<meta name="theme-color" content="#111111">
+<meta name="screen-orientation" content="portrait">
+<title>Авторитет 2.0</title>
 <link rel="stylesheet" href="./style.css?v=5.0-tutorial-gear">
 <link rel="stylesheet" href="./preloader.css?v=1.0">
 <link rel="stylesheet" href="./pc-responsive.css?v=1.7-four-nav">
@@ -40,9 +41,50 @@
 <link rel="stylesheet" href="./booster-button.css?v=1.6-lower-entry">
 </head>
 <body>
-<div id="preloader"></div>
-<div id="game-container">
-<!-- content restored via user pull - full body from good commit needs complete file -->
+<div id="app-root">
+<div id="preloader" class="preloader" aria-live="polite"><div class="preloader-inner"><div class="preloader-title">АВТОРИТЕТ</div><div class="preloader-bar"><span></span></div><div class="preloader-hint">Загрузка зоны...</div></div></div>
+<div id="game-container" class="game-booting">
+<header id="top-resources" class="top-resources" style="grid-template-columns:1.15fr,1.05fr,1.1fr!important;gap:4px!important;padding:6px 7px!important">
+<div class="resource resource-chifir"><span class="resource-icon" aria-hidden="true">🍵</span><span class="resource-copy"><small>ЧЕФИР</small><b id="chifir">0</b></span></div>
+<div class="resource resource-points"><span class="resource-icon" aria-hidden="true">⭐</span><span class="resource-copy"><small>ПОНТЫ</small><b id="points">0</b></span></div>
+<div class="resource resource-energy energy" role="button" tabindex="0" aria-label="Энергия"><span class="resource-icon" aria-hidden="true">⚡</span><span class="resource-copy"><small>ЭНЕРГИЯ</small><b><span id="energy">0</span>/<span id="max-energy">0</span></b></span></div>
+</header>
+<div id="sentence-panel" class="sentence-panel" aria-live="polite"><div class="sentence-head"><span>⛓️ Срок</span><b id="sentence-left">100 дней</b></div><div class="sentence-track-row"><div class="sentence-track"><span id="sentence-fill"></span></div><button type="button" id="settings-gear-button" aria-label="Открыть настройки" title="Настройки">⚙</button></div><small id="sentence-detail">Отбыл 0 / 100 дней</small></div>
+<div id="rank-goal" class="rank-goal" aria-live="polite"><div class="rank-goal-head"><span id="rank-goal-label">До следующей масти</span><b id="rank-goal-value">0 / 900 ⭐</b></div><div class="rank-goal-track"><span id="rank-goal-fill"></span></div></div>
+<section id="player-info"><div id="nickname-row"><span id="nickname">Салага</span><span id="test-version" aria-label="Тестовый режим" style="display:none"></span></div><div id="rank">Салага</div><div class="stats"><span>💪 <b id="power-stat">1</b></span><span>🧠 <b id="respect-stat">0</b></span><span>💰 <b id="wealth-stat">0</b></span></div></section>
+<main id="tap-area" class="tap-area"><div id="object-name" class="object-name">Груша</div><button type="button" id="tap-object" class="tap-object" aria-label="Тапать"></button><div id="object-action" class="object-action">ТАПАЙ!</div></main>
+<div id="jail-panel" class="jail-panel hidden"><div class="jail-title">Карцер</div><div id="jail-count">0 / 500</div><div>Осталось: <span id="jail-left">500</span></div></div>
+<div id="event-message" class="event-message" aria-live="polite"></div>
+<nav id="bottom-nav" class="bottom-nav" aria-label="Меню">
+<button type="button" id="btn-shop" class="nav-btn">Магаз</button>
+<button type="button" id="btn-rank" class="nav-btn">Масть</button>
+<button type="button" id="btn-tasks" class="nav-btn">Дела</button>
+<button type="button" id="btn-more" class="nav-btn">Ещё</button>
+</nav>
 </div>
+<div id="modal-overlay" class="modal-overlay hidden" aria-hidden="true"><div id="modal" class="modal" role="dialog" aria-modal="true"><button type="button" id="modal-close" class="modal-close" aria-label="Закрыть">×</button><div id="modal-content" class="modal-content"></div></div></div>
+</div>
+<script src="./js/ads-config.js?v=1.3-prod-ids"></script>
+<script src="./js/platform-bridge.js?v=1.3-diagnose"></script>
+<script src="./js/platform.js?v=1.2-back"></script>
+<script src="./js/resource-branding.js?v=1.1"></script>
+<script src="./js/authority-assets.js?v=1.0"></script>
+<script src="./js/preloader.js?v=1.8"></script>
+<script src="./js/object-visuals.js?v=3.3"></script>
+<script src="./js/onboarding.js?v=3.3-tutorial-v7"></script>
+<script defer src="./js/bootstrap.js?v=5.14-blatnoy"></script>
+<script src="./js/raid-mute-fix.js?v=1.1"></script>
+<script src="./js/raid-button-fix.js?v=1.6"></script>
+<script src="./js/backgrounds-ui.js?v=1.0"></script>
+<script defer src="./js/settings-ui.js?v=1.2-ad-rename"></script>
+<script defer src="./js/energy-ui.js?v=1.3"></script>
+<script defer src="./js/npc-motion.js?v=1.3"></script>
+<script defer src="./js/raids-ui.js?v=4.87-blatnoy"></script>
+<script defer src="./js/raids-ux-patch.js?v=1.6-test"></script>
+<script defer src="./js/raids-timer-patch.js?v=2.0"></script>
+<script defer src="./js/equipment-v2.js?v=3.7"></script>
+<script defer src="./js/polish-phase2.js?v=1.0"></script>
+<script defer src="./js/polish-phase4.js?v=1.0"></script>
+<script defer src="./js/raid-hide-gear.js?v=1.0"></script>
 </body>
 </html>
