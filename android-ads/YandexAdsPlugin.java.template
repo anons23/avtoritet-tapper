@@ -120,8 +120,6 @@ public class YandexAdsPlugin extends Plugin {
                         call.reject("load failed: " + error.getCode() + " " + error.getDescription());
                     }
                 });
-
-                });
             } catch (Throwable t) {
                 Log.e(TAG, "rewarded setup error", t);
                 cleanupRewarded();
@@ -184,7 +182,6 @@ public class YandexAdsPlugin extends Plugin {
                         busy = false;
                         call.reject("interstitial load failed: " + error.getCode() + " " + error.getDescription());
                     }
-                });
                 });
             } catch (Throwable t) {
                 cleanupInterstitial();
