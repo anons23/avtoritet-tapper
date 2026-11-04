@@ -59,7 +59,6 @@ public class YandexAdsPlugin extends Plugin {
                     });
                 } else if (pts.length == 1) {
                     init.invoke(null, getContext());
-                    Log.i(TAG, "MobileAds initialize(context) called");
                 }
             }
         } catch (Throwable t) {
@@ -79,15 +78,12 @@ public class YandexAdsPlugin extends Plugin {
             return;
         }
         busy = true;
-        Log.i(TAG, "load rewarded blockId=" + blockId);
-
         final Activity activity = getActivity();
         if (activity == null) {
             busy = false;
             call.reject("activity is null");
             return;
         }
-
         activity.runOnUiThread(new Runnable() {
             @Override
             public void run() {
@@ -101,64 +97,40 @@ public class YandexAdsPlugin extends Plugin {
                             rewardedAd = ad;
                             final boolean[] rewardEarned = new boolean[] { false };
                             ad.setAdEventListener(new RewardedAdEventListener() {
-                                @Override
-                                public void onAdShown() {
-                                    Log.i(TAG, "rewarded shown");
-                                }
-
-                                @Override
-                                public void onAdFailedToShow(@NonNull AdError error) {
-                                    Log.e(TAG, "rewarded failed to show: " + error);
+                                @Override public void onAdShown() {}
+                                @Override public void onAdFailedToShow(@NonNull AdError error) {
                                     cleanupRewarded();
                                     busy = false;
-                                    call.reject("show failed: " + String.valueOf(error));
+                                    call.reject("show failed");
                                 }
-
-                                @Override
-                                public void onAdDismissed() {
-                                    Log.i(TAG, "rewarded dismissed, rewarded=" + rewardEarned[0]);
+                                @Override public void onAdDismissed() {
                                     JSObject result = new JSObject();
                                     result.put("rewarded", rewardEarned[0]);
                                     cleanupRewarded();
                                     busy = false;
                                     call.resolve(result);
                                 }
-
-                                @Override
-                                public void onAdClicked() {
-                                }
-
-                                @Override
-                                public void onAdImpression(@Nullable ImpressionData data) {
-                                }
-
-                                @Override
-                                public void onRewarded(@NonNull Reward reward) {
+                                @Override public void onAdClicked() {}
+                                @Override public void onAdImpression(@Nullable ImpressionData data) {}
+                                @Override public void onRewarded(@NonNull Reward reward) {
                                     rewardEarned[0] = true;
-                                    Log.i(TAG, "reward earned");
                                 }
                             });
-                            try {
-                                ad.show(activity);
-                            } catch (Throwable showErr) {
-                                Log.e(TAG, "show() threw", showErr);
+                            try { ad.show(activity); }
+                            catch (Throwable showErr) {
                                 cleanupRewarded();
                                 busy = false;
-                                call.reject("show() error: " + showErr.getMessage());
+                                call.reject("show error");
                             }
                         }
-
                         @Override
                         public void onAdFailedToLoad(@NonNull AdRequestError error) {
-                            Log.e(TAG, "rewarded failed to load: code=" + error.getCode()
-                                    + " desc=" + error.getDescription());
                             cleanupRewarded();
                             busy = false;
                             call.reject("load failed: " + error.getCode() + " " + error.getDescription());
                         }
                     });
                 } catch (Throwable t) {
-                    Log.e(TAG, "rewarded setup error", t);
                     cleanupRewarded();
                     busy = false;
                     call.reject("setup error: " + t.getMessage());
@@ -179,15 +151,12 @@ public class YandexAdsPlugin extends Plugin {
             return;
         }
         busy = true;
-        Log.i(TAG, "load interstitial blockId=" + blockId);
-
         final Activity activity = getActivity();
         if (activity == null) {
             busy = false;
             call.reject("activity is null");
             return;
         }
-
         activity.runOnUiThread(new Runnable() {
             @Override
             public void run() {
@@ -200,78 +169,51 @@ public class YandexAdsPlugin extends Plugin {
                         public void onAdLoaded(@NonNull final InterstitialAd ad) {
                             interstitialAd = ad;
                             ad.setAdEventListener(new InterstitialAdEventListener() {
-                                @Override
-                                public void onAdShown() {
-                                }
-
-                                @Override
-                                public void onAdFailedToShow(@NonNull AdError error) {
+                                @Override public void onAdShown() {}
+                                @Override public void onAdFailedToShow(@NonNull AdError error) {
                                     cleanupInterstitial();
                                     busy = false;
-                                    call.reject("interstitial show failed: " + String.valueOf(error));
+                                    call.reject("show failed");
                                 }
-
-                                @Override
-                                public void onAdDismissed() {
+                                @Override public void onAdDismissed() {
                                     cleanupInterstitial();
                                     busy = false;
                                     call.resolve();
                                 }
-
-                                @Override
-                                public void onAdClicked() {
-                                }
-
-                                @Override
-                                public void onAdImpression(@Nullable ImpressionData data) {
-                                }
+                                @Override public void onAdClicked() {}
+                                @Override public void onAdImpression(@Nullable ImpressionData data) {}
                             });
-                            try {
-                                ad.show(activity);
-                            } catch (Throwable showErr) {
+                            try { ad.show(activity); }
+                            catch (Throwable showErr) {
                                 cleanupInterstitial();
                                 busy = false;
-                                call.reject("interstitial show() error: " + showErr.getMessage());
+                                call.reject("show error");
                             }
                         }
-
                         @Override
                         public void onAdFailedToLoad(@NonNull AdRequestError error) {
-                            Log.e(TAG, "interstitial failed to load: " + error.getCode()
-                                    + " " + error.getDescription());
                             cleanupInterstitial();
                             busy = false;
-                            call.reject("interstitial load failed: " + error.getCode()
-                                    + " " + error.getDescription());
+                            call.reject("load failed: " + error.getCode() + " " + error.getDescription());
                         }
                     });
                 } catch (Throwable t) {
                     cleanupInterstitial();
                     busy = false;
-                    call.reject("interstitial setup error: " + t.getMessage());
+                    call.reject("setup error: " + t.getMessage());
                 }
             }
         });
     }
 
     private void cleanupRewarded() {
-        try {
-            if (rewardedAd != null) {
-                rewardedAd.setAdEventListener(null);
-            }
-        } catch (Throwable ignored) {
-        }
+        try { if (rewardedAd != null) rewardedAd.setAdEventListener(null); } catch (Throwable ignored) {}
         rewardedAd = null;
         rewardedLoader = null;
     }
 
     private void cleanupInterstitial() {
-        try {
-            if (interstitialAd != null) {
-                interstitialAd.setAdEventListener(null);
-            }
-        } catch (Throwable ignored) {
-        }
+        try { if (interstitialAd != null) interstitialAd.setAdEventListener(null); } catch (Throwable ignored) {}
         interstitialAd = null;
         interstitialLoader = null;
     }
