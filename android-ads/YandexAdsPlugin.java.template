@@ -12,20 +12,19 @@ import com.getcapacitor.PluginCall;
 import com.getcapacitor.PluginMethod;
 import com.getcapacitor.annotation.CapacitorPlugin;
 
-import com.yandex.mobile.ads.common.AdRequestConfiguration;
-import com.yandex.mobile.ads.common.AdRequestError;
 import com.yandex.mobile.ads.common.AdError;
+import com.yandex.mobile.ads.common.AdRequest;
+import com.yandex.mobile.ads.common.AdRequestError;
 import com.yandex.mobile.ads.common.ImpressionData;
-import com.yandex.mobile.ads.common.MobileAds;
+import com.yandex.mobile.ads.interstitial.InterstitialAd;
+import com.yandex.mobile.ads.interstitial.InterstitialAdEventListener;
+import com.yandex.mobile.ads.interstitial.InterstitialAdLoadListener;
+import com.yandex.mobile.ads.interstitial.InterstitialAdLoader;
 import com.yandex.mobile.ads.rewarded.Reward;
 import com.yandex.mobile.ads.rewarded.RewardedAd;
 import com.yandex.mobile.ads.rewarded.RewardedAdEventListener;
 import com.yandex.mobile.ads.rewarded.RewardedAdLoadListener;
 import com.yandex.mobile.ads.rewarded.RewardedAdLoader;
-import com.yandex.mobile.ads.interstitial.InterstitialAd;
-import com.yandex.mobile.ads.interstitial.InterstitialAdEventListener;
-import com.yandex.mobile.ads.interstitial.InterstitialAdLoadListener;
-import com.yandex.mobile.ads.interstitial.InterstitialAdLoader;
 
 @CapacitorPlugin(name = "YandexAds")
 public class YandexAdsPlugin extends Plugin {
@@ -41,14 +40,30 @@ public class YandexAdsPlugin extends Plugin {
     public void load() {
         super.load();
         try {
-            MobileAds.initialize(getContext(), new Runnable() {
-                @Override
-                public void run() {
-                    Log.i(TAG, "MobileAds initialized");
+            Class<?> mobileAds = Class.forName("com.yandex.mobile.ads.common.MobileAds");
+            java.lang.reflect.Method init = null;
+            for (java.lang.reflect.Method m : mobileAds.getMethods()) {
+                if ("initialize".equals(m.getName()) && m.getParameterTypes().length >= 1) {
+                    init = m;
+                    break;
                 }
-            });
+            }
+            if (init != null) {
+                Class<?>[] pts = init.getParameterTypes();
+                if (pts.length == 2 && Runnable.class.isAssignableFrom(pts[1])) {
+                    init.invoke(null, getContext(), new Runnable() {
+                        @Override
+                        public void run() {
+                            Log.i(TAG, "MobileAds initialized");
+                        }
+                    });
+                } else if (pts.length == 1) {
+                    init.invoke(null, getContext());
+                    Log.i(TAG, "MobileAds initialize(context) called");
+                }
+            }
         } catch (Throwable t) {
-            Log.e(TAG, "MobileAds.initialize failed", t);
+            Log.w(TAG, "MobileAds.initialize skipped: " + t.getMessage());
         }
     }
 
@@ -79,7 +94,8 @@ public class YandexAdsPlugin extends Plugin {
                 try {
                     cleanupRewarded();
                     rewardedLoader = new RewardedAdLoader(getContext());
-                    rewardedLoader.setAdLoadListener(new RewardedAdLoadListener() {
+                    AdRequest request = new AdRequest.Builder(blockId).build();
+                    rewardedLoader.loadAd(request, new RewardedAdLoadListener() {
                         @Override
                         public void onAdLoaded(@NonNull final RewardedAd ad) {
                             rewardedAd = ad;
@@ -141,10 +157,6 @@ public class YandexAdsPlugin extends Plugin {
                             call.reject("load failed: " + error.getCode() + " " + error.getDescription());
                         }
                     });
-
-                    AdRequestConfiguration config =
-                            new AdRequestConfiguration.Builder(blockId).build();
-                    rewardedLoader.loadAd(config);
                 } catch (Throwable t) {
                     Log.e(TAG, "rewarded setup error", t);
                     cleanupRewarded();
@@ -182,7 +194,8 @@ public class YandexAdsPlugin extends Plugin {
                 try {
                     cleanupInterstitial();
                     interstitialLoader = new InterstitialAdLoader(getContext());
-                    interstitialLoader.setAdLoadListener(new InterstitialAdLoadListener() {
+                    AdRequest request = new AdRequest.Builder(blockId).build();
+                    interstitialLoader.loadAd(request, new InterstitialAdLoadListener() {
                         @Override
                         public void onAdLoaded(@NonNull final InterstitialAd ad) {
                             interstitialAd = ad;
@@ -232,10 +245,6 @@ public class YandexAdsPlugin extends Plugin {
                                     + " " + error.getDescription());
                         }
                     });
-
-                    AdRequestConfiguration config =
-                            new AdRequestConfiguration.Builder(blockId).build();
-                    interstitialLoader.loadAd(config);
                 } catch (Throwable t) {
                     cleanupInterstitial();
                     busy = false;
