@@ -11,8 +11,8 @@
 
   function cfg() {
     return window.AVT_ADS_CONFIG || {
-      rewardedBlockId: 'R-M-20297973-1',
-      interstitialBlockId: 'R-M-20297973-2',
+      rewardedBlockId: 'R-M-20344973-1',
+      interstitialBlockId: 'R-M-20344973-2',
       useMockOnWeb: true
     };
   }
