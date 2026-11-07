@@ -214,6 +214,8 @@
     if (typeof ui === 'function') try { ui(); } catch (e) {}
     if (typeof window.ui === 'function') try { window.ui(); } catch (e) {}
     msg('Обучение завершено! +100 🍵 и 80 тапов ×2 — вперёд!');
+    // Имя выбирается после завершения всего обучения, существующий рандомный выбор сохраняется.
+    if (!s.onboarding.nameGiven) openNameEvent();
   }
 
   function runStep(step) {
@@ -250,8 +252,8 @@
         showSpotlight('#tap-object', { kicker:'ПРАКТИКА', text:'Тапни по груше <b>' + REQUIRED_PRACTICE_TAPS + ' раз</b>. Остальные кнопки пока заблокированы.', padding:14 });
         break;
       case 5:
-        hideSpotlight();
-        openNameEvent(function () { goToStep(6); });
+        // Выбор клички перенесён на самый конец обучения.
+        goToStep(6);
         break;
       case 6:
         showSpotlight('#btn-shop', { kicker:'КАЧАЛКА', text:'Нажми на <b>Качалку</b>, чтобы посмотреть, где развивать персонажа.', padding:8 });
