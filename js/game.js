@@ -455,6 +455,17 @@ function choiceResult(x,ok){
   clearTimeout(choiceResult.timer);
   choiceResult.timer=setTimeout(()=>e.classList.remove('show'),2600);
 }
+function showEventChoiceResult(text,ok,afterClose){
+  choiceResult(text,ok);
+  document.querySelectorAll('#modal-content .event-window .choice').forEach(b=>{b.disabled=true;});
+  const overlay=$('modal-overlay');
+  if(overlay)overlay.dataset.locked='1';
+  clearTimeout(showEventChoiceResult.timer);
+  showEventChoiceResult.timer=setTimeout(()=>{
+    finishEvent();
+    if(typeof afterClose==='function')afterClose();
+  },1700);
+}
 function finishEvent(){
   activeEvent=false;
   const o=$('modal-overlay');
@@ -543,7 +554,7 @@ function openEvent(){
     : '';
   let h='<div class="section-window event-window"><div class="section-kicker">'+(authorityEvent?'ДЕЛО АВТОРИТЕТА':'СОБЫТИЕ')+'</div><h2>⚠️ '+v[0]+'</h2>'+authorityArt+'<p>'+v[1]+'</p><p><b>'+(authorityEvent?'Выбери, как решить вопрос:':'Решай быстро:')+'</b></p><div class="choices">';
   v[2].forEach((c,i)=>{ h+='<button type="button" class="choice" data-i="'+i+'">'+c[0]+'</button>'; });
-  h+='</div></div>';
+  h+='</div><div id="choice-result" class="choice-result" aria-live="polite"></div></div>';
   openModal(h,true);
   const authorityEventImage=document.querySelector('.authority-event-art img');
   if(authorityEventImage&&authorityEvent){
@@ -553,8 +564,12 @@ function openEvent(){
       if(original)authorityEventImage.src='./assets/authority/events/'+encodeURIComponent(original);
     };
   }
-  document.querySelectorAll('.choice').forEach(b=>b.addEventListener('click',()=>{
-    if(!activeEvent||s.jailed)return;
+  const eventChoiceButtons=Array.from(document.querySelectorAll('#modal-content .event-window .choice'));
+  let eventChoiceResolved=false;
+  eventChoiceButtons.forEach(b=>b.addEventListener('click',()=>{
+    if(eventChoiceResolved||!activeEvent||s.jailed)return;
+    eventChoiceResolved=true;
+    eventChoiceButtons.forEach(button=>{button.disabled=true;});
     const c=v[2][Number(b.dataset.i)];
     s.tasks.events=(s.tasks.events||0)+1;
     s.lastChoiceEvent=s.points;
@@ -597,25 +612,23 @@ function openEvent(){
       if(gotRespect)rewards.push('уважение +'+gotRespect);
       if(gotEnergy)rewards.push('+'+fmt(gotEnergy)+' ⚡');
       const rewardText=rewards.length?' · '+rewards.join(' · '):'';
-      choiceResult((c[5]||'Удачно!')+rewardText,true);
-      finishEvent();
+      showEventChoiceResult((c[5]||'Удачно!')+rewardText,true);
     }else{
       const loss=Math.max(3,Math.ceil(Math.max(1,c[3])*1.5));
       if(authorityEvent){
         const chifirLoss=Math.max(0,Number(c[7])||25);
         s.chifir=Math.max(0,s.chifir-chifirLoss);
         s.points=Math.max(0,s.points-Math.max(1,Math.ceil(loss*.35)));
-        choiceResult((c[6]||'Решение не сработало. Вопрос остаётся открытым.')+' −'+fmt(chifirLoss)+' 🍵',false);
-        finishEvent();
+        showEventChoiceResult((c[6]||'Решение не сработало. Вопрос остаётся открытым.')+' −'+fmt(chifirLoss)+' 🍵',false);
       }else{
         addSentence(c[1]>=.6?2:1,'провал события');
         s.points=Math.max(0,s.points-loss);
         if(c[1]>0&&(s.jailProtection||0)<=0&&Math.random()<.08){
-          finishEvent();
-          enterJail('❌ Рискованный ход провалился.');
+          showEventChoiceResult('Не повезло. Рискованный ход провалился — отправка в карцер.',false,()=>{
+            enterJail('❌ Рискованный ход провалился.');
+          });
         }else{
-          choiceResult('Не повезло. Последствия уже чувствуются.',false);
-          finishEvent();
+          showEventChoiceResult('Не повезло. Последствия уже чувствуются.',false);
         }
       }
     }
