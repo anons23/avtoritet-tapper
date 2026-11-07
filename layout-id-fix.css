@@ -1,0 +1,142 @@
+/* layout-id-fix.css — sync HTML ids with legacy style.css selectors */
+#bottom-nav,
+.bottom-nav {
+  position: fixed !important;
+  z-index: 1000 !important;
+  left: 50% !important;
+  right: auto !important;
+  bottom: 0 !important;
+  top: auto !important;
+  transform: translateX(-50%) !important;
+  width: min(520px, 100vw) !important;
+  display: grid !important;
+  grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+  gap: 5px !important;
+  padding: 7px 7px calc(7px + env(safe-area-inset-bottom)) !important;
+  background: #171717 !important;
+  border-top: 1px solid #333 !important;
+  min-height: 58px !important;
+  flex-direction: row !important;
+  margin: 0 !important;
+}
+
+#bottom-nav .nav-btn,
+.bottom-nav .nav-btn {
+  display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  border: 1px solid #555 !important;
+  border-radius: 10px !important;
+  background: #252525 !important;
+  color: #fff !important;
+  padding: 8px 2px !important;
+  font-size: 11px !important;
+  font-weight: 800 !important;
+  min-height: 42px !important;
+  line-height: 1.1 !important;
+  width: auto !important;
+  margin: 0 !important;
+}
+
+#top-resources,
+.top-resources {
+  flex: 0 0 auto !important;
+  display: grid !important;
+  grid-template-columns: 1.15fr 1.05fr 1.1fr !important;
+  gap: 4px !important;
+  padding: 6px 7px !important;
+  background: #171717 !important;
+  border-bottom: 1px solid #333 !important;
+  position: relative !important;
+  z-index: 2 !important;
+  width: 100% !important;
+}
+
+#top-resources .resource,
+.top-resources .resource {
+  display: flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+  font-weight: 800 !important;
+  font-size: 13px !important;
+  min-width: 0 !important;
+}
+
+#top-resources .resource-copy,
+.top-resources .resource-copy {
+  display: flex !important;
+  flex-direction: column !important;
+  min-width: 0 !important;
+  line-height: 1.15 !important;
+}
+
+#top-resources .resource-copy small,
+.top-resources .resource-copy small {
+  font-size: 8px !important;
+  color: #9b9b9b !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.4px !important;
+}
+
+#top-resources .resource-energy,
+.top-resources .resource-energy,
+#top-resources .energy {
+  cursor: pointer !important;
+}
+
+#tap-object.tap-object,
+#tap-object {
+  width: 230px !important;
+  height: 230px !important;
+  flex: 0 0 auto !important;
+  border-radius: 50% !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
+  background: linear-gradient(145deg, #3a3a3a, #181818) !important;
+  border: 5px solid #555 !important;
+  box-shadow: 0 12px 45px #000, inset 0 0 25px #000 !important;
+  color: #fff !important;
+  padding: 0 !important;
+  margin: 0 auto !important;
+}
+
+#tap-area,
+.tap-area {
+  position: relative !important;
+  flex: 1 1 auto !important;
+  min-height: 0 !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
+  user-select: none !important;
+  padding: 8px !important;
+}
+
+#object-name,
+.object-name {
+  font-weight: 900 !important;
+  font-size: 20px !important;
+  margin: 0 0 8px !important;
+  text-align: center !important;
+}
+
+#object-action,
+.object-action {
+  margin-top: 8px !important;
+  font-size: 12px !important;
+  letter-spacing: 2px !important;
+  color: #aaa !important;
+  text-align: center !important;
+}
+
+#game-container {
+  padding-bottom: 64px !important;
+}
+
+@media (max-height: 650px) {
+  #bottom-nav, .bottom-nav { min-height: 54px !important; }
+  #tap-object, #tap-object.tap-object { width: 190px !important; height: 190px !important; }
+}
