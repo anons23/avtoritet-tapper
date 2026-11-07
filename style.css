@@ -465,3 +465,37 @@
 #sentence-panel #settings-gear-button:active{transform:translateY(-50%) scale(.94)!important}
 .raid-settings-gear{display:grid;place-items:center;flex:0 0 34px;width:34px;height:34px;padding:0;border:1px solid #6b6048;border-radius:10px;background:linear-gradient(145deg,#30302d,#1c1c1b);color:#f0d18a;font-size:20px;line-height:1;box-shadow:0 2px 8px #0008;cursor:pointer}
 .raid-settings-gear:active{transform:scale(.94)}
+
+
+/* EVENT CHOICE RESULT — show consequences before the event closes */
+.event-window .choice-result{
+  box-sizing:border-box;
+  max-height:0;
+  margin-top:0;
+  padding:0 14px;
+  overflow:hidden;
+  border:1px solid transparent;
+  border-radius:10px;
+  font-weight:800;
+  line-height:1.45;
+  opacity:0;
+  transform:translateY(6px);
+  transition:max-height .25s ease,margin .25s ease,padding .25s ease,opacity .25s ease,transform .25s ease;
+}
+.event-window .choice-result.show{
+  max-height:180px;
+  margin-top:12px;
+  padding:12px 14px;
+  opacity:1;
+  transform:translateY(0);
+}
+.event-window .choice-result.success{
+  border-color:rgba(61,207,90,.5);
+  background:rgba(61,207,90,.14);
+  color:#8fe7a4;
+}
+.event-window .choice-result.fail{
+  border-color:rgba(231,76,60,.5);
+  background:rgba(231,76,60,.14);
+  color:#ff9f92;
+}
