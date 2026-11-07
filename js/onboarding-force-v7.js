@@ -1,4 +1,4 @@
-/* onboarding-force-v7.js — one-shot: re-open tutorial if version < 7 */
+/* onboarding-force-v8.js — re-open tutorial if version < 8 */
 'use strict';
 (function () {
   function run() {
@@ -9,8 +9,8 @@
       if (!s.onboarding || typeof s.onboarding !== 'object') {
         s.onboarding = { done: false, step: 0, nameGiven: false, practiceTaps: 0, tipsShown: {}, unlocked: {} };
       }
-      if (Number(s.onboarding.tutorialVersion || 0) < 7) {
-        s.onboarding.tutorialVersion = 7;
+      if (Number(s.onboarding.tutorialVersion || 0) < 8) {
+        s.onboarding.tutorialVersion = 8;
         s.onboarding.done = false;
         s.onboarding.step = 0;
         s.onboarding.practiceTaps = 0;
@@ -18,10 +18,10 @@
         if (typeof window.AVT_Onboarding.goToStep === 'function') {
           window.AVT_Onboarding.goToStep(0);
         }
-        console.log('[onboarding-force-v7] tutorial reset to v7');
+        console.log('[onboarding-force] tutorial reset to v8');
       }
     } catch (e) {
-      console.warn('[onboarding-force-v7]', e);
+      console.warn('[onboarding-force]', e);
     }
   }
   setTimeout(run, 1200);
