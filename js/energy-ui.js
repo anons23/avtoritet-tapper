@@ -1,15 +1,15 @@
 'use strict';
 (function(){
   const SAVE_KEY='avtoritet_save_v2';
+  // Пороги мастей = game.js (R)
   const RANKS=[
     {name:'Салага',threshold:0,multiplier:1},
-    {name:'Пацан',threshold:1500,multiplier:1.5},
-    {name:'Блатной',threshold:5000,multiplier:2.5},
-    {name:'Смотрящий',threshold:15000,multiplier:4},
-    {name:'Авторитет',threshold:30000,multiplier:7}
+    {name:'Пацан',threshold:900,multiplier:1.5},
+    {name:'Блатной',threshold:4000,multiplier:2.2},
+    {name:'Смотрящий',threshold:15000,multiplier:3.2},
+    {name:'Авторитет',threshold:30000,multiplier:4.5}
   ];
   const BASE_CHIFIR=1000;
-  const BASE_POINTS=500;
   const ENERGY_PART=0.5;
   let ready=false;
 
@@ -36,7 +36,7 @@
   }
 
   function rankData(s){
-    const points=Math.max(0,Number(s?.points||0));
+    const points=Math.max(0,Number(s&&s.points||0));
     let current=RANKS[0];
     for(const rank of RANKS)if(points>=rank.threshold)current=rank;
     return current;
@@ -45,7 +45,7 @@
   function costs(s){
     const rank=rankData(s);
     return {
-      rank,
+      rank:rank,
       chifir:Math.round(BASE_CHIFIR*rank.multiplier)
     };
   }
@@ -55,8 +55,8 @@
   }
 
   function energyPercent(s){
-    const max=Math.max(1,Number(s?.maxEnergy||250));
-    return Math.max(0,Math.min(100,Math.round(Number(s?.energy||0)/max*100)));
+    const max=Math.max(1,Number(s&&s.maxEnergy||350));
+    return Math.max(0,Math.min(100,Math.round(Number(s&&s.energy||0)/max*100)));
   }
 
   function showMessage(text){
@@ -82,7 +82,7 @@
     if(!s)return;
     const c=costs(s);
     const current=Math.max(0,Number(s.energy||0));
-    const max=Math.max(1,Number(s.maxEnergy||250));
+    const max=Math.max(1,Number(s.maxEnergy||350));
     const gain=Math.min(Math.ceil(max*ENERGY_PART),Math.max(0,max-current));
     const full=current>=max;
     const enoughChifir=Number(s.chifir||0)>=c.chifir;
@@ -93,7 +93,7 @@
       +'<p class="energy-subtitle">Сейчас: <b>'+format(current)+'</b> / '+format(max)+' ('+energyPercent(s)+'%)</p>'
       +'<div class="energy-offer energy-buy-offer">'
       +'<div class="energy-offer-icon">⚡</div>'
-      +'<div class="energy-offer-body"><b>Восстановить 50%</b><span>+'+format(gain)+' энергии · масть «'+c.rank.name+'»</span><small>🍵 '+format(c.chifir)+' + ⭐ '+format(c.points)+'</small></div>'
+      +'<div class="energy-offer-body"><b>Восстановить 50%</b><span>+'+format(gain)+' энергии · масть «'+c.rank.name+'»</span><small>Только 🍵 '+format(c.chifir)+' · понты не списываются</small></div>'
       +'<button type="button" id="energy-buy" '+(full||!enoughChifir?'disabled':'')+'>Купить</button>'
       +'</div>'
       +'<div class="energy-or">ИЛИ</div>'
@@ -110,16 +110,16 @@
     overlay.classList.add('show');
 
     const buy=$('energy-buy');
-    if(buy)buy.onclick=()=>buyEnergy();
+    if(buy)buy.onclick=function(){buyEnergy();};
     const ad=$('energy-ad');
-    if(ad)ad.onclick=()=>watchAd();
+    if(ad)ad.onclick=function(){watchAd();};
   }
 
   function buyEnergy(){
     const s=game();
     if(!s)return;
     const c=costs(s);
-    const max=Math.max(1,Number(s.maxEnergy||250));
+    const max=Math.max(1,Number(s.maxEnergy||350));
     const current=Math.max(0,Number(s.energy||0));
     const gain=Math.min(Math.ceil(max*ENERGY_PART),Math.max(0,max-current));
     if(gain<=0){showMessage('⚡ Энергия уже полностью восстановлена');open();return;}
@@ -137,7 +137,7 @@
   function watchAd(){
     const s=game();
     if(!s)return;
-    const max=Math.max(1,Number(s.maxEnergy||250));
+    const max=Math.max(1,Number(s.maxEnergy||350));
     if(Number(s.energy||0)>=max){showMessage('⚡ Энергия уже полностью восстановлена');return;}
     if(typeof window.showRewardedAd!=='function'){
       showMessage('📺 Реклама сейчас недоступна');
@@ -148,10 +148,10 @@
     const started=window.showRewardedAd(function(rewarded){
       const live=game();
       if(rewarded&&live){
-        const liveMax=Math.max(1,Number(live.maxEnergy||250));
+        const liveMax=Math.max(1,Number(live.maxEnergy||350));
         live.energy=liveMax;
         live.lastEnergyTime=Date.now();
-        save(live);
+        save();
         if(typeof window.ui==='function')window.ui();
         if(typeof window.checkTasks==='function')window.checkTasks();
         showMessage('📺 Реклама просмотрена! Энергия восстановлена на 100%');
@@ -166,29 +166,50 @@
     }
   }
 
-  function bind(){
-    if(ready)return;
-    const energy=document.querySelector('#top-bar .energy');
-    if(!energy)return;
-    ready=true;
-    energy.classList.add('energy-clickable');
-    energy.setAttribute('role','button');
-    energy.setAttribute('tabindex','0');
-    energy.setAttribute('aria-label','Восстановить энергию');
-    energy.addEventListener('click',function(event){event.preventDefault();event.stopPropagation();open();});
-    energy.addEventListener('keydown',function(event){if(event.key==='Enter'||event.key===' '){event.preventDefault();open();}});
-    const closeButton=$('modal-close');
-    if(closeButton)closeButton.addEventListener('click',close);
-    const overlay=$('modal-overlay');
-    if(overlay)overlay.addEventListener('click',function(event){if(event.target===overlay)close();});
+  function findEnergyEl(){
+    return document.querySelector('.resource-energy')
+      || document.querySelector('#top-resources .energy')
+      || document.querySelector('#top-bar .energy')
+      || document.getElementById('energy')
+      || document.querySelector('.resource.energy')
+      || document.querySelector('[aria-label="Энергия"]');
   }
 
-  const timer=setInterval(()=>{
+  function bind(){
+    if(ready)return;
+    const energy=findEnergyEl();
+    if(!energy)return;
+    var target=energy;
+    if(energy.id==='energy' && energy.closest){
+      target=energy.closest('.resource') || energy.closest('.resource-energy') || energy;
+    }
+    ready=true;
+    target.classList.add('energy-clickable');
+    target.setAttribute('role','button');
+    target.setAttribute('tabindex','0');
+    target.setAttribute('aria-label','Восстановить энергию');
+    target.addEventListener('click',function(event){event.preventDefault();event.stopPropagation();open();});
+    target.addEventListener('keydown',function(event){if(event.key==='Enter'||event.key===' '){event.preventDefault();open();}});
+    const closeButton=$('modal-close');
+    if(closeButton && !closeButton.dataset.energyBound){
+      closeButton.dataset.energyBound='1';
+      closeButton.addEventListener('click',close);
+    }
+    const overlay=$('modal-overlay');
+    if(overlay && !overlay.dataset.energyOverlayBound){
+      overlay.dataset.energyOverlayBound='1';
+      overlay.addEventListener('click',function(event){if(event.target===overlay)close();});
+    }
+    console.log('[energy-ui] bound to', target.className||target.id||target.tagName);
+  }
+
+  const timer=setInterval(function(){
     bind();
     if(ready)clearInterval(timer);
   },250);
+  setTimeout(bind, 1500);
   if(document.readyState!=='loading')bind();
   else document.addEventListener('DOMContentLoaded',bind,{once:true});
 
-  window.EnergyUI={open,close,buyEnergy,watchAd,costs};
+  window.EnergyUI={open:open,close:close,buyEnergy:buyEnergy,watchAd:watchAd,costs:costs};
 })();
