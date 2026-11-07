@@ -39,6 +39,7 @@
 <link rel="stylesheet" href="./polish-buttons.css?v=1.0">
 <link rel="stylesheet" href="./daily-quests.css?v=1.1">
 <link rel="stylesheet" href="./booster-button.css?v=1.6-lower-entry">
+<link rel="stylesheet" href="./layout-id-fix.css?v=1.1-rustore-final">
 </head>
 <body>
 <div id="app-root">
@@ -52,7 +53,7 @@
 <div id="sentence-panel" class="sentence-panel" aria-live="polite"><div class="sentence-head"><span>⛓️ Срок</span><b id="sentence-left">100 дней</b></div><div class="sentence-track-row"><div class="sentence-track"><span id="sentence-fill"></span></div><button type="button" id="settings-gear-button" aria-label="Открыть настройки" title="Настройки">⚙</button></div><small id="sentence-detail">Отбыл 0 / 100 дней</small></div>
 <div id="rank-goal" class="rank-goal" aria-live="polite"><div class="rank-goal-head"><span id="rank-goal-label">До следующей масти</span><b id="rank-goal-value">0 / 900 ⭐</b></div><div class="rank-goal-track"><span id="rank-goal-fill"></span></div></div>
 <section id="player-info"><div id="nickname-row"><span id="nickname">Салага</span><span id="test-version" aria-label="Тестовый режим" style="display:none"></span></div><div id="rank">Салага</div><div class="stats"><span>💪 <b id="power-stat">1</b></span><span>🧠 <b id="respect-stat">0</b></span><span>💰 <b id="wealth-stat">0</b></span></div></section>
-<main id="tap-area" class="tap-area"><div id="object-name" class="object-name">Груша</div><button type="button" id="tap-object" class="tap-object" aria-label="Тапать"></button><div id="object-action" class="object-action">ТАПАЙ!</div></main>
+<main id="tap-area" class="tap-area"><div id="object-name" class="object-name">Груша</div><button type="button" id="tap-object" class="tap-object" aria-label="Тапать"><span id="object-emoji" aria-hidden="true"></span></button><div id="object-action" class="object-action">ТАПАЙ!</div></main>
 <div id="jail-panel" class="jail-panel hidden"><div class="jail-title">Карцер</div><div id="jail-count">0 / 500</div><div>Осталось: <span id="jail-left">500</span></div></div>
 <div id="event-message" class="event-message" aria-live="polite"></div>
 <nav id="bottom-nav" class="bottom-nav" aria-label="Меню">
@@ -71,8 +72,7 @@
 <script src="./js/authority-assets.js?v=1.0"></script>
 <script src="./js/preloader.js?v=1.8"></script>
 <script src="./js/object-visuals.js?v=3.3"></script>
-<script src="./js/onboarding.js?v=3.3-tutorial-v7"></script>
-<script src="./js/onboarding-practice-fix.js?v=2"></script>
+<script src="./js/onboarding.js?v=3.4-single-counter"></script>
 <script defer src="./js/bootstrap.js?v=5.15-rewards"></script>
 <script src="./js/raid-mute-fix.js?v=1.1"></script>
 <script src="./js/raid-button-fix.js?v=1.6"></script>
@@ -87,6 +87,5 @@
 <script defer src="./js/polish-phase2.js?v=1.0"></script>
 <script defer src="./js/polish-phase4.js?v=1.0"></script>
 <script defer src="./js/raid-hide-gear.js?v=1.0"></script>
-<script defer src="./js/onboarding-force-v7.js?v=2"></script>
 </body>
 </html>
