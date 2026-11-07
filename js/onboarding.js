@@ -689,8 +689,8 @@
 
       // Version the tutorial so old saves that were auto-marked as completed can see it.
       // Existing nicknames are preserved and skip the nickname event.
-      if (Number(s.onboarding.tutorialVersion || 0) < 6) {
-        s.onboarding.tutorialVersion = 6;
+      if (Number(s.onboarding.tutorialVersion || 0) < 8) {
+        s.onboarding.tutorialVersion = 8;
         s.onboarding.done = false;
         s.onboarding.step = 0;
         s.onboarding.nameGiven = !!(nick && nick !== 'Салага' && nick !== 'Новичок');
