@@ -7,7 +7,7 @@
 <meta name="screen-orientation" content="portrait">
 <title>Авторитет 2.0</title>
 <link rel="stylesheet" href="./style.css?v=5.0-tutorial-gear">
-<link rel="stylesheet" href="./preloader.css?v=1.0">
+<link rel="stylesheet" href="./preloader.css?v=1.1-restored">
 <link rel="stylesheet" href="./pc-responsive.css?v=1.7-four-nav">
 <link rel="stylesheet" href="./object-visuals.css?v=6.4-hide-scene-labels">
 <link rel="stylesheet" href="./jail-bg-fix.css?v=1.0">
@@ -43,7 +43,16 @@
 </head>
 <body>
 <div id="app-root">
-<div id="preloader" class="preloader" aria-live="polite"><div class="preloader-inner"><div class="preloader-title">АВТОРИТЕТ</div><div class="preloader-bar"><span></span></div><div class="preloader-hint">Загрузка зоны...</div></div></div>
+<div id="preloader" class="preloader" aria-live="polite">
+<img id="preloader-bg" alt="" aria-hidden="true">
+<div id="preloader-content">
+<h1 id="preloader-title">АВТОРИТЕТ</h1>
+<img id="preloader-handcuffs" src="./assets/backgrounds/handcuffs.webp" alt="Наручники">
+<div id="preloader-status">Готовим зону...</div>
+<div id="preloader-track" role="progressbar" aria-label="Загрузка игры" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><span id="preloader-progress"></span></div>
+<div id="preloader-percent">0%</div>
+</div>
+</div>
 <div id="game-container" class="game-booting">
 <header id="top-resources" class="top-resources" >
 <div class="resource resource-chifir"><span class="resource-icon" aria-hidden="true">🍵</span><span class="resource-copy"><small>ЧЕФИР</small><b id="chifir">0</b></span></div>
@@ -70,7 +79,7 @@
 <script src="./js/platform.js?v=1.3-back"></script>
 <script src="./js/resource-branding.js?v=1.1"></script>
 <script src="./js/authority-assets.js?v=1.0"></script>
-<script src="./js/preloader.js?v=1.8"></script>
+<script src="./js/preloader.js?v=1.9-restored"></script>
 <script src="./js/music.js?v=1.0-settings"></script>
 <script src="./js/sfx.js?v=1.0-settings"></script>
 <script src="./js/object-visuals.js?v=3.3"></script>
