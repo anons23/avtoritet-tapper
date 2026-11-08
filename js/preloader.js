@@ -178,6 +178,8 @@
     },20000);
     const mobile=window.matchMedia&&window.matchMedia('(max-width:700px)').matches;
     const bg=mobile?'./assets/backgrounds/mobile/loading-mobile.webp':'./assets/backgrounds/desktop/loading-desktop.webp';
+    const bgElement=document.getElementById('preloader-bg');
+    if(bgElement)bgElement.src=bg;
     await Promise.all([preloadImage(bg),preloadImage('./assets/backgrounds/handcuffs.webp')]);
     setProgress(12,messages[messageIndex]);
     setProgress(16,'Грузим грушу…');
