@@ -723,16 +723,18 @@
       var rewardPts=Math.round((Number(choice.pts)||0)*scale);
       var rewardEnergy=Math.round(Math.max(0,Number(choice.energy)||0)*Math.min(scale,2.5));
 
-      // Если в выборе явно не заданы чефир/энергия, а есть понты —
-      // иногда выдаём вместо части понтов чефир или энергию.
+      // Дополнительная вариативность обычных наград:
+      // 25% — часть понтов заменяется на +50 энергии;
+      // 25% — к понтам добавляется немного чефира;
+      // 50% — обычная награда понтами.
+      // Явно заданные награды отдельных заданий не меняем.
       if(!choice.rewardChifir && !choice.energy && rewardPts > 0){
-        var kind = Math.floor(Math.random() * 3); // 0 = понты, 1 = чефир, 2 = энергия
-        if(kind === 1){
-          rewardChifir = Math.max(5, Math.round(rewardPts * 0.85));
-          rewardPts = 0;
-        }else if(kind === 2){
-          rewardEnergy = Math.max(8, Math.round(rewardPts * 0.25 * Math.min(scale, 2.5)));
-          rewardPts = Math.round(rewardPts * 0.35);
+        var rewardRoll = Math.random();
+        if(rewardRoll < 0.25){
+          rewardEnergy = 50;
+          rewardPts = Math.round(rewardPts * 0.5);
+        }else if(rewardRoll < 0.50){
+          rewardChifir = Math.max(10, Math.round(rewardPts * 0.35));
         }
       }
 
