@@ -333,6 +333,7 @@
     window.__AVT_ONBOARDING_INPUT_BOUND = true;
     document.addEventListener('pointerdown', function (e) {
       if (window.__AVT_TUTORIAL_PROGRAMMATIC_CLICK) return;
+      if (e.target && e.target.closest && e.target.closest('#onboarding-tip-actions button')) return;
       var ps = st();
       if (!ps || isDone(ps) || !ps.onboarding) return;
       var pstep = ps.onboarding.step;
@@ -346,6 +347,7 @@
     }, true);
     document.addEventListener('click', function (e) {
       if (window.__AVT_TUTORIAL_PROGRAMMATIC_CLICK) return;
+      if (e.target && e.target.closest && e.target.closest('#onboarding-tip-actions button')) return;
       if (window.__AVT_ONBOARDING_SUPPRESS_CLICK) {
         window.__AVT_ONBOARDING_SUPPRESS_CLICK = false;
         e.preventDefault(); e.stopImmediatePropagation(); return;
