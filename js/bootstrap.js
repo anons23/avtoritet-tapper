@@ -138,7 +138,6 @@
       }
       hideBootError();
       console.log('[bootstrap] rustore rewards v5.15');
-      if(typeof window.__finishPreloader==='function')window.__finishPreloader();
     }finally{
       booting=false;
     }
