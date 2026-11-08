@@ -2,18 +2,21 @@
 'use strict';
 (function(){
   var FULLSCREEN_CD=210000;
+  var REWARDED_INTERSTITIAL_CD=120000;
   var LS_KEY='avt_ads_policy_v1';
   var lastFs=0;
+  var lastRewarded=0;
   var pendingRaidDouble=null;
   var raidDoubleUsed=false;
 
   try{
     var saved=JSON.parse(localStorage.getItem(LS_KEY)||'{}');
     if(saved&&typeof saved.lastFs==='number') lastFs=saved.lastFs;
+    if(saved&&typeof saved.lastRewarded==='number') lastRewarded=saved.lastRewarded;
   }catch(e){}
 
   function persist(){
-    try{ localStorage.setItem(LS_KEY, JSON.stringify({lastFs:lastFs})); }catch(e){}
+    try{ localStorage.setItem(LS_KEY, JSON.stringify({lastFs:lastFs,lastRewarded:lastRewarded})); }catch(e){}
   }
   function st(){
     try{ if(typeof window.getGameState==='function') return window.getGameState(); }catch(e){}
@@ -27,8 +30,12 @@
     else if(typeof window.msg==='function') try{ window.msg(t); }catch(err){}
   }
 
-  function canFullscreen(){ return Date.now()-lastFs>=FULLSCREEN_CD; }
+  function canFullscreen(){
+    var now=Date.now();
+    return now-lastFs>=FULLSCREEN_CD && now-lastRewarded>=REWARDED_INTERSTITIAL_CD;
+  }
   function markFullscreenShown(){ lastFs=Date.now(); persist(); }
+  function markRewardedViewed(){ lastRewarded=Date.now(); persist(); }
 
   function tryFullscreen(reason){
     if(!canFullscreen()){
@@ -147,10 +154,10 @@
       }
     },true);
 
-    console.log('[ads-policy] v1.1 ready, fullscreen CD', FULLSCREEN_CD/1000+'s');
+    console.log('[ads-policy] v1.2 ready, fullscreen CD', FULLSCREEN_CD/1000+'s, rewarded cooldown', REWARDED_INTERSTITIAL_CD/1000+'s');
   }
 
-  window.AdsPolicy={ tryFullscreen:tryFullscreen, canFullscreen:canFullscreen, FULLSCREEN_CD:FULLSCREEN_CD };
+  window.AdsPolicy={ tryFullscreen:tryFullscreen, canFullscreen:canFullscreen, markRewardedViewed:markRewardedViewed, FULLSCREEN_CD:FULLSCREEN_CD, REWARDED_INTERSTITIAL_CD:REWARDED_INTERSTITIAL_CD };
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot);
   else boot();
 })();
