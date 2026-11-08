@@ -10,7 +10,7 @@
     {src:'./js/npc-barrack.js?v=5.5-npc-energy-drops',critical:true},
     {src:'./js/npc-memory.js?v=1.0',critical:false},
     {src:'./js/npc-rumors.js?v=1.5',critical:false},
-    {src:'./js/ads-policy.js?v=1.5.1-tab-transition-only',critical:false},
+    {src:'./js/ads-policy.js?v=1.5.2-session-delay',critical:false},
     {src:'./js/jail-lock.js?v=1.0',critical:false},
     {src:'./js/nickname-rename.js?v=1.1',critical:false},
     {src:'./js/daily.js?v=1.4',critical:false},
