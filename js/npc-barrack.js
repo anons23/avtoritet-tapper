@@ -541,6 +541,12 @@
     var seen=Array.isArray(all[seenKey])?all[seenKey].filter(function(i,index,a){
       return Number.isInteger(i)&&i>=0&&i<npc.dialogs.length&&a.indexOf(i)===index;
     }):[];
+    // Migrate the previous single-round marker so the last task from the old deck
+    // is not immediately repeated after this update.
+    if(!Array.isArray(all[seenKey])){
+      var previous=Number(all[npc.id+'_last_round']);
+      if(Number.isInteger(previous)&&previous>=0&&previous<npc.dialogs.length)seen.push(previous);
+    }
     var deck=Array.isArray(all[key])?all[key].filter(function(i,index,a){
       return eligible.indexOf(i)>=0&&seen.indexOf(i)<0&&a.indexOf(i)===index;
     }):[];
