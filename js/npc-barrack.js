@@ -310,7 +310,7 @@
   function changeRel(npc,delta,s,kind){
     if(!delta)return;
     var a=relStore(s),x=a[npc.id]||{rep:0,helped:0,failed:0,betrayed:0,saved:0};
-    x.rep=Math.max(0,Math.min(60,(Number(x.rep)||0)+Number(delta)));
+    x.rep=Math.max(0,Math.min(50,(Number(x.rep)||0)+Number(delta)));
     if(kind==='help')x.helped=(Number(x.helped)||0)+1;
     if(kind==='fail')x.failed=(Number(x.failed)||0)+1;
     if(kind==='save')x.saved=(Number(x.saved)||0)+1;
@@ -340,13 +340,18 @@
   }
 
   function dropRoll(npc,choice,s){
-    if(!choice.drop)return '';
-    var r=relState(npc,s).rep;
-    if(r<50 || Math.random()>=Number(choice.drop.chance||0))return '';
-    var type=choice.drop.type||'редкий';
+    // At max trust (50/50), a successful NPC dialogue has a small 5% chance
+    // to grant a real, previously unowned special weapon or armor item.
+    if(relState(npc,s).rep<50 || Math.random()>=0.05)return '';
+    var item=null;
+    try{
+      if(typeof window.grantNpcEquipmentDrop==='function')item=window.grantNpcEquipmentDrop();
+    }catch(e){console.warn('[npc] equipment drop error',e);}
+    if(!item)return '';
     s.tasks=s.tasks||{};
-    s.tasks.npcDrop=(s.tasks.npcDrop||0)+1;
-    return ' 🎁 Бонус: выпал '+type+' дроп!';
+    s.tasks.npcDrop=(Number(s.tasks.npcDrop)||0)+1;
+    var rarity=item.rarity==='authority'?'авторитетное':item.rarity==='extreme'?'крайне редкое':item.rarity==='rare'?'редкое':'обычное';
+    return ' 🎁 Выпал настоящий дроп: '+(item.icon?item.icon+' ':'')+item.name+' ('+rarity+' '+(item.kind==='weapon'?'оружие':'броня')+').';
   }
 
   function $(id){return document.getElementById(id)}
