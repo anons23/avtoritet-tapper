@@ -400,14 +400,30 @@
   function availableTalks(npc,s){var d=normalizeTalkState(npc,s);return d.extra+(!d.until?Math.max(0,TALK_LIMIT-d.used):0);}
   function consumeTalk(npc,s){var d=normalizeTalkState(npc,s);if(d.extra>0){d.extra--;saveTalkState(npc,d,s);return true;}if(d.until)return false;if(d.used<TALK_LIMIT){d.used++;if(d.used>=TALK_LIMIT){d.until=Date.now()+TALK_COOLDOWN;d.used=0;}saveTalkState(npc,d,s);return true;}return false;}
   function nextRoundFor(npc,s){
-    var all=talkStore(s),start=Number(all[npc.id+'_round']);
-    if(!Number.isFinite(start)||start<0||start>=npc.dialogs.length)start=0;
-    var rep=relState(npc,s).rep;
-    for(var step=0;step<npc.dialogs.length;step++){
-      var idx=(start+step)%npc.dialogs.length, d=npc.dialogs[idx];
-      if(!d.minRep || rep>=d.minRep)return idx;
+    var all=talkStore(s),rep=relState(npc,s).rep;
+    var eligible=[];
+    for(var i=0;i<npc.dialogs.length;i++){
+      var d=npc.dialogs[i];
+      if(!d.minRep || rep>=d.minRep)eligible.push(i);
     }
-    return 0;
+    if(!eligible.length)return 0;
+    var key=npc.id+'_deck',deck=Array.isArray(all[key])?all[key].filter(function(i){return eligible.indexOf(i)>=0}):[];
+    // Add dialogues that have just unlocked since the previous visit.
+    eligible.forEach(function(i){if(deck.indexOf(i)<0)deck.push(i)});
+    if(!deck.length)deck=eligible.slice();
+    // Shuffle each complete cycle so NPC tasks do not always appear in the same order.
+    if(!Array.isArray(all[key]) || all[key].length===0){
+      for(var j=deck.length-1;j>0;j--){
+        var k=Math.floor(Math.random()*(j+1)),tmp=deck[j];deck[j]=deck[k];deck[k]=tmp;
+      }
+      var last=Number(all[npc.id+'_last_round']);
+      if(deck.length>1 && deck[0]===last){var swap=deck[0];deck[0]=deck[1];deck[1]=swap;}
+    }
+    var next=deck.shift();
+    all[key]=deck;
+    all[npc.id+'_last_round']=next;
+    all[npc.id+'_round']=next;
+    return next;
   }
   function showUrgentNpc(npc,s){if(npcTimer){clearInterval(npcTimer);npcTimer=null;}var d=normalizeTalkState(npc,s);if(availableTalks(npc,s)>0)return false;var phrases={bugor:'Бугор отдыхает, не беспокой его.',kosoy:'Косой ушёл на стрелку. Вернётся через ',shaiba:'Шайба ушёл по делам. Вернётся через ',smotryashiy:'Смотрящий занят. Освободится через ',avtoritet:'Авторитет отдыхает. Вернётся через '};var text=phrases[npc.id]||(npc.name+' сейчас занят. Вернётся через ');if(d.until)text+='<span id="npc-cooldown-value">'+cooldownText(d.until)+'</span>.';else text=npc.name+' уже всё рассказал на сегодня.';var rr=relState(npc,s),rl=relLevel(rr.rep);var html='<div class="npc-hero"><img class="npc-hero-img" src="'+npc.avatar+'" alt="" draggable="false"><div class="npc-hero-title"><b>'+npc.name+'</b><small>'+npc.role+'</small></div></div><div class="npc-action-panel npc-rest-panel"><div class="npc-talk-status">Отношение: <b>'+rl.name+'</b> · '+rr.rep+'/50</div><div class="npc-dialogue"><p>'+text+'</p></div><div class="npc-choice-title">СРОЧНЫЙ ВЫЗОВ</div><button type="button" class="npc-primary" id="npc-call-ad">📺 Позвать '+npc.name+' срочно!</button><small class="npc-cooldown-note">За просмотр рекламы откроются ещё 2 диалога с '+npc.name+'.</small><button type="button" class="npc-primary npc-secondary" id="npc-back-list">← К списку</button></div>';openNpcModal(html);if(d.until){var tick=function(){var el=$('npc-cooldown-value');if(!el){clearInterval(npcTimer);npcTimer=null;return;}if(Date.now()>=d.until){clearInterval(npcTimer);npcTimer=null;renderList();return;}el.textContent=cooldownText(d.until);};npcTimer=setInterval(tick,1000);tick();}var ad=$('npc-call-ad');if(ad)ad.addEventListener('click',function(e){e.preventDefault();e.stopPropagation();requestNpcAd(npc);});var back=$('npc-back-list');if(back)back.addEventListener('click',function(e){e.preventDefault();renderList();});return true;}
   function requestNpcAd(npc){if(adBusyNpc){msg('📺 Реклама уже запускается.');return;}if(typeof window.showRewardedAd!=='function'){msg('📺 Реклама пока недоступна.');return;}adBusyNpc=npc.id;window.showRewardedAd(function(ok){var s=st();if(adBusyNpc!==npc.id)return;adBusyNpc=null;if(!ok){msg('📺 Реклама не просмотрена полностью. Диалоги не разблокированы.');showUrgentNpc(npc,s);return;}var d=talkState(npc,s);d.extra=(d.extra||0)+AD_BONUS;saveTalkState(npc,d,s);ui();msg('🎁 '+npc.name+': +2 диалога получены за рекламу.');openDialogue(npc,nextRoundFor(npc,s));});}
