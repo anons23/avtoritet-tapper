@@ -362,7 +362,11 @@
           var dropEl=$('raid-result-drop');
           if(dropEl){
             if(drop&&drop.length){
-              dropEl.innerHTML='<b>🎁 ДРОП</b><br>'+drop.map(function(it){return '<span class="raid-drop-item">'+(it.icon||'')+' '+it.name+' · '+(it.rarity==='authority'?'Авторитетное':it.rarity==='extreme'?'Крайне редкое':it.rarity==='rare'?'Редкое':'Обычное')+'</span>';}).join('<br>');
+              if(drop[0].compensation){
+                dropEl.innerHTML='<b>🍵 ПОВТОРНЫЙ ДРОП</b><br><span class="raid-drop-item">Этот предмет уже есть · начислено +'+Number(drop[0].compensation).toLocaleString('ru-RU')+' чефира</span>';
+              }else{
+                dropEl.innerHTML='<b>🎁 ДРОП</b><br>'+drop.map(function(it){return '<span class="raid-drop-item">'+(it.icon||'')+' '+it.name+' · '+(it.rarity==='authority'?'Авторитетное':it.rarity==='extreme'?'Крайне редкое':it.rarity==='rare'?'Редкое':'Обычное')+'</span>';}).join('<br>');
+              }
             }else{
               dropEl.innerHTML='<b>🎁 ДРОП</b><br><span class="raid-drop-empty">В этот раз ничего нового не выпало.</span>';
             }
