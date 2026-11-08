@@ -620,7 +620,7 @@ function openEvent(){
         s.points=Math.max(0,s.points-Math.max(1,Math.ceil(loss*.35)));
         showEventChoiceResult((c[6]||'Решение не сработало. Вопрос остаётся открытым.')+' −'+fmt(chifirLoss)+' 🍵',false);
       }else{
-        addSentence(c[1]>=.6?2:1,'провал события');
+        if(Math.random()<0.35) addSentence(1,'провал события');
         s.points=Math.max(0,s.points-loss);
         if(c[1]>0&&(s.jailProtection||0)<=0&&Math.random()<.08){
           showEventChoiceResult('Не повезло. Рискованный ход провалился — отправка в карцер.',false,()=>{
