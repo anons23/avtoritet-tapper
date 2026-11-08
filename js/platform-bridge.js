@@ -9,6 +9,30 @@
   };
   var adBusy = false;
 
+  function pauseMusicForAd() {
+    try {
+      if (window.GameMusic && typeof window.GameMusic.pauseForAd === 'function') {
+        window.GameMusic.pauseForAd();
+      }
+    } catch (e) { log('music pause failed', e); }
+  }
+
+  function resumeMusicAfterAd() {
+    try {
+      if (window.GameMusic && typeof window.GameMusic.resumeAfterAd === 'function') {
+        window.GameMusic.resumeAfterAd();
+      }
+    } catch (e) { log('music resume failed', e); }
+  }
+
+  function markRewardedViewed() {
+    try {
+      if (window.AdsPolicy && typeof window.AdsPolicy.markRewardedViewed === 'function') {
+        window.AdsPolicy.markRewardedViewed();
+      }
+    } catch (e) { log('rewarded cooldown mark failed', e); }
+  }
+
   function cfg() {
     return window.AVT_ADS_CONFIG || {
       rewardedBlockId: 'R-M-20344973-1',
@@ -59,21 +83,24 @@
 
       if (plugin && typeof plugin.showInterstitialAd === 'function') {
         adBusy = true;
+        pauseMusicForAd();
         plugin.showInterstitialAd({ blockId: blockId })
           .catch(function (err) { log('interstitial failed', err); })
-          .finally(function () { adBusy = false; });
+          .finally(function () { adBusy = false; resumeMusicAfterAd(); });
         return true;
       }
       if (legacy) {
         var method = legacy.showFullscreenAd || legacy.showInterstitial;
         if (typeof method !== 'function') return false;
         adBusy = true;
+        pauseMusicForAd();
         try {
-          method.call(legacy, blockId, function () { adBusy = false; });
-          setTimeout(function () { adBusy = false; }, 90000);
+          method.call(legacy, blockId, function () { adBusy = false; resumeMusicAfterAd(); });
+          setTimeout(function () { if (adBusy) { adBusy = false; resumeMusicAfterAd(); } }, 90000);
           return true;
         } catch (e) {
           adBusy = false;
+          resumeMusicAfterAd();
           log('fullscreen failed', e);
           return false;
         }
@@ -102,18 +129,20 @@
 
     if (plugin && typeof plugin.showRewardedAd === 'function') {
       adBusy = true;
+      pauseMusicForAd();
       log('rewarded via Capacitor YandexAds, block=', blockId);
       plugin.showRewardedAd({ blockId: blockId })
         .then(function (result) {
           var ok = !!(result && result.rewarded === true);
           log('rewarded result', ok, result);
+          if (ok) markRewardedViewed();
           done(ok);
         })
         .catch(function (err) {
           log('rewarded plugin error', err);
           done(false);
         })
-        .finally(function () { adBusy = false; });
+        .finally(function () { adBusy = false; resumeMusicAfterAd(); });
       return true;
     }
 
@@ -121,11 +150,14 @@
       adBusy = true;
       log('rewarded via legacy AndroidAds, block=', blockId);
       var finished = false;
+      pauseMusicForAd();
       var finish = function (rewarded) {
         if (finished) return;
         finished = true;
         adBusy = false;
+        if (rewarded === true) markRewardedViewed();
         done(rewarded === true);
+        resumeMusicAfterAd();
       };
       try {
         if (typeof legacy.showRewardedAd === 'function') {
@@ -150,9 +182,11 @@
     if (!isNative() && cfg().useMockOnWeb === true) {
       log('rewarded browser mock');
       adBusy = true;
+      pauseMusicForAd();
       setTimeout(function () {
         adBusy = false;
         done(true);
+        resumeMusicAfterAd();
       }, 700);
       return true;
     }
