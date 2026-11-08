@@ -92,7 +92,7 @@
   }
 
   function playTrack(id) {
-    if (!TRACKS[id] || pausedForAd) return;
+    if (!TRACKS[id] || pausedForAd || window.__AVT_AD_SHOWING === true) return;
 
     const next = ensure(id);
     if (!next) return;
@@ -204,6 +204,7 @@
   }
 
   function pauseForAd() {
+    window.__AVT_AD_SHOWING = true;
     if (pausedForAd) return;
     pausedForAd = true;
     trackBeforeAd = current;
@@ -217,6 +218,7 @@
   }
 
   function resumeAfterAd() {
+    window.__AVT_AD_SHOWING = false;
     if (!pausedForAd) return;
     var resumeTrack = trackBeforeAd;
     pausedForAd = false;
@@ -381,4 +383,6 @@
       }
     }
   };
+  // If an ad request began before this module finished initializing, honor the pause now.
+  if (window.__AVT_AD_SHOWING === true) pauseForAd();
 })();
