@@ -75,7 +75,7 @@
         if(key&&(/^avtoritet_/i.test(key)||/^avtoritet-/i.test(key)||/^raid_progress$/i.test(key)))keys.push(key);
       }
       keys.forEach(function(key){localStorage.removeItem(key);});
-      ['avtoritet_save_v2','avtoritet_save_v2_backup','raid_progress'].forEach(function(key){localStorage.removeItem(key);});
+      ['avtoritet_save_v2','avtoritet_save_v2_backup','raid_progress','avt_rt_v2'].forEach(function(key){localStorage.removeItem(key);});
     }catch(e){}
     location.reload();
   };
