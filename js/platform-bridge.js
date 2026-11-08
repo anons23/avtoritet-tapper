@@ -12,6 +12,7 @@
   var lifecycleHooksInstalled = false;
 
   function pauseMusicForAd() {
+    window.__AVT_AD_SHOWING = true;
     try {
       if (window.GameMusic && typeof window.GameMusic.pauseForAd === 'function') {
         window.GameMusic.pauseForAd();
@@ -20,6 +21,7 @@
   }
 
   function resumeMusicAfterAd() {
+    window.__AVT_AD_SHOWING = false;
     try {
       if (window.GameMusic && typeof window.GameMusic.resumeAfterAd === 'function') {
         window.GameMusic.resumeAfterAd();
