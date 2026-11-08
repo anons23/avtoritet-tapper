@@ -79,7 +79,7 @@ let s = {
   tasks:{taps:0, crit:0, events:0, earned:0, jail:0, bugorSuccess:0, npcSuccess:0, authorityDeals:0, npcDrop:0},
   completed:{}, achievements:{}, lastEnergyTime:Date.now(),
   saveUpdatedAt:Date.now(), lastChoiceEvent:0, totalTaps:0,
-  jailed:false, jailTaps:0, jailRequired:500, confiscatedChifir:0, jailProtection:0,
+  jailed:false, jailTaps:0, jailRequired:500, jailAdUsed:false, confiscatedChifir:0, jailProtection:0,
   authorityTaps:0, sentenceDays:100, servedSentenceMinutes:0, sentenceTapCounter:0, lastSentenceTick:Date.now()
 };
 
@@ -153,6 +153,12 @@ function ui(){
       if(s.jailed){
         if($('jail-count')) $('jail-count').textContent = Math.min(s.jailTaps,s.jailRequired)+' / '+s.jailRequired;
         if($('jail-left')) $('jail-left').textContent = Math.max(0,s.jailRequired-s.jailTaps);
+        const jailAdButton=$('jail-ad-half');
+        if(jailAdButton){
+          jailAdButton.disabled=!!s.jailAdUsed || !!jailAdButton.dataset.loading;
+          jailAdButton.textContent=s.jailAdUsed ? '✓ -50% применено' : '📺 -50%';
+          jailAdButton.title=s.jailAdUsed ? 'Сокращение уже использовано в этом карцере' : 'Посмотреть рекламу и сократить оставшиеся тапы вдвое';
+        }
       }
     }
     try{
@@ -238,6 +244,7 @@ function sanitizeGameState(state){
   state.jailed = !!state.jailed;
   state.jailTaps = clampInt(state.jailTaps, 0, 1000000, 0);
   state.jailRequired = clampInt(state.jailRequired, 1, 1000000, 500);
+  state.jailAdUsed = !!state.jailAdUsed;
   state.confiscatedChifir = clampNum(state.confiscatedChifir, 0, MAX_RES, 0);
   state.jailProtection = clampInt(state.jailProtection, 0, 100000, 0);
 
@@ -503,6 +510,7 @@ function enterJail(reason){
   s.jailed=true;
   s.jailRequired=500;
   s.jailTaps=0;
+  s.jailAdUsed=false;
   const rate=.20+Math.random()*.05;
   s.confiscatedChifir=Math.min(Math.max(0,Math.floor(s.chifir)),Math.floor(Math.max(0,s.chifir)*rate));
   s.chifir=Math.max(0,s.chifir-s.confiscatedChifir);
@@ -739,7 +747,7 @@ function tap(e){
     try{ if(window.GameSFX && typeof window.GameSFX.punch==='function') window.GameSFX.punch(false); }catch(e){}
     if(typeof window.animateObjectVisual === 'function') window.animateObjectVisual();
     feedback(e, 1, false);
-    if(s.jailTaps >= s.jailRequired){ s.jailed = false; s.energy = s.maxEnergy; s.lastEnergyTime = Date.now(); s.tasks.jail = (s.tasks.jail||0)+1; msg('🔓 Вышел из карцера — энергия полностью восстановлена! ⚡ '+fmt(s.energy)+'/'+fmt(s.maxEnergy)); ui(); saveNow(); return; }
+    if(s.jailTaps >= s.jailRequired){ s.jailed = false; s.jailAdUsed=false; s.energy = s.maxEnergy; s.lastEnergyTime = Date.now(); s.tasks.jail = (s.tasks.jail||0)+1; msg('🔓 Вышел из карцера — энергия полностью восстановлена! ⚡ '+fmt(s.energy)+'/'+fmt(s.maxEnergy)); ui(); saveNow(); return; }
     ui(); saveSoon(); return;
   }
   restoreEnergy(Date.now());
@@ -800,6 +808,31 @@ function bind(){
   $('btn-tasks')?.addEventListener('click', tasksMenu);
   $('btn-more')?.addEventListener('click', more);
   $('modal-close')?.addEventListener('click', closeModal);
+  $('jail-ad-half')?.addEventListener('click', function(){
+    const button=$('jail-ad-half');
+    if(!s.jailed || s.jailAdUsed || !button || button.dataset.loading) return;
+    if(typeof window.showRewardedAd!=='function'){ msg('📺 Реклама сейчас недоступна'); return; }
+    button.dataset.loading='1';
+    button.disabled=true;
+    button.textContent='Загрузка рекламы…';
+    window.showRewardedAd(function(rewarded){
+      delete button.dataset.loading;
+      if(!rewarded){
+        button.disabled=false;
+        button.textContent='📺 -50%';
+        msg('Реклама не просмотрена. Сокращение не применено.');
+        return;
+      }
+      if(!s.jailed || s.jailAdUsed){ ui(); return; }
+      const remaining=Math.max(0,Number(s.jailRequired)-Number(s.jailTaps));
+      const reduced=Math.ceil(remaining/2);
+      s.jailRequired=Math.max(Number(s.jailTaps),Number(s.jailRequired)-Math.floor(remaining/2));
+      s.jailAdUsed=true;
+      msg('🎬 Реклама просмотрена! Осталось вдвое меньше: '+reduced+' тапов.');
+      ui();
+      saveNow();
+    });
+  });
 
   setInterval(()=>{ restoreEnergy(Date.now()); ui(); }, 1000);
   setInterval(saveNow, 15000);
