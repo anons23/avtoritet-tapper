@@ -1,6 +1,6 @@
 'use strict';
 (function(){
-  /* RuStore branch bootstrap — rewards + rank power v5.16 */
+  /* RuStore branch bootstrap — legacy cleanup v5.24 */
   const scripts=[
     // Create the ×2 entry button immediately; it does not depend on game state.
     {src:'./js/shop-booster-ad.js?v=2.1-ad-explainer',critical:false},
@@ -135,7 +135,7 @@
         }
       }
       hideBootError();
-      console.log('[bootstrap] rustore rewards v5.15');
+      console.log('[bootstrap] rustore v5.24 legacy cleanup');
     }finally{
       booting=false;
     }
