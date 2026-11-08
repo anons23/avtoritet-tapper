@@ -690,6 +690,9 @@
   function boot() {
     var tries = 0;
     var timer = setInterval(function () {
+      // Не запускаем обучение поверх экрана загрузки.
+      // Preloader выставит флаг после показа игрового окна.
+      if (window.__PRELOADER_DONE === false) return;
       tries++;
       var s = st();
       // The game state can arrive late on slow devices or after a delayed bootstrap.
