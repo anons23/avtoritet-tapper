@@ -6,6 +6,7 @@
     !!(window.Capacitor && (window.Capacitor.isNativePlatform
       ? window.Capacitor.isNativePlatform()
       : window.Capacitor.getPlatform && window.Capacitor.getPlatform() !== 'web'));
+  if (!isCapacitor && window.Capacitor && window.capacitorApp && window.capacitorApp.App) isCapacitor = true;
   var isAndroidApp = isCapacitor || /; wv\)/.test(ua) || !!window.AndroidBridge;
   var platform = isAndroidApp ? 'rustore' : 'web';
 
