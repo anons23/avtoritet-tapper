@@ -421,7 +421,7 @@ function openModal(h,locked){
 function closeModal(){
   const o = $('modal-overlay');
   if(!o) return;
-  if(o.dataset.locked==='1' && activeEvent) return;
+  if(o.dataset.locked==='1') return;
   activeEvent=false;
   o.dataset.locked='0';
   o.classList.remove('raid-fullscreen','raid-selection-fullscreen','show');
@@ -805,6 +805,7 @@ function bind(){
   setInterval(saveNow, 15000);
   window.addEventListener('pagehide', saveNow);
 
+  window.addSentence = addSentence;
   window.getGameState = () => s;
   window.sanitizeGameState = sanitizeGameState;
   window.saveGame = saveNow;
