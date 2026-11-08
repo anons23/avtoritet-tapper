@@ -4,6 +4,7 @@
   var FULLSCREEN_CD=300000;
   var LS_KEY='avt_ads_policy_v1';
   var lastFs=0;
+  var sessionStartedAt=Date.now();
   var hasSavedFullscreenTime=false;
   var pendingRaidDouble=null;
   var raidDoubleUsed=false;
@@ -36,7 +37,8 @@
   // Пятиминутный интервал относится только к автоматической межстраничной рекламе.
   // Rewarded-реклама вызывается отдельно по кнопкам и не меняет этот таймер.
   function canShowAd(){
-    return Date.now()-lastFs>=FULLSCREEN_CD;
+    var now=Date.now();
+    return now-sessionStartedAt>=FULLSCREEN_CD && now-lastFs>=FULLSCREEN_CD;
   }
   function canFullscreen(){ return canShowAd(); }
   function markFullscreenShown(){ lastFs=Date.now(); pendingFullscreen=false; persist(); }
@@ -177,7 +179,8 @@
     canFullscreen:canFullscreen,
     canShowAd:canShowAd,
     secondsUntilNextAd:function(){
-      return Math.max(0,Math.ceil((FULLSCREEN_CD-(Date.now()-lastFs))/1000));
+      var now=Date.now();
+      return Math.max(0,Math.ceil(Math.max(FULLSCREEN_CD-(now-sessionStartedAt),FULLSCREEN_CD-(now-lastFs))/1000));
     },
     markRewardedViewed:markRewardedViewed,
     FULLSCREEN_CD:FULLSCREEN_CD,
