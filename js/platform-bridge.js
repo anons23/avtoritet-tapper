@@ -161,21 +161,6 @@
     var plugin = capacitorAds();
     var legacy = window.AndroidAds;
 
-    if (window.AdsPolicy && typeof window.AdsPolicy.canShowAd === 'function' && !window.AdsPolicy.canShowAd()) {
-      var waitSeconds = typeof window.AdsPolicy.secondsUntilNextAd === 'function'
-        ? window.AdsPolicy.secondsUntilNextAd() : 300;
-      var waitMinutes = Math.max(1, Math.ceil(waitSeconds / 60));
-      var notice = document.getElementById('event-message');
-      if (notice) {
-        notice.textContent = 'Следующая реклама будет доступна через ' + waitMinutes + ' мин.';
-        notice.classList.add('show');
-        setTimeout(function () { notice.classList.remove('show'); }, 2600);
-      }
-      log('rewarded blocked by shared ad cooldown', waitSeconds, 'seconds');
-      done(false);
-      return false;
-    }
-
     if (plugin && typeof plugin.showRewardedAd === 'function') {
       adBusy = true;
       pauseMusicForAd();
@@ -184,8 +169,6 @@
         .then(function (result) {
           var ok = !!(result && result.rewarded === true);
           log('rewarded result', ok, result);
-          // The ad was completed/closed even if the reward condition was not met.
-          markRewardedViewed();
           done(ok);
         })
         .catch(function (err) {
@@ -205,7 +188,6 @@
         if (finished) return;
         finished = true;
         adBusy = false;
-        if (rewarded === true) markRewardedViewed();
         done(rewarded === true);
         resumeMusicAfterAd();
       };
