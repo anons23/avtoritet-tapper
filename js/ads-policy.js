@@ -1,8 +1,8 @@
-/* ads-policy v1.1 — мягкая реклама: interstitial ≥3.5 мин, ×2 рейд */
+/* ads-policy v1.2 — единый интервал между любыми показами рекламы: 5 минут */
 'use strict';
 (function(){
-  var FULLSCREEN_CD=210000;
-  var REWARDED_INTERSTITIAL_CD=120000;
+  var FULLSCREEN_CD=300000;
+  var REWARDED_INTERSTITIAL_CD=300000;
   var LS_KEY='avt_ads_policy_v1';
   var lastFs=0;
   var lastRewarded=0;
@@ -36,9 +36,14 @@
     else if(typeof window.msg==='function') try{ window.msg(t); }catch(err){}
   }
 
+  // Один общий интервал для межстраничной и rewarded-рекламы.
+  // После любого успешного показа следующие объявления ждут полные 5 минут.
+  function canShowAd(){
+    var lastShown=Math.max(lastFs,lastRewarded);
+    return Date.now()-lastShown>=FULLSCREEN_CD;
+  }
   function canFullscreen(){
-    var now=Date.now();
-    return now-lastFs>=FULLSCREEN_CD && now-lastRewarded>=REWARDED_INTERSTITIAL_CD;
+    return canShowAd();
   }
   function markFullscreenShown(){ lastFs=Date.now(); pendingFullscreen=false; persist(); }
   function markRewardedViewed(){ lastRewarded=Date.now(); pendingFullscreen=false; persist(); }
@@ -219,10 +224,21 @@
       }).observe(overlay,{attributes:true,attributeFilter:['class']});
     }
 
-    console.log('[ads-policy] v1.3 safe transitions; fullscreen cooldown',FULLSCREEN_CD/1000+'s, rewarded cooldown',REWARDED_INTERSTITIAL_CD/1000+'s');
+    console.log('[ads-policy] v1.4 shared ad cooldown',FULLSCREEN_CD/1000+'s for all ad types');
   }
 
-  window.AdsPolicy={ tryFullscreen:tryFullscreen, canFullscreen:canFullscreen, markRewardedViewed:markRewardedViewed, FULLSCREEN_CD:FULLSCREEN_CD, REWARDED_INTERSTITIAL_CD:REWARDED_INTERSTITIAL_CD, hasPendingFullscreen:function(){return pendingFullscreen;} };
+  window.AdsPolicy={
+    tryFullscreen:tryFullscreen,
+    canFullscreen:canFullscreen,
+    canShowAd:canShowAd,
+    secondsUntilNextAd:function(){
+      return Math.max(0,Math.ceil((FULLSCREEN_CD-(Date.now()-Math.max(lastFs,lastRewarded)))/1000));
+    },
+    markRewardedViewed:markRewardedViewed,
+    FULLSCREEN_CD:FULLSCREEN_CD,
+    REWARDED_INTERSTITIAL_CD:REWARDED_INTERSTITIAL_CD,
+    hasPendingFullscreen:function(){return pendingFullscreen;}
+  };
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot);
   else boot();
 })();
