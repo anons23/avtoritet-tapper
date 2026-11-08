@@ -133,3 +133,10 @@
 /* Current markup keeps the labels as direct children of #tap-area. */
 #tap-area > #object-name,
 #tap-area > #object-action{display:none!important;}
+
+
+/* Cellmate portrait: requested +50% size on every screen class. */
+.cellmate-image{--cellmate-scale:3.075;}
+@media(min-width:701px){.cellmate-image{--cellmate-scale:3.18!important;}}
+@media(max-width:420px){.cellmate-image{--cellmate-scale:2.58!important;}}
+@media(max-height:600px){.cellmate-image{--cellmate-scale:2.37!important;}}
