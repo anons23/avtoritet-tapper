@@ -33,3 +33,11 @@ for (const entry of await readdir(root)) {
 }
 
 console.log('Prepared web game in ./www for Capacitor.');
+
+// Copy the official Capacitor App browser proxy into www so plain-script pages
+// can register the native Android backButton listener without a bundler.
+const appProxySource = path.join(root, 'node_modules', '@capacitor', 'app', 'dist', 'plugin.js');
+const appProxyDestination = path.join(webDir, 'js', 'capacitor-app-plugin.js');
+await mkdir(path.dirname(appProxyDestination), { recursive: true });
+await cp(appProxySource, appProxyDestination);
+console.log('Copied @capacitor/app browser proxy for native back navigation.');
