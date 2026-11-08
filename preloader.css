@@ -1,6 +1,6 @@
 #preloader{position:fixed;inset:0;z-index:90000;display:flex;align-items:center;justify-content:center;overflow:hidden;background:#0d0d0d;opacity:1;visibility:visible;transition:opacity .45s ease,visibility .45s ease}
 #preloader.is-hidden{opacity:0;visibility:hidden;pointer-events:none}
-#preloader-bg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center}
+#preloader-bg-picture{position:absolute;inset:0;display:block;width:100%;height:100%;z-index:0}#preloader-bg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center}
 #preloader:after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,.18),rgba(0,0,0,.36) 55%,rgba(0,0,0,.58))}
 #preloader-content{position:relative;z-index:2;width:min(88vw,560px);display:flex;flex-direction:column;align-items:center;text-align:center;padding:24px}
 #preloader-title{margin:0 0 20px;color:#f4e8ce;font-size:clamp(28px,5vw,48px);font-weight:950;letter-spacing:3px;text-shadow:0 3px 18px #000}
