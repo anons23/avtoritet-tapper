@@ -5,7 +5,7 @@
     // Create the ×2 entry button immediately; it does not depend on game state.
     {src:'./js/shop-booster-ad.js?v=2.1-ad-explainer',critical:false},
     {src:'./js/save-migration.js?v=1.2',critical:true},
-    {src:'./js/game.js?v=5.17-preloader-fix',critical:true},
+    {src:'./js/game.js?v=5.18-npc-term-modal-guard',critical:true},
     {src:'./js/save-guard.js?v=1.1',critical:false},
     {src:'./js/npc-barrack.js?v=5.1-trust-shuffle-drops',critical:true},
     {src:'./js/npc-memory.js?v=1.0',critical:false},
