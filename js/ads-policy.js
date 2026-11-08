@@ -6,6 +6,7 @@
   var LS_KEY='avt_ads_policy_v1';
   var lastFs=0;
   var lastRewarded=0;
+  var hasSavedFullscreenTime=false;
   var pendingRaidDouble=null;
   var raidDoubleUsed=false;
   var pendingFullscreen=false;
@@ -13,9 +14,11 @@
 
   try{
     var saved=JSON.parse(localStorage.getItem(LS_KEY)||'{}');
-    if(saved&&typeof saved.lastFs==='number') lastFs=saved.lastFs;
+    if(saved&&typeof saved.lastFs==='number'){ lastFs=saved.lastFs; hasSavedFullscreenTime=true; }
     if(saved&&typeof saved.lastRewarded==='number') lastRewarded=saved.lastRewarded;
   }catch(e){}
+  // Do not show an interstitial immediately on a fresh install; start the first cooldown now.
+  if(!hasSavedFullscreenTime) lastFs=Date.now();
 
   function persist(){
     try{ localStorage.setItem(LS_KEY, JSON.stringify({lastFs:lastFs,lastRewarded:lastRewarded})); }catch(e){}
