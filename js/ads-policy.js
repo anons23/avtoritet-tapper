@@ -130,15 +130,6 @@
     catch(e){return true;}
   }
 
-  function raidIsActive(){
-    var selectors=['#raid-scene','#raid-fighter-list','.raid-fighter-list','#raid-result'];
-    for(var i=0;i<selectors.length;i++){
-      var nodes=document.querySelectorAll(selectors[i]);
-      for(var j=0;j<nodes.length;j++)if(isVisible(nodes[j]))return true;
-    }
-    return false;
-  }
-
   function refreshPending(){
     pendingFullscreen=canFullscreen();
     return pendingFullscreen;
@@ -153,10 +144,6 @@
     transitionTimer=setTimeout(function(){
       refreshPending();
       if(!pendingFullscreen||!canFullscreen())return;
-      if(raidIsActive()){
-        console.log('[ads-policy] waiting for a tab transition outside raid',reason);
-        return;
-      }
       var shown=tryFullscreen(reason);
       if(shown)pendingFullscreen=false;
     },typeof delay==='number'?delay:450);
