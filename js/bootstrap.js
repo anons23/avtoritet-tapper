@@ -7,7 +7,7 @@
     {src:'./js/save-migration.js?v=1.2',critical:true},
     {src:'./js/game.js?v=5.19-fast-event-close',critical:true},
     {src:'./js/save-guard.js?v=1.1',critical:false},
-    {src:'./js/npc-barrack.js?v=5.2-no-npc-term',critical:true},
+    {src:'./js/npc-barrack.js?v=5.3-no-repeat-15-dialogs',critical:true},
     {src:'./js/npc-memory.js?v=1.0',critical:false},
     {src:'./js/npc-rumors.js?v=1.5',critical:false},
     {src:'./js/ads-policy.js?v=1.1',critical:false},
