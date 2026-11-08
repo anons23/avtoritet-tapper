@@ -180,27 +180,38 @@
     var s=st();if(!s)return null;
     ensure();
     var table=DROPS[fighterId];if(!table||!table.length)return null;
-    /* One raid victory can award at most ONE item.
-       Roll all eligible candidates first, then choose one successful candidate. */
+    /* One raid victory can award at most ONE item or duplicate compensation. */
     var candidates=[];
     table.forEach(function(d){
       if(Math.random()>d.chance)return;
       var item=find(d.id,d.kind);if(!item)return;
-      if(d.kind==='weapon'){
-        if(s.ownedWeapons.indexOf(d.id)>=0)return;
-      }else{
-        if(s.ownedArmor.indexOf(d.id)>=0)return;
-      }
       candidates.push({def:d,item:item});
     });
-    if(candidates.length){
-      var chosen=candidates[Math.floor(Math.random()*candidates.length)];
-      if(chosen.def.kind==='weapon') s.ownedWeapons.push(chosen.def.id);
-      else s.ownedArmor.push(chosen.def.id);
+    if(!candidates.length)return null;
+    var chosen=candidates[Math.floor(Math.random()*candidates.length)];
+    var owned=chosen.def.kind==='weapon'
+      ? s.ownedWeapons.indexOf(chosen.def.id)>=0
+      : s.ownedArmor.indexOf(chosen.def.id)>=0;
+    if(owned){
+      var duplicateChifir={
+        petrovich:1000,
+        vtirach:2000,
+        mafioznik:3000,
+        mongol:4000,
+        glaz:5000,
+        krest:7000,
+        psikh:10000
+      };
+      var amount=duplicateChifir[fighterId]||1000;
+      s.chifir=(Number(s.chifir)||0)+amount;
+      if(s.tasks)s.tasks.earned=(Number(s.tasks.earned)||0)+amount;
       save();
-      return [chosen.item];
+      return [{name:'Компенсация за повторный предмет',icon:'🍵',rarity:'common',compensation:amount}];
     }
-    return null;
+    if(chosen.def.kind==='weapon')s.ownedWeapons.push(chosen.def.id);
+    else s.ownedArmor.push(chosen.def.id);
+    save();
+    return [chosen.item];
   }
   // Reward one unowned special item for a high-trust NPC dialogue.
   function grantNpcEquipmentDrop(){
@@ -226,8 +237,12 @@
     var got=null;
     try{ got=tryDrop(fighterId); }catch(e){ console.warn('[equipment] drop error',e); return null; }
     if(got && got.length){
-      var names=got.map(function(it){ return (it.icon||'')+' '+it.name; }).join(', ');
-      msg('🎁 Дроп: '+names);
+      if(got[0] && got[0].compensation){
+        msg('🍵 Повторный предмет уже есть · +'+fmt(got[0].compensation)+' чефира');
+      }else{
+        var names=got.map(function(it){ return (it.icon||'')+' '+it.name; }).join(', ');
+        msg('🎁 Дроп: '+names);
+      }
       try{ if(typeof window.ui==='function') window.ui(); }catch(e){}
     }
     return got;
