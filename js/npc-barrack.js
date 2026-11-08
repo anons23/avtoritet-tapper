@@ -607,10 +607,8 @@
         var rr=choice.risk;
         if(rr.pts)s.points=Math.max(0,(Number(s.points)||0)+Number(rr.pts));
         if(rr.chifir)s.chifir=Math.max(0,(Number(s.chifir)||0)+Number(rr.chifir));
-        if(rr.term){
-          s.sentence=s.sentence||{};
-          s.sentence.extraDays=(Number(s.sentence.extraDays)||0)+Number(rr.term);
-          s.termExtraDays=(Number(s.termExtraDays)||0)+Number(rr.term);
+        if(rr.term && typeof window.addSentence==='function'){
+          window.addSentence(Number(rr.term),'провал рискованного дела');
         }
         changeRel(npc,Number(rr.rep)||0,s,(Number(rr.rep)||0)<0?'fail':(Number(rr.rep)||0)>0?'save':'');
         riskText=' '+(rr.msg||'Ситуация обернулась неприятно.');
