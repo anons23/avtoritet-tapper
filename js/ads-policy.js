@@ -23,6 +23,7 @@
   function persist(){
     try{ localStorage.setItem(LS_KEY, JSON.stringify({lastFs:lastFs,lastRewarded:lastRewarded})); }catch(e){}
   }
+  if(!hasSavedFullscreenTime) persist();
   function st(){
     try{ if(typeof window.getGameState==='function') return window.getGameState(); }catch(e){}
     return window.s||null;
