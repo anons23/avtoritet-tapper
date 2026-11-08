@@ -1,18 +1,17 @@
-/* platform.js v1.3 — RuStore back-button (modals first, exit last) */
+/* platform.js v1.4 — native Android back navigation */
 'use strict';
 (function () {
   var ua = (navigator.userAgent || '').toLowerCase();
   var isCapacitor =
     !!(window.Capacitor && (window.Capacitor.isNativePlatform
       ? window.Capacitor.isNativePlatform()
-      : window.Capacitor.platform && window.Capacitor.platform !== 'web'));
+      : window.Capacitor.getPlatform && window.Capacitor.getPlatform() !== 'web'));
   var isAndroidApp = isCapacitor || /; wv\)/.test(ua) || !!window.AndroidBridge;
   var platform = isAndroidApp ? 'rustore' : 'web';
 
   window.AVT_PLATFORM = platform;
   window.AVT_IS_NATIVE = isAndroidApp;
   window.AVT_ADS_ONLY = true;
-
   document.documentElement.setAttribute('data-platform', platform);
   if (isAndroidApp) document.documentElement.classList.add('platform-native');
 
@@ -32,16 +31,16 @@
 
     var overlay = document.getElementById('modal-overlay');
     if (overlay && !overlay.classList.contains('hidden')) {
-      var close = document.getElementById('modal-close');
-      var raidClose = document.getElementById('raid-menu-close');
       var raidBack = document.getElementById('raid-back');
+      var raidClose = document.getElementById('raid-menu-close');
+      var close = document.getElementById('modal-close');
       if (raidBack && overlay.classList.contains('raid-fullscreen')) {
         try { raidBack.click(); return true; } catch (e) {}
       }
-      if (raidClose) {
+      if (raidClose && isVisible(raidClose)) {
         try { raidClose.click(); return true; } catch (e) {}
       }
-      if (close) {
+      if (close && isVisible(close)) {
         try { close.click(); return true; } catch (e) {}
       }
       overlay.classList.add('hidden');
@@ -51,45 +50,47 @@
     return false;
   }
 
-  function installBackHandlers() {
-    document.addEventListener('backbutton', function (e) {
-      if (closeTopUi()) {
-        if (e && e.preventDefault) e.preventDefault();
-      }
-    }, false);
-
+  function getAppPlugin() {
     try {
-      var App = window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.App;
-      if (App && typeof App.addListener === 'function') {
-        App.addListener('backButton', function () {
-          var closed = closeTopUi();
-          if (!closed && typeof App.exitApp === 'function') App.exitApp();
-        });
+      if (window.Capacitor && typeof window.Capacitor.registerPlugin === 'function') {
+        return window.Capacitor.registerPlugin('App');
+      }
+      if (window.Capacitor && window.Capacitor.Plugins) {
+        return window.Capacitor.Plugins.App || null;
       }
     } catch (e) {}
+    return null;
+  }
 
-    if (isAndroidApp) {
-      try {
-        history.pushState({ avt: 1 }, '');
-        window.addEventListener('popstate', function () {
-          var closed = closeTopUi();
-          history.pushState({ avt: 1 }, '');
-          if (!closed) {
-            try {
-              var App2 = window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.App;
-              if (App2 && typeof App2.exitApp === 'function') App2.exitApp();
-            } catch (err) {}
+  function installBackHandlers() {
+    // Capacitor App plugin intercepts Android's native back action.
+    var App = isAndroidApp ? getAppPlugin() : null;
+    if (App && typeof App.addListener === 'function') {
+      App.addListener('backButton', function () {
+        if (!closeTopUi()) {
+          // On the main game screen, send the app to background instead of destroying it.
+          if (typeof App.minimizeApp === 'function') {
+            App.minimizeApp().catch(function (e) {
+              console.warn('[platform] minimizeApp failed', e);
+            });
           }
-        });
-      } catch (e) {}
+        }
+      }).catch(function (e) {
+        console.warn('[platform] backButton listener failed', e);
+      });
     }
+
+    // Fallback for native WebViews which dispatch the legacy DOM event.
+    document.addEventListener('backbutton', function (e) {
+      if (closeTopUi() && e && e.preventDefault) e.preventDefault();
+    }, false);
   }
 
   if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', installBackHandlers);
+    document.addEventListener('DOMContentLoaded', installBackHandlers, { once: true });
   } else {
     installBackHandlers();
   }
 
-  console.log('[platform] mode=', platform, 'adsOnly=', true, 'backHandlers=1.3');
+  console.log('[platform] mode=', platform, 'adsOnly=', true, 'backHandlers=1.4');
 })();
