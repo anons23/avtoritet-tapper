@@ -1,4 +1,4 @@
-/* platform.js v1.4 — native Android back navigation */
+/* platform.js v1.5 — native Android back navigation */
 'use strict';
 (function () {
   var ua = (navigator.userAgent || '').toLowerCase();
@@ -52,6 +52,8 @@
 
   function getAppPlugin() {
     try {
+      // The standalone web build loads the official @capacitor/app proxy as a browser script.
+      if (window.capacitorApp && window.capacitorApp.App) return window.capacitorApp.App;
       if (window.Capacitor && typeof window.Capacitor.registerPlugin === 'function') {
         return window.Capacitor.registerPlugin('App');
       }
@@ -92,5 +94,5 @@
     installBackHandlers();
   }
 
-  console.log('[platform] mode=', platform, 'adsOnly=', true, 'backHandlers=1.4');
+  console.log('[platform] mode=', platform, 'adsOnly=', true, 'backHandlers=1.5', 'appPlugin=', !!(getAppPlugin()));
 })();
