@@ -16,9 +16,7 @@
     {src:'./js/daily.js?v=1.4',critical:false},
     {src:'./js/authority-css-restore.js?v=1.8',critical:false},
     {src:'./js/authority-ui.js?v=2.7-no-crown',critical:false},
-    {src:'./js/authority-folder-fix.js?v=1.0',critical:false},
     {src:'./js/authority-gate.js?v=1.5',critical:false},
-    {src:'./js/authority-auto-deal.js?v=1.1',critical:false},
     {src:'./js/authority-choice-guard.js?v=1.1',critical:false},
     {src:'./js/authority-clash-anim.js?v=1.0',critical:false},
     {src:'./js/authority-anim-fix.js?v=1.0',critical:false}
