@@ -132,7 +132,7 @@
     {min:0,max:9,name:'Незнакомец'},
     {min:10,max:24,name:'Знакомый'},
     {min:25,max:49,name:'Кент'},
-    {min:50,max:999,name:'Брат'}
+    {min:50,max:50,name:'Брат'}
   ];
   var REL_DIALOGS={
     shaiba:[
@@ -304,7 +304,7 @@
   function relStore(s){if(!s)return {};if(!s[REL_KEY]||typeof s[REL_KEY]!=='object')s[REL_KEY]={};return s[REL_KEY];}
   function relState(npc,s){
     var a=relStore(s),x=a[npc.id]||{};
-    return {rep:Math.max(0,Math.min(60,Number(x.rep)||0)),helped:Math.max(0,Number(x.helped)||0),failed:Math.max(0,Number(x.failed)||0),betrayed:Math.max(0,Number(x.betrayed)||0),saved:Math.max(0,Number(x.saved)||0)};
+    return {rep:Math.max(0,Math.min(50,Number(x.rep)||0)),helped:Math.max(0,Number(x.helped)||0),failed:Math.max(0,Number(x.failed)||0),betrayed:Math.max(0,Number(x.betrayed)||0),saved:Math.max(0,Number(x.saved)||0)};
   }
   function relLevel(rep){for(var i=REL_LEVELS.length-1;i>=0;i--)if(rep>=REL_LEVELS[i].min)return REL_LEVELS[i];return REL_LEVELS[0];}
   function changeRel(npc,delta,s,kind){
