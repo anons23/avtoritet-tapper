@@ -1,13 +1,13 @@
 'use strict';
 (function(){
-  /* RuStore branch bootstrap — rewards + rank power v5.15 */
+  /* RuStore branch bootstrap — rewards + rank power v5.16 */
   const scripts=[
     // Create the ×2 entry button immediately; it does not depend on game state.
     {src:'./js/shop-booster-ad.js?v=2.1-ad-explainer',critical:false},
     {src:'./js/save-migration.js?v=1.2',critical:true},
-    {src:'./js/game.js?v=5.15-rewards',critical:true},
+    {src:'./js/game.js?v=5.16-tap40',critical:true},
     {src:'./js/save-guard.js?v=1.1',critical:false},
-    {src:'./js/npc-barrack.js?v=4.9-blatnoy4000',critical:true},
+    {src:'./js/npc-barrack.js?v=5.0-trust-cap-drops',critical:true},
     {src:'./js/npc-memory.js?v=1.0',critical:false},
     {src:'./js/npc-rumors.js?v=1.5',critical:false},
     {src:'./js/ads-policy.js?v=1.1',critical:false},
