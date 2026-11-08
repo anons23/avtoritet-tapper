@@ -790,7 +790,7 @@ function bind(){
   let last = 0;
   const handler = e => {
     const n = Date.now();
-    if(n - last < 80) return;
+    if(n - last < 40) return;
     last = n;
     if(e.cancelable) e.preventDefault();
     tap(e);
