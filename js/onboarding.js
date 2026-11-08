@@ -93,7 +93,8 @@
       '#onboarding-tip-actions button{flex:1;min-width:110px;padding:12px 14px;border-radius:12px;border:1px solid #665329;background:#2a2418;color:#f0e6c8;font-size:14px;cursor:pointer}' +
       '#onboarding-tip-actions button.primary{background:#c9a227;color:#1a1408;border-color:#c9a227;font-weight:700}' +
       '#onboarding-tip-actions button:active{transform:scale(.97)}' +
-      'body.onboarding-lock #bottom-bar,body.onboarding-lock #settings-gear-button{pointer-events:none;opacity:.35}';
+      '#onboarding-tip-actions button.onboarding-skip{flex:0 0 100%;background:#242424;border-color:#555;color:#bbb;font-size:12px;padding:9px}' +
+      'body.onboarding-lock #bottom-nav,body.onboarding-lock .bottom-nav,body.onboarding-lock #settings-gear-button{pointer-events:none;opacity:.35}';
     document.head.appendChild(style);
 
     holeEl = document.getElementById('onboarding-hole');
@@ -161,6 +162,18 @@
         btn.onclick = function () { if (b.onClick) b.onClick(); };
         actions.appendChild(btn);
       });
+    }
+    // The player may skip the whole tutorial at any step without losing the starter pack or nickname flow.
+    if (Number(window.__AVT_ONBOARDING_STEP) >= 0 && Number(window.__AVT_ONBOARDING_STEP) < 13) {
+      var skip = document.createElement('button');
+      skip.type = 'button';
+      skip.textContent = 'Пропустить обучение';
+      skip.className = 'onboarding-skip';
+      skip.onclick = function (e) {
+        if (e) { e.preventDefault(); e.stopPropagation(); }
+        finishOnboarding();
+      };
+      actions.appendChild(skip);
     }
   }
 
