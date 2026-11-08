@@ -2,6 +2,8 @@
 (function(){
   /* RuStore branch bootstrap — rewards + rank power v5.15 */
   const scripts=[
+    // Create the ×2 entry button immediately; it does not depend on game state.
+    {src:'./js/shop-booster-ad.js?v=2.1-ad-explainer',critical:false},
     {src:'./js/save-migration.js?v=1.2',critical:true},
     {src:'./js/game.js?v=5.15-rewards',critical:true},
     {src:'./js/save-guard.js?v=1.1',critical:false},
@@ -9,7 +11,6 @@
     {src:'./js/npc-memory.js?v=1.0',critical:false},
     {src:'./js/npc-rumors.js?v=1.5',critical:false},
     {src:'./js/ads-policy.js?v=1.1',critical:false},
-    {src:'./js/shop-booster-ad.js?v=2.1-ad-explainer',critical:false},
     {src:'./js/jail-lock.js?v=1.0',critical:false},
     {src:'./js/nickname-rename.js?v=1.1',critical:false},
     {src:'./js/daily.js?v=1.4',critical:false},
