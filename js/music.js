@@ -17,6 +17,8 @@
   let current = null;
   let mainIndex = 0;
   let fadeTimer = 0;
+  let pausedForAd = false;
+  let trackBeforeAd = null;
   const players = {};
 
   function loadMuted() {
@@ -90,7 +92,7 @@
   }
 
   function playTrack(id) {
-    if (!TRACKS[id]) return;
+    if (!TRACKS[id] || pausedForAd) return;
 
     const next = ensure(id);
     if (!next) return;
@@ -178,6 +180,8 @@
       return;
     }
 
+    if (pausedForAd) return;
+
     if (wasMuted) {
       if (current === 'raid') {
         playTrack('raid');
@@ -197,6 +201,29 @@
 
   function toggleMute() {
     setMuted(!muted);
+  }
+
+  function pauseForAd() {
+    if (pausedForAd) return;
+    pausedForAd = true;
+    trackBeforeAd = current;
+    stopFade();
+    Object.keys(players).forEach(function (id) {
+      var a = players[id];
+      if (!a) return;
+      try { a.pause(); } catch (e) {}
+      a.volume = 0;
+    });
+  }
+
+  function resumeAfterAd() {
+    if (!pausedForAd) return;
+    var resumeTrack = trackBeforeAd;
+    pausedForAd = false;
+    trackBeforeAd = null;
+    if (muted) return;
+    if (resumeTrack && TRACKS[resumeTrack]) playTrack(resumeTrack);
+    else if (unlocked) playMain();
   }
 
   function updateMuteBtn() {
@@ -310,7 +337,7 @@
           try{ if(!a.paused) a.pause(); }catch(e){}
         });
       }else{
-        if(muted) return;
+        if(muted || pausedForAd) return;
         if(wasPlayingBeforeHide && TRACKS[wasPlayingBeforeHide]){
           playTrack(wasPlayingBeforeHide);
         }else if(unlocked && !muted){
@@ -335,6 +362,8 @@
     unlock: unlock,
     toggleMute: toggleMute,
     setMuted: setMuted,
+    pauseForAd: pauseForAd,
+    resumeAfterAd: resumeAfterAd,
     isMuted: function () { return muted; },
     getMainTrackIndex: function () { return mainIndex; },
     bindRaidMuteBtn: bindRaidMuteBtn,
