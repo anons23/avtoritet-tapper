@@ -116,12 +116,9 @@
     // Fallback if the native plugin listener is unavailable or fails to register.
     installHistoryBackGuard(App);
     document.addEventListener('backbutton', function (e) {
-      if (closeTopUi()) {
-        if (e && e.preventDefault) e.preventDefault();
-      } else if (App) {
-        minimizeApp(App);
-        if (e && e.preventDefault) e.preventDefault();
-      }
+      // The native App listener may already have closed the screen before
+      // Capacitor dispatches this compatibility DOM event. Never minimize here.
+      if (closeTopUi() && e && e.preventDefault) e.preventDefault();
     }, false);
   }
 
