@@ -463,7 +463,7 @@ function showEventChoiceResult(text,ok,afterClose){
   showEventChoiceResult.timer=setTimeout(()=>{
     finishEvent();
     if(typeof afterClose==='function')afterClose();
-  },1700);
+  },300);
 }
 function finishEvent(){
   activeEvent=false;
