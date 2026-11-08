@@ -8,6 +8,8 @@
   var lastRewarded=0;
   var pendingRaidDouble=null;
   var raidDoubleUsed=false;
+  var pendingFullscreen=false;
+  var transitionTimer=0;
 
   try{
     var saved=JSON.parse(localStorage.getItem(LS_KEY)||'{}');
@@ -34,8 +36,8 @@
     var now=Date.now();
     return now-lastFs>=FULLSCREEN_CD && now-lastRewarded>=REWARDED_INTERSTITIAL_CD;
   }
-  function markFullscreenShown(){ lastFs=Date.now(); persist(); }
-  function markRewardedViewed(){ lastRewarded=Date.now(); persist(); }
+  function markFullscreenShown(){ lastFs=Date.now(); pendingFullscreen=false; persist(); }
+  function markRewardedViewed(){ lastRewarded=Date.now(); pendingFullscreen=false; persist(); }
 
   function tryFullscreen(reason){
     if(!canFullscreen()){
@@ -118,46 +120,105 @@
     };
   }
 
-  function onSoftClose(reason){
-    setTimeout(function(){ tryFullscreen(reason); }, 400);
+  function isVisible(el){
+    if(!el)return false;
+    if(el.classList&&el.classList.contains('hidden'))return false;
+    try{return el.getClientRects().length>0&&window.getComputedStyle(el).visibility!=='hidden';}
+    catch(e){return true;}
+  }
+
+  function raidIsActive(){
+    var selectors=['#raid-scene','#raid-fighter-list','.raid-fighter-list','#raid-result'];
+    for(var i=0;i<selectors.length;i++){
+      var nodes=document.querySelectorAll(selectors[i]);
+      for(var j=0;j<nodes.length;j++)if(isVisible(nodes[j]))return true;
+    }
+    return false;
+  }
+
+  function refreshPending(){
+    if(canFullscreen())pendingFullscreen=true;
+    return pendingFullscreen;
+  }
+
+  function scheduleSafeTransition(reason,delay){
+    refreshPending();
+    if(!pendingFullscreen)return;
+    clearTimeout(transitionTimer);
+    transitionTimer=setTimeout(function(){
+      refreshPending();
+      if(!pendingFullscreen||!canFullscreen())return;
+      if(raidIsActive()){
+        console.log('[ads-policy] fullscreen queued: raid is active',reason);
+        return;
+      }
+      var shown=tryFullscreen(reason);
+      if(shown)pendingFullscreen=false;
+    },typeof delay==='number'?delay:450);
   }
 
   function boot(){
     wrapBridgeFullscreen();
-    var tries=0;
-    var t=setInterval(function(){
-      wrapBridgeFullscreen();
-      if((window.PlatformBridge)&&(window.PlatformBridge).__adsPolicyWrapped) clearInterval(t);
-      if(++tries>40) clearInterval(t);
-    },500);
 
-    var overlay=document.getElementById('modal-overlay');
-    if(overlay&&!overlay.dataset.adsPol){
-      overlay.dataset.adsPol='1';
-      var wasOpen=!overlay.classList.contains('hidden');
-      new MutationObserver(function(){
-        var open=!overlay.classList.contains('hidden');
-        if(wasOpen&&!open) onSoftClose('modal-close');
-        wasOpen=open;
-      }).observe(overlay,{attributes:true,attributeFilter:['class']});
-    }
+    // Cooldown expiry only queues an ad. It never launches one during active play.
+    refreshPending();
+    setInterval(refreshPending,1000);
 
     var obsRoot=document.getElementById('game-container')||document.body;
-    new MutationObserver(function(){ setTimeout(injectRaidDouble, 50); }).observe(obsRoot,{childList:true,subtree:true});
+    new MutationObserver(function(){ setTimeout(injectRaidDouble,50); })
+      .observe(obsRoot,{childList:true,subtree:true});
 
     document.addEventListener('click',function(e){
       var t=e.target;
       if(!t||!t.closest)return;
-      if(t.closest('#raid-result-close')||t.closest('[data-raid-close]')||t.id==='raid-back'||(t.closest('button')&&/в меню|назад|закрыть/i.test(t.textContent||''))){
-        var card=document.getElementById('raid-result');
-        if(card&&!card.classList.contains('hidden')) setTimeout(function(){ onSoftClose('raid-close'); }, 500);
+
+      // Main navigation and Settings are the only ordinary safe transition points.
+      if(t.closest('#btn-shop,#btn-rank,#btn-tasks,#btn-more,#settings-gear-button')){
+        scheduleSafeTransition('section-open',550);
+        return;
+      }
+
+      // Closing a section (including Android Back) is also a safe transition.
+      if(t.closest('#modal-close')){
+        var content=document.getElementById('modal-content');
+        if(content&&content.querySelector('.section-window,.settings-window')){
+          scheduleSafeTransition('section-close',350);
+        }
+        return;
+      }
+
+      // Leaving raid screens may trigger an interstitial only after the raid UI is gone.
+      if(t.closest('#raid-menu-close,#raid-result-close,[data-raid-close],#raid-back')){
+        setTimeout(function(){
+          if(!raidIsActive())scheduleSafeTransition('raid-exit',0);
+        },650);
       }
     },true);
 
-    console.log('[ads-policy] v1.2 ready, fullscreen CD', FULLSCREEN_CD/1000+'s, rewarded cooldown', REWARDED_INTERSTITIAL_CD/1000+'s');
+    // Observe modal closure for Android's native back gesture, but only for section screens.
+    var overlay=document.getElementById('modal-overlay');
+    if(overlay&&!overlay.dataset.adsPol){
+      overlay.dataset.adsPol='1';
+      var wasOpen=!overlay.classList.contains('hidden');
+      var wasSection=false;
+      new MutationObserver(function(){
+        var open=!overlay.classList.contains('hidden');
+        var content=document.getElementById('modal-content');
+        if(open&&content){
+          wasSection=!!content.querySelector('.section-window,.settings-window');
+        }
+        if(wasOpen&&!open&&wasSection){
+          wasSection=false;
+          scheduleSafeTransition('section-back',350);
+        }
+        wasOpen=open;
+      }).observe(overlay,{attributes:true,attributeFilter:['class']});
+    }
+
+    console.log('[ads-policy] v1.3 safe transitions; fullscreen cooldown',FULLSCREEN_CD/1000+'s, rewarded cooldown',REWARDED_INTERSTITIAL_CD/1000+'s');
   }
 
-  window.AdsPolicy={ tryFullscreen:tryFullscreen, canFullscreen:canFullscreen, markRewardedViewed:markRewardedViewed, FULLSCREEN_CD:FULLSCREEN_CD, REWARDED_INTERSTITIAL_CD:REWARDED_INTERSTITIAL_CD };
+  window.AdsPolicy={ tryFullscreen:tryFullscreen, canFullscreen:canFullscreen, markRewardedViewed:markRewardedViewed, FULLSCREEN_CD:FULLSCREEN_CD, REWARDED_INTERSTITIAL_CD:REWARDED_INTERSTITIAL_CD, hasPendingFullscreen:function(){return pendingFullscreen;} };
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot);
   else boot();
 })();
