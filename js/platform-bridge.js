@@ -8,6 +8,8 @@
     } catch (e) {}
   };
   var adBusy = false;
+  var nativeAdPaused = false;
+  var lifecycleHooksInstalled = false;
 
   function pauseMusicForAd() {
     try {
@@ -23,6 +25,32 @@
         window.GameMusic.resumeAfterAd();
       }
     } catch (e) { log('music resume failed', e); }
+  }
+
+  function getAppPlugin() {
+    try {
+      if (window.capacitorApp && window.capacitorApp.App) return window.capacitorApp.App;
+      if (window.Capacitor && typeof window.Capacitor.registerPlugin === 'function') return window.Capacitor.registerPlugin('App');
+      if (window.Capacitor && window.Capacitor.Plugins) return window.Capacitor.Plugins.App || null;
+    } catch (e) {}
+    return null;
+  }
+
+  function installAdLifecycleHooks() {
+    if (lifecycleHooksInstalled) return;
+    var App = getAppPlugin();
+    if (!App || typeof App.addListener !== 'function') return;
+    lifecycleHooksInstalled = true;
+    try {
+      App.addListener('pause', function () {
+        if (adBusy) { nativeAdPaused = true; pauseMusicForAd(); log('native pause during ad'); }
+      }).catch(function (e) { log('native pause listener failed', e); });
+      App.addListener('resume', function () {
+        if (adBusy) { pauseMusicForAd(); log('native resume while ad still active; music remains paused'); }
+        else if (nativeAdPaused) { nativeAdPaused = false; resumeMusicAfterAd(); log('native resume after ad'); }
+      }).catch(function (e) { log('native resume listener failed', e); });
+      log('native ad lifecycle hooks installed');
+    } catch (e) { lifecycleHooksInstalled = false; log('native lifecycle setup failed', e); }
   }
 
   function markRewardedViewed() {
@@ -84,9 +112,13 @@
       if (plugin && typeof plugin.showInterstitialAd === 'function') {
         adBusy = true;
         pauseMusicForAd();
-        plugin.showInterstitialAd({ blockId: blockId })
-          .catch(function (err) { log('interstitial failed', err); })
-          .finally(function () { adBusy = false; resumeMusicAfterAd(); });
+        try {
+          Promise.resolve(plugin.showInterstitialAd({ blockId: blockId }))
+            .catch(function (err) { log('interstitial failed', err); })
+            .finally(function () { adBusy = false; resumeMusicAfterAd(); nativeAdPaused = false; });
+        } catch (err) {
+          adBusy = false; resumeMusicAfterAd(); nativeAdPaused = false; log('interstitial threw', err); return false;
+        }
         return true;
       }
       if (legacy) {
@@ -131,7 +163,7 @@
       adBusy = true;
       pauseMusicForAd();
       log('rewarded via Capacitor YandexAds, block=', blockId);
-      plugin.showRewardedAd({ blockId: blockId })
+      Promise.resolve().then(function () { return plugin.showRewardedAd({ blockId: blockId }); })
         .then(function (result) {
           var ok = !!(result && result.rewarded === true);
           log('rewarded result', ok, result);
@@ -142,7 +174,7 @@
           log('rewarded plugin error', err);
           done(false);
         })
-        .finally(function () { adBusy = false; resumeMusicAfterAd(); });
+        .finally(function () { adBusy = false; resumeMusicAfterAd(); nativeAdPaused = false; });
       return true;
     }
 
@@ -206,8 +238,12 @@
   });
 
   setTimeout(function () {
+    installAdLifecycleHooks();
     if (isNative()) diagnose();
-  }, 1500);
+  }, 1200);
+  window.addEventListener('blur', function () { if (adBusy) pauseMusicForAd(); });
+  window.addEventListener('focus', function () { if (adBusy) pauseMusicForAd(); });
 
+  window.PlatformBridge.isAdBusy = function () { return adBusy; };
   log('ready; rewarded=', cfg().rewardedBlockId, 'interstitial=', cfg().interstitialBlockId, 'native=', isNative());
 })();
