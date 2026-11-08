@@ -205,9 +205,12 @@
 
   function pauseForAd() {
     window.__AVT_AD_SHOWING = true;
-    if (pausedForAd) return;
-    pausedForAd = true;
-    trackBeforeAd = current;
+    // Keep the original track only on the first pause, but silence every player
+    // on every call (Android may send several pause/resume lifecycle callbacks).
+    if (!pausedForAd) {
+      pausedForAd = true;
+      trackBeforeAd = current;
+    }
     stopFade();
     Object.keys(players).forEach(function (id) {
       var a = players[id];
@@ -339,7 +342,7 @@
           try{ if(!a.paused) a.pause(); }catch(e){}
         });
       }else{
-        if(muted || pausedForAd) return;
+        if(muted || pausedForAd || window.__AVT_AD_SHOWING === true) return;
         if(wasPlayingBeforeHide && TRACKS[wasPlayingBeforeHide]){
           playTrack(wasPlayingBeforeHide);
         }else if(unlocked && !muted){
