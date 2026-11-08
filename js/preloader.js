@@ -1,6 +1,8 @@
 'use strict';
 (function(){
   const preloader=document.getElementById('preloader');
+  // Глобальный флаг синхронизирует старт обучения с завершением экрана загрузки.
+  window.__PRELOADER_DONE = !preloader;
   const progress=document.getElementById('preloader-progress');
   const percent=document.getElementById('preloader-percent');
   const status=document.getElementById('preloader-status');
@@ -209,7 +211,12 @@
       }
       if(preloader){
         preloader.classList.add('is-hidden');
-        window.setTimeout(function(){ try{ preloader.remove(); }catch(e){} },500);
+        window.setTimeout(function(){
+          try{ preloader.remove(); }catch(e){}
+          window.__PRELOADER_DONE = true;
+        },500);
+      }else{
+        window.__PRELOADER_DONE = true;
       }
     },120);
   };
