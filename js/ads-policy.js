@@ -1,11 +1,9 @@
-/* ads-policy v1.2 — единый интервал между любыми показами рекламы: 5 минут */
+/* ads-policy v1.5 — interstitial только при переходе на вкладку; rewarded отдельно */
 'use strict';
 (function(){
   var FULLSCREEN_CD=300000;
-  var REWARDED_INTERSTITIAL_CD=300000;
   var LS_KEY='avt_ads_policy_v1';
   var lastFs=0;
-  var lastRewarded=0;
   var hasSavedFullscreenTime=false;
   var pendingRaidDouble=null;
   var raidDoubleUsed=false;
@@ -15,13 +13,12 @@
   try{
     var saved=JSON.parse(localStorage.getItem(LS_KEY)||'{}');
     if(saved&&typeof saved.lastFs==='number'){ lastFs=saved.lastFs; hasSavedFullscreenTime=true; }
-    if(saved&&typeof saved.lastRewarded==='number') lastRewarded=saved.lastRewarded;
   }catch(e){}
   // Do not show an interstitial immediately on a fresh install; start the first cooldown now.
   if(!hasSavedFullscreenTime) lastFs=Date.now();
 
   function persist(){
-    try{ localStorage.setItem(LS_KEY, JSON.stringify({lastFs:lastFs,lastRewarded:lastRewarded})); }catch(e){}
+    try{ localStorage.setItem(LS_KEY, JSON.stringify({lastFs:lastFs})); }catch(e){}
   }
   if(!hasSavedFullscreenTime) persist();
   function st(){
@@ -36,17 +33,14 @@
     else if(typeof window.msg==='function') try{ window.msg(t); }catch(err){}
   }
 
-  // Один общий интервал для межстраничной и rewarded-рекламы.
-  // После любого успешного показа следующие объявления ждут полные 5 минут.
+  // Пятиминутный интервал относится только к автоматической межстраничной рекламе.
+  // Rewarded-реклама вызывается отдельно по кнопкам и не меняет этот таймер.
   function canShowAd(){
-    var lastShown=Math.max(lastFs,lastRewarded);
-    return Date.now()-lastShown>=FULLSCREEN_CD;
+    return Date.now()-lastFs>=FULLSCREEN_CD;
   }
-  function canFullscreen(){
-    return canShowAd();
-  }
+  function canFullscreen(){ return canShowAd(); }
   function markFullscreenShown(){ lastFs=Date.now(); pendingFullscreen=false; persist(); }
-  function markRewardedViewed(){ lastRewarded=Date.now(); pendingFullscreen=false; persist(); }
+  function markRewardedViewed(){ /* rewarded не влияет на interstitial cooldown */ }
 
   function tryFullscreen(reason){
     if(!canFullscreen()){
@@ -146,10 +140,12 @@
   }
 
   function refreshPending(){
-    if(canFullscreen())pendingFullscreen=true;
+    pendingFullscreen=canFullscreen();
     return pendingFullscreen;
   }
 
+  // Проверка выполняется только по реальному переходу на вкладку.
+  // Таймеры никогда не запускают рекламу сами по себе.
   function scheduleSafeTransition(reason,delay){
     refreshPending();
     if(!pendingFullscreen)return;
@@ -158,7 +154,7 @@
       refreshPending();
       if(!pendingFullscreen||!canFullscreen())return;
       if(raidIsActive()){
-        console.log('[ads-policy] fullscreen queued: raid is active',reason);
+        console.log('[ads-policy] waiting for a tab transition outside raid',reason);
         return;
       }
       var shown=tryFullscreen(reason);
@@ -169,9 +165,7 @@
   function boot(){
     wrapBridgeFullscreen();
 
-    // Cooldown expiry only queues an ad. It never launches one during active play.
-    refreshPending();
-    setInterval(refreshPending,1000);
+    // Не запускаем рекламу по истечению времени: только обработчик перехода на вкладку.
 
     var obsRoot=document.getElementById('game-container')||document.body;
     new MutationObserver(function(){ setTimeout(injectRaidDouble,50); })
@@ -181,50 +175,14 @@
       var t=e.target;
       if(!t||!t.closest)return;
 
-      // Main navigation and Settings are the only ordinary safe transition points.
+      // Единственная точка автоматического показа — переход игрока на вкладку.
+      // Тапы по игровому объекту, бой и закрытие экранов сюда не попадают.
       if(t.closest('#btn-shop,#btn-rank,#btn-tasks,#btn-more,#settings-gear-button')){
-        scheduleSafeTransition('section-open',550);
-        return;
-      }
-
-      // Closing a section (including Android Back) is also a safe transition.
-      if(t.closest('#modal-close')){
-        var content=document.getElementById('modal-content');
-        if(content&&content.querySelector('.section-window,.settings-window')){
-          scheduleSafeTransition('section-close',350);
-        }
-        return;
-      }
-
-      // Leaving raid screens may trigger an interstitial only after the raid UI is gone.
-      if(t.closest('#raid-menu-close,#raid-result-close,[data-raid-close],#raid-back')){
-        setTimeout(function(){
-          if(!raidIsActive())scheduleSafeTransition('raid-exit',0);
-        },650);
+        scheduleSafeTransition('tab-open',550);
       }
     },true);
 
-    // Observe modal closure for Android's native back gesture, but only for section screens.
-    var overlay=document.getElementById('modal-overlay');
-    if(overlay&&!overlay.dataset.adsPol){
-      overlay.dataset.adsPol='1';
-      var wasOpen=!overlay.classList.contains('hidden');
-      var wasSection=false;
-      new MutationObserver(function(){
-        var open=!overlay.classList.contains('hidden');
-        var content=document.getElementById('modal-content');
-        if(open&&content){
-          wasSection=!!content.querySelector('.section-window,.settings-window');
-        }
-        if(wasOpen&&!open&&wasSection){
-          wasSection=false;
-          scheduleSafeTransition('section-back',350);
-        }
-        wasOpen=open;
-      }).observe(overlay,{attributes:true,attributeFilter:['class']});
-    }
-
-    console.log('[ads-policy] v1.4 shared ad cooldown',FULLSCREEN_CD/1000+'s for all ad types');
+    console.log('[ads-policy] v1.5 interstitial only on tab transitions; cooldown',FULLSCREEN_CD/1000+'s');
   }
 
   window.AdsPolicy={
@@ -232,11 +190,10 @@
     canFullscreen:canFullscreen,
     canShowAd:canShowAd,
     secondsUntilNextAd:function(){
-      return Math.max(0,Math.ceil((FULLSCREEN_CD-(Date.now()-Math.max(lastFs,lastRewarded)))/1000));
+      return Math.max(0,Math.ceil((FULLSCREEN_CD-(Date.now()-lastFs))/1000));
     },
     markRewardedViewed:markRewardedViewed,
     FULLSCREEN_CD:FULLSCREEN_CD,
-    REWARDED_INTERSTITIAL_CD:REWARDED_INTERSTITIAL_CD,
     hasPendingFullscreen:function(){return pendingFullscreen;}
   };
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot);
