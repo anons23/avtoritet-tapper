@@ -1,4 +1,4 @@
-/* platform.js v1.5 — native Android back navigation */
+/* platform.js v1.6 — native + WebView history back navigation */
 'use strict';
 (function () {
   var ua = (navigator.userAgent || '').toLowerCase();
@@ -64,27 +64,64 @@
     return null;
   }
 
-  function installBackHandlers() {
-    // Capacitor App plugin intercepts Android's native back action.
-    var App = isAndroidApp ? getAppPlugin() : null;
-    if (App && typeof App.addListener === 'function') {
-      App.addListener('backButton', function () {
-        if (!closeTopUi()) {
-          // On the main game screen, send the app to background instead of destroying it.
-          if (typeof App.minimizeApp === 'function') {
-            App.minimizeApp().catch(function (e) {
-              console.warn('[platform] minimizeApp failed', e);
-            });
-          }
-        }
-      }).catch(function (e) {
-        console.warn('[platform] backButton listener failed', e);
+  function minimizeApp(App) {
+    try {
+      if (App && typeof App.minimizeApp === 'function') {
+        var result = App.minimizeApp();
+        if (result && typeof result.catch === 'function') result.catch(function (e) {
+          console.warn('[platform] minimizeApp failed', e);
+        });
+      }
+    } catch (e) { console.warn('[platform] minimizeApp failed', e); }
+  }
+
+  function installHistoryBackGuard(App) {
+    if (!isAndroidApp || window.__AVT_BACK_HISTORY_GUARD) return;
+    window.__AVT_BACK_HISTORY_GUARD = true;
+    try {
+      // Capacitor's default back handler calls WebView.goBack() when no JS listener
+      // is registered. Keep one harmless history entry so Back becomes popstate.
+      window.history.replaceState({ avtBackGuard: true }, document.title, window.location.href);
+      window.history.pushState({ avtBackGuard: true }, document.title, window.location.href);
+      window.addEventListener('popstate', function () {
+        var closed = closeTopUi();
+        if (!closed) minimizeApp(App);
+        try { window.history.pushState({ avtBackGuard: true }, document.title, window.location.href); } catch (e) {}
       });
+      console.log('[platform] WebView history back guard installed');
+    } catch (e) { console.warn('[platform] history back guard failed', e); }
+  }
+
+  function installBackHandlers() {
+    var App = isAndroidApp ? getAppPlugin() : null;
+    var listenerInstalled = false;
+    if (App && typeof App.addListener === 'function') {
+      try {
+        var registration = App.addListener('backButton', function () {
+          if (!closeTopUi()) minimizeApp(App);
+        });
+        if (registration && typeof registration.then === 'function') {
+          registration.then(function () {
+            listenerInstalled = true;
+            console.log('[platform] native backButton listener registered');
+          }).catch(function (e) {
+            console.warn('[platform] backButton listener failed', e);
+          });
+        } else {
+          listenerInstalled = true;
+        }
+      } catch (e) { console.warn('[platform] backButton registration error', e); }
     }
 
-    // Fallback for native WebViews which dispatch the legacy DOM event.
+    // Fallback if the native plugin listener is unavailable or fails to register.
+    installHistoryBackGuard(App);
     document.addEventListener('backbutton', function (e) {
-      if (closeTopUi() && e && e.preventDefault) e.preventDefault();
+      if (closeTopUi()) {
+        if (e && e.preventDefault) e.preventDefault();
+      } else if (App) {
+        minimizeApp(App);
+        if (e && e.preventDefault) e.preventDefault();
+      }
     }, false);
   }
 
@@ -94,5 +131,5 @@
     installBackHandlers();
   }
 
-  console.log('[platform] mode=', platform, 'adsOnly=', true, 'backHandlers=1.5', 'appPlugin=', !!(getAppPlugin()));
+  console.log('[platform] mode=', platform, 'adsOnly=', true, 'backHandlers=1.6', 'appPlugin=', !!(getAppPlugin()));
 })();
