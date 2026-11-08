@@ -805,7 +805,6 @@ function bind(){
   setInterval(saveNow, 15000);
   window.addEventListener('pagehide', saveNow);
 
-  window.addSentence = addSentence;
   window.getGameState = () => s;
   window.sanitizeGameState = sanitizeGameState;
   window.saveGame = saveNow;
