@@ -499,3 +499,24 @@
   background:rgba(231,76,60,.14);
   color:#ff9f92;
 }
+
+
+/* Rewarded option to halve the remaining carcer taps. */
+#jail-ad-half{
+  display:block;
+  width:min(220px,100%);
+  min-height:38px;
+  margin:0 auto 8px;
+  padding:8px 18px;
+  border:1px solid #a7833d;
+  border-radius:10px;
+  background:linear-gradient(135deg,#4a3a1d,#2c2417);
+  color:#f4d78f;
+  font-size:14px;
+  font-weight:950;
+  letter-spacing:.4px;
+  box-shadow:0 3px 12px rgba(0,0,0,.32),inset 0 1px rgba(255,255,255,.08);
+}
+#jail-ad-half:active:not(:disabled){transform:scale(.97)}
+#jail-ad-half:disabled{opacity:.7}
+#jail-ad-half:disabled:not([data-loading]){border-color:#665b43;color:#c9b98f}
