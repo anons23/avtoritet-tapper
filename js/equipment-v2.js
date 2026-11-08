@@ -202,6 +202,26 @@
     }
     return null;
   }
+  // Reward one unowned special item for a high-trust NPC dialogue.
+  function grantNpcEquipmentDrop(){
+    var s=st();if(!s)return null;
+    ensure();
+    var candidates=[];
+    WEAPONS.forEach(function(item){
+      if(item.shop===false && s.ownedWeapons.indexOf(item.id)<0)candidates.push({item:item,kind:'weapon'});
+    });
+    ARMORS.forEach(function(item){
+      if(item.shop===false && s.ownedArmor.indexOf(item.id)<0)candidates.push({item:item,kind:'armor'});
+    });
+    if(!candidates.length)return null;
+    var picked=candidates[Math.floor(Math.random()*candidates.length)];
+    if(picked.kind==='weapon')s.ownedWeapons.push(picked.item.id);
+    else s.ownedArmor.push(picked.item.id);
+    save();ui();
+    return {name:picked.item.name,icon:picked.item.icon||'',rarity:picked.item.rarity,kind:picked.kind};
+  }
+  window.grantNpcEquipmentDrop=grantNpcEquipmentDrop;
+
   function rollRaidDrops(fighterId){
     var got=null;
     try{ got=tryDrop(fighterId); }catch(e){ console.warn('[equipment] drop error',e); return null; }
