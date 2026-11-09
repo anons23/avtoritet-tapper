@@ -169,7 +169,7 @@
       skip.className = 'onboarding-skip';
       skip.onclick = function (e) {
         if (e) { e.preventDefault(); e.stopPropagation(); }
-        finishOnboarding();
+        finishOnboarding(true);
       };
       actions.appendChild(skip);
     }
@@ -198,12 +198,20 @@
     runStep(step);
   }
 
-  function finishOnboarding() {
+  function finishOnboarding(forceNicknamePrompt) {
     window.__AVT_ONBOARDING_ACTIVE = false;
     window.__AVT_ONBOARDING_STEP = -1;
     var s = st();
     if (!s) return;
     ensureState(s);
+    // Skipping the tutorial must still lead to the same nickname choice as normal completion.
+    // Only reset the flag for untouched placeholder nicknames; never overwrite a real chosen nickname.
+    if (forceNicknamePrompt) {
+      var currentNickname = String(s.nickname || '').trim();
+      if (!currentNickname || currentNickname === 'Салага' || currentNickname === 'Новичок') {
+        s.onboarding.nameGiven = false;
+      }
+    }
     s.onboarding.done = true;
     s.onboarding.unlocked = { shop: true, rank: true, tasks: true, more: true };
     if (!s.onboarding.starterPack) {
