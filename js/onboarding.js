@@ -459,9 +459,9 @@
       kicker: 'КЛИЧКА',
       text: 'Выбери кличку или возьми случайную.',
       buttons: [
-        { label: tough, primary: true, onClick: function () { applyName(tough); } },
-        { label: calm, onClick: function () { applyName(calm); } },
-        { label: 'Случайно: ' + rnd, onClick: function () { applyName(rnd); } }
+        { label: 'Крутая / жёсткая', primary: true, onClick: function () { applyName(tough); } },
+        { label: 'Спокойная / нейтральная', onClick: function () { applyName(calm); } },
+        { label: 'Случайная смешная', onClick: function () { applyName(rnd); } }
       ]
     });
   }
