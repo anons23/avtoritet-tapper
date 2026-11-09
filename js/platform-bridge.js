@@ -1,4 +1,4 @@
-/* platform-bridge.js — Capacitor YandexAds + legacy AndroidAds */
+/* platform-bridge.js — Capacitor YandexAds + legacy AndroidAds; rewarded marks 2min grace */
 'use strict';
 (function () {
   const log = function () {
@@ -169,6 +169,7 @@
         .then(function (result) {
           var ok = !!(result && result.rewarded === true);
           log('rewarded result', ok, result);
+          if (ok) markRewardedViewed();
           done(ok);
         })
         .catch(function (err) {
@@ -188,6 +189,7 @@
         if (finished) return;
         finished = true;
         adBusy = false;
+        if (rewarded === true) markRewardedViewed();
         done(rewarded === true);
         resumeMusicAfterAd();
       };
@@ -217,6 +219,7 @@
       pauseMusicForAd();
       setTimeout(function () {
         adBusy = false;
+        markRewardedViewed();
         done(true);
         resumeMusicAfterAd();
       }, 700);
