@@ -1,9 +1,11 @@
-/* ads-policy v1.6 — interstitial: first after 5min, then every 5min; only on tab change; never in fight/tap */
+/* ads-policy v1.7 — interstitial 5min; +2min grace after rewarded; tabs only; no fight */
 'use strict';
 (function () {
-  var FULLSCREEN_CD = 300000; // 5 minutes
+  var FULLSCREEN_CD = 300000; // 5 minutes between auto interstitials
+  var REWARDED_GRACE = 120000; // 2 minutes after rewarded before any auto interstitial
   var LS_KEY = 'avt_ads_policy_v1';
   var lastFs = 0;
+  var lastRewarded = 0;
   var sessionStartedAt = Date.now();
   var hasSavedFullscreenTime = false;
   var pendingRaidDouble = null;
@@ -17,16 +19,21 @@
       lastFs = saved.lastFs;
       hasSavedFullscreenTime = true;
     }
+    if (saved && typeof saved.lastRewarded === 'number') {
+      lastRewarded = saved.lastRewarded;
+    }
   } catch (e) {}
 
-  // Fresh install / first launch of policy: start cooldown so first auto-ad is after 5 min
   if (!hasSavedFullscreenTime) {
     lastFs = Date.now();
   }
 
   function persist() {
     try {
-      localStorage.setItem(LS_KEY, JSON.stringify({ lastFs: lastFs }));
+      localStorage.setItem(
+        LS_KEY,
+        JSON.stringify({ lastFs: lastFs, lastRewarded: lastRewarded })
+      );
     } catch (e) {}
   }
   if (!hasSavedFullscreenTime) persist();
@@ -79,7 +86,6 @@
   }
 
   function isBusyGameplay() {
-    // No auto interstitial during fight, onboarding, or while an ad is already up
     if (window.__AVT_AD_SHOWING === true) return true;
     if (window.__AVT_ONBOARDING_ACTIVE === true) return true;
     if (inRaidFight()) return true;
@@ -87,11 +93,12 @@
     return false;
   }
 
-  // Auto interstitial only: 5 min from session start AND 5 min since last auto interstitial
   function canShowAd() {
     var now = Date.now();
     if (now - sessionStartedAt < FULLSCREEN_CD) return false;
     if (now - lastFs < FULLSCREEN_CD) return false;
+    // After player watched rewarded — wait 2 more minutes before auto interstitial
+    if (lastRewarded && now - lastRewarded < REWARDED_GRACE) return false;
     if (isBusyGameplay()) return false;
     return true;
   }
@@ -104,12 +111,14 @@
     persist();
   }
   function markRewardedViewed() {
-    /* rewarded does not reset interstitial timer */
+    lastRewarded = Date.now();
+    persist();
+    console.log('[ads-policy] rewarded grace 2min started');
   }
 
   function tryFullscreen(reason) {
     if (!canFullscreen()) {
-      console.log('[ads-policy] fullscreen skip', reason, 'until', window.AdsPolicy && window.AdsPolicy.secondsUntilNextAd && window.AdsPolicy.secondsUntilNextAd() + 's');
+      console.log('[ads-policy] fullscreen skip', reason);
       return false;
     }
     var bridge = window.PlatformBridge;
@@ -229,7 +238,6 @@
     return pendingFullscreen;
   }
 
-  // Only on real tab navigation — never by timer alone, never mid-fight
   function scheduleSafeTransition(reason, delay) {
     if (isBusyGameplay()) return;
     refreshPending();
@@ -257,7 +265,6 @@
       function (e) {
         var t = e.target;
         if (!t || !t.closest) return;
-        // Auto interstitial only when opening main tabs / settings — not pear taps, not fight UI
         if (t.closest('#btn-shop,#btn-rank,#btn-tasks,#btn-more,#settings-gear-button')) {
           if (isBusyGameplay()) return;
           scheduleSafeTransition('tab-open', 550);
@@ -267,7 +274,7 @@
     );
 
     console.log(
-      '[ads-policy] v1.6 interstitial: first after 5min session, then every 5min; tabs only; no fight'
+      '[ads-policy] v1.7 interstitial 5min + 2min after rewarded; tabs only; no fight'
     );
   }
 
@@ -277,15 +284,14 @@
     canShowAd: canShowAd,
     secondsUntilNextAd: function () {
       var now = Date.now();
-      return Math.max(
-        0,
-        Math.ceil(
-          Math.max(FULLSCREEN_CD - (now - sessionStartedAt), FULLSCREEN_CD - (now - lastFs)) / 1000
-        )
-      );
+      var a = FULLSCREEN_CD - (now - sessionStartedAt);
+      var b = FULLSCREEN_CD - (now - lastFs);
+      var c = lastRewarded ? REWARDED_GRACE - (now - lastRewarded) : 0;
+      return Math.max(0, Math.ceil(Math.max(a, b, c) / 1000));
     },
     markRewardedViewed: markRewardedViewed,
     FULLSCREEN_CD: FULLSCREEN_CD,
+    REWARDED_GRACE: REWARDED_GRACE,
     hasPendingFullscreen: function () {
       return pendingFullscreen;
     }
