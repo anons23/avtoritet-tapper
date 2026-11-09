@@ -198,19 +198,17 @@
     runStep(step);
   }
 
-  function finishOnboarding(forceNicknamePrompt) {
+  function finishOnboarding() {
     window.__AVT_ONBOARDING_ACTIVE = false;
     window.__AVT_ONBOARDING_STEP = -1;
     var s = st();
     if (!s) return;
     ensureState(s);
-    // Skipping the tutorial must still lead to the same nickname choice as normal completion.
-    // Only reset the flag for untouched placeholder nicknames; never overwrite a real chosen nickname.
-    if (forceNicknamePrompt) {
-      var currentNickname = String(s.nickname || '').trim();
-      if (!currentNickname || currentNickname === 'Салага' || currentNickname === 'Новичок') {
-        s.onboarding.nameGiven = false;
-      }
+    // Keep the original nickname-choice card. A placeholder nickname means the player
+    // has not completed that choice, regardless of whether the tutorial was skipped.
+    var currentNickname = String(s.nickname || '').trim();
+    if (!currentNickname || currentNickname === 'Салага' || currentNickname === 'Новичок') {
+      s.onboarding.nameGiven = false;
     }
     s.onboarding.done = true;
     s.onboarding.unlocked = { shop: true, rank: true, tasks: true, more: true };
@@ -231,7 +229,13 @@
     if (typeof ui === 'function') try { ui(); } catch (e) {}
     if (typeof window.ui === 'function') try { window.ui(); } catch (e) {}
     msg('Обучение завершено! +100 🍵 и 80 тапов ×2 — вперёд!');
-    if (!s.onboarding.nameGiven) openNameEvent();
+    // Open the existing nickname-choice card after the game UI has finished refreshing.
+    if (!s.onboarding.nameGiven) {
+      setTimeout(function () {
+        var live = st();
+        if (live && live.onboarding && !live.onboarding.nameGiven) openNameEvent();
+      }, 120);
+    }
   }
 
   function runStep(step) {
