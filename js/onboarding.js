@@ -48,6 +48,8 @@
     if (typeof s.onboarding.done !== 'boolean') s.onboarding.done = false;
     if (typeof s.onboarding.step !== 'number') s.onboarding.step = 0;
     if (typeof s.onboarding.nameGiven !== 'boolean') s.onboarding.nameGiven = false;
+    // Separate an explicitly chosen nickname from a placeholder/legacy auto-assigned nickname.
+    if (typeof s.onboarding.nicknameChoiceDone !== 'boolean') s.onboarding.nicknameChoiceDone = false;
     if (typeof s.onboarding.practiceTaps !== 'number') s.onboarding.practiceTaps = 0;
     if (!s.onboarding.tipsShown) s.onboarding.tipsShown = {};
     if (!s.onboarding.unlocked) s.onboarding.unlocked = {};
@@ -204,12 +206,9 @@
     var s = st();
     if (!s) return;
     ensureState(s);
-    // Keep the original nickname-choice card. A placeholder nickname means the player
-    // has not completed that choice, regardless of whether the tutorial was skipped.
-    var currentNickname = String(s.nickname || '').trim();
-    if (!currentNickname || currentNickname === 'Салага' || currentNickname === 'Новичок') {
-      s.onboarding.nameGiven = false;
-    }
+    // The nickname card must appear after either completing or skipping the tutorial.
+    // Do not infer completion from nickname: older builds assigned nicknames automatically.
+    if (!s.onboarding.nicknameChoiceDone) s.onboarding.nameGiven = false;
     s.onboarding.done = true;
     s.onboarding.unlocked = { shop: true, rank: true, tasks: true, more: true };
     if (!s.onboarding.starterPack) {
@@ -230,11 +229,11 @@
     if (typeof window.ui === 'function') try { window.ui(); } catch (e) {}
     msg('Обучение завершено! +100 🍵 и 80 тапов ×2 — вперёд!');
     // Open the existing nickname-choice card after the game UI has finished refreshing.
-    if (!s.onboarding.nameGiven) {
+    if (!s.onboarding.nicknameChoiceDone) {
       setTimeout(function () {
         var live = st();
-        if (live && live.onboarding && !live.onboarding.nameGiven) openNameEvent();
-      }, 120);
+        if (live && live.onboarding && !live.onboarding.nicknameChoiceDone) openNameEvent();
+      }, 250);
     }
   }
 
@@ -436,7 +435,7 @@
     var s = st();
     if (!s) return;
     ensureState(s);
-    if (s.onboarding.nameGiven) { if (done) done(); return; }
+    if (s.onboarding.nicknameChoiceDone) { if (done) done(); return; }
 
     var tough = pick(NAMES_TOUGH);
     var calm = pick(NAMES_CALM);
@@ -448,6 +447,7 @@
       ensureState(live);
       live.nickname = name;
       live.onboarding.nameGiven = true;
+      live.onboarding.nicknameChoiceDone = true;
       save();
       ui();
       msg('Теперь тебя зовут «' + name + '»');
