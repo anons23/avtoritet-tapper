@@ -1,6 +1,7 @@
-/* layout-id-fix.css — sync HTML ids with legacy style.css selectors */
+/* layout-id-fix.css v1.4 — sync HTML ids + full-width mobile */
 #bottom-nav,
-.bottom-nav {
+.bottom-nav,
+#bottom-bar {
   position: fixed !important;
   z-index: 1000 !important;
   left: 50% !important;
@@ -8,20 +9,31 @@
   bottom: 0 !important;
   top: auto !important;
   transform: translateX(-50%) !important;
-  width: min(520px, 100vw) !important;
+  width: 100% !important;
+  max-width: 100% !important;
   display: grid !important;
   grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
   gap: 5px !important;
-  padding: 7px 7px calc(7px + env(safe-area-inset-bottom)) !important;
+  padding: 7px 7px calc(7px + env(safe-area-inset-bottom, 0px)) !important;
   background: #171717 !important;
   border-top: 1px solid #333 !important;
   min-height: 58px !important;
   flex-direction: row !important;
   margin: 0 !important;
+  box-sizing: border-box !important;
+}
+
+@media (min-width: 701px) {
+  #bottom-nav,
+  .bottom-nav,
+  #bottom-bar {
+    width: min(560px, 100vw) !important;
+  }
 }
 
 #bottom-nav .nav-btn,
-.bottom-nav .nav-btn {
+.bottom-nav .nav-btn,
+#bottom-bar .nav-btn {
   display: block !important;
   visibility: visible !important;
   opacity: 1 !important;
@@ -39,7 +51,8 @@
 }
 
 #top-resources,
-.top-resources {
+.top-resources,
+#top-bar {
   flex: 0 0 auto !important;
   display: grid !important;
   grid-template-columns: 1.15fr 1.05fr 1.1fr !important;
@@ -50,10 +63,13 @@
   position: relative !important;
   z-index: 2 !important;
   width: 100% !important;
+  max-width: 100% !important;
+  box-sizing: border-box !important;
 }
 
 #top-resources .resource,
-.top-resources .resource {
+.top-resources .resource,
+#top-bar .resource {
   display: flex !important;
   align-items: center !important;
   gap: 6px !important;
@@ -84,138 +100,38 @@
   cursor: pointer !important;
 }
 
-#tap-object.tap-object,
-#tap-object {
-  width: 230px !important;
-  height: 230px !important;
-  flex: 0 0 auto !important;
-  border-radius: 50% !important;
+/* Settings gear in sentence-layout row */
+.sentence-layout {
   display: flex !important;
-  flex-direction: column !important;
+  flex-direction: row !important;
   align-items: center !important;
   justify-content: center !important;
-  background: linear-gradient(145deg, #3a3a3a, #181818) !important;
-  border: 5px solid #555 !important;
-  box-shadow: 0 12px 45px #000, inset 0 0 25px #000 !important;
-  color: #fff !important;
-  padding: 0 !important;
-  margin: 0 auto !important;
+  gap: 8px !important;
+  width: calc(100% - 16px) !important;
+  margin: 4px auto 0 !important;
+  box-sizing: border-box !important;
 }
 
-#tap-area,
-.tap-area {
-  position: relative !important;
+#sentence-panel {
   flex: 1 1 auto !important;
-  min-height: 0 !important;
-  display: flex !important;
-  flex-direction: column !important;
-  align-items: center !important;
-  justify-content: center !important;
-  user-select: none !important;
-  padding: 8px !important;
+  min-width: 0 !important;
+  position: relative !important;
+  overflow: visible !important;
 }
 
-#object-name,
-.object-name {
-  font-weight: 900 !important;
-  font-size: 20px !important;
-  margin: 0 0 8px !important;
-  text-align: center !important;
+#settings-gear-button,
+#sentence-panel #settings-gear-button {
+  position: static !important;
+  inset: auto !important;
+  transform: none !important;
+  flex: 0 0 34px !important;
+  width: 34px !important;
+  height: 34px !important;
+  min-width: 34px !important;
+  margin: 0 !important;
+  z-index: 30 !important;
 }
 
-#object-action,
-.object-action {
-  margin-top: 8px !important;
-  font-size: 12px !important;
-  letter-spacing: 2px !important;
-  color: #aaa !important;
-  text-align: center !important;
-}
-
-#game-container {
-  padding-bottom: 64px !important;
-}
-
-@media (max-height: 650px) {
-  #bottom-nav, .bottom-nav { min-height: 54px !important; }
-  #tap-object, #tap-object.tap-object { width: 190px !important; height: 190px !important; }
-}
-
-
-/* RuStore layout compatibility: loaded last to bridge current HTML IDs and legacy responsive rules. */
-#top-resources,.top-resources{display:grid!important;grid-template-columns:minmax(0,1.15fr) minmax(0,1.05fr) minmax(0,1.1fr)!important;gap:4px!important;padding:6px 7px!important;min-width:0!important;}
-#bottom-nav,.bottom-nav{position:fixed!important;left:50%!important;right:auto!important;top:auto!important;bottom:0!important;transform:translateX(-50%)!important;width:min(520px,100vw)!important;max-width:100vw!important;display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr))!important;z-index:1000!important;}
-#sentence-panel #settings-gear-button{position:static!important;inset:auto!important;transform:none!important;flex:0 0 28px!important;width:28px!important;height:28px!important;min-width:28px!important;max-width:28px!important;margin:0!important;}
-#sentence-panel #settings-gear-button:active{transform:scale(.94)!important;}
-@media (min-width:701px){#bottom-nav,.bottom-nav{width:min(1280px,100vw)!important;}}
-@media (max-width:700px) and (orientation:landscape){#bottom-nav,.bottom-nav{width:100vw!important;max-width:none!important;min-height:44px!important;padding:4px 8px calc(4px + env(safe-area-inset-bottom,0px))!important;}}
-@media (max-width:380px){#top-resources .resource,.top-resources .resource{gap:3px!important;min-width:0!important;}#top-resources .resource-icon,.top-resources .resource-icon{font-size:14px!important;}}
-
-
-/* RuStore visual corrections: scene objects must not inherit the legacy gray circle. */
-#tap-object.bag-mode,
-#tap-object.cellmate-mode,
-#tap-object.pushups-mode,
-#tap-object.trainer-mode,
-#tap-object.authority-mode,
-#tap-object.jail-mode{
-  background:transparent!important;
-  border:0!important;
-  box-shadow:none!important;
-  border-radius:0!important;
-}
-#tap-area:has(#tap-object.bag-mode) > #object-name{display:none!important}
-
-/* Keep resource counters steady while their values update on taps. */
-#top-resources .resource,
-#top-resources .resource *{
-  animation:none!important;
-  transform:none!important;
-}
-#top-resources .resource-copy b{
-  display:block;
-  min-width:4.5ch;
-  font-variant-numeric:tabular-nums;
-  white-space:nowrap;
-}
-
-/* Settings gear sits beside, never inside, the sentence panel. */
-.sentence-layout{
-  display:flex!important;
-  align-items:center!important;
-  gap:8px!important;
-  width:min(600px,calc(100% - 24px))!important;
-  margin:2px auto 0!important;
-  position:relative!important;
-  z-index:3!important;
-}
-#sentence-panel{
-  flex:1 1 auto!important;
-  min-width:0!important;
-  width:auto!important;
-  max-width:none!important;
-  margin:0!important;
-}
-#settings-gear-button{
-  position:static!important;
-  inset:auto!important;
-  transform:none!important;
-  flex:0 0 40px!important;
-  width:40px!important;
-  min-width:40px!important;
-  max-width:40px!important;
-  height:40px!important;
-  margin:0!important;
-  border:1px solid #806b3d!important;
-  border-radius:10px!important;
-  background:linear-gradient(145deg,#28251e,#171614)!important;
-  color:#e6c477!important;
-  font-size:20px!important;
-  line-height:1!important;
-  box-shadow:0 3px 10px #0008!important;
-}
-#settings-gear-button:active{transform:scale(.94)!important}
-@media(max-width:700px){
-  .sentence-layout{width:calc(100% - 16px)!important;gap:6px!important}
-  #settings-gear-button{flex-basis:34px!important;width:34px!important;min-width:34px!important;max-width:34px!important;height:34px!important;font-size:18px!important}
+#settings-gear-button:active {
+  transform: scale(0.94) !important;
 }
