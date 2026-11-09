@@ -157,3 +157,46 @@
 #booster-open-button,#booster-open-button:hover,#booster-open-button:active,#booster-open-button:focus{top:188px!important}
 @media(max-width:700px){#booster-open-button,#booster-open-button:hover,#booster-open-button:active,#booster-open-button:focus{top:calc(env(safe-area-inset-top) + 184px)!important}}
 @media(max-width:900px) and (orientation:landscape){#booster-open-button,#booster-open-button:hover,#booster-open-button:active,#booster-open-button:focus{top:calc(env(safe-area-inset-top) + 64px)!important}}
+
+
+/* RuStore: stack the main-screen shortcuts on the right.
+   Raids first; rewarded x2 booster directly underneath. */
+#raid-open-button {
+  position: fixed !important;
+  left: auto !important;
+  right: 6px !important;
+  top: calc(env(safe-area-inset-top, 0px) + 184px) !important;
+  z-index: 1800 !important;
+}
+#booster-open-button,
+#booster-open-button:hover,
+#booster-open-button:active,
+#booster-open-button:focus {
+  position: fixed !important;
+  left: auto !important;
+  right: 6px !important;
+  top: calc(env(safe-area-inset-top, 0px) + 286px) !important;
+  z-index: 1790 !important;
+}
+@media (min-width: 701px) {
+  #raid-open-button {
+    right: max(16px, calc((100vw - 520px) / 2 + 6px)) !important;
+  }
+  #booster-open-button,
+  #booster-open-button:hover,
+  #booster-open-button:active,
+  #booster-open-button:focus {
+    right: max(16px, calc((100vw - 520px) / 2 + 6px)) !important;
+  }
+}
+@media (max-width: 900px) and (orientation: landscape) {
+  #raid-open-button {
+    top: calc(env(safe-area-inset-top, 0px) + 64px) !important;
+  }
+  #booster-open-button,
+  #booster-open-button:hover,
+  #booster-open-button:active,
+  #booster-open-button:focus {
+    top: calc(env(safe-area-inset-top, 0px) + 142px) !important;
+  }
+}
