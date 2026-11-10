@@ -1,0 +1,103 @@
+/* raid-hud-top-fix.css — name / HP / phase centered under lamp, all fighters */
+
+#modal-overlay.raid-fullscreen .raid-scene {
+  /* keep grid: hud | fighter | footer */
+  display: grid !important;
+  grid-template-rows: auto minmax(0, 1fr) auto !important;
+  align-items: stretch !important;
+}
+
+/* HUD block sits in the top row — under the hanging lamp in backgrounds */
+#modal-overlay.raid-fullscreen .raid-hud {
+  grid-row: 1 !important;
+  position: relative !important;
+  z-index: 8 !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: flex-start !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  margin: 0 auto !important;
+  padding: 2px 14px 6px !important;
+  box-sizing: border-box !important;
+  pointer-events: none !important;
+  /* do not push into fighter body */
+  flex: 0 0 auto !important;
+  min-height: 0 !important;
+}
+
+#modal-overlay.raid-fullscreen .raid-name {
+  position: relative !important;
+  z-index: 9 !important;
+  width: 100% !important;
+  max-width: min(420px, 94vw) !important;
+  margin: 0 0 6px !important;
+  padding: 0 8px !important;
+  text-align: center !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  font-size: clamp(20px, 5.6vw, 34px) !important;
+  line-height: 1.15 !important;
+  letter-spacing: 0.06em !important;
+  text-shadow: 0 2px 0 #111, 0 4px 12px rgba(0, 0, 0, 0.75) !important;
+}
+
+#modal-overlay.raid-fullscreen .raid-hp {
+  position: relative !important;
+  z-index: 9 !important;
+  width: min(300px, 82vw) !important;
+  max-width: 100% !important;
+  margin: 0 auto !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+}
+
+#modal-overlay.raid-fullscreen .raid-hp-track {
+  width: 100% !important;
+  height: 11px !important;
+}
+
+#modal-overlay.raid-fullscreen .raid-hp-text {
+  width: 100% !important;
+  text-align: center !important;
+  margin-top: 5px !important;
+  font-size: 12px !important;
+  font-weight: 800 !important;
+  color: #fff !important;
+  text-shadow: 0 2px 4px #000 !important;
+}
+
+#modal-overlay.raid-fullscreen .raid-phase {
+  width: 100% !important;
+  text-align: center !important;
+  margin-top: 4px !important;
+  font-size: 10px !important;
+  font-weight: 900 !important;
+  letter-spacing: 0.08em !important;
+  color: #f3d27a !important;
+  text-shadow: 0 2px 4px #000 !important;
+  text-transform: uppercase !important;
+}
+
+/* Fighter stays in middle row — HUD never overlays mid-body */
+#modal-overlay.raid-fullscreen .raid-fighter,
+#modal-overlay.raid-fullscreen #raid-fighter {
+  grid-row: 2 !important;
+  align-self: end !important;
+  justify-self: center !important;
+  max-height: 100% !important;
+  z-index: 3 !important;
+}
+
+/* Slightly tighter top safe padding so block sits under lamp, not under status icons */
+@media (max-width: 700px) {
+  #modal-overlay.raid-fullscreen .raid-scene {
+    padding-top: calc(10px + env(safe-area-inset-top, 0px)) !important;
+  }
+  #modal-overlay.raid-fullscreen .raid-hud {
+    padding-top: 0 !important;
+  }
+}
