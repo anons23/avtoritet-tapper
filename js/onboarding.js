@@ -1,4 +1,4 @@
-/* onboarding.js v4.0 — tutorial + arrival dialog (why locked up → nickname by temperament) */
+/* onboarding.js v4.1 — petty admin jokes + arrival dialog */
 'use strict';
 (function () {
   var REQUIRED_PRACTICE_TAPS = 8;
@@ -20,18 +20,21 @@
     'Тапок','Чайник','Потеряшка','Шмоня','Почти Пацан'
   ];
 
-  /* --- arrival dialog content --- */
+  /* --- arrival dialog content ---
+     funny = формально нарушение, по сути мелочь / админка / курьёз */
   var CRIME_OPTIONS = [
     { id: 'grab', label: 'Грабёж', tone: 'serious' },
     { id: 'huligan', label: 'Хулиганка', tone: 'serious' },
     { id: 'razboy', label: 'Разбой', tone: 'serious' },
     { id: 'ugon', label: 'Угон', tone: 'serious' },
-    { id: 'tazik', label: 'Кража тазика', tone: 'funny' },
-    { id: 'repost', label: 'Репост в запрещённой соцсети', tone: 'funny' },
-    { id: 'chifir', label: 'Недопил казённый чефир', tone: 'funny' },
-    { id: 'tap', label: 'Слишком громко тапал по груше', tone: 'funny' },
-    { id: 'socks', label: 'Продажа мокрых носков', tone: 'funny' },
-    { id: 'meme', label: 'Оскорбил смотрящего мемом', tone: 'funny' }
+    { id: 'tazik', label: 'Кража тазика с рынка', tone: 'funny' },
+    { id: 'ticket', label: 'Безбилетный проезд', tone: 'funny' },
+    { id: 'lawn', label: 'Парковка на газоне', tone: 'funny' },
+    { id: 'quiet', label: 'Шумел после 23:00', tone: 'funny' },
+    { id: 'crackers', label: 'Утащил сухарики из магазина', tone: 'funny' },
+    { id: 'red', label: 'Перешёл на красный', tone: 'funny' },
+    { id: 'plate', label: 'Шутка на госномере авто', tone: 'funny' },
+    { id: 'tree', label: 'Срубил ёлку во дворе', tone: 'funny' }
   ];
 
   var REPLY_SERIOUS = [
@@ -41,10 +44,10 @@
     'Ок. За такие дела на зоне быстро учат молчать и работать.'
   ];
   var REPLY_FUNNY = [
-    'Ха! Тут таких пол зоны — ещё и тазики наперечёт.',
-    'Ну ты даёшь… За это б и в карцер от души.',
-    'Смешно. Только не повторяй это при авторитетах — поржут и навешают.',
-    'Классика. За репост, тазик и громкий тап у нас очередь.'
+    'Ха! Тут таких пол зоны — тазики, сухарики и газоны наперечёт.',
+    'Ну ты даёшь… За админку б штраф выписали, а тебя сюда привезли.',
+    'Смешно. Только не хвастайся этим при авторитетах — поржут.',
+    'Классика. За ерунду сел — зато история на весь отряд.'
   ];
 
   function st() {
@@ -87,7 +90,6 @@
     return !!(s && s.onboarding && s.onboarding.done);
   }
 
-  /* ========== SPOTLIGHT UI ========== */
   var overlayEl = null;
   var holeEl = null;
   var tipEl = null;
@@ -229,7 +231,6 @@
     runStep(step);
   }
 
-  /* ========== ARRIVAL / NICKNAME DIALOG ========== */
   function startArrivalDialog() {
     var s = st();
     if (!s) return;
@@ -317,7 +318,7 @@
       text:
         '<p>Ну вот и договорились.</p>' +
         '<p>Отныне ты — <b>«' + name + '»</b>.</p>' +
-        '<p style="color:#cbb89a;font-size:13px">Подобрали ' + kindLabel + ' кличку под твой ответ. Поменять потом можно в настройках за рекламу.</p>',
+        '<p style="color:#cbb89a;font-size:13px">Подобрали ' + kindLabel + ' кличку. Поменять потом можно в настройках за рекламу.</p>',
       buttons: [{
         label: 'Понятно, братуха!',
         primary: true,
@@ -355,7 +356,6 @@
     if (typeof ui === 'function') try { ui(); } catch (e) {}
     if (typeof window.ui === 'function') try { window.ui(); } catch (e) {}
     msg('Обучение завершено! +100 🍵 и 80 тапов ×2 — вперёд!');
-    // Arrival dialog (crime + nickname) after tutorial / skip
     if (!s.onboarding.nameGiven) {
       setTimeout(startArrivalDialog, 400);
     }
@@ -676,7 +676,6 @@
 
       if (Number(s.onboarding.tutorialVersion || 0) < 9) {
         s.onboarding.tutorialVersion = 9;
-        // Don't force restart if already finished this install session with name
         if (!s.onboarding.done) {
           s.onboarding.step = 0;
           s.onboarding.practiceTaps = 0;
@@ -740,7 +739,6 @@
             el.style.opacity = '1';
           }
         });
-        // If tutorial done but no name yet — still run arrival dialog once
         if (!s.onboarding.nameGiven) {
           setTimeout(startArrivalDialog, 600);
         }
@@ -765,7 +763,7 @@
         runStep(s.onboarding.step || 0);
       }
       startWhenReady();
-      console.log('[onboarding] v4.0 ready, step=', s.onboarding.step);
+      console.log('[onboarding] v4.1 ready, step=', s.onboarding.step);
     }, 200);
   }
 
