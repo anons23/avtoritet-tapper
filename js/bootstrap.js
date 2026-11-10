@@ -1,10 +1,11 @@
 'use strict';
 (function(){
-  /* RuStore branch bootstrap — v5.29 ads-policy 1.7 rewarded grace */
+  /* RuStore branch bootstrap — v5.30 event/raid pacing */
   const scripts=[
     {src:'./js/shop-booster-ad.js?v=2.1-ad-explainer',critical:false},
     {src:'./js/save-migration.js?v=1.2',critical:true},
     {src:'./js/game.js?v=5.21-jail-ad-half',critical:true},
+    {src:'./js/event-raid-pacing-fix.js?v=1',critical:false},
     {src:'./js/save-guard.js?v=1.1',critical:false},
     {src:'./js/npc-barrack.js?v=5.5-npc-energy-drops',critical:true},
     {src:'./js/npc-memory.js?v=1.0',critical:false},
@@ -134,7 +135,7 @@
         }
       }
       hideBootError();
-      console.log('[bootstrap] rustore v5.29 ads-policy 1.7');
+      console.log('[bootstrap] rustore v5.30 event/raid pacing');
     }finally{
       booting=false;
     }
