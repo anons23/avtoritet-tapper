@@ -1,13 +1,11 @@
-/* raid-hud-top-fix.css — name / HP / phase centered under lamp, all fighters */
+/* raid-hud-top-fix.css v1.1 — name/HP under lamp + name colors = selection */
 
 #modal-overlay.raid-fullscreen .raid-scene {
-  /* keep grid: hud | fighter | footer */
   display: grid !important;
   grid-template-rows: auto minmax(0, 1fr) auto !important;
   align-items: stretch !important;
 }
 
-/* HUD block sits in the top row — under the hanging lamp in backgrounds */
 #modal-overlay.raid-fullscreen .raid-hud {
   grid-row: 1 !important;
   position: relative !important;
@@ -22,7 +20,6 @@
   padding: 2px 14px 6px !important;
   box-sizing: border-box !important;
   pointer-events: none !important;
-  /* do not push into fighter body */
   flex: 0 0 auto !important;
   min-height: 0 !important;
 }
@@ -41,7 +38,41 @@
   font-size: clamp(20px, 5.6vw, 34px) !important;
   line-height: 1.15 !important;
   letter-spacing: 0.06em !important;
+  font-weight: 1000 !important;
   text-shadow: 0 2px 0 #111, 0 4px 12px rgba(0, 0, 0, 0.75) !important;
+}
+
+/* Same palette as .raid-card-name in selection list */
+#modal-overlay.raid-fullscreen .raid-name.petrovich {
+  color: #e7d2a3 !important;
+  font-family: Georgia, serif !important;
+}
+#modal-overlay.raid-fullscreen .raid-name.vtirach {
+  color: #eeeeee !important;
+  font-family: Impact, sans-serif !important;
+  letter-spacing: 0.02em !important;
+}
+#modal-overlay.raid-fullscreen .raid-name.mafioznik {
+  color: #e35b9d !important;
+  font-family: cursive !important;
+  letter-spacing: 0.01em !important;
+}
+#modal-overlay.raid-fullscreen .raid-name.mongol {
+  color: #d9a85b !important;
+  font-family: "Trebuchet MS", sans-serif !important;
+}
+#modal-overlay.raid-fullscreen .raid-name.glaz {
+  color: #8fd3ff !important;
+  font-family: Georgia, serif !important;
+  font-style: italic !important;
+}
+#modal-overlay.raid-fullscreen .raid-name.krest {
+  color: #c9b896 !important;
+  font-family: Georgia, serif !important;
+}
+#modal-overlay.raid-fullscreen .raid-name.psikh {
+  color: #b85c5c !important;
+  font-family: Impact, sans-serif !important;
 }
 
 #modal-overlay.raid-fullscreen .raid-hp {
@@ -82,7 +113,6 @@
   text-transform: uppercase !important;
 }
 
-/* Fighter stays in middle row — HUD never overlays mid-body */
 #modal-overlay.raid-fullscreen .raid-fighter,
 #modal-overlay.raid-fullscreen #raid-fighter {
   grid-row: 2 !important;
@@ -92,7 +122,6 @@
   z-index: 3 !important;
 }
 
-/* Slightly tighter top safe padding so block sits under lamp, not under status icons */
 @media (max-width: 700px) {
   #modal-overlay.raid-fullscreen .raid-scene {
     padding-top: calc(10px + env(safe-area-inset-top, 0px)) !important;
