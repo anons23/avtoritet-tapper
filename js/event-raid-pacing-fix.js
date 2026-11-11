@@ -1,4 +1,4 @@
-/* event-raid-pacing-fix.js v1.2 — Ok-only close + double ad active */
+/* event-raid-pacing-fix.js v1.3 — close button «Ништяк» + double ad */
 'use strict';
 (function () {
   var EVENT_CD_MS = 75000;
@@ -94,7 +94,7 @@
       ok.style.pointerEvents = 'auto';
       ok.disabled = true;
       ok.style.opacity = '0.55';
-      ok.textContent = 'Ок (2…)';
+      ok.textContent = 'Ништяк (2…)';
       var left = 2;
       var tick = setInterval(function () {
         left -= 1;
@@ -107,9 +107,9 @@
           clearInterval(tick);
           live.disabled = false;
           live.style.opacity = '1';
-          live.textContent = 'Ок';
+          live.textContent = 'Ништяк';
         } else {
-          live.textContent = 'Ок (' + left + '…)';
+          live.textContent = 'Ништяк (' + left + '…)';
         }
       }, 1000);
 
