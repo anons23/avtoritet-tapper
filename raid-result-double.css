@@ -1,0 +1,33 @@
+/* raid result double reward */
+#raid-result-double,
+.raid-result-double {
+  display: block;
+  width: 100%;
+  margin: 0 0 10px;
+  padding: 12px 14px;
+  border-radius: 12px;
+  border: 1px solid #c9a227;
+  background: linear-gradient(180deg, #3a2e14 0%, #2a2418 100%);
+  color: #f3d27a;
+  font-size: 15px;
+  font-weight: 800;
+  cursor: pointer;
+  pointer-events: auto !important;
+}
+#raid-result-double:disabled {
+  opacity: 0.55;
+  cursor: default;
+}
+#raid-result-ok {
+  display: block;
+  width: 100%;
+  padding: 12px 14px;
+  border-radius: 12px;
+  border: 1px solid #555;
+  background: #1e1e1e;
+  color: #fff;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  pointer-events: auto !important;
+}

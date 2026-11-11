@@ -1,7 +1,7 @@
-/* event-raid-pacing-fix.js v1.1 — event CD + raid reward: only Ok closes */
+/* event-raid-pacing-fix.js v1.2 — Ok-only close + double ad active */
 'use strict';
 (function () {
-  var EVENT_CD_MS = 75000; // ~1.25 мин между случайными событиями
+  var EVENT_CD_MS = 75000;
 
   function getState() {
     try {
@@ -37,10 +37,13 @@
     if (wrapOpenEvent() || tries > 80) clearInterval(timer);
   }, 250);
 
-  /* ---- Рейд: награда закрывается ТОЛЬКО кнопкой Ок ---- */
   function isResultShown() {
     var c = document.getElementById('raid-result');
     return !!(c && c.classList.contains('show'));
+  }
+
+  function isRewardActionTarget(t) {
+    return !!(t && t.closest && (t.closest('#raid-result-ok') || t.closest('#raid-result-double')));
   }
 
   function setBackDisabled(disabled) {
@@ -63,35 +66,31 @@
     card.__avtHoldArmed = true;
     window.__AVT_RAID_RESULT_LOCK_UNTIL = Date.now() + 2500;
 
-    // Блокируем тапы по сцене и кнопке «назад»
     try {
       var scene = document.getElementById('raid-scene');
       if (scene) scene.style.pointerEvents = 'none';
     } catch (e) {}
     setBackDisabled(true);
 
-    // Клики по затемнению (пустое место) НЕ закрывают окно
     if (!card.__avtBackdropBlock) {
       card.__avtBackdropBlock = true;
       var blockOutside = function (e) {
         if (!isResultShown()) return;
-        var t = e.target;
-        // Разрешаем только саму кнопку Ок (и её текст внутри)
-        if (t && t.closest && t.closest('#raid-result-ok')) return;
-        // Клик по карточке (текст награды) — тоже не закрываем
+        if (isRewardActionTarget(e.target)) return;
         e.preventDefault();
         e.stopPropagation();
         if (e.stopImmediatePropagation) e.stopImmediatePropagation();
       };
-      // capture на pointerdown + click — гасим любые тапы вне Ок
       card.addEventListener('pointerdown', blockOutside, true);
       card.addEventListener('click', blockOutside, true);
       card.addEventListener('touchstart', blockOutside, true);
     }
 
+    var dblBtn = document.getElementById('raid-result-double');
+    if (dblBtn) dblBtn.style.pointerEvents = 'auto';
+
     var ok = document.getElementById('raid-result-ok');
     if (ok) {
-      // Кнопка Ок должна получать события
       ok.style.pointerEvents = 'auto';
       ok.disabled = true;
       ok.style.opacity = '0.55';
@@ -124,7 +123,6 @@
               e.stopImmediatePropagation();
               return;
             }
-            // Разрешаем штатный обработчик (openRaidMenu) и чистим блок
             try {
               var scene2 = document.getElementById('raid-scene');
               if (scene2) scene2.style.pointerEvents = '';
@@ -171,14 +169,12 @@
       setInterval(check, 400);
     }
 
-    // Глобальный страховочный стоп: пока висит награда — не уходим в меню тапом мимо Ок
     document.addEventListener(
       'pointerdown',
       function (e) {
         if (!isResultShown()) return;
-        var t = e.target;
-        if (t && t.closest && t.closest('#raid-result-ok')) return;
-        if (t && t.closest && t.closest('#raid-result')) {
+        if (isRewardActionTarget(e.target)) return;
+        if (e.target && e.target.closest && e.target.closest('#raid-result')) {
           e.preventDefault();
           e.stopPropagation();
           if (e.stopImmediatePropagation) e.stopImmediatePropagation();
