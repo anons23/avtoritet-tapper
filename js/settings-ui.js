@@ -65,7 +65,8 @@
     var cancel=$('settings-reset-cancel');if(cancel)cancel.addEventListener('click',renderSettings);
     var confirm=$('settings-reset-confirm');if(confirm)confirm.addEventListener('click',window.resetGameProgress);
   }
-  window.resetGameProgress=function(){
+  window.resetGameProgress=function(options){
+    options=options&&typeof options==='object'?options:{};
     // Set the guard BEFORE removing keys; interval, debounce and pagehide saves must not restore the old state.
     window.__AVTORITET_RESETTING=true;
     try{
@@ -76,6 +77,9 @@
       }
       keys.forEach(function(key){localStorage.removeItem(key);});
       ['avtoritet_save_v2','avtoritet_save_v2_backup','raid_progress','avt_rt_v2'].forEach(function(key){localStorage.removeItem(key);});
+      if(options.releaseRestart){
+        localStorage.setItem('avt_release_restart_v1',JSON.stringify({nickname:String(options.nickname||'Салага').slice(0,16)}));
+      }
     }catch(e){}
     location.reload();
   };
