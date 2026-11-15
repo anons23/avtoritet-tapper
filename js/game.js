@@ -80,7 +80,8 @@ let s = {
   completed:{}, achievements:{}, lastEnergyTime:Date.now(),
   saveUpdatedAt:Date.now(), lastChoiceEvent:0, totalTaps:0,
   jailed:false, jailTaps:0, jailRequired:500, jailAdUsed:false, confiscatedChifir:0, jailProtection:0,
-  authorityTaps:0, sentenceDays:100, servedSentenceMinutes:0, sentenceTapCounter:0, lastSentenceTick:Date.now()
+  authorityTaps:0, sentenceDays:100, servedSentenceMinutes:0, sentenceTapCounter:0, lastSentenceTick:Date.now(),
+  releasePending:false, releaseHandled:false, released:false, releaseRaidDamageBonus:0
 };
 
 const $ = id => document.getElementById(id);
@@ -138,7 +139,7 @@ function ui(){
     const sentenceDone = Number(s.sentenceDays||0) <= 0;
     if($('sentence-fill')) $('sentence-fill').style.width = (sentenceDone ? 100 : sentenceTaps * 2) + '%';
     if($('sentence-detail')) $('sentence-detail').textContent = sentenceDone
-      ? 'Срок отбыт · нарушения могут добавить дни'
+      ? (s.released ? 'Срок отбыт · карцер может изъять чефир' : 'Срок отбыт · ожидается освобождение')
       : 'До сокращения на 1 день: ' + sentenceTaps + ' / 50 тапов';
     const t = $('tap-object');
     if(t){ t.classList.remove('preload-hidden'); t.style.visibility = 'visible'; t.style.opacity = '1'; }
@@ -253,6 +254,10 @@ function sanitizeGameState(state){
   state.servedSentenceMinutes = clampNum(state.servedSentenceMinutes, 0, 1e9, 0);
   state.sentenceTapCounter = clampInt(state.sentenceTapCounter, 0, MAX_RES, 0);
   state.lastSentenceTick = clampNum(state.lastSentenceTick, 0, MAX_TS, Date.now());
+  state.releasePending = !!state.releasePending;
+  state.releaseHandled = !!state.releaseHandled;
+  state.released = !!state.released;
+  state.releaseRaidDamageBonus = clampInt(state.releaseRaidDamageBonus, 0, 1, 0);
 
   const up = isPlainObject(state.upgrades) ? state.upgrades : {};
   state.upgrades = {
@@ -387,6 +392,7 @@ function load(){
           lastEnergyTime:1, saveUpdatedAt:1, lastChoiceEvent:1, totalTaps:1,
           jailed:1, jailTaps:1, jailRequired:1, confiscatedChifir:1, jailProtection:1,
           authorityTaps:1, sentenceDays:1, servedSentenceMinutes:1, sentenceTapCounter:1, lastSentenceTick:1,
+          releasePending:1, releaseHandled:1, released:1, releaseRaidDamageBonus:1,
           equipment:1, ownedWeapons:1, ownedArmor:1, saveVersion:1,
           raidProgress:1, raidStats:1, npcTalk:1, npcTalks:1, npcRelations:1,
           daily:1, authority:1, cigarettes:1, onboarding:1
@@ -402,6 +408,29 @@ function load(){
       }
     }
   }catch(e){}
+  let releaseRestart = null;
+  try{
+    const marker = localStorage.getItem('avt_release_restart_v1');
+    if(marker){ releaseRestart = JSON.parse(marker); localStorage.removeItem('avt_release_restart_v1'); }
+  }catch(e){ try{ localStorage.removeItem('avt_release_restart_v1'); }catch(ignore){} }
+  if(releaseRestart && typeof releaseRestart === 'object'){
+    s.chifir = 10000;
+    s.points = 1000;
+    s.nickname = sanitizeNickname(releaseRestart.nickname) || 'Салага';
+    s.energy = 350; s.maxEnergy = 350; s.power = 1; s.critChance = 0.05;
+    s.respect = 0; s.wealth = 0; s.currentObject = 0; s.prestige = 0;
+    s.upgrades = {power:0,crit:0,energyMax:0}; s.boosters = {double:0};
+    s.tasks = {taps:0,crit:0,events:0,earned:0,jail:0,bugorSuccess:0,npcSuccess:0,authorityDeals:0,npcDrop:0};
+    s.completed = {}; s.achievements = {}; s.totalTaps = 0;
+    s.jailed = false; s.jailTaps = 0; s.jailRequired = 500; s.jailAdUsed = false;
+    s.confiscatedChifir = 0; s.jailProtection = 0;
+    s.authorityTaps = 0; s.sentenceDays = 100; s.servedSentenceMinutes = 0; s.sentenceTapCounter = 0; s.lastSentenceTick = Date.now();
+    s.releasePending = false; s.releaseHandled = true; s.released = false; s.releaseRaidDamageBonus = 0;
+    s.equipment = {weapon:'fists',armor:'tee'}; s.ownedWeapons = ['fists']; s.ownedArmor = ['tee'];
+    s.raidStats = {wins:0,bugorLevel:1}; s.raidProgress = s.raidStats;
+    s.npcTalks = {}; s.npcTalk = s.npcTalks; s.npcRelations = {};
+    s.onboarding = {done:true,step:0,nameGiven:true,practiceTaps:0,tipsShown:{},unlocked:{shop:true,rank:true,tasks:true,more:true},starterPack:true,tutorialVersion:9};
+  }
   sanitizeGameState(s);
   // Кличку выдаёт онбординг после 20 тапов. До этого — «Салага».
   if(!s.nickname) s.nickname = 'Салага';
@@ -481,6 +510,42 @@ function finishEvent(){
   ui();
   saveNow();
 }
+function showReleaseModal(){
+  if(!s.releasePending || s.releaseHandled || s.released)return;
+  openModal(
+    '<div class="section-window event-window"><div class="section-kicker">ОСВОБОЖДЕНИЕ</div><h2>🔓 Откинулся!</h2>'+
+    '<p>Ты полностью отбыл срок. Теперь решай: сохранить нажитое и продолжить путь или начать новую ходку.</p>'+
+    '<div class="choices"><button type="button" id="release-continue">Продолжить играть<br><small>+30 000 🍵 · +3 000 ⭐ · Секира, если её ещё нет</small></button>'+
+    '<button type="button" id="release-restart">Начать заново<br><small>+10 000 🍵 · +1 000 ⭐</small></button></div></div>', true
+  );
+  const continueBtn=$('release-continue');
+  if(continueBtn) continueBtn.addEventListener('click',function(){
+    s.chifir=(Number(s.chifir)||0)+30000;
+    s.points=(Number(s.points)||0)+3000;
+    if(!Array.isArray(s.ownedWeapons))s.ownedWeapons=['fists'];
+    if(s.ownedWeapons.indexOf('authority')<0)s.ownedWeapons.push('authority');
+    if(!s.equipment||typeof s.equipment!=='object')s.equipment={weapon:'fists',armor:'tee'};
+    s.releaseRaidDamageBonus=1;
+    s.released=true; s.releasePending=false; s.releaseHandled=true;
+    s.currentObject=highestUnlocked();
+    closeModal(); ui(); saveNow();
+    msg('🔓 Ты на свободе. Можно продолжать!');
+  });
+  const restartBtn=$('release-restart');
+  if(restartBtn) restartBtn.addEventListener('click',function(){
+    const nick=String(s.nickname||'Салага');
+    if(typeof window.resetGameProgress==='function') window.resetGameProgress({releaseRestart:true,nickname:nick});
+    else msg('Не удалось начать новую ходку: сброс ещё загружается.');
+  });
+}
+function checkReleasePending(){
+  if(s.released || s.releaseHandled)return;
+  if(Number(s.sentenceDays||0)<=0){
+    s.releasePending=true;
+    saveNow();
+    showReleaseModal();
+  }
+}
 function reduceSentenceForTap(){
   // Считаются только обычные тапы по объектам. Карцер имеет отдельный tap-режим,
   // а рейды не вызывают эту функцию.
@@ -493,8 +558,10 @@ function reduceSentenceForTap(){
   s.sentenceDays=Math.max(0,before-daysToRemove);
   const removed=before-s.sentenceDays;
   if(removed>0)msg('⛓️ 50 тапов — срок сокращён на '+removed+' дн.');
+  if(s.sentenceDays<=0){ s.releasePending=true; saveNow(); }
 }
 function addSentence(days,reason){
+  if(s.released)return;
   days=Math.max(0,Math.floor(Number(days)||0));
   if(!days)return;
   const current=Number(s.sentenceDays||0);
@@ -776,11 +843,13 @@ function tap(e){
   if(typeof window.refreshObjectVisuals === 'function') window.refreshObjectVisuals();
   feedback(e, g, c);
   if(Math.random() < 0.03) msg(FUN[Math.floor(Math.random()*FUN.length)]);
-  if(Math.random() < 0.10 && s.points - (s.lastChoiceEvent||0) > 30) openEvent();
+  if(!s.releasePending && Math.random() < 0.10 && s.points - (s.lastChoiceEvent||0) > 30) openEvent();
   tasksCheck();
   try{ if(typeof window.__maybePreloadNextStage==='function') window.__maybePreloadNextStage(s.points, TEST_MODE ? TEST_POINTS_PER_TAP : Math.max(1, s.power)); }catch(e){}
   ui();
-  saveSoon();
+  if(s.releasePending){ showReleaseModal(); saveNow(); }
+  else if(Number(s.sentenceDays||0)<=0 && !s.released && !s.releaseHandled){ checkReleasePending(); }
+  else saveSoon();
 }
 
 function bind(){
@@ -857,6 +926,10 @@ function bind(){
     saveSoon();
     return true;
   };
+  if(s.releasePending || (Number(s.sentenceDays||0)<=0 && !s.released && !s.releaseHandled)){
+    if(!s.releasePending){ s.releasePending=true; saveNow(); }
+    showReleaseModal();
+  }
 
   console.log('[game] v4.92 OK TEST_MODE=', TEST_MODE, 'pts/tap=', TEST_POINTS_PER_TAP);
   try{ var tv0=document.getElementById('test-version'); if(tv0 && !TEST_MODE) tv0.style.display='none'; }catch(e){}
