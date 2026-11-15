@@ -425,7 +425,7 @@ function load(){
     s.jailed = false; s.jailTaps = 0; s.jailRequired = 500; s.jailAdUsed = false;
     s.confiscatedChifir = 0; s.jailProtection = 0;
     s.authorityTaps = 0; s.sentenceDays = 100; s.servedSentenceMinutes = 0; s.sentenceTapCounter = 0; s.lastSentenceTick = Date.now();
-    s.releasePending = false; s.releaseHandled = true; s.released = false; s.releaseRaidDamageBonus = 0;
+    s.releasePending = false; s.releaseHandled = false; s.released = false; s.releaseRaidDamageBonus = 0;
     s.equipment = {weapon:'fists',armor:'tee'}; s.ownedWeapons = ['fists']; s.ownedArmor = ['tee'];
     s.raidStats = {wins:0,bugorLevel:1}; s.raidProgress = s.raidStats;
     s.npcTalks = {}; s.npcTalk = s.npcTalks; s.npcRelations = {};
@@ -528,6 +528,7 @@ function showReleaseModal(){
     s.releaseRaidDamageBonus=1;
     s.released=true; s.releasePending=false; s.releaseHandled=true;
     s.currentObject=highestUnlocked();
+    const releaseOverlay=$('modal-overlay'); if(releaseOverlay) releaseOverlay.dataset.locked='0';
     closeModal(); ui(); saveNow();
     msg('🔓 Ты на свободе. Можно продолжать!');
   });
