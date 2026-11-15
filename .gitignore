@@ -16,3 +16,6 @@ android/.cxx/
 !.env.example
 *.jks
 *.keystore
+
+# RuStore release signing (никогда не загружать в GitHub)
+keystore.properties

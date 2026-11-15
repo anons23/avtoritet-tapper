@@ -1,0 +1,5 @@
+{
+  "versionName": "1.0.0",
+  "versionCode": 1,
+  "_note": "Перед каждой новой загрузкой в RuStore увеличивай versionCode на 1 (1 → 2 → 3...). versionName — то, что видит игрок."
+}

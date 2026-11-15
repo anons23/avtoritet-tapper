@@ -5,9 +5,10 @@
   "description": "Android wrapper for Авторитет 2.0 using Capacitor",
   "scripts": {
     "prepare:web": "node scripts/prepare-web.mjs",
-    "android:add": "npm run prepare:web && cap add android && node scripts/fix-android-manifest.mjs && node scripts/configure-android-ads.mjs",
-    "android:sync": "npm run prepare:web && cap sync android && node scripts/fix-android-manifest.mjs && node scripts/configure-android-ads.mjs",
-    "android:open": "cap open android"
+    "android:add": "npm run prepare:web && cap add android && node scripts/fix-android-manifest.mjs && node scripts/configure-android-ads.mjs && node scripts/configure-android-release.mjs",
+    "android:sync": "npm run prepare:web && cap sync android && node scripts/fix-android-manifest.mjs && node scripts/configure-android-ads.mjs && node scripts/configure-android-release.mjs",
+    "android:open": "cap open android",
+    "android:release": "npm run android:sync && node scripts/build-release.mjs"
   },
   "dependencies": {
     "@capacitor/android": "^8.5.3",

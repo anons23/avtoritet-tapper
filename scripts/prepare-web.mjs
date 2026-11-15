@@ -14,14 +14,18 @@ const excluded = new Set([
   'package.json',
   'package-lock.json',
   'capacitor.config.ts',
-  'README-ANDROID.md'
+  'README-ANDROID.md',
+  'android-ads',
+  'android-release.json',
+  'keystore.properties',
+  'store'
 ]);
 
 await rm(webDir, { recursive: true, force: true });
 await mkdir(webDir, { recursive: true });
 
 for (const entry of await readdir(root)) {
-  if (excluded.has(entry)) continue;
+  if (excluded.has(entry) || entry.endsWith('.md') || entry.startsWith('.')) continue;
   const source = path.join(root, entry);
   const destination = path.join(webDir, entry);
   const info = await stat(source);
