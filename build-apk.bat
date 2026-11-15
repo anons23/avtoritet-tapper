@@ -19,6 +19,8 @@ if not exist "keystore.properties" goto no_key
 
 echo [1/3] Ustanovka zavisimostey (npm install)...
 call npm install --no-audit --no-fund || goto fail
+if not exist "node_modules\typescript\" call npm install -D typescript@5 --no-audit --no-fund || goto fail
+if not exist "node_modules\typescript\" goto fail
 
 if exist "android\" goto have_android
 echo [2/3] Sozdanie Android-proekta...
