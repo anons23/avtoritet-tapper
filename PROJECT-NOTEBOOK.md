@@ -1,3 +1,13 @@
+## 2026-11-15 — сборка APK на ПК владельца и данные политики
+
+- В `privacy.html` вписаны разработчик (Евгений) и контактная почта.
+- Создан ключ подписи `avtoritet-release.jks` (alias `avtoritet`, PKCS12, срок 10 000 дней, SHA-256 сертификата `57:43:5E:29:...:A9:BB:ED`). Ключ и `keystore.properties` переданы владельцу в чате и **не** хранятся в репозитории. Ожидаемое место ключа: `C:/avtoritet-keys/avtoritet-release.jks`.
+- Добавлен `build-apk.bat` — сборка подписанного APK двойным щелчком (проверяет Node.js, Java из Android Studio, Android SDK, `keystore.properties`; при первом запуске делает `android:add`). `.gitattributes` держит CRLF для `.bat`; `.bat` не копируется в APK.
+- В `RELEASE-RUSTORE.md` добавлен «Шаг 0» — что установить на ПК (Node.js 22, Android Studio, GitHub Desktop).
+- Проверка: сборка на Windows ещё не выполнялась — ждём результат первого запуска `build-apk.bat` от владельца.
+
+---
+
 ## 2026-11-15 — подготовка к публикации в RuStore
 
 - **Политика конфиденциальности:** добавлен `privacy.html` (хранение прогресса только на устройстве, Яндекс Реклама, разрешения, удаление данных). Нужно заменить заглушки `[ИМЯ ИЛИ НАЗВАНИЕ РАЗРАБОТЧИКА]` и `[EMAIL ДЛЯ СВЯЗИ]`. Ожидаемый адрес: https://anons23.github.io/avtoritet-tapper/privacy.html.

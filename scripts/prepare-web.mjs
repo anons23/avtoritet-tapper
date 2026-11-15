@@ -25,7 +25,7 @@ await rm(webDir, { recursive: true, force: true });
 await mkdir(webDir, { recursive: true });
 
 for (const entry of await readdir(root)) {
-  if (excluded.has(entry) || entry.endsWith('.md') || entry.startsWith('.')) continue;
+  if (excluded.has(entry) || entry.endsWith('.md') || entry.startsWith('.') || entry.endsWith('.bat')) continue;
   const source = path.join(root, entry);
   const destination = path.join(webDir, entry);
   const info = await stat(source);
