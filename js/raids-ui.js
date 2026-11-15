@@ -315,7 +315,8 @@
       var currentPhase=phaseFor(hp,f.hp);
       var phaseMultiplier=currentPhase===3?0.72:(currentPhase===2?0.86:1);
       var bugorMultiplier=1+Math.max(0,metaNow.bugorLevel-1)*0.04;
-      var dmg=(window.TEST_MODE===true)?300:Math.max(1,Math.round((basePower+bonus)*phaseMultiplier/bugorMultiplier));
+      var releaseDamage= Math.max(0,Math.floor(Number(s&&s.releaseRaidDamageBonus)||0));
+      var dmg=(window.TEST_MODE===true)?300:Math.max(1,Math.round((basePower+bonus)*phaseMultiplier/bugorMultiplier)+releaseDamage);
       var critChance=0.05;
       try{ if(typeof window.getEffectiveCrit==='function') critChance=Number(window.getEffectiveCrit())||0.05; }
       catch(err){ critChance=Number(s&&s.critChance)||0.05; }
