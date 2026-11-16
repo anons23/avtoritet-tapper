@@ -25,6 +25,8 @@ await rm(webDir, { recursive: true, force: true });
 await mkdir(webDir, { recursive: true });
 
 for (const entry of await readdir(root)) {
+  // Never ship signing keys inside the APK.
+  if (/\.(jks|keystore|p12|pem|key)$/i.test(entry)) continue;
   if (excluded.has(entry) || entry.endsWith('.md') || entry.startsWith('.') || entry.endsWith('.bat')) continue;
   const source = path.join(root, entry);
   const destination = path.join(webDir, entry);

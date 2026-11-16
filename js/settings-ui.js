@@ -78,7 +78,7 @@
       keys.forEach(function(key){localStorage.removeItem(key);});
       ['avtoritet_save_v2','avtoritet_save_v2_backup','raid_progress','avt_rt_v2'].forEach(function(key){localStorage.removeItem(key);});
       if(options.releaseRestart){
-        localStorage.setItem('avt_release_restart_v1',JSON.stringify({nickname:String(options.nickname||'Салага').slice(0,16)}));
+        localStorage.setItem('avt_release_restart_v1',JSON.stringify({nickname:String(options.nickname||'Салага').slice(0,16),hodka:Math.max(1,Math.floor(Number(options.hodka)||1))}));
       }
     }catch(e){}
     location.reload();

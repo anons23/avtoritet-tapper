@@ -44,11 +44,36 @@
     if (players[id]) return players[id];
     if (!TRACKS[id]) return null;
     const a = new Audio(TRACKS[id]);
-    a.loop = true;
+    /* Raid track loops; the two main tracks alternate one after another. */
+    a.loop = (id === 'raid');
+    if (id !== 'raid') {
+      a.addEventListener('ended', function () {
+        if (current !== id || muted || adActive()) return;
+        mainIndex = mainIndex === 0 ? 1 : 0;
+        saveMainIndex();
+        playMain();
+      });
+    }
     a.preload = 'auto';
     a.volume = 0;
     players[id] = a;
     return a;
+  }
+
+  /* True only while an ad is really on screen. A stale __AVT_AD_SHOWING flag
+     (e.g. an interstitial that was refused) must never silence music forever. */
+  function adActive() {
+    var b = window.PlatformBridge;
+    if (b && typeof b.isAdBusy === 'function') {
+      if (b.isAdBusy()) return true;
+      if (pausedForAd || window.__AVT_AD_SHOWING === true) {
+        pausedForAd = false;
+        trackBeforeAd = null;
+        window.__AVT_AD_SHOWING = false;
+      }
+      return false;
+    }
+    return pausedForAd || window.__AVT_AD_SHOWING === true;
   }
 
   function stopFade() {
@@ -92,7 +117,7 @@
   }
 
   function playTrack(id) {
-    if (!TRACKS[id] || pausedForAd || window.__AVT_AD_SHOWING === true) return;
+    if (!TRACKS[id] || adActive()) return;
 
     const next = ensure(id);
     if (!next) return;
@@ -180,7 +205,8 @@
       return;
     }
 
-    if (pausedForAd) return;
+    if (adActive()) return;
+    unlocked = true;
 
     if (wasMuted) {
       if (current === 'raid') {
@@ -342,7 +368,7 @@
           try{ if(!a.paused) a.pause(); }catch(e){}
         });
       }else{
-        if(muted || pausedForAd || window.__AVT_AD_SHOWING === true) return;
+        if(muted || adActive()) return;
         if(wasPlayingBeforeHide && TRACKS[wasPlayingBeforeHide]){
           playTrack(wasPlayingBeforeHide);
         }else if(unlocked && !muted){

@@ -1,4 +1,4 @@
-/* onboarding.js v4.2 — ugarnie funny crimes + arrival dialog */
+/* onboarding.js v6.0 — tour highlights tabs with a "Понятно" button; windows are not opened during the tour */
 'use strict';
 (function () {
   var REQUIRED_PRACTICE_TAPS = 8;
@@ -80,6 +80,13 @@
     if (typeof s.onboarding.practiceTaps !== 'number') s.onboarding.practiceTaps = 0;
     if (!s.onboarding.tipsShown) s.onboarding.tipsShown = {};
     if (!s.onboarding.unlocked) s.onboarding.unlocked = {};
+    /* Existing players already answered (or skipped) the crime question — don't ask again. */
+    if (typeof s.onboarding.crimeAsked !== 'boolean') s.onboarding.crimeAsked = !!s.onboarding.nameGiven;
+    /* One-time: old saves started with 100 days; new cap is 80. */
+    if (!s.onboarding.sentenceCap80) {
+      s.onboarding.sentenceCap80 = true;
+      if (!s.released && Number(s.sentenceDays) > 80) s.sentenceDays = 80;
+    }
   }
   function isDone(s) {
     ensureState(s);
@@ -121,7 +128,12 @@
       '#onboarding-tip-actions button.wide{flex:1 1 100%}' +
       '#onboarding-tip-actions button:active{transform:scale(.97)}' +
       '#onboarding-tip-actions button.onboarding-skip{flex:0 0 100%;background:#242424;border-color:#555;color:#bbb;font-size:12px;padding:9px;font-weight:500}' +
-      'body.onboarding-lock #bottom-nav,body.onboarding-lock .bottom-nav,body.onboarding-lock #settings-gear-button{pointer-events:none;opacity:.35}';
+      'body.onboarding-lock #settings-gear-button{pointer-events:none}' +
+      '.ob-target{pointer-events:auto!important}' +
+      '#onboarding-overlay.coach-mode{pointer-events:none;background:none}' +
+      '#onboarding-tip.coach{left:50%!important;transform:translateX(-50%)!important;top:calc(env(safe-area-inset-top) + 10px)!important;bottom:auto!important;width:min(380px,calc(100vw - 20px))!important;max-height:40vh!important;padding:12px 14px 10px;box-shadow:0 10px 30px rgba(0,0,0,.7)}' +
+      '#onboarding-tip.coach #onboarding-tip-text{margin-bottom:10px;font-size:14px}' +
+      '#onboarding-tip.coach.coach-bottom{top:auto!important;bottom:calc(env(safe-area-inset-bottom) + 12px)!important}';
     document.head.appendChild(style);
     holeEl = document.getElementById('onboarding-hole');
     tipEl = document.getElementById('onboarding-tip');
@@ -182,7 +194,7 @@
         actions.appendChild(btn);
       });
     }
-    if (options.allowSkip && Number(window.__AVT_ONBOARDING_STEP) >= 0 && Number(window.__AVT_ONBOARDING_STEP) < 13) {
+    if (options.allowSkip && Number(window.__AVT_ONBOARDING_STEP) >= 0 && Number(window.__AVT_ONBOARDING_STEP) < LAST_STEP) {
       var skip = document.createElement('button');
       skip.type = 'button';
       skip.textContent = 'Пропустить обучение';
@@ -193,6 +205,21 @@
       };
       actions.appendChild(skip);
     }
+    if (target) placeTipAround(target.getBoundingClientRect(), options.padding != null ? options.padding : 10);
+  }
+
+  /* Put the tip above or below the highlighted element using its real height,
+     so it never covers the element (bottom tabs, side buttons). */
+  function placeTipAround(rect, pad) {
+    var h = tipEl.offsetHeight || 180;
+    var gap = 12, vh = window.innerHeight;
+    var above = rect.top - pad - gap - h;
+    var below = rect.bottom + pad + gap;
+    var top;
+    if (rect.top > vh * 0.45 && above >= 8) top = above;
+    else if (below + h <= vh - 8) top = below;
+    else top = Math.max(8, above);
+    tipEl.style.top = top + 'px';
   }
 
   function hideSpotlight() {
@@ -214,7 +241,7 @@
     var s = st();
     if (!s) return;
     ensureState(s);
-    if (s.onboarding.nameGiven) { hideSpotlight(); return; }
+    if (s.onboarding.nameGiven && s.onboarding.crimeAsked) { hideSpotlight(); return; }
     showCrimeQuestion();
   }
 
@@ -232,10 +259,22 @@
 
   function onCrimeChosen(opt) {
     var reply = opt.tone === 'funny' ? pick(REPLY_FUNNY) : pick(REPLY_SERIOUS);
+    var s = st(); if (s) { ensureState(s); s.onboarding.crimeAsked = true; }
+    var verdict = '';
+    try {
+      if (typeof window.AVT_assignSentence === 'function') {
+        var r = window.AVT_assignSentence(opt.id);
+        verdict = '<p style="margin-top:10px">⚖️ Суд впаял <b>' + r.days + ' дней</b>. Тапай — каждые 50 тапов срок короче на день.</p>';
+      }
+    } catch (e) {}
+    save();
+    var needName = !(s && s.onboarding && s.onboarding.nameGiven);
     showSpotlight(null, {
       kicker: 'ПРИБЫТИЕ',
-      text: '<p><i>«' + opt.label + '»</i></p><p>' + reply + '</p><p style="margin-top:12px"><b>Ну а как тебя кличать будем?</b></p>',
-      buttons: [{ label: 'Я без погремухи!', primary: true, wide: true, onClick: showNameStyleChoice }]
+      text: '<p><i>«' + opt.label + '»</i></p><p>' + reply + '</p>' + verdict + (needName ? '<p style="margin-top:12px"><b>Ну а как тебя кличать будем?</b></p>' : ''),
+      buttons: needName
+        ? [{ label: 'Я без погремухи!', primary: true, wide: true, onClick: showNameStyleChoice }]
+        : [{ label: 'Заехать в хату', primary: true, wide: true, onClick: function () { hideSpotlight(); ui(); } }]
     });
   }
 
@@ -268,6 +307,8 @@
   }
 
   function finishOnboarding() {
+    stopAwait();
+    clearTargetMark();
     window.__AVT_ONBOARDING_ACTIVE = false;
     window.__AVT_ONBOARDING_STEP = -1;
     var s = st();
@@ -291,115 +332,132 @@
     });
     try { if (typeof window.ui === 'function') window.ui(); } catch (e) {}
     msg('Обучение завершено! +100 🍵 и 80 тапов ×2 — вперёд!');
-    if (!s.onboarding.nameGiven) setTimeout(startArrivalDialog, 400);
+    if (!s.onboarding.nameGiven || !s.onboarding.crimeAsked) setTimeout(startArrivalDialog, 400);
+  }
+
+  /* ---------- Tour steps (v6) ----------
+     info      : spotlight + tap anywhere to continue
+     practice  : tap the pear N times
+     highlight : spotlight a button with a description and a "Понятно" button.
+                 Windows are NOT opened during the tour — the player opens them later. */
+  var STEPS = [
+    { type: 'info', target: '#tap-object', kicker: 'НАЧАЛО', text: 'Это <b>груша</b>. Тапай по ней, чтобы зарабатывать ресурсы и расти в масти.', padding: 14 },
+    { type: 'info', target: '.resource-chifir', kicker: 'РЕСУРСЫ', text: '<b>Чефир 🍵</b> — основная валюта. Трать его в Магазе на улучшения.', padding: 8 },
+    { type: 'info', target: '.resource-points', kicker: 'РЕСУРСЫ', text: '<b>Понты ⭐</b> — твой авторитет. Чем больше понтов, тем выше масть.', padding: 8 },
+    { type: 'info', target: '.resource-energy', kicker: 'РЕСУРСЫ', text: '<b>Энергия ⚡</b> тратится на удары. Она постепенно восстанавливается сама.', padding: 8 },
+    { type: 'practice', target: '#tap-object' },
+    { type: 'highlight', target: '#btn-shop', kicker: 'МАГАЗ', padding: 8,
+      text: 'Это <b>Магаз</b>: покупай улучшения и экипировку за чефир, чтобы бить сильнее.' },
+    { type: 'highlight', target: '#raid-open-button', kicker: 'РЕЙДЫ', padding: 10,
+      text: 'Это <b>Рейды</b>: выбери бойца и тапай, пока он не свалится. Победа даёт чефир и понты.' },
+    { type: 'highlight', target: '#booster-open-button', kicker: 'БОНУС ×2', padding: 8,
+      text: 'Это <b>×2 за тап</b>: за просмотр рекламы следующие <b>100 тапов</b> дают ×2.' },
+    { type: 'highlight', target: '#btn-rank', kicker: 'МАСТЬ', padding: 8,
+      text: 'Это <b>Масть</b>: здесь видно твой ранг на зоне и сколько понтов нужно до следующего.' },
+    { type: 'highlight', target: '#btn-tasks', kicker: 'ДЕЛА', padding: 8,
+      text: 'Это <b>Дела</b>: выполняй поручения и забирай награды.' },
+    { type: 'highlight', target: '#btn-more', kicker: 'БАРАК', padding: 8,
+      text: 'Это <b>Барак</b>: здесь живут персонажи зоны — просьбы, дела и награды: чефир, понты, энергия, а позже шмот.' },
+    { type: 'final' }
+  ];
+  var LAST_STEP = STEPS.length - 1;
+
+  function clearTargetMark() {
+    document.querySelectorAll('.ob-target').forEach(function (el) { el.classList.remove('ob-target'); });
+  }
+  function stopAwait() {
+    if (tipEl) tipEl.classList.remove('coach', 'coach-bottom');
+    if (overlayEl) overlayEl.classList.remove('coach-mode');
+  }
+  function visible(el) {
+    if (!el) return false;
+    var r = el.getBoundingClientRect();
+    if (r.width < 4 || r.height < 4) return false;
+    var cs = getComputedStyle(el);
+    return cs.display !== 'none' && cs.visibility !== 'hidden';
   }
 
   function runStep(step) {
     var s = st();
     if (!s || isDone(s)) { hideSpotlight(); return; }
+    stopAwait();
+    clearTargetMark();
+    bindOnboardingInput();
     window.__AVT_ONBOARDING_ACTIVE = true;
     window.__AVT_ONBOARDING_STEP = step;
+    var def = STEPS[step];
+    if (!def) { finishOnboarding(); return; }
     ['btn-shop','btn-rank','btn-tasks','btn-more'].forEach(function (id) {
       var el = document.getElementById(id);
-      if (el) { el.style.display = step < 6 ? 'none' : ''; el.style.opacity = '1'; el.style.pointerEvents = 'auto'; }
+      if (el) { el.style.display = step < 5 ? 'none' : ''; el.style.opacity = '1'; el.style.pointerEvents = 'auto'; }
     });
-    switch (step) {
-      case 0: showSpotlight('#tap-object', { kicker: 'НАЧАЛО', text: 'Это <b>груша</b>. Тапай по ней, чтобы зарабатывать ресурсы и расти в масти.', padding: 14, allowSkip: true }); break;
-      case 1: showSpotlight('.resource-chifir', { kicker: 'РЕСУРСЫ', text: '<b>Чефир 🍵</b> — основная валюта. Трать его в Качалке на улучшения.', padding: 8, allowSkip: true }); break;
-      case 2: showSpotlight('.resource-points', { kicker: 'РЕСУРСЫ', text: '<b>Понты ⭐</b> — твой авторитет. Чем больше понтов, тем выше масть.', padding: 8, allowSkip: true }); break;
-      case 3: showSpotlight('.resource-energy', { kicker: 'РЕСУРСЫ', text: '<b>Энергия ⚡</b> тратится на действия. Она постепенно восстанавливается сама.', padding: 8, allowSkip: true }); break;
-      case 4:
-        s.onboarding.practiceTaps = 0;
-        try { if (typeof s.maxEnergy === 'number') s.energy = Math.max(Number(s.energy) || 0, Math.min(s.maxEnergy, Math.max(50, REQUIRED_PRACTICE_TAPS + 15))); } catch (e) {}
-        save();
-        showSpotlight('#tap-object', {
-          kicker: 'ПРАКТИКА',
-          text: 'Тапни по груше <b>' + REQUIRED_PRACTICE_TAPS + ' раз</b> (0/' + REQUIRED_PRACTICE_TAPS + ').',
-          padding: 14, allowSkip: true,
-          buttons: [{ label: 'Дальше →', primary: true, onClick: function () {
-            var cur = st(); if (!cur) return; ensureState(cur); if (cur.onboarding.step !== 4) return;
-            var n = Number(cur.onboarding.practiceTaps) || 0;
-            if (n >= 3) goToStep(5);
-            else { var te = document.getElementById('onboarding-tip-text'); if (te) te.innerHTML = 'Сделай минимум <b>3 тапа</b>, потом «Дальше». Сейчас: ' + n + '/3'; }
-          }}]
-        });
-        break;
-      case 5: goToStep(6); break;
-      case 6: showSpotlight('#btn-shop', { kicker: 'КАЧАЛКА', text: 'Нажми на <b>Качалку</b>, чтобы посмотреть, где развивать персонажа.', padding: 8, allowSkip: true }); break;
-      case 7: showSpotlight('#modal', { kicker: 'КАЧАЛКА', text: 'Здесь можно улучшать персонажа и просматривать экипировку.', padding: 8, allowSkip: true }); break;
-      case 8: showSpotlight('#raid-open-button', { kicker: 'РЕЙДЫ', text: 'Здесь можно выбирать бойцов и участвовать в сражениях за награды.', padding: 10, allowSkip: true }); break;
-      case 9: showSpotlight('#booster-open-button', { kicker: 'БОНУС ×2', text: 'За просмотр рекламы можно получить <b>×2</b> на следующие 100 тапов.', padding: 8, allowSkip: true }); break;
-      case 10: showSpotlight('#btn-rank', { kicker: 'МАСТЬ', text: 'Здесь отображается твоя <b>масть</b> и продвижение по рангам.', padding: 8, allowSkip: true }); break;
-      case 11: showSpotlight('#btn-tasks', { kicker: 'ПОРУЧЕНИЯ', text: 'В <b>Поручениях</b> цели и задания с наградами.', padding: 8, allowSkip: true }); break;
-      case 12: showSpotlight('#btn-more', { kicker: 'БАРАК', text: 'Открой <b>Барак</b> — там персонажи зоны и дела.', padding: 8, allowSkip: true }); break;
-      case 13:
-        showSpotlight(null, {
-          kicker: 'БАРАК',
-          text: '<p><b>Зачем Барак?</b> Персонажи зоны, просьбы, награды.</p><ul style="margin:8px 0 8px 18px;padding:0"><li>Чефир 🍵 · Понты ⭐ · Энергия ⚡</li><li>На высоких ступенях — шмот/оружие</li></ul>',
-          buttons: [{ label: 'Понятно братуха!', primary: true, wide: true, onClick: finishOnboarding }]
-        });
-        break;
-      default: finishOnboarding();
+    if (def.type === 'final') {
+      showSpotlight(null, {
+        kicker: 'ГОТОВО',
+        text: '<p><b>Теперь ты знаешь основы.</b></p><p>Тапай грушу, качайся в Магазе, ходи в Рейды и выполняй Дела — так растёт масть.</p>',
+        buttons: [{ label: 'Понятно, братуха!', primary: true, wide: true, onClick: finishOnboarding }]
+      });
+      return;
     }
-  }
-
-  function advanceFromTap(step) {
-    if (step === 0) goToStep(1);
-    else if (step === 1) goToStep(2);
-    else if (step === 2) goToStep(3);
-    else if (step === 3) goToStep(4);
-    else if (step === 6) {
-      var shop = document.getElementById('btn-shop');
-      if (shop) { window.__AVT_TUTORIAL_PROGRAMMATIC_CLICK = true; shop.click(); window.__AVT_TUTORIAL_PROGRAMMATIC_CLICK = false; }
-      setTimeout(function () { goToStep(7); }, 250);
-    } else if (step === 10) goToStep(11);
-    else if (step === 11) goToStep(12);
-    else if (step === 12) goToStep(13);
-    else if (step === 13) finishOnboarding();
+    var target = document.querySelector(def.target);
+    if ((def.type === 'highlight' || def.type === 'info') && !visible(target)) {
+      /* Element not on screen (e.g. hidden in karcer) — skip this step. */
+      setTimeout(function () { goToStep(step + 1); }, 0);
+      return;
+    }
+    if (def.type === 'practice') {
+      s.onboarding.practiceTaps = 0;
+      try { if (typeof s.maxEnergy === 'number') s.energy = Math.max(Number(s.energy) || 0, Math.min(s.maxEnergy, Math.max(50, REQUIRED_PRACTICE_TAPS + 15))); } catch (e) {}
+      save();
+      showSpotlight('#tap-object', {
+        kicker: 'ПРАКТИКА',
+        text: 'Тапни по груше <b>' + REQUIRED_PRACTICE_TAPS + ' раз</b> (0/' + REQUIRED_PRACTICE_TAPS + ').',
+        padding: 14, allowSkip: true
+      });
+      return;
+    }
+    if (def.type === 'highlight') {
+      showSpotlight(target, {
+        kicker: def.kicker, padding: def.padding, text: def.text, allowSkip: true,
+        buttons: [{ label: 'Понятно →', primary: true, wide: true, onClick: function () { goToStep(step + 1); } }]
+      });
+      return;
+    }
+    showSpotlight(target, {
+      kicker: def.kicker, padding: def.padding,
+      text: def.text + '<p style="color:#9d8f73;font-size:12px;margin-top:8px">Нажми в любом месте, чтобы продолжить</p>',
+      allowSkip: true
+    });
   }
 
   function bindOnboardingInput() {
     if (window.__AVT_ONBOARDING_INPUT_BOUND) return;
     window.__AVT_ONBOARDING_INPUT_BOUND = true;
+    function inTip(t) { return !!(t && t.closest && t.closest('#onboarding-tip')); }
+    function isPear(t) { return !!(t && t.closest && (t.closest('#tap-object') || t.closest('#tap-area') || t.closest('#object-emoji'))); }
+    function curStep() { var ps = st(); if (!ps || isDone(ps) || !ps.onboarding) return -1; return ps.onboarding.step; }
     document.addEventListener('pointerdown', function (e) {
-      if (window.__AVT_TUTORIAL_PROGRAMMATIC_CLICK) return;
-      if (e.target && e.target.closest && e.target.closest('#onboarding-tip-actions button')) return;
-      var ps = st(); if (!ps || isDone(ps) || !ps.onboarding) return;
-      var pstep = ps.onboarding.step;
-      if (pstep >= 0 && pstep <= 3) {
+      if (window.__AVT_TUTORIAL_PROGRAMMATIC_CLICK || inTip(e.target)) return;
+      var step = curStep(); if (step < 0) return;
+      var def = STEPS[step]; if (!def) return;
+      if (def.type === 'info') {
         e.preventDefault(); e.stopImmediatePropagation();
         window.__AVT_ONBOARDING_SUPPRESS_CLICK = true;
-        advanceFromTap(pstep);
-      } else if (pstep === 4 && !(e.target && e.target.closest && (e.target.closest('#tap-object') || e.target.closest('#tap-area') || e.target.closest('#object-emoji')))) {
+        goToStep(step + 1);
+      } else if (def.type === 'practice') {
+        if (!isPear(e.target)) { e.preventDefault(); e.stopImmediatePropagation(); }
+      } else if (def.type === 'highlight') {
+        /* only the tip's "Понятно" moves on — tabs don't open during the tour */
         e.preventDefault(); e.stopImmediatePropagation();
       }
     }, true);
     document.addEventListener('click', function (e) {
-      if (window.__AVT_TUTORIAL_PROGRAMMATIC_CLICK) return;
-      if (e.target && e.target.closest && e.target.closest('#onboarding-tip-actions button')) return;
+      if (window.__AVT_TUTORIAL_PROGRAMMATIC_CLICK || inTip(e.target)) return;
       if (window.__AVT_ONBOARDING_SUPPRESS_CLICK) { window.__AVT_ONBOARDING_SUPPRESS_CLICK = false; e.preventDefault(); e.stopImmediatePropagation(); return; }
-      var s = st(); if (!s || isDone(s) || !s.onboarding) return;
-      var step = s.onboarding.step;
-      if (step === 5) return;
-      var isPear = !!(e.target && e.target.closest && (e.target.closest('#tap-object') || e.target.closest('#tap-area') || e.target.closest('#object-emoji')));
-      if (step === 4) { if (!isPear) { e.preventDefault(); e.stopImmediatePropagation(); } return; }
-      if (step === 6) {
-        if (!(e.target && e.target.closest && e.target.closest('#btn-shop'))) { e.preventDefault(); e.stopImmediatePropagation(); return; }
-        e.preventDefault(); e.stopImmediatePropagation(); advanceFromTap(step); return;
-      }
-      if (step === 7) {
-        if (e.target && e.target.closest && e.target.closest('#modal-close')) {
-          setTimeout(function () { var overlay = document.getElementById('modal-overlay'); if (!overlay || overlay.classList.contains('hidden')) goToStep(8); }, 180);
-        }
-        return;
-      }
-      if (step === 8) { if (e.target && e.target.closest && e.target.closest('#raid-open-button')) window.__AVT_TUTORIAL_RAIDS_OPEN = true; return; }
-      if (step === 9) { if (e.target && e.target.closest && e.target.closest('#booster-open-button')) window.__AVT_TUTORIAL_BOOSTER_OPEN = true; return; }
-      if (step === 10 || step === 11 || step === 12) {
-        var ids = { 10: '#btn-rank', 11: '#btn-tasks', 12: '#btn-more' };
-        if (!(e.target && e.target.closest && e.target.closest(ids[step]))) { e.preventDefault(); e.stopImmediatePropagation(); return; }
-        e.preventDefault(); e.stopImmediatePropagation(); advanceFromTap(step);
-      }
+      var step = curStep(); if (step < 0) return;
+      var def = STEPS[step]; if (!def) return;
+      if (def.type === 'practice') { if (!isPear(e.target)) { e.preventDefault(); e.stopImmediatePropagation(); } return; }
+      if (def.type === 'highlight' || def.type === 'final') { e.preventDefault(); e.stopImmediatePropagation(); }
     }, true);
   }
 
@@ -412,7 +470,7 @@
     var done = s.onboarding.practiceTaps; var left = Math.max(0, REQUIRED_PRACTICE_TAPS - done); save();
     var textEl = document.getElementById('onboarding-tip-text');
     if (textEl) textEl.innerHTML = left > 0 ? ('Тапай: <b>' + done + '/' + REQUIRED_PRACTICE_TAPS + '</b>. Ещё ' + left + '.') : 'Готово! Переходим дальше…';
-    if (left <= 0) setTimeout(function () { var live = st(); if (live && live.onboarding && live.onboarding.step === 4) goToStep(5); }, 180);
+    if (left <= 0) setTimeout(function () { var live = st(); if (live && live.onboarding && live.onboarding.step === 4) goToStep(5); }, 400);
   }
 
   function boot() {
@@ -425,8 +483,8 @@
       if (!s) { setTimeout(boot, 1000); return; }
       ensureState(s);
       var nick = String(s.nickname || '').trim();
-      if (Number(s.onboarding.tutorialVersion || 0) < 9) {
-        s.onboarding.tutorialVersion = 9;
+      if (Number(s.onboarding.tutorialVersion || 0) < 10) {
+        s.onboarding.tutorialVersion = 10;
         if (!s.onboarding.done) { s.onboarding.step = 0; s.onboarding.practiceTaps = 0; }
         if (!s.onboarding.nameGiven && (!nick || nick === 'Салага' || nick === 'Новичок')) s.onboarding.nameGiven = false;
         save();
@@ -451,7 +509,7 @@
       }
       if (isDone(s)) {
         ['btn-shop','btn-rank','btn-tasks','btn-more'].forEach(function (id) { var el = document.getElementById(id); if (el) { el.style.display = ''; el.style.opacity = '1'; } });
-        if (!s.onboarding.nameGiven) setTimeout(startArrivalDialog, 600);
+        if (!s.onboarding.nameGiven || !s.onboarding.crimeAsked) setTimeout(startArrivalDialog, 600);
         return;
       }
       bindOnboardingInput();

@@ -132,21 +132,62 @@
     img.style.animation='object-enter .42s cubic-bezier(.22,.61,.36,1) both';
   }
 
-  function swing(img){
-    if(!img)return;
-    // Use the Web Animations API for the actual tap motion. This avoids
-    // conflicts with static CSS transform/animation rules on the image.
-    if(img._tapMotion){
-      try{img._tapMotion.cancel()}catch(e){}
+  /* Tap animation styles (only груша and сокамерник; other stages keep their frame animations).
+     BAG_TAP:  'phys'  = Г2 физика удара | 'heavy' = Г3 тяжёлый мешок | 'classic' = старое покачивание
+     CELL_TAP: 'recoil'= С2 отдача       | 'stagger'= С3 пропустил удар | 'classic' = старое покачивание */
+  const BAG_TAP='phys';
+  const CELL_TAP='recoil';
+  const BASE_FILTER='drop-shadow(0 14px 18px rgba(0,0,0,.55))';
+  let fxLayer=null,lastTapAt=0,combo=0,heavyCount=0,lastFxAt=0;
+
+  function fxRoot(){
+    if(fxLayer&&fxLayer.isConnected)return fxLayer;
+    fxLayer=document.createElement('div');
+    fxLayer.id='tap-fx-layer';
+    fxLayer.style.cssText='position:fixed;inset:0;pointer-events:none;z-index:1300;overflow:hidden';
+    document.body.appendChild(fxLayer);
+    return fxLayer;
+  }
+  function tapPoint(img,e){
+    const r=img.getBoundingClientRect();
+    let x=r.left+r.width/2,y=r.top+r.height*0.55;
+    const t=e&&(e.touches&&e.touches[0]||e.changedTouches&&e.changedTouches[0]||e);
+    if(t&&Number.isFinite(t.clientX)&&t.clientX>0){x=t.clientX;y=t.clientY;}
+    const dir=x<r.left+r.width/2?1:-1; // tap on the left pushes to the right
+    return {x,y,dir};
+  }
+  function damped(base,amp,freq,decay,n,fn){
+    const k=[];
+    for(let i=0;i<=n;i++){const t=i/n;k.push({transform:base+' '+fn(amp*Math.exp(-decay*t)*Math.cos(freq*t),i),offset:t});}
+    k[k.length-1].transform=base;
+    return k;
+  }
+  function dust(x,y,dir){
+    const now=performance.now(); if(now-lastFxAt<90)return; lastFxAt=now;
+    const root=fxRoot();
+    for(let i=0;i<6;i++){
+      const d=document.createElement('div');
+      d.style.cssText='position:absolute;width:8px;height:8px;border-radius:50%;background:#d9c7a3;left:'+x+'px;top:'+y+'px';
+      root.appendChild(d);
+      const ang=(Math.random()*2.2-1.1)+(dir>0?Math.PI:0),dist=18+Math.random()*28;
+      d.animate([{transform:'translate(-50%,-50%) scale(1)',opacity:.9},
+        {transform:'translate(calc(-50% + '+(Math.cos(ang)*dist).toFixed(1)+'px),calc(-50% + '+(Math.sin(ang)*dist-10).toFixed(1)+'px)) scale(.3)',opacity:0}],
+        {duration:380+Math.random()*180,easing:'cubic-bezier(.2,.7,.3,1)'}).onfinish=()=>d.remove();
     }
-    const base=img.classList.contains('boxing-bag-image')
-      ?'scale(1)'
-      :img.classList.contains('cellmate-image')
-        ?'scale(var(--cellmate-scale,2.04))'
-      :img.classList.contains('trainer-image')
-        ?'scale(1.14)'
-        :'none';
-    img.style.transformOrigin=img.classList.contains('cellmate-image')?'50% 50%':'50% 8%';
+  }
+  function ring(x,y,big){
+    const r=document.createElement('div'),s=big?150:90;
+    r.style.cssText='position:absolute;border:3px solid #ffd27a;border-radius:50%;left:'+x+'px;top:'+y+'px';
+    fxRoot().appendChild(r);
+    r.animate([{width:'10px',height:'10px',margin:'-5px 0 0 -5px',opacity:1},{width:s+'px',height:s+'px',margin:'-'+s/2+'px 0 0 -'+s/2+'px',opacity:0}],
+      {duration:big?520:380,easing:'ease-out'}).onfinish=()=>r.remove();
+  }
+  function screenShake(px){
+    const g=document.getElementById('tap-area')||document.getElementById('game-container');
+    if(!g||!g.animate)return;
+    g.animate([{transform:'translate(0,0)'},{transform:'translate('+(-px)+'px,'+(px/2)+'px)'},{transform:'translate('+px+'px,'+(-px/2)+'px)'},{transform:'translate(0,0)'}],{duration:200});
+  }
+  function classicSwing(img,base){
     img._tapMotion=img.animate([
       {transform:base},
       {transform:base+' rotate(-9deg) translate3d(-3px,0,0)',offset:.12},
@@ -156,6 +197,68 @@
       {transform:base+' rotate(-1.5deg) translate3d(-1px,0,0)',offset:.80},
       {transform:base}
     ],{duration:680,easing:'cubic-bezier(.22,.61,.36,1)',fill:'none'});
+  }
+
+  function swing(img,e){
+    if(!img)return;
+    if(img._tapMotion){try{img._tapMotion.cancel()}catch(err){}}
+    const isBag=img.classList.contains('boxing-bag-image');
+    const isCell=img.classList.contains('cellmate-image');
+    // Use the transform the element really has at rest (CSS rules differ per screen size),
+    // otherwise the tap animation jumps to another scale (cellmate grew ~35% on every tap).
+    const rest=getComputedStyle(img).transform;
+    const base=(rest&&rest!=='none')?rest:'translate(0,0)';
+    const p=tapPoint(img,e);
+
+    if(isBag){
+      img.style.transformOrigin='50% 8%';
+      if(BAG_TAP==='phys'){ // Г2
+        const now=performance.now(); combo=(now-lastTapAt<450)?Math.min(6,combo+1):0; lastTapAt=now;
+        const amp=(9+combo*2)*p.dir;
+        img._tapMotion=img.animate(damped(base,amp,Math.PI*5.2,3.4,26,(v,i)=>{
+          const sq=i<3?' scale('+(1-0.05*(3-i)/3).toFixed(3)+','+(1+0.04*(3-i)/3).toFixed(3)+')':'';
+          return 'rotate('+v.toFixed(2)+'deg) translateX('+(v*0.6).toFixed(1)+'px)'+sq;}),{duration:1150,easing:'linear'});
+        dust(p.x,p.y,p.dir);
+        return;
+      }
+      if(BAG_TAP==='heavy'){ // Г3
+        heavyCount++; const big=heavyCount%5===0, a=(big?7:4)*p.dir;
+        img._tapMotion=img.animate([
+          {transform:base},
+          {transform:base+' rotate('+a+'deg) scale('+(big?.9:.95)+','+(big?1.06:1.03)+')',offset:.12},
+          {transform:base+' rotate('+(-a*0.45)+'deg) scale(1.02,.99)',offset:.38},
+          {transform:base+' rotate('+(a*0.18)+'deg)',offset:.66},
+          {transform:base}],{duration:big?760:560,easing:'cubic-bezier(.2,.8,.2,1)'});
+        ring(p.x,p.y,big); screenShake(big?5:2);
+        return;
+      }
+      classicSwing(img,base); return;
+    }
+
+    if(isCell){
+      if(CELL_TAP==='recoil'){ // С2
+        img._tapMotion=img.animate(damped(base,1,Math.PI*3.4,4.2,22,(v)=>
+          'translateX('+(-v*10*p.dir).toFixed(1)+'px) rotate('+(-v*4*p.dir).toFixed(2)+'deg) skewX('+(v*3*p.dir).toFixed(2)+'deg)'),{duration:700,easing:'linear'});
+        if(img._tint){try{img._tint.cancel()}catch(err){}}
+        img._tint=img.animate([{filter:BASE_FILTER+' sepia(.6) saturate(4) hue-rotate(-30deg) brightness(1.05)'},{filter:BASE_FILTER}],{duration:260,easing:'ease-out'});
+        return;
+      }
+      if(CELL_TAP==='stagger'){ // С3
+        const crit=!!(document.getElementById('tap-object')||{}).classList?.contains('crit');
+        const k=crit?1.6:1;
+        img._tapMotion=img.animate([
+          {transform:base},
+          {transform:base+' translateX('+(-8*k*p.dir)+'px) rotate('+(-6*k*p.dir)+'deg) scale(1.02,.94)',offset:.14},
+          {transform:base+' translateX('+(3*k*p.dir)+'px) rotate('+(2.5*k*p.dir)+'deg) scale(.99,1.02)',offset:.4},
+          {transform:base+' translateX('+(-1.5*k*p.dir)+'px) rotate('+(-1.2*k*p.dir)+'deg)',offset:.65},
+          {transform:base}],{duration:crit?820:560,easing:'cubic-bezier(.25,.8,.25,1)'});
+        return;
+      }
+      classicSwing(img,base); return;
+    }
+
+    img.style.transformOrigin='50% 8%';
+    classicSwing(img,base);
   }
 
   function style(){
@@ -286,7 +389,7 @@
     }
   });
 
-  function animate(){
+  function animate(e){
     const n=nameOf();
     const st=window.getGameState?window.getGameState():null;
     if(st?.jailed){
@@ -311,7 +414,7 @@
       runTrainer();
       return;
     }
-    swing(img);
+    swing(img,e);
   }
 
   function init(){

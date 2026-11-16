@@ -9,8 +9,15 @@ echo.
 
 where node >nul 2>nul || goto no_node
 
-if not defined JAVA_HOME if exist "%ProgramFiles%\Android\Android Studio\jbr\bin\java.exe" set "JAVA_HOME=%ProgramFiles%\Android\Android Studio\jbr"
+rem Prefer the JDK bundled with Android Studio (JDK 21): newer system Java (e.g. 25) breaks Gradle.
+if exist "%ProgramFiles%\Android\Android Studio\jbr\bin\java.exe" set "JAVA_HOME=%ProgramFiles%\Android\Android Studio\jbr"
+rem Fallback: any installed Eclipse Adoptium JDK 21.
+if not exist "%JAVA_HOME%\bin\java.exe" set "JAVA_HOME="
+for /d %%D in ("%ProgramFiles%\Eclipse Adoptium\jdk-21*") do if not defined JDK21 set "JDK21=%%D"
+if defined JDK21 if not exist "%ProgramFiles%\Android\Android Studio\jbr\bin\java.exe" set "JAVA_HOME=%JDK21%"
 if not defined JAVA_HOME goto no_java
+echo JAVA_HOME=%JAVA_HOME%
+"%JAVA_HOME%\bin\java.exe" -version 2>&1
 
 if not defined ANDROID_HOME if exist "%LOCALAPPDATA%\Android\Sdk" set "ANDROID_HOME=%LOCALAPPDATA%\Android\Sdk"
 if not defined ANDROID_HOME goto no_sdk

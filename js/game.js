@@ -80,8 +80,9 @@ let s = {
   completed:{}, achievements:{}, lastEnergyTime:Date.now(),
   saveUpdatedAt:Date.now(), lastChoiceEvent:0, totalTaps:0,
   jailed:false, jailTaps:0, jailRequired:500, jailAdUsed:false, confiscatedChifir:0, jailProtection:0,
-  authorityTaps:0, sentenceDays:100, servedSentenceMinutes:0, sentenceTapCounter:0, lastSentenceTick:Date.now(),
-  releasePending:false, releaseHandled:false, released:false, releaseRaidDamageBonus:0
+  authorityTaps:0, sentenceDays:80, servedSentenceMinutes:0, sentenceTapCounter:0, lastSentenceTick:Date.now(),
+  releasePending:false, releaseHandled:false, released:false, releaseRaidDamageBonus:0,
+  hodka:1, crime:'', rearrestAt:0
 };
 
 const $ = id => document.getElementById(id);
@@ -135,11 +136,13 @@ function ui(){
     if($('object-name')) $('object-name').textContent = s.jailed ? 'Карцер' : o[0];
     if($('object-action')) $('object-action').textContent = s.jailed ? 'ТАПАЙ ДЛЯ ВЫХОДА' : (s.currentObject===4 ? 'РАЗОБРАТЬ ДЕЛО' : 'ТАПАЙ!');
     if($('sentence-left')) $('sentence-left').textContent = Math.max(0, Math.ceil(Number(s.sentenceDays)||0)) + ' дней';
+    const sh = document.querySelector('#sentence-panel .sentence-head span');
+    if(sh) sh.textContent = '⛓️ Срок' + ((Number(s.hodka)||1) > 1 ? ' · ходка ' + s.hodka : '');
     const sentenceTaps = Math.max(0, Number(s.sentenceTapCounter)||0) % 50;
     const sentenceDone = Number(s.sentenceDays||0) <= 0;
     if($('sentence-fill')) $('sentence-fill').style.width = (sentenceDone ? 100 : sentenceTaps * 2) + '%';
     if($('sentence-detail')) $('sentence-detail').textContent = sentenceDone
-      ? (s.released ? 'Срок отбыт · карцер может изъять чефир' : 'Срок отбыт · ожидается освобождение')
+      ? (s.released ? 'На свободе · ходка ' + (Number(s.hodka)||1) + ' закрыта' : 'Срок отбыт · ожидается освобождение')
       : 'До сокращения на 1 день: ' + sentenceTaps + ' / 50 тапов';
     const t = $('tap-object');
     if(t){ t.classList.remove('preload-hidden'); t.style.visibility = 'visible'; t.style.opacity = '1'; }
@@ -250,7 +253,10 @@ function sanitizeGameState(state){
   state.jailProtection = clampInt(state.jailProtection, 0, 100000, 0);
 
   state.authorityTaps = clampInt(state.authorityTaps, 0, MAX_RES, 0);
-  state.sentenceDays = clampNum(state.sentenceDays, 0, 100000, 100);
+  state.sentenceDays = clampNum(state.sentenceDays, 0, 100000, 80);
+  state.hodka = clampInt(state.hodka, 1, 999, 1);
+  state.crime = typeof state.crime === 'string' ? state.crime.slice(0,40) : '';
+  state.rearrestAt = clampNum(state.rearrestAt, 0, MAX_RES, 0);
   state.servedSentenceMinutes = clampNum(state.servedSentenceMinutes, 0, 1e9, 0);
   state.sentenceTapCounter = clampInt(state.sentenceTapCounter, 0, MAX_RES, 0);
   state.lastSentenceTick = clampNum(state.lastSentenceTick, 0, MAX_TS, Date.now());
@@ -393,6 +399,7 @@ function load(){
           jailed:1, jailTaps:1, jailRequired:1, confiscatedChifir:1, jailProtection:1,
           authorityTaps:1, sentenceDays:1, servedSentenceMinutes:1, sentenceTapCounter:1, lastSentenceTick:1,
           releasePending:1, releaseHandled:1, released:1, releaseRaidDamageBonus:1,
+          hodka:1, crime:1, rearrestAt:1,
           equipment:1, ownedWeapons:1, ownedArmor:1, saveVersion:1,
           raidProgress:1, raidStats:1, npcTalk:1, npcTalks:1, npcRelations:1,
           daily:1, authority:1, cigarettes:1, onboarding:1
@@ -424,12 +431,13 @@ function load(){
     s.completed = {}; s.achievements = {}; s.totalTaps = 0;
     s.jailed = false; s.jailTaps = 0; s.jailRequired = 500; s.jailAdUsed = false;
     s.confiscatedChifir = 0; s.jailProtection = 0;
-    s.authorityTaps = 0; s.sentenceDays = 100; s.servedSentenceMinutes = 0; s.sentenceTapCounter = 0; s.lastSentenceTick = Date.now();
+    s.hodka = Math.max(1, Math.floor(Number(releaseRestart.hodka)||1)); s.crime = ''; s.rearrestAt = 0;
+    s.authorityTaps = 0; s.sentenceDays = 80; s.servedSentenceMinutes = 0; s.sentenceTapCounter = 0; s.lastSentenceTick = Date.now();
     s.releasePending = false; s.releaseHandled = false; s.released = false; s.releaseRaidDamageBonus = 1;
     s.equipment = {weapon:'fists',armor:'tee'}; s.ownedWeapons = ['fists']; s.ownedArmor = ['tee'];
     s.raidStats = {wins:0,bugorLevel:1}; s.raidProgress = s.raidStats;
     s.npcTalks = {}; s.npcTalk = s.npcTalks; s.npcRelations = {};
-    s.onboarding = {done:true,step:0,nameGiven:true,practiceTaps:0,tipsShown:{},unlocked:{shop:true,rank:true,tasks:true,more:true},starterPack:true,tutorialVersion:9};
+    s.onboarding = {done:true,step:0,nameGiven:true,practiceTaps:0,tipsShown:{},unlocked:{shop:true,rank:true,tasks:true,more:true},starterPack:true,tutorialVersion:10,crimeAsked:false,sentenceCap80:true};
   }
   sanitizeGameState(s);
   // Кличку выдаёт онбординг после 20 тапов. До этого — «Салага».
@@ -515,8 +523,8 @@ function showReleaseModal(){
   openModal(
     '<div class="section-window event-window"><div class="section-kicker">ОСВОБОЖДЕНИЕ</div><h2>🔓 Откинулся!</h2>'+
     '<p>Ты полностью отбыл срок. Теперь решай: сохранить нажитое и продолжить путь или начать новую ходку.</p>'+
-    '<div class="choices"><button type="button" id="release-continue">Продолжить играть<br><small>+30 000 🍵 · +3 000 ⭐ · Секира, если её ещё нет</small></button>'+
-    '<button type="button" id="release-restart">Начать заново<br><small>+10 000 🍵 · +1 000 ⭐</small></button></div></div>', true
+    '<div class="choices"><button type="button" class="choice" id="release-continue">Продолжить играть<br><small>+30 000 🍵 · +3 000 ⭐ · Секира, если её ещё нет</small></button>'+
+    '<button type="button" class="choice" id="release-restart">Начать заново<br><small>+10 000 🍵 · +1 000 ⭐ · следующая ходка: +10% к доходу навсегда</small></button></div></div>', true
   );
   const continueBtn=$('release-continue');
   if(continueBtn) continueBtn.addEventListener('click',function(){
@@ -527,6 +535,7 @@ function showReleaseModal(){
     if(!s.equipment||typeof s.equipment!=='object')s.equipment={weapon:'fists',armor:'tee'};
     s.releaseRaidDamageBonus=1;
     s.released=true; s.releasePending=false; s.releaseHandled=true;
+    s.rearrestAt=(Number(s.totalTaps)||0)+25+Math.floor(Math.random()*26);
     s.currentObject=highestUnlocked();
     const releaseOverlay=$('modal-overlay'); if(releaseOverlay) releaseOverlay.dataset.locked='0';
     closeModal(); ui(); saveNow();
@@ -535,7 +544,7 @@ function showReleaseModal(){
   const restartBtn=$('release-restart');
   if(restartBtn) restartBtn.addEventListener('click',function(){
     const nick=String(s.nickname||'Салага');
-    if(typeof window.resetGameProgress==='function') window.resetGameProgress({releaseRestart:true,nickname:nick});
+    if(typeof window.resetGameProgress==='function') window.resetGameProgress({releaseRestart:true,nickname:nick,hodka:(Number(s.hodka)||1)+1});
     else msg('Не удалось начать новую ходку: сброс ещё загружается.');
   });
 }
@@ -566,11 +575,93 @@ function addSentence(days,reason){
   days=Math.max(0,Math.floor(Number(days)||0));
   if(!days)return;
   const current=Number(s.sentenceDays||0);
-  const baseDays=current<=0?100:current;
+  const baseDays=current<=0?30:current;
   s.sentenceDays=baseDays+days;
   if(current<=0)s.servedSentenceMinutes=0;
   s.lastSentenceTick=Date.now();
   if(reason) msg('⛓️ Срок +'+days+' дн. · '+reason);
+}
+/* ===== Ходки: срок по статье, повторный заезд, постоянный бонус ===== */
+const CRIME_SENTENCE = {
+  // шуточные статьи — короткий срок
+  tazik:[15,25], tires:[20,30], scooter:[18,28], torrent:[15,22], crackers:[15,20], tree:[18,26],
+  // серьёзные статьи — длиннее (максимум 80)
+  huligan:[30,45], ugon:[40,55], grab:[50,65], razboy:[65,80],
+  // статьи повторных заездов
+  kontrabanda:[40,60], vymogatelstvo:[45,65], soprotivlenie:[30,50], podkup:[35,50]
+};
+const CRIME_TITLE = {
+  tazik:'кража тазика', tires:'порча имущества', scooter:'ДТП на самокате', torrent:'пиратство', crackers:'мелкая кража', tree:'незаконная вырубка',
+  huligan:'хулиганство', ugon:'угон', grab:'грабёж', razboy:'разбой',
+  kontrabanda:'контрабанда', vymogatelstvo:'вымогательство', soprotivlenie:'сопротивление при задержании', podkup:'попытка подкупа'
+};
+function hodkaMultiplier(){ return 1 + Math.min(10, Math.max(0, (Number(s.hodka)||1) - 1)) * 0.10; }
+function rollSentence(crimeId){
+  const r = CRIME_SENTENCE[crimeId] || [30,50];
+  return r[0] + Math.floor(Math.random() * (r[1] - r[0] + 1));
+}
+function assignSentence(crimeId){
+  const days = Math.min(80, Math.max(15, rollSentence(crimeId)));
+  s.crime = crimeId;
+  s.sentenceDays = days;
+  s.sentenceTapCounter = 0;
+  s.servedSentenceMinutes = 0;
+  s.lastSentenceTick = Date.now();
+  s.released = false; s.releasePending = false; s.releaseHandled = false; s.rearrestAt = 0;
+  ui(); saveNow();
+  return { days: days, title: CRIME_TITLE[crimeId] || crimeId };
+}
+window.AVT_assignSentence = assignSentence;
+
+const REARREST_SCENES = [
+  { title:'Стрела с Бугром', text:'Бугор позвал тебя на стрелу за гаражами — потолковать с должниками. Разговор пошёл не туда, а из-за угла вылетели два наряда.',
+    choices:[
+      { label:'Рвануть через гаражи', crime:'soprotivlenie', story:'Далеко не убежал: споткнулся о покрышку прямо под ноги сержанту.' },
+      { label:'Взять всё на себя', crime:'razboy', story:'Бугра отпустили, а тебе вкатили разбой. Зато на зоне про это уже все знают.', points:1500 },
+      { label:'Стоять тихо и молчать', crime:'huligan', story:'Молчание засчитали, но драку списали на тебя — хулиганка.' }
+    ]},
+  { title:'Груз из порта', text:'Шайба подкинул «лёгкую подработку»: встретить фуру с коробками и довезти до склада. На выезде из порта — досмотр.',
+    choices:[
+      { label:'Скинуть коробки в канал', crime:'kontrabanda', story:'Коробки всплыли. Внутри — сигареты без акцизов. Контрабанда.' },
+      { label:'Договориться с досмотром', crime:'podkup', story:'Досмотрщик оказался принципиальным. Попытка подкупа.' },
+      { label:'Сказать, что просто водитель', crime:'kontrabanda', story:'Не поверили: в бардачке нашли накладные на твоё имя.' }
+    ]},
+  { title:'Старый должок', text:'Знакомый с прошлой ходки так и не вернул долг. Ты поехал к нему «поговорить по-хорошему».',
+    choices:[
+      { label:'Припугнуть как следует', crime:'vymogatelstvo', story:'Он записал разговор на телефон. Вымогательство.' },
+      { label:'Забрать машину в счёт долга', crime:'ugon', story:'Машина оказалась не его, а тёщина. Угон.' },
+      { label:'Разойтись миром', crime:'huligan', story:'Миром не вышло: соседи вызвали наряд из-за шума. Хулиганка.' }
+    ]}
+];
+function showRearrestEvent(){
+  if(activeEvent) return;
+  activeEvent = true;
+  s.rearrestAt = 0;
+  const scene = REARREST_SCENES[Math.floor(Math.random() * REARREST_SCENES.length)];
+  openModal('<div class="section-window event-window rearrest-window"><div class="section-kicker">ВОЛЯ</div><h2>🚨 '+scene.title+'</h2><p>'+scene.text+'</p><div class="choices">'+
+    scene.choices.map(function(c,i){ return '<button type="button" class="choice" data-rearrest="'+i+'">'+c.label+'</button>'; }).join('')+
+    '</div></div>', true);
+  document.querySelectorAll('[data-rearrest]').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      const c = scene.choices[Number(btn.dataset.rearrest)] || scene.choices[0];
+      s.hodka = (Number(s.hodka)||1) + 1;
+      if(c.points) s.points = (Number(s.points)||0) + c.points;
+      const res = assignSentence(c.crime);
+      openModal('<div class="section-window event-window rearrest-window"><div class="section-kicker">ПРИГОВОР</div><h2>⛓️ Ходка №'+s.hodka+'</h2><p>'+c.story+'</p>'+
+        '<p>Статья: <b>'+res.title+'</b>. Срок: <b>'+res.days+' дней</b>.</p>'+
+        (c.points ? '<p>⭐ +'+fmt(c.points)+' понтов — за то, что не сдал своих.</p>' : '')+
+        '<p style="color:#d5a84a">Опыт прошлых ходок: <b>+'+Math.round((hodkaMultiplier()-1)*100)+'%</b> к доходу с тапов навсегда.</p>'+
+        '<div class="choices"><button type="button" class="choice" id="rearrest-ok">Заехать в хату</button></div></div>', true);
+      const ok = $('rearrest-ok');
+      if(ok) ok.addEventListener('click', function(){
+        const o = $('modal-overlay'); if(o) o.dataset.locked = '0';
+        activeEvent = false;
+        closeModal(); ui(); saveNow();
+        msg('⛓️ Ходка №'+s.hodka+': '+res.days+' дней. Тапай — срок сокращается.');
+      });
+    });
+  });
+  saveNow();
 }
 function enterJail(reason){
   if(s.jailed)return;
@@ -712,18 +803,19 @@ function openEvent(){
 
 function shop(){
   if(s.jailed){ msg('🔒 Качалка закрыта до выхода из карцера'); return; }
-  const costP = 100 + s.upgrades.power * 250;
-  const costC = 300 + s.upgrades.crit * 500;
-  const costE = 400 + s.upgrades.energyMax * 700;
+  // Prices grow exponentially so bonus chifir can't buy dozens of levels at once.
+  const costP = Math.round(300 * Math.pow(1.8, s.upgrades.power));
+  const costC = Math.round(400 * Math.pow(1.8, s.upgrades.crit));
+  const costE = Math.round(400 * Math.pow(1.6, s.upgrades.energyMax));
   openModal(
     '<div class="section-window shop-window">'+
     '<div class="section-kicker">ПРОКАЧКА</div>'+
     '<h2>💪 Качалка</h2>'+
     '<p class="section-subtitle">Трать чефир на постоянные улучшения.</p>'+
     '<div class="shop-grid">'+
-    '<button type="button" data-b="p">💪 <b>Сила</b><br><small>+1 сила · сейчас '+s.power+'</small><br>Цена '+costP+' 🍵</button>'+
-    '<button type="button" data-b="c">🎯 <b>Крит</b><br><small>+2% · сейчас '+Math.round(s.critChance*100)+'%</small><br>Цена '+costC+' 🍵</button>'+
-    '<button type="button" data-b="e">⚡ <b>Энергия</b><br><small>+25 макс · сейчас '+s.maxEnergy+'</small><br>Цена '+costE+' 🍵</button>'+
+    '<button type="button" data-b="p">💪 <b>Сила</b><br><small>+1 сила · сейчас '+s.power+'</small><br>Цена '+fmt(costP)+' 🍵</button>'+
+    '<button type="button" data-b="c">🎯 <b>Крит</b><br><small>+2% · сейчас '+Math.round(s.critChance*100)+'%</small><br>Цена '+fmt(costC)+' 🍵</button>'+
+    '<button type="button" data-b="e">⚡ <b>Энергия</b><br><small>+25 макс · сейчас '+s.maxEnergy+'</small><br>Цена '+fmt(costE)+' 🍵</button>'+
     ''+
     '</div>'+
     '<button type="button" id="shop-eq-btn" class="eq-btn shop-eq-link" style="width:100%;margin:12px 0 0;padding:12px;font-size:14px">⚔️ Оружие и броня</button>'+
@@ -794,10 +886,13 @@ function more(){
 function showNoEnergyPrompt(){
   const overlay=$('modal-overlay'), content=$('modal-content');
   if(!overlay||!content){ msg('⚡ Нет энергии'); return; }
-  content.innerHTML='<div class="no-energy-prompt"><div class="energy-kicker">НУЖНО ВОССТАНОВИТЬСЯ</div><h2>⚡ Нет энергии</h2><p>Энергия закончилась — восстанови её, чтобы продолжить удары.</p><button type="button" id="no-energy-restore">Восстановить</button></div>';
+  content.innerHTML='<div class="no-energy-prompt"><div class="energy-kicker">НУЖНО ВОССТАНОВИТЬСЯ</div><h2>⚡ Нет энергии</h2><p>Энергия закончилась — восстанови её, чтобы продолжить удары.</p><button type="button" id="no-energy-restore">Восстановить</button><button type="button" id="no-energy-later" class="no-energy-later">Закрыть</button></div><button type="button" id="no-energy-x" class="no-energy-x" aria-label="Закрыть">✕</button>';
   overlay.dataset.locked='0';
   overlay.classList.remove('hidden');
   overlay.classList.add('show');
+  const closeIt=function(){ overlay.classList.add('hidden'); overlay.classList.remove('show'); };
+  const later=$('no-energy-later'); if(later)later.onclick=closeIt;
+  const xBtn=$('no-energy-x'); if(xBtn)xBtn.onclick=closeIt;
   const button=$('no-energy-restore');
   if(button)button.onclick=function(){
     if(window.EnergyUI&&typeof window.EnergyUI.open==='function')window.EnergyUI.open();
@@ -813,7 +908,7 @@ function tap(e){
     const t = $('tap-object');
     if(t){ t.classList.remove('punch','crit'); void t.offsetWidth; t.classList.add('punch'); clearTimeout(t._punchT); t._punchT=setTimeout(function(){ t.classList.remove('punch','crit'); },280); }
     try{ if(window.GameSFX && typeof window.GameSFX.punch==='function') window.GameSFX.punch(false); }catch(e){}
-    if(typeof window.animateObjectVisual === 'function') window.animateObjectVisual();
+    if(typeof window.animateObjectVisual === 'function') window.animateObjectVisual(e);
     feedback(e, 1, false);
     if(s.jailTaps >= s.jailRequired){ s.jailed = false; s.jailAdUsed=false; s.energy = s.maxEnergy; s.lastEnergyTime = Date.now(); s.tasks.jail = (s.tasks.jail||0)+1; msg('🔓 Вышел из карцера — энергия полностью восстановлена! ⚡ '+fmt(s.energy)+'/'+fmt(s.maxEnergy)); ui(); saveNow(); return; }
     ui(); saveSoon(); return;
@@ -828,23 +923,28 @@ function tap(e){
   const c = Math.random() < s.critChance;
   if(c){ s.tasks.crit++; if(!TEST_MODE) g *= 2; }
   if(s.boosters.double > 0){ g *= 2; s.boosters.double--; }
+  if(!TEST_MODE) g = Math.round(g * hodkaMultiplier() * 100) / 100;
   s.chifir += g;
   s.points += g;
   s.tasks.earned = (s.tasks.earned||0) + g;
   const old = s.currentObject;
   s.currentObject = highestUnlocked();
   if(old !== s.currentObject){
+    try{ if(window.AVT_StageFX) window.AVT_StageFX.play(old, s.currentObject, {rank:R[s.currentObject][0], stage:O[s.currentObject][0]}); }catch(err){}
     s.power = Math.max(1, (Number(s.power)||1) + 1);
     msg('🏆 Новая масть: '+R[s.currentObject][0]+' · этап: '+O[s.currentObject][0]+' · +1 сила тапа!');
   }
   const t = $('tap-object');
   if(t){ t.classList.remove('punch','crit'); void t.offsetWidth; t.classList.add('punch'); if(c) t.classList.add('crit'); clearTimeout(t._punchT); t._punchT=setTimeout(function(){ t.classList.remove('punch','crit'); },280); }
   try{ if(window.GameSFX && typeof window.GameSFX.punch==='function') window.GameSFX.punch(!!c); }catch(e){}
-  if(typeof window.animateObjectVisual === 'function') window.animateObjectVisual();
+  if(typeof window.animateObjectVisual === 'function') window.animateObjectVisual(e);
   if(typeof window.refreshObjectVisuals === 'function') window.refreshObjectVisuals();
   feedback(e, g, c);
+  try{ if(window.AVT_AuthorityBgFX && $('game-container') && $('game-container').classList.contains('authority-mode')) window.AVT_AuthorityBgFX.tap(e); }catch(err){}
   if(Math.random() < 0.03) msg(FUN[Math.floor(Math.random()*FUN.length)]);
-  if(!s.releasePending && Math.random() < 0.10 && s.points - (s.lastChoiceEvent||0) > 30) openEvent();
+  const rearrestDue = s.released && Number(s.rearrestAt) > 0 && s.totalTaps >= Number(s.rearrestAt);
+  if(rearrestDue && !activeEvent) showRearrestEvent();
+  else if(!s.releasePending && Math.random() < 0.10 && s.points - (s.lastChoiceEvent||0) > 30) openEvent();
   tasksCheck();
   try{ if(typeof window.__maybePreloadNextStage==='function') window.__maybePreloadNextStage(s.points, TEST_MODE ? TEST_POINTS_PER_TAP : Math.max(1, s.power)); }catch(e){}
   ui();
@@ -920,10 +1020,14 @@ function bind(){
   window.TEST_MODE = TEST_MODE;
   window.TEST_POINTS_PER_TAP = TEST_POINTS_PER_TAP;
   window.showNoEnergyPrompt = showNoEnergyPrompt;
+  /* The fight screen covers the main UI, so refresh it once tapping pauses,
+     not on every hit (a full ui() per hit made fast tapping lag). */
+  var raidUiTimer = 0;
   window.spendEnergyForRaid = function(){
     if(s.energy < 1) return false;
     s.energy--;
-    ui();
+    clearTimeout(raidUiTimer);
+    raidUiTimer = setTimeout(function(){ raidUiTimer = 0; ui(); }, 700);
     saveSoon();
     return true;
   };

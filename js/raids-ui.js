@@ -31,13 +31,13 @@
     psikh:'./assets/raids/fighters/psikh.webm'
   };
   var HITS={
-    petrovich:['./assets/raids/fighters/petrovich1.webp','./assets/raids/fighters/petrovich2.webp','./assets/raids/fighters/petrovich3.webp','./assets/raids/fighters/petrovich4.webp'],
-    vtirach:['./assets/raids/fighters/Vtirach1.webp','./assets/raids/fighters/Vtirach2.webp','./assets/raids/fighters/Vtirach3.webp','./assets/raids/fighters/Vtirach4.webp'],
-    mafioznik:['./assets/raids/fighters/mafioznik_hit_1.webp','./assets/raids/fighters/mafioznik_hit_2.webp','./assets/raids/fighters/mafioznik_hit_3.webp','./assets/raids/fighters/mafioznik_hit_4.webp'],
-    mongol:['./assets/raids/fighters/Mongol1.webp','./assets/raids/fighters/Mongol2.webp','./assets/raids/fighters/Mongol3.webp','./assets/raids/fighters/Mongol4.webp'],
-    glaz:['./assets/raids/fighters/Glaz1.webp','./assets/raids/fighters/Glaz2.webp','./assets/raids/fighters/Glaz3.webp','./assets/raids/fighters/Glaz4.webp'],
-    krest:['./assets/raids/fighters/krest1.webp','./assets/raids/fighters/krest2.webp','./assets/raids/fighters/krest3.webp','./assets/raids/fighters/krest4.webp','./assets/raids/fighters/krest5.webp'],
-    psikh:['./assets/raids/fighters/psikh1.webp','./assets/raids/fighters/psikh2.webp','./assets/raids/fighters/psikh3.webp','./assets/raids/fighters/psikh4.webp','./assets/raids/fighters/psikh5.webp']
+    petrovich:['./assets/raids/fighters-fit/petrovich1.webp','./assets/raids/fighters-fit/petrovich2.webp','./assets/raids/fighters-fit/petrovich3.webp','./assets/raids/fighters-fit/petrovich4.webp'],
+    vtirach:['./assets/raids/fighters-fit/Vtirach1.webp','./assets/raids/fighters-fit/Vtirach2.webp','./assets/raids/fighters-fit/Vtirach3.webp','./assets/raids/fighters-fit/Vtirach4.webp'],
+    mafioznik:['./assets/raids/fighters-fit/mafioznik_hit_1.webp','./assets/raids/fighters-fit/mafioznik_hit_2.webp','./assets/raids/fighters-fit/mafioznik_hit_3.webp','./assets/raids/fighters-fit/mafioznik_hit_4.webp'],
+    mongol:['./assets/raids/fighters-fit/Mongol1.webp','./assets/raids/fighters-fit/Mongol2.webp','./assets/raids/fighters-fit/Mongol3.webp','./assets/raids/fighters-fit/Mongol4.webp'],
+    glaz:['./assets/raids/fighters-fit/Glaz1.webp','./assets/raids/fighters-fit/Glaz2.webp','./assets/raids/fighters-fit/Glaz3.webp','./assets/raids/fighters-fit/Glaz4.webp'],
+    krest:['./assets/raids/fighters-fit/krest1.webp','./assets/raids/fighters-fit/krest2.webp','./assets/raids/fighters-fit/krest3.webp','./assets/raids/fighters-fit/krest4.webp','./assets/raids/fighters-fit/krest5.webp'],
+    psikh:['./assets/raids/fighters-fit/psikh1.webp','./assets/raids/fighters-fit/psikh2.webp','./assets/raids/fighters-fit/psikh3.webp','./assets/raids/fighters-fit/psikh4.webp','./assets/raids/fighters-fit/psikh5.webp']
   };
   var progress={}, idleTimer=0, lastHit=-1, raidActive=false, menuOpenedAt=0;
 
@@ -157,6 +157,7 @@
         v.src=src.src;
         v.type=src.type;
         v.style.display='block';
+        v.style.opacity='1'; v.__hitPaused=false;
         if(img) img.style.opacity='0';
         var p=v.play();
         if(p&&p.catch) p.catch(function(){ trySource(); });
@@ -166,28 +167,51 @@
     trySource();
   }
 
+  /* Hit animation without per-tap video churn.
+     Pausing/playing the (software-decoded, alpha) idle video on every tap caused
+     freezes and black frames on Android. Now the video is paused ONCE when a tap
+     burst starts and resumed ONCE after the player stops tapping. Hit frames come
+     from pre-decoded images that are kept in memory. */
+  var hitCache={};
+  var IDLE_RESUME_MS=900;
+  function warmHits(f){
+    var frames=HITS[f.id]||[];
+    if(hitCache[f.id]) return;
+    hitCache[f.id]=frames.map(function(src){
+      var im=new Image(); im.decoding='async'; im.src=src;
+      if(im.decode) im.decode().catch(function(){});
+      return im;
+    });
+  }
   function showHit(f){
     var frames=HITS[f.id]; if(!frames||!frames.length) return;
+    warmHits(f);
     var idx=Math.floor(Math.random()*frames.length);
     if(frames.length>1&&idx===lastHit) idx=(idx+1)%frames.length;
     lastHit=idx;
     var img=$('raid-fighter-img');
     var v=$('raid-idle-video');
     var media=$('raid-fighter-media');
-    if(v){try{v.pause();}catch(e){} v.style.display='none';}
-    if(img){img.style.opacity='1'; img.style.display='block'; img.src=frames[idx];}
-    if(media){media.classList.remove('hit-pulse'); void media.offsetWidth; media.classList.add('hit-pulse');}
+    if(v && !v.__hitPaused){
+      v.__hitPaused=true;
+      try{v.pause();}catch(e){}
+      v.style.opacity='0';
+    }
+    if(img){img.style.opacity='1'; img.style.display='block'; if(img.getAttribute('src')!==frames[idx]) img.src=frames[idx];}
+    if(media) restartAnim(media,'hit-pulse');
     if(idleTimer) clearTimeout(idleTimer);
     idleTimer=setTimeout(function(){
-      if(v && idleSources(f).length){
-        v.style.display='block';
-        var p=v.play(); if(p&&p.catch) p.catch(function(){playIdle(f);});
-        if(img) img.style.opacity='0';
-      } else if(img){
-        img.style.opacity='1';
-      }
+      idleTimer=0;
       if(media) media.classList.remove('hit-pulse');
-    },280);
+      var vv=$('raid-idle-video');
+      if(vv && vv.__hitPaused && vv.getAttribute('src')){
+        vv.__hitPaused=false;
+        var p=null; try{p=vv.play();}catch(e){}
+        var reveal=function(){ vv.style.opacity='1'; if(img) img.style.opacity='0'; };
+        if(p&&p.then) p.then(reveal).catch(function(){ /* keep the still frame visible */ if(img) img.style.opacity='1'; });
+        else reveal();
+      }
+    },IDLE_RESUME_MS);
   }
 
   function openRaidMenu(){
@@ -230,8 +254,37 @@
     }catch(e){}
   }
 
+  /* Restart a CSS animation without forcing a synchronous layout
+     (void el.offsetWidth on every hit made fast tapping stutter). */
+  function restartAnim(el,cls){
+    var other=arguments.length>2?arguments[2]:null;
+    el.classList.remove(cls); if(other) el.classList.remove(other);
+    requestAnimationFrame(function(){ requestAnimationFrame(function(){ el.classList.add(cls); }); });
+  }
+  window.AVT_restartAnim=restartAnim;
+
+  /* Shake the fight scene with the Web Animations API: the scene keeps its own
+     GPU layer, so the big background is not re-drawn on every hit (toggling the
+     CSS class made Android WebView flash the background black). */
+  var SHAKE_FRAMES=[
+    {transform:'translateX(0)',offset:0},{transform:'translateX(-5px)',offset:.12},
+    {transform:'translateX(5px)',offset:.28},{transform:'translateX(-3px)',offset:.44},
+    {transform:'translateX(3px)',offset:.6},{transform:'translateX(0)',offset:1}
+  ];
+  function shakeScene(scene,crit){
+    if(crit) return; /* crits had no scene shake before either */
+    if(typeof scene.animate!=='function') return;
+    try{
+      if(scene._shakeAnim) scene._shakeAnim.cancel();
+      scene._shakeAnim=scene.animate(SHAKE_FRAMES,{duration:380,easing:'cubic-bezier(.36,.07,.19,.97)'});
+    }catch(e){}
+  }
+
+  var lastTapFxAt=0;
   function spawnRaidTapFx(scene,phase){
     if(!scene || phase===1) return;
+    /* Limit heavy wave/flash effects to ~6 per second on fast tapping. */
+    var nowFx=Date.now(); if(nowFx-lastTapFxAt<160) return; lastTapFxAt=nowFx;
     var fighter=$('raid-fighter');
     var media=$('raid-fighter-media');
     if(!fighter || !media) return;
@@ -269,7 +322,7 @@
     var pct=hp/f.hp*100;
     var phase=phaseFor(hp,f.hp);
     var meta=raidMeta();
-    var still=PORTRAIT[f.id];
+    var still=(HITS[f.id]&&HITS[f.id][0])||PORTRAIT[f.id]; // frames normalised to the idle video size
     var hasIdle=!!IDLE[f.id] && canPlayWebm();
     content.innerHTML='<div class="raid-window"><div class="raid-scene '+f.scene+'" id="raid-scene">'+
       '<div class="raid-hud"><div class="raid-name '+f.id+'">'+f.name+'</div>'+
@@ -286,7 +339,7 @@
       '<button type="button" id="raid-result-ok">Ок</button></div></div>'+
       '</div></div>';
     if(hasIdle) playIdle(f);
-    (HITS[f.id]||[]).forEach(function(src){ var im=new Image(); im.src=src; });
+    warmHits(f);
     var back=$('raid-back');
     if(back) back.addEventListener('click',function(e){ e.stopPropagation(); pr.hp=hp; openRaidMenu(); });
     var scene=$('raid-scene');
@@ -322,6 +375,8 @@
       catch(err){ critChance=Number(s&&s.critChance)||0.05; }
       var crit=window.TEST_MODE===true?false:(Math.random()<critChance);
       if(crit) dmg=Math.round(dmg*2.2);
+      /* the floating damage number (raids-ux-patch) shows exactly this hit */
+      window.__AVT_RAID_LAST_HIT={seq:((window.__AVT_RAID_LAST_HIT||{}).seq||0)+1,dmg:dmg,crit:crit,phase:currentPhase};
       hp=Math.max(0,hp-dmg); pr.hp=hp;
       var fill=$('raid-hp-fill'), txt=$('raid-hp-text'), bar=$('raid-hp');
       var p2=hp/f.hp*100;
@@ -332,8 +387,7 @@
       if(bar) bar.classList.toggle('low-hp', p2<=25&&p2>0);
       showHit(f);
       spawnRaidTapFx(scene,currentPhase);
-      scene.classList.remove('shake','crit-flash'); void scene.offsetWidth;
-      scene.classList.add(crit?'crit-flash':'shake');
+      shakeScene(scene, crit);
       if(hp<=0){
         raidActive=false;
         pr.wins=(pr.wins||0)+1; pr.hp=0;
@@ -385,6 +439,8 @@
         window.__AVT_LAST_RAID_REWARD = { chifir: rew.chifir, points: rew.points, doubled: false };
         var dbl=$('raid-result-double');
         if(dbl){
+          var dblLabel='📺 Удвоить награду (+'+rew.chifir+' 🍵 · +'+rew.points+' ⭐)';
+          dbl.textContent = dblLabel;
           dbl.disabled = false;
           dbl.style.pointerEvents = 'auto';
           dbl.onclick = function(){
@@ -398,7 +454,7 @@
             window.showRewardedAd(function(okAd){
               if(!okAd){
                 dbl.disabled = false;
-                dbl.textContent = '📺 Удвоить награду';
+                dbl.textContent = dblLabel;
                 if(typeof window.msg==='function') window.msg('Награда не засчитана');
                 return;
               }

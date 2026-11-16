@@ -12,10 +12,11 @@
     const game=document.getElementById('game-container');
     const rank=document.getElementById('rank');
     if(!game)return;
-    BG_CLASSES.forEach(c=>game.classList.remove(c));
-    if(game.classList.contains('jail-mode'))return;
-    const cls=rank&&RANK_CLASSES[rank.textContent.trim()]||'rank-salaga';
-    game.classList.add(cls);
+    /* Touch the classes only when the rank background really changes:
+       removing and re-adding them on every ui() restyled the whole game. */
+    const want=game.classList.contains('jail-mode')?null:(rank&&RANK_CLASSES[rank.textContent.trim()]||'rank-salaga');
+    BG_CLASSES.forEach(c=>{ if(c!==want&&game.classList.contains(c))game.classList.remove(c); });
+    if(want&&!game.classList.contains(want))game.classList.add(want);
   }
   function init(){
     sync();

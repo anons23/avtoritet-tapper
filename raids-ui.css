@@ -403,7 +403,7 @@
   z-index:85;
   pointer-events:none;
   opacity:0;
-  mix-blend-mode:soft-light;
+  /* no mix-blend-mode: blending a full-screen layer per tap was very costly on phones */
   animation:raidTvRipple .32s ease-out forwards;
   background:
     repeating-linear-gradient(
@@ -607,3 +607,9 @@
 #raid-open-button{top:188px!important}
 @media(max-width:700px){#raid-open-button{top:calc(env(safe-area-inset-top) + 184px)!important}}
 @media(max-width:900px) and (orientation:landscape){#raid-open-button{top:calc(env(safe-area-inset-top) + 64px)!important}}
+/* perf: keep fighter on its own GPU layer so hit pulse doesn't repaint the scene */
+.raid-fighter-media{will-change:transform}
+/* keep the fight scene on its own GPU layer: its big background is drawn once
+   and only moved by the hit shake, instead of being re-drawn (black flashes on Android) */
+.raid-scene{will-change:transform;backface-visibility:hidden;-webkit-backface-visibility:hidden}
+.raid-fighter-media #raid-idle-video{transition:opacity .12s linear}

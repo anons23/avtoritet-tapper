@@ -1,4 +1,4 @@
-/* raids-ux-patch v1.4 — float dmg = power+equip (no test 300) */
+/* raids-ux-patch v1.7 — float dmg shows the real hit from raids-ui; blood spray throttled */
 'use strict';
 (function(){
   function $(id){ return document.getElementById(id); }
@@ -31,6 +31,7 @@
     scene.appendChild(el);
     setTimeout(function(){ try{el.remove();}catch(e){} },700);
   }
+  var _lastSprayAt=0;
   function spawnBlood(x,y,phase){
     var scene=$('raid-scene'); if(!scene) return;
     var rect=scene.getBoundingClientRect();
@@ -41,6 +42,8 @@
     scene.appendChild(splat);
     setTimeout(function(){ try{splat.remove();}catch(e){} },620);
     if(phase===1) return;
+    /* spray + drips are up to 15 animated nodes — at most ~6 bursts per second */
+    var nowB=Date.now(); if(nowB-_lastSprayAt<160) return; _lastSprayAt=nowB;
     var count=phase===3?10:8;
     for(var i=0;i<count;i++){
       var drop=document.createElement('div');
@@ -75,10 +78,10 @@
     var pct=parseFloat(w);
     if(!isFinite(pct)) pct=100;
     if(pct < _hpLastPct - 0.2){
-      bar.classList.remove('is-hit');
-      void bar.offsetWidth;
-      bar.classList.add('is-hit');
-      setTimeout(function(){ try{ bar.classList.remove('is-hit'); }catch(e){} }, 300);
+      if(typeof window.AVT_restartAnim==='function') window.AVT_restartAnim(bar,'is-hit');
+      else bar.classList.add('is-hit');
+      clearTimeout(bar._hitT);
+      bar._hitT=setTimeout(function(){ try{ bar.classList.remove('is-hit'); }catch(e){} }, 320);
     }
     _hpLastPct=pct;
     var ghost=bar.querySelector('.raid-hp-ghost');
@@ -121,33 +124,15 @@
         return;
       }
       var cx=e.clientX, cy=e.clientY;
-      var phaseEl=$('raid-phase');
-      var phaseText=phaseEl?phaseEl.textContent:'';
-      var phase=/ФАЗА 3/.test(phaseText)?3:(/ФАЗА 2/.test(phaseText)?2:1);
-      var bonus=0;
-      try{ if(typeof window.getEquipRaidBonus==='function') bonus=Number(window.getEquipRaidBonus())||0; }catch(err){}
-      var basePower=1;
-      try{
-        if(typeof window.getGameState==='function'){
-          var gs=window.getGameState();
-          basePower=Math.max(1, Number(gs&&gs.power)||1);
-        }
-        if(typeof window.getEffectivePower==='function') basePower=Math.max(1, Number(window.getEffectivePower())||basePower);
-      }catch(err){}
-      var dmg=(window.TEST_MODE===true)?300:Math.max(1, Math.round(basePower+bonus));
-      var crit=false;
-      try{
-        var ch=0.05;
-        if(typeof window.getEffectiveCrit==='function') ch=Number(window.getEffectiveCrit())||0.05;
-        crit=window.TEST_MODE===true?false:(Math.random()<ch);
-        if(crit) dmg=Math.round(dmg*2.2);
-      }catch(err){}
+      var seqBefore=(window.__AVT_RAID_LAST_HIT||{}).seq||0;
+      /* raids-ui.js applies the hit after this capture handler; show exactly that hit
+         (and nothing when it was refused, e.g. no energy). */
       setTimeout(function(){
-        spawnFloatDmg(cx,cy,dmg,crit,phase);
-        spawnBlood(cx,cy,phase);
         ensureEnergyHud();
-        setTimeout(syncHpAnim, 30);
-        setTimeout(syncHpAnim, 120);
+        var hit=window.__AVT_RAID_LAST_HIT;
+        if(!hit||hit.seq===seqBefore) return;
+        spawnFloatDmg(cx,cy,hit.dmg,hit.crit,hit.phase||1);
+        spawnBlood(cx,cy,hit.phase||1);
       },0);
     }, true);
     ensureEnergyHud();

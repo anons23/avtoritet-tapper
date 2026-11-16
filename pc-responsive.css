@@ -398,3 +398,13 @@
 
 /* Settings moved to the gear beside the resource shelf. */
 @media(min-width:701px){#bottom-bar{grid-template-columns:repeat(4,minmax(0,1fr))!important}}
+
+/* No-energy prompt: clear close controls (big ✕ + "Закрыть") */
+.no-energy-x{position:absolute;top:10px;right:10px;z-index:30;width:44px;height:44px;border-radius:50%;border:1px solid #5a5a5a;background:#262626;color:#fff;font-size:20px;line-height:1;display:flex;align-items:center;justify-content:center;padding:0}
+.no-energy-x:active{transform:scale(.92)}
+#modal .no-energy-prompt button.no-energy-later{margin-top:10px;min-height:44px;background:#242424;border-color:#555;color:#ddd;font-weight:800}
+#modal:has(.no-energy-x) > #modal-close{display:none}
+/* Make the shared modal ✕ easy to see and hit on phones */
+#modal > #modal-close{width:40px;height:40px;top:10px;right:10px;border-radius:50%;border:1px solid #5a5a5a;background:#262626;color:#fff;font-size:24px;line-height:1;display:flex;align-items:center;justify-content:center;padding:0;z-index:30}
+/* Locked windows (release, re-arrest, verdict) require a choice — hide the dead ✕ */
+#modal.locked > #modal-close{display:none!important}
